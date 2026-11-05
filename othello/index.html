@@ -1801,7 +1801,7 @@ let press=null,swallow=false;
 vp.addEventListener("pointerdown",e=>{if(e.button)return;
   const sp=e.target.closest(".sp");press={x:e.clientX,y:e.clientY,t:Date.now(),sp,tgt:e.target,timer:null,moved:false};
   if(sp){press.pt=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved)sp.classList.add("pressing")},160);
-    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}openTools(+sp.dataset.id)}},480)}});
+    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}openTools(+sp.dataset.id,partAt(press.tgt,sp))}},480)}});
 vp.addEventListener("pointermove",e=>{if(!press)return;if(Math.abs(e.clientX-press.x)>10||Math.abs(e.clientY-press.y)>10){press.moved=true;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing")}});
 function endPress(e,cancel){if(!press)return;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");
   const P=press;press=null;if(cancel)return;
@@ -1815,7 +1815,7 @@ function endPress(e,cancel){if(!press)return;clearTimeout(press.timer);clearTime
   toggleChrome()}
 vp.addEventListener("pointerup",e=>endPress(e,false));
 vp.addEventListener("pointercancel",e=>endPress(e,true));
-vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}if(toolsId!==+sp.dataset.id)openTools(+sp.dataset.id)});
+vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}openTools(+sp.dataset.id,partAt(e.target,sp))});
 vp.addEventListener("wheel",e=>{const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(d)<25)return;const now=Date.now();if(now-(vp.lw||0)<450)return;vp.lw=now;turn(d>0?1:-1)},{passive:true});
 function toggleChrome(on){document.body.classList.toggle("chrome",on)}
 $("p-prev").onclick=()=>turn(-1);$("p-next").onclick=()=>turn(1);
@@ -1828,33 +1828,34 @@ document.addEventListener("keydown",e=>{
 
 /* ---------- speech tools: side panel (wide) or sheet (phone) ---------- */
 let toolsId=null;
-function toolsHTML(id){
-  const sp=speech[id],p=sceneOf(id),m=marks[id]||{},gl=glossList(sp),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[];
+function pairHTML(sp,q,cur){const og=sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
+  return `<div class="pair${cur?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`}
+const partAt=(el,sp)=>{const pt=el&&el.closest&&(el.closest(".pt")||(el.closest(".chunk")||sp).querySelector(".pt"));return pt?+pt.dataset.p:0};
+function toolsHTML(id,pi){
+  const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[];
   return `<div class="tool">
-    <div class="ref">${sName(p)} · lines ${sp.start}–${sp.start+sp.lines.length-1}</div>
+    <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
+    <div style="height:12px"></div><div class="modern">${pairHTML(sp,q)}</div>
     ${c?`<p class="who">${esc(c.desc)}</p>`:""}
     ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
     ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
     <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
     <div class="acts"><button class="btn sm" id="t-save">Save note</button><button class="btn sm${m.hl?" on":""}" id="t-hl" aria-pressed="${!!m.hl}">${m.hl?"★ Highlighted":"☆ Highlight"}</button><button class="btn sm" id="t-follow">${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))+"’s lines"}</button><button class="btn sm" id="t-copy">Copy lines</button></div>
-    <h3 class="lbl">Original</h3><div class="orig">${sp.lines.map(l=>esc(l.replace(/^~/,""))).join("<br>")}</div>
   </div>`}
-function wireTools(id){
-  const sp=speech[id];
+function wireTools(id,pi){
+  const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0];
   $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
   $("t-hl").onclick=()=>{const on=!(marks[id]||{}).hl;saveMark(id,{hl:on});const b=$("t-hl");b.classList.toggle("on",on);b.textContent=on?"★ Highlighted":"☆ Highlight";b.setAttribute("aria-pressed",on);toast(on?"Highlighted":"Highlight removed")};
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
-  $("t-copy").onclick=()=>copyText(sp.lines.map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
+  $("t-copy").onclick=()=>copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
 }
 /* tap a part: its modern English; expand to the whole speech (tapped part faintly marked) and collapse back */
 let partSel=null;
 function markPart(){if(partSel)pg.querySelectorAll(`.sp[data-id="${partSel.id}"] .pt[data-p="${partSel.pi}"]`).forEach(x=>x.classList.add("cur"))}
 function partHTML(id,pi,all){const sp=speech[id],ps=partsOf(sp),p=ps[pi],n=ps.length;
   const ref=`${sName(sceneOf(id))} · lines ${sp.start+p[0]}–${sp.start+p[1]}${n>1?` · part ${pi+1} of ${n}`:""}`;
-  const og=q=>sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
-  const pair=(q,i)=>`<div class="pair${all&&i===pi?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og(q)}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`;
-  const body=all?`<div class="pmod wholemod"><div class="ptag">Modern English · whole speech</div>${ps.map((q,i)=>`<p class="mp${i===pi?" cur":""}">${esc(q[2])}</p>`).join("")}</div>`:pair(p,pi);
+  const body=all?`<div class="pmod wholemod"><div class="ptag">Modern English · whole speech</div>${ps.map((q,i)=>`<p class="mp${i===pi?" cur":""}">${esc(q[2])}</p>`).join("")}</div>`:pairHTML(sp,p);
   return `<div class="tool"><div class="ref">${ref}</div>
     <div class="acts partnav">${n>1?`<button class="btn sm" id="pt-x" aria-expanded="${all}">${all?"Collapse to this part":"Expand to whole speech"}</button>`:""}<button class="btn sm" id="pt-more">Notes &amp; word meanings</button></div>
     <div style="height:14px"></div><div class="modern${all?" whole":""}">${body}</div></div>`}
@@ -1865,14 +1866,13 @@ function openPart(id,pi,all){
   if(wide()){document.body.classList.add("tools");$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=h;$("panel").classList.add("open");$("panel-body").scrollTop=0}
   else openSheet(title(sp.who),h);
   const x=$("pt-x");if(x)x.onclick=()=>{openPart(id,pi,!all);const c=document.querySelector(".modern.whole .mp.cur");if(c)c.scrollIntoView({block:"center"})};
-  $("pt-more").onclick=()=>openTools(id);
+  $("pt-more").onclick=()=>openTools(id,pi);
 }
-function openTools(id){
-  toolsId=id;partSel=null;pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));const sp=speech[id];
-  pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));
-  pg.querySelectorAll(`.sp[data-id="${id}"]`).forEach(x=>x.classList.add("active"));
-  if(wide()){document.body.classList.add("tools");$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=toolsHTML(id);$("panel").classList.add("open");$("panel-body").scrollTop=0;wireTools(id)}
-  else{openSheet(title(sp.who),toolsHTML(id));wireTools(id)}
+function openTools(id,pi){
+  pi=pi||0;toolsId=id;partSel={id,pi};const sp=speech[id];
+  pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
+  if(wide()){document.body.classList.add("tools");$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=toolsHTML(id,pi);$("panel").classList.add("open");$("panel-body").scrollTop=0;wireTools(id,pi)}
+  else{openSheet(title(sp.who),toolsHTML(id,pi));wireTools(id,pi)}
 }
 function closePanel(){$("panel").classList.remove("open");document.body.classList.remove("tools");toolsId=null;partSel=null;pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"))}
 $("panel-close").onclick=closePanel;

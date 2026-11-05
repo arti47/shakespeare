@@ -1,4 +1,4 @@
-const C="othello-9cdf5bb7",F=["./", "index.html", "fonts.css", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "icon-maskable.png", "fonts/046090ca20.woff2", "fonts/284bb947c5.woff2", "fonts/2ab8100f02.woff2", "fonts/40cc5d41cc.woff2", "fonts/89041f5bc8.woff2", "fonts/b2d7cad803.woff2", "fonts/dc19a5199f.woff2"];
+const C="othello-2fd4a92e",F=["./", "index.html", "fonts.css", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "icon-maskable.png", "fonts/046090ca20.woff2", "fonts/284bb947c5.woff2", "fonts/2ab8100f02.woff2", "fonts/40cc5d41cc.woff2", "fonts/89041f5bc8.woff2", "fonts/b2d7cad803.woff2", "fonts/dc19a5199f.woff2"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(F)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;const u=new URL(e.request.url);
