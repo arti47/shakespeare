@@ -1662,7 +1662,9 @@ function applySettings(){
 /* ---------- views & routing ---------- */
 let view="home";
 let pos=null;try{pos=JSON.parse(LS.get("oth-pos")||"null")}catch(e){}
-function setHash(h,push){if(location.hash.slice(1)!==h){try{history[push?"pushState":"replaceState"](null,"","#"+h)}catch(e){}}}
+/* no history entries: Safari's edge back-swipe then has nothing in the app to slide back to */
+function setHash(h){if(location.hash.slice(1)!==h){try{history.replaceState(null,"","#"+h)}catch(e){}}}
+document.addEventListener("touchstart",e=>{const x=e.touches[0].clientX;if((x<24||x>innerWidth-24)&&!e.target.closest("button,a,input,select,textarea,label,summary"))e.preventDefault()},{passive:false});
 function show(v){view=v;$("home").hidden=v!=="home";$("reader").hidden=v!=="reader";$("study").hidden=v!=="study";closePanel();
   document.body.style.overflow=v==="reader"?"hidden":"";if(v!=="reader")document.body.classList.remove("chrome");else setTimeout(hint,400)}
 function route(){
