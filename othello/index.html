@@ -185,8 +185,12 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .tool .ref{font-size:.75rem;color:var(--muted);margin-top:2px}
 .tool .orig{font:400 1.05rem/1.5 var(--f-old);border-left:2px solid var(--rule);padding-left:12px;margin-top:6px}
 .tool .modern{font-size:1rem;line-height:1.6}
-.tool .modern .mp+.mp{margin-top:.75em}
-.tool .modern .mp.cur{background:var(--accent-soft);box-shadow:0 0 0 .4em var(--accent-soft);border-radius:2px}
+.tool .pair+.pair{margin-top:1em;padding-top:1em;border-top:1px solid var(--rule)}
+.tool .pair.cur{background:var(--accent-soft);box-shadow:0 0 0 .5em var(--accent-soft);border-radius:2px;border-top-color:transparent}
+.tool .pair.cur+.pair{border-top-color:transparent}
+.tool .porig{font:400 1.2rem/1.45 var(--f-old);color:var(--ink)}
+.tool .porig span{display:block;padding-left:1em;text-indent:-1em}
+.tool .pmod{margin:.55em 0 0!important;font-size:1.02rem;line-height:1.6;color:var(--ink)}
 .tool .partnav{margin-top:10px}
 .tool .modern .mp{margin:0}
 .tool dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;font-size:.9rem}
@@ -1843,17 +1847,19 @@ let partSel=null;
 function markPart(){if(partSel)pg.querySelectorAll(`.sp[data-id="${partSel.id}"] .pt[data-p="${partSel.pi}"]`).forEach(x=>x.classList.add("cur"))}
 function partHTML(id,pi,all){const sp=speech[id],ps=partsOf(sp),p=ps[pi],n=ps.length;
   const ref=`${sName(sceneOf(id))} · lines ${sp.start+p[0]}–${sp.start+p[1]}${n>1?` · part ${pi+1} of ${n}`:""}`;
-  const body=all?ps.map((q,i)=>`<p class="mp${i===pi?" cur":""}">${esc(q[2])}</p>`).join(""):`<p>${esc(p[2])}</p>`;
+  const og=q=>sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
+  const pair=(q,i)=>`<div class="pair${all&&i===pi?" cur":""}"><div class="porig">${og(q)}</div><p class="pmod">${esc(q[2])}</p></div>`;
+  const body=all?ps.map(pair).join(""):pair(p,pi);
   return `<div class="tool"><div class="ref">${ref}</div>
     <div class="acts partnav">${n>1?`<button class="btn sm" id="pt-x" aria-expanded="${all}">${all?"Collapse to this part":"Expand to whole speech"}</button>`:""}<button class="btn sm" id="pt-more">Notes &amp; word meanings</button></div>
-    <h3 class="lbl">${all?"Whole speech in modern English":"Modern English"}</h3><div class="modern${all?" whole":""}">${body}</div></div>`}
+    <h3 class="lbl">${all?"Whole speech · original and modern":"Original and modern"}</h3><div class="modern${all?" whole":""}">${body}</div></div>`}
 function openPart(id,pi,all){
   partSel={id,pi};toolsId=id;const sp=speech[id];
   pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
   const h=partHTML(id,pi,all);
   if(wide()){document.body.classList.add("tools");$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=h;$("panel").classList.add("open");$("panel-body").scrollTop=0}
   else openSheet(title(sp.who),h);
-  const x=$("pt-x");if(x)x.onclick=()=>{openPart(id,pi,!all);const c=document.querySelector(".modern.whole .mp.cur");if(c)c.scrollIntoView({block:"center"})};
+  const x=$("pt-x");if(x)x.onclick=()=>{openPart(id,pi,!all);const c=document.querySelector(".modern.whole .pair.cur");if(c)c.scrollIntoView({block:"center"})};
   $("pt-more").onclick=()=>openTools(id);
 }
 function openTools(id){
