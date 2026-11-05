@@ -195,22 +195,10 @@ body.mode-test .m.shown::after{content:"Hide \25B4";display:block;font:500 .66re
 .nextcard span{opacity:.75;font:italic 400 1.05em var(--f-old)}
 .fin{text-align:center;font:400 2.6em var(--f-sc);letter-spacing:.1em}
 
-/* ---------- PLAYER (read aloud) ---------- */
-.player{position:fixed;z-index:8;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:2px;background:var(--ink);color:var(--page);border-radius:999px;padding:5px;box-shadow:0 8px 28px rgba(0,0,0,.28)}
-.player button{border:0;background:transparent;color:inherit;height:42px;min-width:42px;border-radius:999px;display:inline-grid;place-items:center;font-size:.95rem}
-.player button:hover{background:color-mix(in srgb,var(--page) 16%,transparent)}
-.player .pl-main{padding:0 16px 0 12px;gap:8px;display:inline-flex;align-items:center;font:500 .82rem var(--f-ui);letter-spacing:.04em}
-.player .pl-main i{font-style:normal;font-size:1rem;width:1em;text-align:center}
-.player .pl-who{font:400 .95rem var(--f-sc);letter-spacing:.06em;max-width:9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.player:not(.on) .pl-skip{display:none}
-.no-tts .b-say{display:none}
-.sp.speaking{background:color-mix(in srgb,var(--accent-soft) 70%,transparent);box-shadow:0 0 0 10px color-mix(in srgb,var(--accent-soft) 70%,transparent)}
-.sp.speaking .nm::before{content:"\25B6\00A0";font-size:.7em;vertical-align:.1em}
 .nm{cursor:pointer;border-radius:4px}
 .nm:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
 .pop .chr{font:400 1.15rem var(--f-sc);letter-spacing:.05em;display:block;margin-bottom:2px}
 .pop .pop-follow{margin-top:8px;border:1px solid color-mix(in srgb,var(--page) 40%,transparent);background:transparent;color:inherit;border-radius:6px;padding:5px 10px;font-size:.78rem}
-@media (max-width:900px){.player{left:max(16px,env(safe-area-inset-left,0px));right:auto}}
 
 /* ---------- SHEETS ---------- */
 .sheet{position:fixed;inset:0;z-index:20;background:var(--shade);display:flex;align-items:flex-end;justify-content:center}
@@ -293,12 +281,6 @@ body.mode-test .m.shown::after{content:"Hide \25B4";display:block;font:500 .66re
   <div class="head"><h2 id="sheet-title"></h2><button class="btn" id="sheet-close">Done</button></div>
   <div id="sheet-body"></div>
 </div></div>
-<div class="player" id="player" hidden>
-  <button class="pl-skip" id="pl-prev" aria-label="Previous speech">&#9664;&#9664;</button>
-  <button class="pl-main" id="pl-main" aria-label="Read the scene aloud"><i id="pl-ico">&#9654;</i><span class="pl-who" id="pl-who">Listen</span></button>
-  <button class="pl-skip" id="pl-next" aria-label="Next speech">&#9654;&#9654;</button>
-  <button class="pl-skip" id="pl-stop" aria-label="Stop reading">&#9632;</button>
-</div>
 <div class="pop" id="pop" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
@@ -1131,13 +1113,13 @@ async function saveProg(){LS.set("oth-prog",JSON.stringify(prog));if(progDoc){tr
 /* ---------- settings ---------- */
 let curWords=0;
 const pageWords=p=>p.items.reduce((n,it)=>n+(it.t==="sp"?it.lines.join(" ").split(/\s+/).length:0),0);
-const S={listen:LS.get("oth-listen")||"orig",mode:LS.get("oth-mode2")||"test",pair:LS.get("oth-pair")==="1",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",who:""};
+const S={mode:LS.get("oth-mode2")||"test",pair:LS.get("oth-pair")==="1",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",who:""};
 function applySettings(){
   document.body.classList.remove("mode-orig","mode-mod","mode-test");
   if(S.mode==="orig")document.body.classList.add("mode-orig");if(S.mode==="mod")document.body.classList.add("mode-mod");if(S.mode==="test")document.body.classList.add("mode-test");
   document.documentElement.style.setProperty("--scale",S.scale);
   if(S.theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",S.theme);
-  LS.set("oth-mode2",S.mode);LS.set("oth-pair",S.pair?"1":"0");LS.set("oth-size",S.scale);LS.set("oth-theme",S.theme);LS.set("oth-listen",S.listen);
+  LS.set("oth-mode2",S.mode);LS.set("oth-pair",S.pair?"1":"0");LS.set("oth-size",S.scale);LS.set("oth-theme",S.theme);
 }
 
 /* ---------- views ---------- */
@@ -1145,8 +1127,8 @@ let view="home",idx=0;
 function go(hash,push){if(location.hash.slice(1)!==hash){try{history[push?"pushState":"replaceState"](null,"","#"+hash)}catch(e){}}route()}
 function route(){
   const h=location.hash.slice(1);const k=pageIdx(h);
-  if(k>=0){view="reader";$("home").hidden=true;$("reader").hidden=false;$("player").hidden=!TTS;showScene(k)}
-  else{view="home";stopSpeech();$("player").hidden=true;$("reader").hidden=true;$("home").hidden=false;renderHome();window.scrollTo(0,0)}
+  if(k>=0){view="reader";$("home").hidden=true;$("reader").hidden=false;showScene(k)}
+  else{view="home";$("reader").hidden=true;$("home").hidden=false;renderHome();window.scrollTo(0,0)}
 }
 addEventListener("hashchange",route);addEventListener("popstate",route);
 
@@ -1185,12 +1167,11 @@ function speechHTML(it,seen){
   const sn=STUDY.notes[it.id];
   return `<article class="sp${solo||aside?" solo":""}" id="r${it.id}" data-id="${it.id}" tabindex="-1">
     <div class="hd"><span class="nm${it.cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${it.cont?" (cont.)":""}</span>${tag}
-      <span class="mk"><button class="b-say" aria-label="Read this speech aloud">&#9654; Listen</button><button class="b-hl" aria-pressed="false" aria-label="Highlight">☆ Highlight</button><button class="b-note" aria-label="Add note">✎ Note</button></span></div>
+      <span class="mk"><button class="b-hl" aria-pressed="false" aria-label="Highlight">☆ Highlight</button><button class="b-note" aria-label="Add note">✎ Note</button></span></div>
     ${body}
     <div class="xtra">${sn?`<div class="snote"><b>Study note</b>${esc(sn)}</div>`:""}<div class="mine"></div></div></article>`;
 }
 function showScene(k,target){
-  if(typeof stopSpeech==="function"&&k!==idx)stopSpeech();
   idx=Math.max(0,Math.min(pages.length-1,k));const p=pages[idx],s=STUDY.scenes[p.id]||{},seen=new Set();
   LS.set("oth-last",p.id);
   $("w-title").textContent=`Act ${R[p.act]}, Scene ${p.scene.toLowerCase()}`;$("w-sub").textContent=shortLoc(p).toUpperCase();curWords=pageWords(p);
@@ -1228,7 +1209,6 @@ function refreshMarks(){
 }
 stage.addEventListener("click",e=>{
   const sp=e.target.closest(".sp");
-  if(e.target.closest(".b-say")){playFrom(sp);return}
   if(e.target.closest(".b-hl")){const id=sp.dataset.id,on=!(marks[id]||{}).hl;saveMark(id,{hl:on});toast(on?"Highlighted":"Highlight removed");return}
   if(e.target.closest(".b-note")||e.target.closest(".mynote")){const id=sp.dataset.id,mine=sp.querySelector(".mine");
     mine.innerHTML=`<div class="ned"><label class="sr" for="ne${id}">Your note</label><textarea id="ne${id}" placeholder="Your thoughts on this speech…">${esc((marks[id]||{}).note||"")}</textarea><div><button class="btn primary ne-save">Save note</button><button class="btn ne-cancel">Cancel</button></div></div>`;
@@ -1266,52 +1246,6 @@ document.addEventListener("keydown",e=>{
   if(view!=="reader"||!$("sheet").hidden||e.target.closest("input,textarea,select"))return;
   if(e.key==="ArrowRight"&&idx<pages.length-1)go(pages[idx+1].id,true);if(e.key==="ArrowLeft"&&idx>0)go(pages[idx-1].id,true)});
 
-/* read aloud: one voice per character, follows along */
-const TTS=("speechSynthesis" in window)&&typeof SpeechSynthesisUtterance!=="undefined";
-const FEM=new Set(["DESDEMONA","EMILIA","BIANCA"]);
-const FV=/samantha|karen|moira|tessa|victoria|fiona|serena|zira|susan|kate|libby|sonia|female|martha|catherine|hazel|aria|jenny|emma/i, MV=/daniel|alex|arthur|oliver|fred|david|mark|george|rishi|thomas|ryan|guy|male|aaron|james|gordon|lee|reed|rocko/i;
-let voices=[];function loadVoices(){try{voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}catch(e){voices=[]}}
-if(TTS){loadVoices();speechSynthesis.addEventListener?.("voiceschanged",loadVoices)}
-const vcache={};
-function voiceFor(who){if(vcache[who])return vcache[who];let h=0;for(const ch of who)h=(h*31+ch.charCodeAt(0))>>>0;
-  const fem=FEM.has(who),pool=voices.filter(v=>fem?FV.test(v.name):MV.test(v.name)),list=pool.length?pool:voices;
-  const v=list.length?list[h%list.length]:null,pitch=fem?(pool.length?1.05:1.3):[.8,.9,1,.85,.95][h%5];
-  return vcache[who]={v,pitch,rate:who==="IAGO"?.95:who==="RODERIGO"?1.05:1}}
-const cleanO=sp=>sp.lines.map(l=>l.replace(/^~/,"")).join(" ").replace(/\[[^\]]*\]/g," ").replace(/\s+/g," ").trim();
-function chunks(t){const out=[];(t.match(/[^.!?;:]+[.!?;:]*["'’)]*\s*/g)||[t]).forEach(x=>{if(out.length&&(out[out.length-1]+x).length<180)out[out.length-1]+=x;else out.push(x)});return out.filter(x=>x.trim())}
-let spk={on:false,paused:false,list:[],i:0,tok:0};
-function setPlayer(){const P=$("player");P.classList.toggle("on",spk.on);$("pl-ico").innerHTML=spk.on&&!spk.paused?"&#10074;&#10074;":"&#9654;";
-  const cur=spk.on&&spk.list[spk.i];$("pl-who").textContent=cur?title(speech[cur.dataset.id].who):"Listen";
-  $("pl-main").setAttribute("aria-label",spk.on&&!spk.paused?"Pause":"Read the scene aloud")}
-function stopSpeech(){if(!TTS)return;spk.tok++;spk.on=false;spk.paused=false;try{speechSynthesis.cancel()}catch(e){}document.querySelectorAll(".sp.speaking").forEach(x=>x.classList.remove("speaking"));setPlayer()}
-let started=false;
-function sayAt(i,fromTap){const tok=++spk.tok;let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;if(busy)speechSynthesis.cancel();speechSynthesis.resume()}catch(e){}
-  document.querySelectorAll(".sp.speaking").forEach(x=>x.classList.remove("speaking"));
-  if(i<0)i=0;if(i>=spk.list.length){stopSpeech();toast("End of scene");return}
-  spk.i=i;const el=spk.list[i],it=speech[el.dataset.id];el.classList.add("speaking");el.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
-  const text=(S.listen==="mod"?it.m:cleanO(it))||"";const vc=voiceFor(it.who),parts=chunks(text);setPlayer();
-  if(!parts.length){setTimeout(()=>tok===spk.tok&&sayAt(i+1),50);return}
-  const go=()=>{if(tok!==spk.tok)return;
-  if(!started)setTimeout(()=>{if(!started&&tok===spk.tok)toast("No sound? Turn off silent mode and check the volume")},3500);
-  parts.forEach((t,j)=>{const u=new SpeechSynthesisUtterance(t);if(vc.v)u.voice=vc.v;u.lang=vc.v?vc.v.lang:"en-GB";u.pitch=vc.pitch;u.rate=vc.rate;u.volume=1;
-    u.onstart=()=>{started=true};
-    if(j===parts.length-1){u.onend=()=>{if(tok===spk.tok&&spk.on)setTimeout(()=>tok===spk.tok&&sayAt(i+1),260)}}
-    u.onerror=ev=>{if(tok===spk.tok&&ev.error!=="interrupted"&&ev.error!=="canceled"){stopSpeech();toast("Read-aloud is not available here")}};
-    speechSynthesis.speak(u)})};
-  /* speaking straight after cancel() is dropped by some browsers; the first tap must speak synchronously (iOS) */
-  if(busy&&!fromTap)setTimeout(go,120);else go()}
-function playFrom(el){if(!TTS){toast("Read-aloud is not available in this browser");return}
-  spk.list=[...document.querySelectorAll("#stage .sp")];spk.on=true;spk.paused=false;
-  let i=el?spk.list.indexOf(el):spk.list.findIndex(x=>x.getBoundingClientRect().bottom>90);sayAt(i<0?0:i,true)}
-if(TTS){
-  $("pl-main").onclick=()=>{if(!spk.on){playFrom(null);return}
-    if(spk.paused){spk.paused=false;try{speechSynthesis.resume()}catch(e){}}else{spk.paused=true;try{speechSynthesis.pause()}catch(e){}}setPlayer()};
-  $("pl-next").onclick=()=>spk.on&&(spk.paused=false,sayAt(spk.i+1));
-  $("pl-prev").onclick=()=>spk.on&&(spk.paused=false,sayAt(spk.i-1));
-  $("pl-stop").onclick=stopSpeech;
-  addEventListener("pagehide",stopSpeech);
-}else document.body.classList.add("no-tts");
-
 /* glossary popover */
 const pop=$("pop");
 function showGloss(el){const k=el.dataset.k;pop.innerHTML=`<b>${esc(k)}</b> — ${esc(G[k])}`;placePop(el)}
@@ -1322,7 +1256,7 @@ function showChar(el){const who=el.closest(".sp")&&speech[el.closest(".sp").data
   pop.innerHTML=`<span class="chr">${esc(title(who))}</span>${c?esc(c.desc):"A minor character in this scene."}<br><button class="pop-follow" data-follow="${esc(who)}">${S.who===who?"Show everyone":"Follow only their lines"}</button>`;placePop(el)}
 document.addEventListener("click",e=>{const a=e.target.closest("abbr.g");if(a){showGloss(a);e.stopPropagation();return}
   const n=e.target.closest("#stage .nm");if(n){showChar(n);e.stopPropagation();return}
-  const f=e.target.closest(".pop-follow");if(f){const w=f.dataset.follow;S.who=S.who===w?"":w;pop.hidden=true;stopSpeech();showScene(idx);toast(S.who?"Showing only "+title(S.who):"Showing everyone");e.stopPropagation();return}
+  const f=e.target.closest(".pop-follow");if(f){const w=f.dataset.follow;S.who=S.who===w?"":w;pop.hidden=true;showScene(idx);toast(S.who?"Showing only "+title(S.who):"Showing everyone");e.stopPropagation();return}
   if(!e.target.closest("#pop"))pop.hidden=true},true);
 
 /* ---------- sheets ---------- */
@@ -1364,7 +1298,6 @@ function openSettings(){
     <div class="opt"><div class="lbl">Show</div>${segs("mode",[["both","Both"],["orig","Original"],["mod","Modern"],["test","Collapsed"]],S.mode)}<small>Collapsed hides the modern English under each speech until you tap it.</small></div>
     <div class="opt"><div class="lbl">Pairing</div>${segs("pair",[["false","Whole speeches"],["true","Line by line"]],S.pair)}<small>Line by line splits long speeches into matching chunks (automatic, may be slightly off).</small></div>
     <div class="opt"><label for="whosel">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
-    <div class="opt"><div class="lbl">Read aloud</div>${segs("listen",[["orig","Shakespeare"],["mod","Modern English"]],S.listen)}<small>Tap Listen at the bottom of a scene page. Each character gets their own voice.</small></div>
     <div class="opt"><div class="lbl">Text size</div>${segs("scale",[["1.15","Small"],["1.3","Normal"],["1.5","Large"],["1.75","Extra large"]],S.scale)}</div>
     <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"]],S.theme)}</div>
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress and quiz scores</button><small id="resetmsg"></small></div>`);
