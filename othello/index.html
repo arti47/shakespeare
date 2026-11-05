@@ -67,13 +67,13 @@ abbr.g{text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,tran
 
 /* ---------- HOME ---------- */
 #home{max-width:980px;margin:0 auto;padding-block:clamp(20px,5vw,56px) 80px}
-.tp{border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:5px;margin:6px;padding:clamp(28px,6vw,64px) 20px clamp(24px,4vw,40px);text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
-.tp .pre{font:italic 400 clamp(1.1rem,2.6vw,1.5rem) var(--f-old);color:var(--soft)}
-.tp h1{font:400 clamp(3.4rem,13vw,8.5rem) var(--f-sc);letter-spacing:.06em;line-height:.9;margin:4px 0 2px}
-.tp .post{font:italic 400 clamp(1.25rem,3.2vw,1.9rem) var(--f-old)}
+.tp{padding:4px 0 0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tp .pre{font:italic 400 1.05rem var(--f-old);color:var(--soft)}
+.tp h1{font:400 clamp(2.6rem,9vw,3.6rem) var(--f-sc);letter-spacing:.06em;line-height:1;margin:2px 0 0}
+.tp .post{font:italic 400 1.1rem var(--f-old);color:var(--soft)}
 .tp .orn{color:var(--accent);margin:10px 0 4px;font-size:1.6rem;line-height:1}
 .tp .blurb{max-width:44ch;color:var(--soft);font-size:.95rem;margin:0}
-.cont{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.cont{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .cont .row2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .go{display:inline-flex;flex-direction:column;align-items:center;gap:2px;background:var(--ink);color:var(--page);border:1px solid var(--ink);border-radius:6px;padding:12px 24px}
 .go.alt{background:transparent;color:var(--ink)}
@@ -83,13 +83,27 @@ abbr.g{text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,tran
 .stats b{color:var(--ink);font-weight:600}
 .meter{width:min(280px,70%);height:3px;background:var(--rule);border-radius:2px;overflow:hidden}
 .meter i{display:block;height:100%;background:var(--accent)}
-.homesearch{display:flex;gap:8px;margin:34px auto 0;max-width:560px}
+.homesearch{display:flex;gap:8px;margin:18px auto 0;max-width:560px}
 .homesearch input{flex:1;min-width:0;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:10px 2px;font-size:1rem}
 .homesearch input:focus{outline:none;border-bottom-color:var(--accent)}
 .sec-h{text-align:center;margin:56px 0 22px}
 .sec-h h2{font:italic 400 clamp(1.7rem,4vw,2.3rem) var(--f-old);margin:0}
 .sec-h p{margin:4px 0 0;font-size:.85rem;color:var(--muted)}
-.acts-map{columns:2 380px;column-gap:48px}
+.htabs{display:flex;justify-content:center;gap:0;margin:26px auto 14px;border-bottom:1px solid var(--rule);max-width:640px}
+.htabs button{flex:1;max-width:200px;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:10px 8px;font:400 1.35rem var(--f-old);color:var(--muted);cursor:pointer}
+.htabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.hcap{text-align:center;font-size:.85rem;color:var(--muted);margin:0 0 8px}
+.acts-map{max-width:640px;margin:0 auto}
+.actd{border-bottom:1px solid var(--rule)}
+.actd summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:14px 4px}
+.actd summary::-webkit-details-marker{display:none}
+.actd summary span{font:400 1.45rem var(--f-sc);letter-spacing:.04em}
+.actd summary small{font:500 .78rem var(--f-ui);color:var(--muted);font-variant-numeric:tabular-nums}
+.actd summary small::after{content:"  ›";display:inline-block;margin-left:8px;transition:transform .2s;color:var(--accent);font-size:1.1rem}
+.actd[open] summary small::after{transform:rotate(90deg)}
+.actd .srows{padding:0 0 10px}
+.actd .srow:last-child{border-bottom:0}
+.acts-map-old{columns:2 380px;column-gap:48px}
 .actcol{break-inside:avoid;margin-bottom:30px;min-width:0}
 .actcol h3{margin:0 0 6px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-bottom:1px solid var(--ink);padding-bottom:6px}
 .actcol h3 span{font:400 1.45rem var(--f-sc);letter-spacing:.04em}
@@ -307,15 +321,12 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
     <div class="pre">The Tragedy of</div>
     <h1>Othello</h1>
     <div class="post">the Moor of Venice</div>
-    <div class="orn">❧</div>
-    <p class="blurb">The full text by William Shakespeare. Press and hold any speech for its modern English, word meanings and notes.</p>
     <div class="cont" id="contcard"></div>
   </div>
   <form class="homesearch" id="hsearch"><label for="hq" class="sr">Search the play</label><input id="hq" type="search" placeholder="Search the play, e.g. green-eyed" autocomplete="off"><button class="btn" type="submit">Search</button></form>
-  <div class="sec-h"><h2>Contents</h2><p>Five acts, fifteen scenes</p></div>
-  <div class="acts-map" id="actsmap"></div>
-  <div class="sec-h"><h2>The Names of the Actors</h2><p>As the 1623 Folio lists them, with who they are</p></div>
-  <div class="cast" id="cast"></div>
+  <div class="htabs" role="tablist"><button role="tab" data-htab="contents">Contents</button><button role="tab" data-htab="cast">Cast</button></div>
+  <div class="hpane" id="hp-contents"><div class="acts-map" id="actsmap"></div></div>
+  <div class="hpane" id="hp-cast" hidden><p class="hcap">The Names of the Actors, as the 1623 Folio lists them</p><div class="cast" id="cast"></div></div>
   <div class="homefoot">
     <button class="btn" id="h-notes">My notes &amp; highlights</button>
     <button class="btn" id="h-set">Settings</button>
@@ -1678,15 +1689,17 @@ function renderHome(){
   $("studybtn").onclick=()=>goStudy();
   let h="";
   for(let a=1;a<=5;a++){const ps=scenes.filter(p=>p.act===a);const ad=ps.filter(p=>prog.done[p.id]).length;
-    h+=`<div class="actcol"><h3><span>${LAT[a]}</span><small>Act ${R[a]} · ${ad}/${ps.length} read</small></h3><div>`+
+    h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>Act ${R[a]} · ${ad}/${ps.length} read</small></summary><div class="srows">`+
       ps.map(p=>{const q=prog.quiz[p.id];const s=STUDY.scenes[p.id]||{};
-        return `<button class="srow${prog.done[p.id]?" done":""}${pos&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="n">${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${q[0]}/${q[1]}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></div>`}
-  $("actsmap").innerHTML=h;
+        return `<button class="srow${prog.done[p.id]?" done":""}${pos&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="n">${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${q[0]}/${q[1]}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></details>`}
+  $("actsmap").innerHTML=h;setHtab(LS.get("oth-htab")||"contents");
   $("cast").innerHTML=STUDY.chars.map(c=>{const key=c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","");const has=whoSet.has(key);
     return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p></div>`}).join("");
 }
 $("home").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goScene(sIdx(g.dataset.go));
   const f=e.target.closest("[data-follow]");if(f){S.who=f.dataset.follow;const k=scenes.findIndex(p=>p.items.some(i=>i.who===S.who));goScene(k);toast("Showing only "+title(S.who))}});
+function setHtab(k){document.querySelectorAll("[data-htab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.htab===k));$("hp-contents").hidden=k!=="contents";$("hp-cast").hidden=k!=="cast";LS.set("oth-htab",k)}
+document.querySelectorAll("[data-htab]").forEach(b=>b.onclick=()=>setHtab(b.dataset.htab));
 $("hsearch").addEventListener("submit",e=>{e.preventDefault();openSearch($("hq").value)});
 $("h-notes").onclick=openNotes;$("h-set").onclick=openSettings;
 
