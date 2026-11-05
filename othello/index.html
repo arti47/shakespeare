@@ -236,6 +236,10 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .tabs button{border:0;background:transparent;padding:10px 12px;font-size:.88rem;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .intro{color:var(--soft);font-size:.92rem;margin:0 0 14px}
+.qsel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 14px}
+.qsel label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.qsel span{font:600 .68rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.qsel select{appearance:none;-webkit-appearance:none;width:100%;min-width:0;border:1px solid var(--ink);border-radius:8px;background:var(--page) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center;color:var(--ink);padding:11px 34px 11px 12px;font:500 1rem var(--f-ui);text-overflow:ellipsis}
 .filt{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
 .qt{padding:16px 0;border-bottom:1px solid var(--rule)}
 .qt blockquote{margin:0;font:400 1.3rem/1.45 var(--f-old)}
@@ -1917,8 +1921,8 @@ function studyQuotes(){
   const whos=[...new Set(QUOTES.quotes.map(q=>speech[q.id].who))];
   const list=QUOTES.quotes.filter(q=>(!qf.who||speech[q.id].who===qf.who)&&(!qf.th||q.themes.includes(qf.th)));
   $("sbody").innerHTML=`<p class="intro">The play's most quoted lines, in order. Filter by character or theme.</p>
-   <div class="filt"><div class="chips" data-f="who"><button class="chip" aria-pressed="${!qf.who}" data-v="">All characters</button>${whos.map(w=>`<button class="chip" aria-pressed="${qf.who===w}" data-v="${w}">${esc(title(w))}</button>`).join("")}</div>
-   <div class="chips" data-f="th"><button class="chip" aria-pressed="${!qf.th}" data-v="">All themes</button>${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" aria-pressed="${qf.th===k}" data-v="${k}">${esc(v[0])}</button>`).join("")}</div></div>
+   <div class="qsel"><label><span>Character</span><select data-qf="who"><option value="">All characters</option>${whos.map(w=>`<option value="${w}"${qf.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></label>
+   <label><span>Theme</span><select data-qf="th"><option value="">All themes</option>${Object.entries(QUOTES.themes).map(([k,v])=>`<option value="${k}"${qf.th===k?" selected":""}>${esc(v[0])}</option>`).join("")}</select></label></div>
    <p class="muted" style="font-size:.8rem">${list.length} quote${list.length===1?"":"s"}</p>${list.map(quoteHTML).join("")}`;
 }
 /* flashcards: quotes not yet learnt come first, shuffled */
@@ -2024,6 +2028,7 @@ $("sbody").addEventListener("click",e=>{
   const s=e.target.closest("[data-speech]");if(s){goSpeech(s.dataset.speech);return}
   const c=e.target.closest(".chips .chip");if(c){const f=c.parentNode.dataset.f,v=c.dataset.v;
     if(f==="who")qf.who=v;else if(f==="th")qf.th=v;else if(f==="theme")thSel=v;renderStudy()}});
+$("sbody").addEventListener("change",e=>{const s=e.target.closest("[data-qf]");if(s){qf[s.dataset.qf]=s.value;renderStudy()}});
 
 /* ---------- sheets ---------- */
 const sheet=$("sheet");let lastFocus=null;
