@@ -181,6 +181,9 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .panel .phead h2{flex:1;margin:0;font:400 1.35rem var(--f-sc);letter-spacing:.05em}
 .panel .pbody{overflow:auto;padding:4px 18px 28px;flex:1}
 .tool h3{margin:18px 0 6px}
+.tool .about{margin-top:22px;border-top:1px solid var(--rule);padding-top:12px}
+.tool .about summary{cursor:pointer;font:600 .7rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 0}
+.tool .about p{font-size:.92rem;line-height:1.55;color:var(--soft);margin:8px 0 0}
 .tool .who{font-size:.85rem;color:var(--soft);margin:8px 0 0}
 .tool .ref{font-size:.75rem;color:var(--muted);margin-top:2px}
 .tool .orig{font:400 1.05rem/1.5 var(--f-old);border-left:2px solid var(--rule);padding-left:12px;margin-top:6px}
@@ -1836,12 +1839,12 @@ function toolsHTML(id,pi){
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
     <div style="height:12px"></div><div class="modern">${pairHTML(sp,q)}</div>
-    ${c?`<p class="who">${esc(c.desc)}</p>`:""}
     ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
     ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
     <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
     <div class="acts"><button class="btn sm" id="t-save">Save note</button><button class="btn sm${m.hl?" on":""}" id="t-hl" aria-pressed="${!!m.hl}">${m.hl?"★ Highlighted":"☆ Highlight"}</button><button class="btn sm" id="t-follow">${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))+"’s lines"}</button><button class="btn sm" id="t-copy">Copy lines</button></div>
+    ${c?`<details class="about"><summary>About ${esc(title(sp.who))}</summary><p>${esc(c.desc)}</p></details>`:""}
   </div>`}
 function wireTools(id,pi){
   const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0];
