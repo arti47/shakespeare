@@ -174,8 +174,10 @@ body.mode-mod .o, body.mode-mod .facing .lab.lo{display:none}
 body.mode-orig .facing, body.mode-mod .facing{grid-template-columns:minmax(0,1fr);max-width:720px;margin-inline:auto;background:none}
 body.mode-orig .sp .hd, body.mode-mod .sp .hd, body.mode-mod .m{grid-column:1}
 body.mode-mod .m{font-size:1.02em;color:var(--ink)}
-body.mode-test .m{filter:blur(6px);cursor:pointer;user-select:none;transition:filter .2s}
-body.mode-test .m.shown{filter:none;cursor:auto;user-select:auto}
+body.mode-test .m{cursor:pointer}
+body.mode-test .m:not(.shown){color:transparent;height:2.1em;overflow:hidden;user-select:none;position:relative;border-left:0;padding:0;margin-top:4px}
+body.mode-test .m:not(.shown)::before{content:"Modern English \25B8";position:absolute;left:0;top:.2em;font:500 .72rem var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--rule);border-radius:6px;padding:4px 10px}
+body.mode-test .m.shown::after{content:"Hide \25B4";display:block;font:500 .66rem var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 .endcard{max-width:680px;margin:56px auto 0;display:flex;flex-direction:column;gap:28px}
 .quiz{border-top:1px solid var(--ink);padding-top:18px}
 .quiz h2{font:italic 400 2em var(--f-old);margin:2px 0 6px}
@@ -1104,13 +1106,13 @@ async function saveMark(id,patch){
 async function saveProg(){LS.set("oth-prog",JSON.stringify(prog));if(progDoc){try{await progDoc.set(JSON.parse(JSON.stringify(prog)))}catch(e){}}}
 
 /* ---------- settings ---------- */
-const S={mode:LS.get("oth-mode")||"both",pair:LS.get("oth-pair")==="1",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",who:""};
+const S={mode:LS.get("oth-mode2")||"test",pair:LS.get("oth-pair")==="1",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",who:""};
 function applySettings(){
   document.body.classList.remove("mode-orig","mode-mod","mode-test");
   if(S.mode==="orig")document.body.classList.add("mode-orig");if(S.mode==="mod")document.body.classList.add("mode-mod");if(S.mode==="test")document.body.classList.add("mode-test");
   document.documentElement.style.setProperty("--scale",S.scale);
   if(S.theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",S.theme);
-  LS.set("oth-mode",S.mode);LS.set("oth-pair",S.pair?"1":"0");LS.set("oth-size",S.scale);LS.set("oth-theme",S.theme);
+  LS.set("oth-mode2",S.mode);LS.set("oth-pair",S.pair?"1":"0");LS.set("oth-size",S.scale);LS.set("oth-theme",S.theme);
 }
 
 /* ---------- views ---------- */
@@ -1213,7 +1215,7 @@ stage.addEventListener("click",e=>{
     $("score").textContent=`${ok.length} of ${dn.length} correct`;
     if(dn.length===all.length){const pid=pages[idx].id,old=prog.quiz[pid];if(!old||ok.length>=old[0]){prog.quiz[pid]=[ok.length,all.length];saveProg()}$("score").textContent+=ok.length===all.length?" · perfect!":" · answers shown above"}
     return}
-  const hid=e.target.closest("body.mode-test .m:not(.shown)");if(hid){hid.classList.add("shown");return}
+  const hid=e.target.closest("body.mode-test .m");if(hid&&!(hid.classList.contains("shown")&&getSelection().toString())){hid.classList.toggle("shown");return}
   if(sp&&!e.target.closest("abbr,button,textarea,a")){document.querySelectorAll(".sp.sel").forEach(x=>x!==sp&&x.classList.remove("sel"));sp.classList.toggle("sel")}
 });
 
@@ -1279,7 +1281,7 @@ function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
   openSheet("Reading settings",`
-    <div class="opt"><div class="lbl">Show</div>${segs("mode",[["both","Both"],["orig","Original"],["mod","Modern"],["test","Self-test"]],S.mode)}<small>Self-test blurs the modern English until you tap it.</small></div>
+    <div class="opt"><div class="lbl">Show</div>${segs("mode",[["both","Both"],["orig","Original"],["mod","Modern"],["test","Collapsed"]],S.mode)}<small>Collapsed hides the modern English under each speech until you tap it.</small></div>
     <div class="opt"><div class="lbl">Pairing</div>${segs("pair",[["false","Whole speeches"],["true","Line by line"]],S.pair)}<small>Line by line splits long speeches into matching chunks (automatic, may be slightly off).</small></div>
     <div class="opt"><label for="whosel">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
     <div class="opt"><div class="lbl">Text size</div>${segs("scale",[["1.15","Small"],["1.3","Normal"],["1.5","Large"],["1.75","Extra large"]],S.scale)}</div>
