@@ -194,6 +194,9 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .tool .pmod{margin-top:.8em;background:var(--page);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:6px;padding:.6em .8em .7em}
 .tool .pmod .ptag{color:var(--accent)}
 .tool .pmod p{margin:0;font:400 1rem/1.6 var(--f-ui);color:var(--ink)}
+.tool .wholemod{margin-top:0}
+.tool .modern .wholemod .mp+.mp{margin-top:.8em}
+.tool .wholemod p.cur{background:var(--accent-soft);box-shadow:0 0 0 .35em var(--accent-soft);border-radius:2px}
 .tool .partnav{margin-top:10px}
 .tool .modern .mp{margin:0}
 .tool dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;font-size:.9rem}
@@ -1830,7 +1833,6 @@ function toolsHTML(id){
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start}–${sp.start+sp.lines.length-1}</div>
     ${c?`<p class="who">${esc(c.desc)}</p>`:""}
-    <h3 class="lbl">Modern English</h3><div class="modern">${paras(sp.m)}</div>
     ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
     ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
@@ -1852,17 +1854,17 @@ function partHTML(id,pi,all){const sp=speech[id],ps=partsOf(sp),p=ps[pi],n=ps.le
   const ref=`${sName(sceneOf(id))} · lines ${sp.start+p[0]}–${sp.start+p[1]}${n>1?` · part ${pi+1} of ${n}`:""}`;
   const og=q=>sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
   const pair=(q,i)=>`<div class="pair${all&&i===pi?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og(q)}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`;
-  const body=all?ps.map(pair).join(""):pair(p,pi);
+  const body=all?`<div class="pmod wholemod"><div class="ptag">Modern English · whole speech</div>${ps.map((q,i)=>`<p class="mp${i===pi?" cur":""}">${esc(q[2])}</p>`).join("")}</div>`:pair(p,pi);
   return `<div class="tool"><div class="ref">${ref}</div>
     <div class="acts partnav">${n>1?`<button class="btn sm" id="pt-x" aria-expanded="${all}">${all?"Collapse to this part":"Expand to whole speech"}</button>`:""}<button class="btn sm" id="pt-more">Notes &amp; word meanings</button></div>
-    ${all?`<h3 class="lbl">Whole speech</h3>`:`<div style="height:14px"></div>`}<div class="modern${all?" whole":""}">${body}</div></div>`}
+    <div style="height:14px"></div><div class="modern${all?" whole":""}">${body}</div></div>`}
 function openPart(id,pi,all){
   partSel={id,pi};toolsId=id;const sp=speech[id];
   pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
   const h=partHTML(id,pi,all);
   if(wide()){document.body.classList.add("tools");$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=h;$("panel").classList.add("open");$("panel-body").scrollTop=0}
   else openSheet(title(sp.who),h);
-  const x=$("pt-x");if(x)x.onclick=()=>{openPart(id,pi,!all);const c=document.querySelector(".modern.whole .pair.cur");if(c)c.scrollIntoView({block:"center"})};
+  const x=$("pt-x");if(x)x.onclick=()=>{openPart(id,pi,!all);const c=document.querySelector(".modern.whole .mp.cur");if(c)c.scrollIntoView({block:"center"})};
   $("pt-more").onclick=()=>openTools(id);
 }
 function openTools(id){
