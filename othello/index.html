@@ -1921,7 +1921,7 @@ function revisionText(){
   t+=`\nQUOTES STILL TO LEARN (${un.length})\n`+un.map(q=>`  "${q.text}" (${title(speech[q.id].who)}, ${sName(sceneOf(q.id))})`).join("\n")+"\n";
   t+=`\nQUOTES LEARNT (${kn.length})\n`+(kn.map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")||"  None yet")+"\n";
   return t}
-function download(name,text,type){try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
+function download(name,text,type){if(window.claude){copyText(text);setTimeout(()=>toast("Files can’t be saved here, so it was copied instead. The home-screen app can save files."),1300);return}try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
   toast("Downloading. If nothing appears, use Copy instead.")}
 const backup=()=>JSON.stringify({app:"othello-reader",v:1,saved:new Date().toISOString(),marks,prog});
 function restore(txt){let d;try{d=JSON.parse(String(txt).trim())}catch(e){toast("That isn't a valid backup");return false}
