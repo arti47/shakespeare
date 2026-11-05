@@ -190,7 +190,10 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .tool .pair.cur+.pair{border-top-color:transparent}
 .tool .porig{font:400 1.2rem/1.45 var(--f-old);color:var(--ink)}
 .tool .porig span{display:block;padding-left:1em;text-indent:-1em}
-.tool .pmod{margin:.55em 0 0!important;font-size:1.02rem;line-height:1.6;color:var(--ink)}
+.tool .ptag{font:600 .66rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tool .pmod{margin-top:.8em;background:var(--page);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:6px;padding:.6em .8em .7em}
+.tool .pmod .ptag{color:var(--accent)}
+.tool .pmod p{margin:0;font:400 1rem/1.6 var(--f-ui);color:var(--ink)}
 .tool .partnav{margin-top:10px}
 .tool .modern .mp{margin:0}
 .tool dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;font-size:.9rem}
@@ -1848,11 +1851,11 @@ function markPart(){if(partSel)pg.querySelectorAll(`.sp[data-id="${partSel.id}"]
 function partHTML(id,pi,all){const sp=speech[id],ps=partsOf(sp),p=ps[pi],n=ps.length;
   const ref=`${sName(sceneOf(id))} · lines ${sp.start+p[0]}–${sp.start+p[1]}${n>1?` · part ${pi+1} of ${n}`:""}`;
   const og=q=>sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
-  const pair=(q,i)=>`<div class="pair${all&&i===pi?" cur":""}"><div class="porig">${og(q)}</div><p class="pmod">${esc(q[2])}</p></div>`;
+  const pair=(q,i)=>`<div class="pair${all&&i===pi?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og(q)}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`;
   const body=all?ps.map(pair).join(""):pair(p,pi);
   return `<div class="tool"><div class="ref">${ref}</div>
     <div class="acts partnav">${n>1?`<button class="btn sm" id="pt-x" aria-expanded="${all}">${all?"Collapse to this part":"Expand to whole speech"}</button>`:""}<button class="btn sm" id="pt-more">Notes &amp; word meanings</button></div>
-    <h3 class="lbl">${all?"Whole speech · original and modern":"Original and modern"}</h3><div class="modern${all?" whole":""}">${body}</div></div>`}
+    ${all?`<h3 class="lbl">Whole speech</h3>`:`<div style="height:14px"></div>`}<div class="modern${all?" whole":""}">${body}</div></div>`}
 function openPart(id,pi,all){
   partSel={id,pi};toolsId=id;const sp=speech[id];
   pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
