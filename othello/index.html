@@ -18,59 +18,67 @@
 </head>
 <body>
 <style>
-/* Layout: "a folio by candlelight". Home = the play's title page, a Folio-style table of contents (Actus Primus…) and "The Names of the Actors". Reader = facing pages split by a gutter rule: the old type (IM Fell, cut c.1670s) on the left, plain modern sans on the right. Light = cool slate paper with iron-gall ink; dark = night indigo with candle gold. */
+/* Layout: an e-reader for a Folio. Home = title page, contents, "The Names of the Actors". Reader = one screen-sized page at a time, menus hidden (tap the middle to show them, tap or swipe the edges to turn). Long-press a speech for its modern English, word meanings and notes (side panel on wide screens, bottom sheet on phones). Study = its own tab. Type: IM Fell for Shakespeare, Instrument Sans for everything modern. */
 :root{
   --bg:#eceae6; --page:#ffffff; --ink:#111215; --soft:#2b2d33; --muted:#5f6270; --rule:#d9d8d4; --card:#ffffff; --nmix:#000000; --nmw:78%;
-  --accent:#7a4f0e; --accent-ink:#ffffff; --accent-soft:#efe6d6; --gold:#7a4f0e;
+  --accent:#7a4f0e; --accent-ink:#ffffff; --accent-soft:#efe6d6;
   --hl:#f5dede; --hl-ink:#8a1f2e; --berry:#a3243a;
   --ok:#2c7048; --bad:#a83232; --shade:rgba(15,18,35,.45);
   --f-old:"IM Fell English", "IM Fell DW Pica", Georgia, serif;
   --f-sc:"IM Fell English SC", "IM Fell English", Georgia, serif;
   --f-ui:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-display:var(--f-old); --f-text:var(--f-old);
-  --scale:1;
+  --scale:1.3;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#101114; --page:#18191d; --ink:#f3f1ec; --soft:#dedad2; --muted:#a3a3ab; --rule:#33353c; --card:#202227; --nmix:#ffffff; --nmw:55%;
-  --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216; --gold:#e2b65c;
+  --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216;
   --hl:#3a1a24; --hl-ink:#f4bcc5; --berry:#f08a9b;
   --ok:#6cc38a; --bad:#ef8a83; --shade:rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#101114; --page:#18191d; --ink:#f3f1ec; --soft:#dedad2; --muted:#a3a3ab; --rule:#33353c; --card:#202227; --nmix:#ffffff; --nmw:55%;
-  --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216; --gold:#e2b65c;
+  --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216;
   --hl:#3a1a24; --hl-ink:#f4bcc5; --berry:#f08a9b;
   --ok:#6cc38a; --bad:#ef8a83; --shade:rgba(0,0,0,.6); color-scheme:dark}
 *{box-sizing:border-box}
 html{background:var(--page)}
-body{background:var(--page);color:var(--ink);font-family:var(--f-ui);font-size:1rem;line-height:1.55;-webkit-tap-highlight-color:transparent}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--page)}
+body{background:var(--page);color:var(--ink);font-family:var(--f-ui);font-size:1rem;line-height:1.55;-webkit-tap-highlight-color:transparent;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--page)}
 [hidden]{display:none!important}
-button,select,input{font:inherit;color:inherit}
+button,select,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sr{position:absolute;left:-9999px}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .eyebrow{font:400 .95rem var(--f-sc);letter-spacing:.08em;color:var(--accent)}
+.lbl{font:500 .66rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .muted{color:var(--muted)}
 .btn{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:8px 14px;font-size:.85rem;font-weight:500}
 .btn:hover{border-color:var(--ink)}
 .btn.primary{background:var(--ink);border-color:var(--ink);color:var(--page)}
-.icon{border:0;background:transparent;width:40px;height:40px;border-radius:6px;display:inline-grid;place-items:center;font-size:1.1rem;color:var(--soft)}
+.btn.sm{padding:5px 10px;font-size:.78rem}
+.icon{border:0;background:transparent;min-width:42px;height:42px;border-radius:6px;display:inline-grid;place-items:center;font-size:1.05rem;color:var(--soft);padding:0 8px}
 .icon:hover{background:var(--rule);color:var(--ink)}
+.icon.txt{font-size:.85rem;font-weight:600}
 .link{border:0;background:none;padding:0;color:var(--accent);font-size:.85rem;font-weight:500;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rule);background:transparent;border-radius:999px;padding:5px 12px;font-size:.8rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
+abbr.g{text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,transparent);text-underline-offset:4px}
 
 /* ---------- HOME ---------- */
 #home{max-width:980px;margin:0 auto;padding-block:clamp(20px,5vw,56px) 80px}
 .tp{border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:5px;margin:6px;padding:clamp(28px,6vw,64px) 20px clamp(24px,4vw,40px);text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
 .tp .pre{font:italic 400 clamp(1.1rem,2.6vw,1.5rem) var(--f-old);color:var(--soft)}
-.tp h1{font:400 clamp(3.4rem,13vw,8.5rem) var(--f-sc);letter-spacing:.06em;line-height:.9;margin:4px 0 2px;text-wrap:balance}
+.tp h1{font:400 clamp(3.4rem,13vw,8.5rem) var(--f-sc);letter-spacing:.06em;line-height:.9;margin:4px 0 2px}
 .tp .post{font:italic 400 clamp(1.25rem,3.2vw,1.9rem) var(--f-old)}
 .tp .orn{color:var(--accent);margin:10px 0 4px;font-size:1.6rem;line-height:1}
 .tp .blurb{max-width:44ch;color:var(--soft);font-size:.95rem;margin:0}
 .cont{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:10px}
-.cont .go{display:inline-flex;flex-direction:column;align-items:center;gap:2px;background:var(--ink);color:var(--page);border:0;border-radius:6px;padding:12px 26px}
-.cont .go small{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
-.cont .go b{font:400 1.35rem var(--f-old)}
+.cont .row2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.go{display:inline-flex;flex-direction:column;align-items:center;gap:2px;background:var(--ink);color:var(--page);border:1px solid var(--ink);border-radius:6px;padding:12px 24px}
+.go.alt{background:transparent;color:var(--ink)}
+.go small{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.go b{font:400 1.3rem var(--f-old)}
 .stats{display:flex;gap:6px 18px;flex-wrap:wrap;justify-content:center;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .stats b{color:var(--ink);font-weight:600}
 .meter{width:min(280px,70%);height:3px;background:var(--rule);border-radius:2px;overflow:hidden}
@@ -79,168 +87,191 @@ button{cursor:pointer}
 .homesearch input{flex:1;min-width:0;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:10px 2px;font-size:1rem}
 .homesearch input:focus{outline:none;border-bottom-color:var(--accent)}
 .sec-h{text-align:center;margin:56px 0 22px}
-.sec-h h2{font:400 clamp(1.7rem,4vw,2.3rem) var(--f-old);margin:0;font-style:italic}
+.sec-h h2{font:italic 400 clamp(1.7rem,4vw,2.3rem) var(--f-old);margin:0}
 .sec-h p{margin:4px 0 0;font-size:.85rem;color:var(--muted)}
 .acts-map{columns:2 380px;column-gap:48px}
 .actcol{break-inside:avoid;margin-bottom:30px;min-width:0}
 .actcol h3{margin:0 0 6px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-bottom:1px solid var(--ink);padding-bottom:6px}
 .actcol h3 span{font:400 1.45rem var(--f-sc);letter-spacing:.04em}
 .actcol h3 small{font:500 .72rem var(--f-ui);color:var(--muted);letter-spacing:.04em;font-variant-numeric:tabular-nums}
-.row{display:flex;flex-direction:column}
-.srow{display:grid;grid-template-columns:2.6rem minmax(0,1fr) auto;gap:2px 10px;align-items:baseline;width:100%;text-align:left;border:0;border-bottom:1px solid var(--rule);background:transparent;padding:11px 6px;border-radius:0}
+.srow{display:grid;grid-template-columns:2.6rem minmax(0,1fr) auto;gap:2px 10px;align-items:baseline;width:100%;text-align:left;border:0;border-bottom:1px solid var(--rule);background:transparent;padding:11px 6px}
 .srow:hover{background:var(--accent-soft)}
 .srow .n{font:400 1.25rem var(--f-old);color:var(--accent)}
 .srow .loc{font:italic 400 1.08rem var(--f-old)}
 .srow .sum{grid-column:2 / 4;font-size:.82rem;color:var(--soft);line-height:1.4}
 .srow .st{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .srow.done .st{color:var(--ok)}
-.srow.here .n::after{content:" ●";font-size:.5em;vertical-align:middle;color:var(--berry)}
+.srow.here .n::after{content:" \25CF";font-size:.5em;vertical-align:middle;color:var(--berry)}
 .cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:0 48px}
 .castc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--rule)}
 .castc b{font:400 1.2rem var(--f-sc);letter-spacing:.03em;color:color-mix(in srgb,var(--c,var(--ink)) var(--nmw),var(--nmix))}
 .castc p{grid-column:1 / -1;margin:0;font-size:.84rem;color:var(--soft)}
-.castc .link{font-size:.75rem}
 .homefoot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:40px}
-/* scene picker cards (sheet) */
+
+/* ---------- READER (paged) ---------- */
+#reader{position:fixed;inset:0;background:var(--page);overflow:hidden}
+.viewport{position:absolute;inset:0;padding-top:calc(env(safe-area-inset-top,0px) + 22px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 34px);touch-action:pan-y}
+.pg{height:100%;max-width:700px;margin:0 auto;overflow:hidden;font-size:calc(1rem * var(--scale));user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:opacity .14s ease,transform .14s ease}
+.pg.turnL{opacity:0;transform:translateX(-18px)}.pg.turnR{opacity:0;transform:translateX(18px)}
+body.mode-both .pg{max-width:1120px}
+#measure{position:absolute;visibility:hidden;left:0;top:0;pointer-events:none;height:auto!important;overflow:visible!important}
+.blk{padding-bottom:.85em}
+.shead{text-align:center;padding:1.2em 0 .6em}
+.shead .eyebrow{font-size:.8em}
+.shead h1{font:400 2.4em var(--f-old);margin:.05em 0;line-height:1}
+.shead .loc{font:italic 400 1em var(--f-old);color:var(--soft)}
+.shead .sum{font-size:.72em;line-height:1.55;color:var(--soft);max-width:36em;margin:.9em auto 0;text-align:left;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:.8em 0}
+.shead .sum b{display:block;font:400 1.05em var(--f-sc);letter-spacing:.06em;color:var(--accent);text-align:center;margin-bottom:.3em}
+.sd{text-align:center;font:italic 400 .9em var(--f-old);color:var(--accent);padding:.2em 0 .9em}
+.sp{position:relative;border-radius:4px;transition:background .2s}
+.sp .hd{display:flex;align-items:baseline;gap:.5em;flex-wrap:wrap}
+.nm{font:400 .82em var(--f-sc);letter-spacing:.06em;color:color-mix(in srgb,var(--c,var(--accent)) var(--nmw),var(--nmix))}
+.nm.cont{opacity:.6}
+.tag{font:500 .46em var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--berry)}
+.flag{font-size:.5em;color:var(--accent)}
+.o{font-family:var(--f-old);line-height:1.5}
+.o .l{display:block;position:relative;padding-left:1.1em;text-indent:-1.1em}
+.o .l[data-n]::before{content:attr(data-n);position:absolute;left:-2.4em;width:1.8em;text-indent:0;text-align:right;top:.5em;font:500 .5em var(--f-ui);color:var(--muted);font-variant-numeric:tabular-nums}
+.o .song{font-style:italic;padding-left:2.2em}
+.m{font-size:.74em;line-height:1.6;color:var(--soft)}
+body.mode-orig .m{display:none}
+body.mode-mod .o{display:none}
+body.mode-mod .m{font-size:.86em;color:var(--ink)}
+body.mode-both .sp .body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 3em}
+body.mode-both .chunk{display:contents}
+body.mode-both .chunk+.chunk>*{border-top:1px dotted var(--rule);padding-top:.3em;margin-top:.2em}
+.sp.hl .o,.sp.hl .m{background:var(--hl);box-shadow:0 0 0 .25em var(--hl);border-radius:2px}
+.sp.pressing{background:var(--accent-soft)}
+.sp.active{background:color-mix(in srgb,var(--accent-soft) 80%,transparent);box-shadow:0 0 0 .35em color-mix(in srgb,var(--accent-soft) 80%,transparent)}
+.endblk{text-align:center;padding:1.6em 0 0;color:var(--muted)}
+.endblk .orn{color:var(--accent);font-size:1.3em}
+.endblk b{display:block;font:400 1.1em var(--f-sc);letter-spacing:.06em;color:var(--ink);margin:.2em 0}
+.endblk span{font:italic 400 .85em var(--f-old)}
+.pgfoot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);text-align:center;font:500 .68rem var(--f-ui);letter-spacing:.08em;color:var(--muted);font-variant-numeric:tabular-nums;pointer-events:none}
+.hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--ink);color:var(--page);border-radius:10px;padding:18px 20px;width:min(340px,86vw);font-size:.9rem;z-index:15;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.hint b{display:block;font:400 1.2rem var(--f-old);margin-bottom:6px}
+.hint ul{margin:6px 0 12px;padding-left:1.1em}
+.hint button{background:var(--page);color:var(--ink);border:0;border-radius:6px;padding:7px 14px;font-weight:600}
+/* menus: shown by tapping the middle */
+.bar,.bbar{position:absolute;left:0;right:0;z-index:12;background:color-mix(in srgb,var(--page) 94%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:transform .2s ease,opacity .2s ease}
+.bar{top:0;padding-top:env(safe-area-inset-top,0px);border-bottom:1px solid var(--rule)}
+.bbar{bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);border-top:1px solid var(--rule)}
+body:not(.chrome) .bar{transform:translateY(-105%);opacity:0;pointer-events:none}
+body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none}
+.bar .in,.bbar .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:2px;min-height:52px}
+.where{flex:1;min-width:0;border:0;background:transparent;text-align:center;padding:4px 8px;border-radius:6px}
+.where b{font:400 1.1rem var(--f-old);display:block;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where b::after{content:" \25BE";font-size:.6em;color:var(--muted)}
+.where small{font-size:.64rem;color:var(--muted);letter-spacing:.1em;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where:hover{background:var(--rule)}
+.bbar .in{gap:10px;padding-block:6px}
+.bbar input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}
+.bbar .pn{font:500 .75rem var(--f-ui);color:var(--soft);white-space:nowrap;font-variant-numeric:tabular-nums;min-width:7.5em;text-align:center}
+
+/* ---------- SPEECH TOOLS (side panel / sheet) ---------- */
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(420px,42vw);z-index:22;background:var(--card);border-left:1px solid var(--rule);box-shadow:-14px 0 40px rgba(0,0,0,.12);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);transform:translateX(102%);transition:transform .22s ease;visibility:hidden}
+.panel.open{transform:none;visibility:visible}
+.panel .phead{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.panel .phead h2{flex:1;margin:0;font:400 1.35rem var(--f-sc);letter-spacing:.05em}
+.panel .pbody{overflow:auto;padding:4px 18px 28px;flex:1}
+.tool h3{margin:18px 0 6px}
+.tool .who{font-size:.85rem;color:var(--soft);margin:8px 0 0}
+.tool .ref{font-size:.75rem;color:var(--muted);margin-top:2px}
+.tool .orig{font:400 1.05rem/1.5 var(--f-old);border-left:2px solid var(--rule);padding-left:12px;margin-top:6px}
+.tool .modern{font-size:1rem;line-height:1.6}
+.tool dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;font-size:.9rem}
+.tool dt{font:400 1.05rem var(--f-old);color:var(--accent)}
+.tool dd{margin:0;color:var(--soft)}
+.tool .snote{border-left:2px solid var(--accent);padding:2px 0 2px 12px;font-size:.92rem;color:var(--soft)}
+.tool textarea{width:100%;min-height:90px;border:1px solid var(--rule);background:var(--page);border-radius:6px;padding:10px;font-size:.92rem;color:var(--ink)}
+.tool .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tool .acts .on{background:var(--hl);border-color:var(--hl);color:var(--hl-ink)}
+
+/* ---------- STUDY ---------- */
+#study{max-width:860px;margin:0 auto;padding-block:calc(env(safe-area-inset-top,0px) + 14px) 90px}
+.sbar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sbar h1{flex:1;margin:0;font:italic 400 2rem var(--f-old);text-align:center}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--ink);margin:0 0 18px;scrollbar-width:none}
+.tabs button{border:0;background:transparent;padding:10px 12px;font-size:.88rem;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.intro{color:var(--soft);font-size:.92rem;margin:0 0 14px}
+.filt{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.qt{padding:16px 0;border-bottom:1px solid var(--rule)}
+.qt blockquote{margin:0;font:400 1.3rem/1.45 var(--f-old)}
+.qt .meta{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-top:6px;font-size:.8rem;color:var(--muted)}
+.qt .meta b{font:400 1rem var(--f-sc);letter-spacing:.05em;color:color-mix(in srgb,var(--c,var(--ink)) var(--nmw),var(--nmix))}
+.qt p{margin:6px 0 0;font-size:.9rem;color:var(--soft)}
+.qt .th{display:inline-block;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-right:8px}
+.card{border:1px solid var(--rule);border-radius:10px;padding:clamp(20px,5vw,40px);min-height:300px;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:center;background:var(--card)}
+.card blockquote{margin:0;font:400 clamp(1.4rem,4.5vw,2rem)/1.4 var(--f-old)}
+.card .ans{border-top:1px solid var(--rule);padding-top:14px}
+.card .ans b{font:400 1.4rem var(--f-sc);letter-spacing:.05em;display:block;color:color-mix(in srgb,var(--c,var(--ink)) var(--nmw),var(--nmix))}
+.card .ans span{display:block;font-size:.85rem;color:var(--muted)}
+.card .ans p{margin:8px auto 0;max-width:46ch;font-size:.92rem;color:var(--soft)}
+.cardbtns{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:14px}
+.cardstat{text-align:center;font-size:.8rem;color:var(--muted);margin-top:12px;font-variant-numeric:tabular-nums}
+.stage3{margin:22px 0 6px;display:flex;align-items:baseline;gap:10px}
+.stage3 h3{margin:0;font:400 1.35rem var(--f-sc);letter-spacing:.04em}
+.stage3 small{color:var(--muted);font-size:.8rem}
+.qz{border:1px solid var(--rule);border-radius:10px;padding:clamp(18px,4vw,30px);background:var(--card)}
+.qz .qn{font-size:.75rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.qz h3{font-size:1.15rem;margin:6px 0 14px;line-height:1.4}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{text-align:left;border:1px solid var(--rule);background:transparent;border-radius:8px;padding:12px 14px;font-size:.95rem}
+.opts button:not(:disabled):hover{border-color:var(--ink)}
+.opts button.right{border-color:var(--ok);color:var(--ok);font-weight:600}
+.opts button.wrong{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.qlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:8px;margin-top:10px}
+.qlist button{text-align:left;border:1px solid var(--rule);background:transparent;border-radius:8px;padding:10px 12px}
+.qlist button b{font:400 1.05rem var(--f-old);display:block}
+.qlist button span{font-size:.75rem;color:var(--muted)}
+.qlist button.done span{color:var(--ok)}
+.big{font:400 2.2rem var(--f-old);text-align:center;margin:8px 0}
+.rev{border:1px solid var(--rule);border-radius:10px;padding:16px;max-height:52vh;overflow:auto;background:var(--card);font-size:.88rem;white-space:pre-wrap;font-family:var(--f-ui)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.box{border-top:1px solid var(--rule);padding-top:16px;margin-top:26px}
+.box h3{margin:0 0 6px;font:400 1.3rem var(--f-old)}
+.box textarea{width:100%;min-height:90px;border:1px solid var(--rule);background:var(--page);border-radius:6px;padding:10px;font-size:.8rem;font-family:ui-monospace,Menlo,monospace;color:var(--ink)}
+
+/* ---------- SHEETS ---------- */
+.sheet{position:fixed;inset:0;z-index:25;background:var(--shade);display:flex;align-items:flex-end;justify-content:center}
+.sheet .sbox{background:var(--page);width:min(640px,100%);max-height:88vh;overflow:auto;border-radius:12px 12px 0 0;padding:8px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
+@media (min-width:900px){.sheet{align-items:center}.sheet .sbox{border-radius:10px;max-height:84vh}}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--rule);margin:4px auto 8px}
+.sheet .head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;position:sticky;top:-8px;background:var(--page);padding-block:6px;border-bottom:1px solid var(--rule);z-index:1}
+.sheet h2{font:italic 400 1.8rem var(--f-old);margin:0}
+.opt{padding-block:12px;border-bottom:1px solid var(--rule)}
+.opt>label,.opt>.lbl{display:block;margin-bottom:8px}
+.segs{display:flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:6px;overflow:hidden;width:fit-content;max-width:100%}
+.segs button{border:0;border-right:1px solid var(--rule);background:transparent;padding:7px 13px;font-size:.85rem}
+.segs button:last-child{border-right:0}
+.segs button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+.opt small{display:block;color:var(--muted);margin-top:6px;font-size:.78rem}
+.opt select,.sinput{width:100%;border:1px solid var(--rule);background:var(--card);border-radius:6px;padding:10px 12px}
+.item{padding:10px 4px;border-bottom:1px solid var(--rule);cursor:pointer}
+.item:hover{background:var(--accent-soft)}
+.item small{display:block;font:500 .64rem var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.item mark{background:var(--hl);color:var(--ink);border-radius:2px}
+.item .mynote{margin-top:6px;background:var(--hl);border-radius:4px;padding:6px 10px;font-size:.88rem}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:14px}
 .scard{display:block;width:100%;text-align:left;background:transparent;border:1px solid var(--rule);border-radius:6px;padding:9px 11px;position:relative}
 .scard:hover{border-color:var(--ink)}
 .scard b{font:400 1.1rem var(--f-old);display:block}
 .scard span{font-size:.76rem;color:var(--soft);display:block;line-height:1.35}
 .scard .st{position:absolute;top:9px;right:10px;font-size:.7rem;color:var(--ok)}
 .scard.here{border-color:var(--accent);background:var(--accent-soft)}
+.toast{position:fixed;left:50%;bottom:calc(60px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--page);padding:8px 16px;border-radius:6px;font-size:.85rem;z-index:40;max-width:90vw;text-align:center}
 
-/* ---------- READER ---------- */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--page) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);transition:transform .25s ease}
-.bar.away{transform:translateY(-110%)}
-.bar .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:2px;height:52px}
-.where{flex:1;min-width:0;border:0;background:transparent;text-align:center;padding:4px 8px;border-radius:6px}
-.where b{font:400 1.12rem var(--f-old);display:block;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.where b::after{content:" ▾";font-size:.6em;color:var(--muted)}
-.where small{font-size:.66rem;color:var(--muted);letter-spacing:.1em;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.where:hover{background:var(--rule)}
-.prog{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0}
-#reader{background:var(--page);min-height:100vh}
-.stage{font-size:calc(1rem * var(--scale));max-width:1180px;margin:0 auto;padding-block:8px 120px}
-.scenehead{padding-block:clamp(28px,6vw,60px) 6px;text-align:center}
-.scenehead h1{font:400 clamp(2.6em,7vw,4.4em) var(--f-old);margin:2px 0;line-height:1;text-wrap:balance}
-.scenehead .loc{font:italic 400 1.15em var(--f-old);color:var(--soft)}
-.recap{max-width:640px;margin:22px auto 6px;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-.recap summary{cursor:pointer;list-style:none;display:flex;justify-content:center;align-items:baseline;gap:10px}
-.recap summary::-webkit-details-marker{display:none}
-.recap summary::after{content:"show";font-size:.72em;color:var(--muted)}
-.recap[open] summary::after{content:"hide"}
-.recap p{margin:10px 0 0;font-size:.95em;color:var(--soft)}
-.recap ul{margin:10px 0 0;padding-left:1.1em;color:var(--soft);font-size:.88em}
-.recap li::marker{color:var(--accent)}
-.filterpill{max-width:720px;margin:14px auto;display:flex;justify-content:center;gap:10px;align-items:center;font-size:.85em;color:var(--soft)}
-.facing{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 64px;margin-top:30px;background:linear-gradient(var(--rule),var(--rule)) center top / 1px 100% no-repeat}
-.facing .lab{font:400 .9em var(--f-sc);letter-spacing:.1em;color:var(--muted);padding-bottom:10px;background:var(--page)}
-.facing .lab.lm{font:500 .66em var(--f-ui);letter-spacing:.16em;text-transform:uppercase;padding-top:4px}
-.sp{grid-column:1 / -1;display:grid;grid-template-columns:subgrid;padding:12px 0 14px;position:relative;scroll-margin-top:90px;border-radius:4px}
-@supports not (grid-template-columns:subgrid){.sp{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:64px}}
-.sp>*{min-width:0}
-.sp .hd{grid-column:1;display:flex;align-items:baseline;gap:8px;margin-bottom:2px;flex-wrap:wrap}
-.nm{font:400 1.02em var(--f-sc);letter-spacing:.06em;color:color-mix(in srgb,var(--c,var(--accent)) var(--nmw),var(--nmix))}
-.nm.cont{opacity:.65}
-.tag{font:500 .6em var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--berry)}
-.mk{position:absolute;right:0;top:8px;display:flex;gap:2px;opacity:0;transition:opacity .15s;background:var(--page);border-radius:6px}
-.sp:hover .mk,.sp.sel .mk,.sp:focus-within .mk{opacity:1}
-.mk button{border:0;background:transparent;border-radius:6px;padding:3px 8px;font-size:.74em;color:var(--muted)}
-.mk button:hover{background:var(--rule);color:var(--ink)}
-.mk button[aria-pressed="true"]{color:var(--hl-ink)}
-.sp.hl .o{background:var(--hl);box-shadow:0 0 0 6px var(--hl);border-radius:2px}
-.sp.sel{background:color-mix(in srgb,var(--accent-soft) 55%,transparent);box-shadow:0 0 0 8px color-mix(in srgb,var(--accent-soft) 55%,transparent)}
-.o{grid-column:1;font-family:var(--f-old);font-size:1.16em;line-height:1.6}
-.o .l{display:block;position:relative;padding-left:1.2em;text-indent:-1.2em}
-.o .l[data-n]::before{content:attr(data-n);position:absolute;left:-40px;width:28px;text-indent:0;text-align:right;top:.35em;font:500 .6em var(--f-ui);color:var(--muted);font-variant-numeric:tabular-nums}
-.o .song{font-style:italic;padding-left:2.4em}
-abbr.g{text-decoration:underline dotted var(--accent);text-underline-offset:4px;cursor:help}
-.m{grid-column:2;font-size:.94em;line-height:1.62;color:var(--soft);font-weight:450;padding-top:3px}
-.chunk{display:contents}
-.chunk .o,.chunk .m{padding-block:3px}
-.chunk+.chunk .o,.chunk+.chunk .m{border-top:1px dotted var(--rule);padding-top:8px;margin-top:5px}
-.xtra{grid-column:1 / -1;display:flex;flex-direction:column;gap:8px;margin-top:6px}
-.xtra:empty,.xtra:has(.mine:empty:only-child){display:none}
-.snote{border-left:2px solid var(--accent);padding:4px 0 4px 14px;font-size:.88em;color:var(--soft);max-width:72ch}
-.snote b,.mynote b{font:500 .62em var(--f-ui);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:2px}
-.mynote{background:var(--hl);color:var(--ink);border-radius:4px;padding:10px 14px;font-size:.9em;white-space:pre-wrap;cursor:pointer;max-width:72ch}
-.mynote b{color:var(--hl-ink)}
-.ned{display:flex;flex-direction:column;gap:6px;max-width:72ch}
-.ned textarea{font:inherit;font-size:.92em;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:10px;min-height:80px;width:100%}
-.ned div{display:flex;gap:6px}
-.sd{grid-column:1 / -1;text-align:center;font:italic 400 1.05em var(--f-old);color:var(--accent);padding:14px 0;background:var(--page)}
-body.mode-orig .m, body.mode-orig .facing .lab.lm{display:none}
-body.mode-mod .o, body.mode-mod .facing .lab.lo{display:none}
-body.mode-orig .facing, body.mode-mod .facing{grid-template-columns:minmax(0,1fr);max-width:720px;margin-inline:auto;background:none}
-body.mode-orig .sp .hd, body.mode-mod .sp .hd, body.mode-mod .m{grid-column:1}
-body.mode-mod .m{font-size:1.02em;color:var(--ink)}
-body.mode-test .m{cursor:pointer}
-body.mode-test .m:not(.shown){color:transparent;height:2.1em;overflow:hidden;user-select:none;position:relative;border-left:0;padding:0;margin-top:4px}
-body.mode-test .m:not(.shown)::before{content:"Modern English \25B8";position:absolute;left:0;top:.2em;font:500 .72rem var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--rule);border-radius:6px;padding:4px 10px}
-body.mode-test .m.shown::after{content:"Hide \25B4";display:block;font:500 .66rem var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
-.endcard{max-width:680px;margin:56px auto 0;display:flex;flex-direction:column;gap:28px}
-.quiz{border-top:1px solid var(--ink);padding-top:18px}
-.quiz h2{font:italic 400 2em var(--f-old);margin:2px 0 6px}
-.q{padding-block:14px}
-.q p{margin:0 0 10px;font-weight:600}
-.opts{display:flex;flex-direction:column;gap:6px}
-.opts button{text-align:left;border:1px solid var(--rule);background:transparent;border-radius:6px;padding:10px 12px;font-size:.92em}
-.opts button:not(:disabled):hover{border-color:var(--ink)}
-.opts button.right{border-color:var(--ok);color:var(--ok);font-weight:600}
-.opts button.wrong{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
-.score{font-size:.85em;color:var(--soft);margin-top:6px}
-.nextcard{display:block;width:100%;text-align:center;background:var(--ink);color:var(--page);border:0;border-radius:6px;padding:26px 22px}
-.nextcard small{font:500 .66em var(--f-ui);letter-spacing:.18em;text-transform:uppercase;opacity:.65}
-.nextcard b{display:block;font:400 2.1em var(--f-old);line-height:1.1;margin:6px 0 2px}
-.nextcard span{opacity:.75;font:italic 400 1.05em var(--f-old)}
-.fin{text-align:center;font:400 2.6em var(--f-sc);letter-spacing:.1em}
-
-.nm{cursor:pointer;border-radius:4px}
-.nm:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
-.pop .chr{font:400 1.15rem var(--f-sc);letter-spacing:.05em;display:block;margin-bottom:2px}
-.pop .pop-follow{margin-top:8px;border:1px solid color-mix(in srgb,var(--page) 40%,transparent);background:transparent;color:inherit;border-radius:6px;padding:5px 10px;font-size:.78rem}
-
-/* ---------- SHEETS ---------- */
-.sheet{position:fixed;inset:0;z-index:20;background:var(--shade);display:flex;align-items:flex-end;justify-content:center}
-.sheet .box{background:var(--page);width:min(640px,100%);max-height:88vh;overflow:auto;border-radius:12px 12px 0 0;padding:8px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
-@media (min-width:900px){.sheet{align-items:center}.sheet .box{border-radius:10px;max-height:84vh}}
-.grab{width:40px;height:4px;border-radius:2px;background:var(--rule);margin:4px auto 8px}
-.sheet .head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;position:sticky;top:-8px;background:var(--page);padding-block:6px;border-bottom:1px solid var(--rule)}
-.sheet h2{font:italic 400 1.8rem var(--f-old);margin:0}
-.opt{padding-block:12px;border-bottom:1px solid var(--rule)}
-.opt>label,.opt>.lbl{display:block;font:500 .66rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.segs{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--rule);border-radius:6px;overflow:hidden;width:fit-content;max-width:100%}
-.segs button{border:0;border-right:1px solid var(--rule);background:transparent;padding:7px 13px;font-size:.85rem}
-.segs button:last-child{border-right:0}
-.segs button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
-.opt small{display:block;color:var(--muted);margin-top:6px;font-size:.78rem}
-.opt select,.sinput{width:100%;border:1px solid var(--rule);background:var(--card);border-radius:6px;padding:10px 12px}
-.item{padding-block:10px;border-bottom:1px solid var(--rule);cursor:pointer}
-.item:hover{background:var(--accent-soft)}
-.item small{display:block;font:500 .64rem var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
-.item mark{background:var(--hl);color:var(--ink);border-radius:2px}
-.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:14px}
-.pop{position:fixed;z-index:30;max-width:260px;background:var(--ink);color:var(--page);padding:8px 12px;border-radius:6px;font-size:.85rem;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-.pop b{font-family:var(--f-old);font-size:1.05rem}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--page);padding:8px 16px;border-radius:6px;font-size:.85rem;z-index:40}
-
-@media (max-width:900px){
-  .facing{grid-template-columns:minmax(0,1fr);margin-top:18px;background:none}
-  .facing .lab{display:none}
-  .sp{grid-template-columns:minmax(0,1fr);padding:14px 0 16px;border-bottom:1px solid var(--rule)}
-  .sp .hd,.o,.m{grid-column:1}
-  .m{border-left:2px solid var(--accent);padding:2px 0 2px 12px;margin-top:8px;font-size:.92em}
-  .chunk+.chunk .m{border-top:0;margin-top:0;padding-top:4px}
-  .chunk .m{margin-bottom:6px}
+@media (max-width:759px){.panel{display:none}}
+@media (max-width:899px){
   .o .l[data-n]::before{display:none}
-  .mk{top:10px}
-  .sd{border-bottom:1px solid var(--rule)}
+  body.mode-both .sp .body{display:block}
+  body.mode-both .m{border-left:2px solid var(--accent);padding-left:.8em;margin-top:.3em}
+  body.mode-both .chunk+.chunk>*{border-top:0}
 }
-@media (max-width:560px){
-  .tp{margin:6px 6px 0}
-  .srow{grid-template-columns:2.2rem minmax(0,1fr) auto}
-}
-@media (prefers-reduced-motion:reduce){.bar{transition:none}}
+@media (min-width:900px){.viewport{padding-left:56px;padding-right:56px}.pg{padding-left:2.2em;max-width:740px}}
+@media (min-width:1100px){body.tools .pg{transform:translateX(-210px)}}
+@media (prefers-reduced-motion:reduce){.pg,.bar,.bbar,.panel{transition:none}}
 </style>
 
 <!-- HOME -->
@@ -250,7 +281,7 @@ body.mode-test .m.shown::after{content:"Hide \25B4";display:block;font:500 .66re
     <h1>Othello</h1>
     <div class="post">the Moor of Venice</div>
     <div class="orn">❧</div>
-    <p class="blurb">The full text by William Shakespeare, with a modern English translation on the facing page, word meanings, study notes and a short quiz for every scene.</p>
+    <p class="blurb">The full text by William Shakespeare. Press and hold any speech for its modern English, word meanings and notes.</p>
     <div class="cont" id="contcard"></div>
   </div>
   <form class="homesearch" id="hsearch"><label for="hq" class="sr">Search the play</label><input id="hq" type="search" placeholder="Search the play, e.g. green-eyed" autocomplete="off"><button class="btn" type="submit">Search</button></form>
@@ -260,28 +291,43 @@ body.mode-test .m.shown::after{content:"Hide \25B4";display:block;font:500 .66re
   <div class="cast" id="cast"></div>
   <div class="homefoot">
     <button class="btn" id="h-notes">My notes &amp; highlights</button>
-    <button class="btn" id="h-set">Reading settings</button>
+    <button class="btn" id="h-set">Settings</button>
   </div>
 </section>
 
 <!-- READER -->
 <section id="reader" hidden>
+  <div class="viewport gut" id="vp"><div class="pg" id="pg"></div></div>
+  <div class="pgfoot" id="pgfoot"></div>
   <header class="bar" id="bar"><div class="in gut">
     <button class="icon" id="b-home" aria-label="Contents">☰</button>
     <button class="where" id="b-where" aria-label="Choose scene"><b id="w-title"></b><small id="w-sub"></small></button>
     <button class="icon" id="b-search" aria-label="Search">⌕</button>
-    <button class="icon" id="b-notes" aria-label="My notes">✎</button>
-    <button class="icon" id="b-set" aria-label="Reading settings">Aa</button>
-  </div><div class="prog" id="prog"></div></header>
-  <div class="stage gut" id="stage"></div>
+    <button class="icon txt" id="b-study">Study</button>
+    <button class="icon" id="b-set" aria-label="Settings">Aa</button>
+  </div></header>
+  <footer class="bbar" id="bbar"><div class="in gut">
+    <button class="icon" id="p-prev" aria-label="Previous page">‹</button>
+    <label for="p-range" class="sr">Page</label><input type="range" id="p-range" min="1" max="1" value="1">
+    <span class="pn" id="p-num"></span>
+    <button class="icon" id="p-next" aria-label="Next page">›</button>
+  </div></footer>
+</section>
+<div id="measure" aria-hidden="true"></div>
+
+<!-- STUDY -->
+<section id="study" class="gut" hidden>
+  <div class="sbar"><button class="icon txt" id="s-back">‹ Read</button><h1>Study</h1><button class="icon" id="s-home" aria-label="Contents">☰</button></div>
+  <div class="tabs" role="tablist" id="stabs"></div>
+  <div id="sbody"></div>
 </section>
 
-<div class="sheet" id="sheet" hidden><div class="box" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+<aside class="panel" id="panel" aria-label="Speech tools"><div class="phead"><h2 id="panel-title"></h2><button class="btn sm" id="panel-close">Close</button></div><div class="pbody" id="panel-body"></div></aside>
+<div class="sheet" id="sheet" hidden><div class="sbox" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
   <div class="grab"></div>
   <div class="head"><h2 id="sheet-title"></h2><button class="btn" id="sheet-close">Done</button></div>
   <div id="sheet-body"></div>
 </div></div>
-<div class="pop" id="pop" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -1062,33 +1108,483 @@ const STUDY={
 }
 };
 const ALIGN={"5": [[0, 3, "Despise me if I don't. Three important men of this city went to him personally, hats in hand, asking him to make me his lieutenant. And I swear, I know what I'm worth: I deserve no lower rank."], [4, 9, "But he, loving his own pride and his own plans, dodged them with a pompous, roundabout speech stuffed with military jargon, and in the end turned my supporters down. \"Truly,\" he says, \"I've already chosen my officer."], [10, 10, "And who was it?"], [11, 19, "A real mathematician, Michael Cassio from Florence (a guy who's nearly ruined by a pretty woman), who has never led a squad in battle and knows no more about deploying troops than an old maid does. All he knows is book theory, which any toga-wearing politician can talk about as well as he can. His whole soldiering is talk without practice. But he got the job."], [20, 25, "And I, whom Othello saw prove myself at Rhodes, at Cyprus, and on other battlefields, Christian and pagan, have to be left dead in the water by a bookkeeper. This number-cruncher gets to be his lieutenant, and I (God help me! am stuck as his Moorship's flag-bearer."]], "9": [[0, 0, "Oh, relax."], [1, 1, "I serve him so I can use him for my own ends."], [2, 7, "We can't all be masters, and not every master can be faithfully served. You've seen plenty of loyal, bowing servants who love their own slavish obedience and wear themselves out like their master's donkey, working for nothing but food, and when they're old they get fired."], [8, 14, "Whip those honest fools, I say. There are others who put on the costume and face of duty while keeping their hearts focused on themselves. They put on a show of service to their lords, profit from it, and once they've lined their pockets they serve only themselves. Those guys have some spirit, and I'm one of them."], [15, 17, "Because, sir, as sure as you're Roderigo, if I were the Moor, I wouldn't want to be Iago."], [18, 18, "In serving him, I'm really serving myself."], [19, 20, "Heaven knows I'm not doing it out of love and duty; I only seem to, for my own private purpose."], [21, 25, "Because when my outward actions start to reveal what's really in my heart, I might as well wear my heart on my sleeve for birds to peck at. I am not what I seem."]], "21": [[0, 0, "Damn it, sir, you've been robbed! For shame, put on your robe."], [1, 1, "Your heart is broken; you've lost half your soul."], [2, 3, "Right now, this very minute, an old black ram is mating with your white ewe. Get up, get up!"], [4, 5, "Ring the bell and wake the snoring citizens, or the devil will make you a grandfather."], [6, 6, "Get up, I tell you!"]], "26": [[0, 0, "All the less welcome."], [1, 1, "I've told you not to hang around my door."], [2, 6, "I've told you plainly that my daughter isn't for you. And now, out of your mind, full of dinner and too much drink, you come here out of spite to disturb my peace."]], "38": [[0, 8, "Sir, I'll answer for anything. But please, if it's with your approval and wise consent (as it partly seems to be) that your lovely daughter, at this dead hour of the night, was carried off with no better protection than a hired gondolier into the crude embrace of a lustful Moor, if you know about this and allowed it, then we've done you a bold and rude wrong."], [9, 12, "But if you don't know, my manners tell me you're scolding us unfairly. Don't think I'd abandon all decency to play games with an honorable man like you."], [13, 17, "Your daughter, if you haven't given her permission, has committed a gross rebellion, tying her duty, beauty, intelligence, and fortune to a wandering foreigner with no home."], [18, 20, "Check for yourself right now: if she's in her room or in your house, let the law punish me for deceiving you."]], "39": [[0, 0, "Strike a light!"], [1, 1, "Give me a candle! Wake up all my servants!"], [2, 2, "This is a lot like my dream."], [3, 3, "Just believing it is crushing me already."], [4, 4, "Light, I say, light!"]], "41": [[0, 0, "Goodbye; I have to leave you."], [1, 15, "It wouldn't be right, or good for my position, to be called as a witness against the Moor, which I will be if I stay. I know the state can't afford to dismiss him, even if this gets him a reprimand. He's been sent off with such urgency to the wars in Cyprus, which are already underway, that they couldn't find anyone else of his caliber to lead them if their souls depended on it. So even though I hate him like the pains of hell, for practical reasons I have to show a flag of loyalty, which really is just a flag. To be sure of finding him, lead the search party to the Sagittary inn. I'll be there with him. Goodbye."]], "44": [[0, 3, "It's horribly true. She's gone, and what's left of my miserable life will be nothing but bitterness. Now, Roderigo, where did you see her? Oh, unhappy girl!"], [4, 4, "With the Moor, you say? Who would want to be a father!"], [5, 6, "How did you know it was her? Oh, she's deceived me beyond belief! What did she say to you? Get more candles."], [7, 7, "Wake all my relatives. Do you think they're married?"]], "46": [[0, 0, "Oh heaven! How did she get out? Oh, betrayal by my own flesh and blood!"], [1, 5, "Fathers, from now on, don't trust your daughters' minds just by how they act. Aren't there spells that can corrupt young virgins? Haven't you read about something like that, Roderigo?"]], "50": [[0, 0, "Please, lead the way. I'll call at every house; most of them will obey me."], [1, 1, "Get weapons!"], [2, 2, "And wake some of the night watch officers."], [3, 3, "Go on, good Roderigo. I'll reward you for your trouble."]], "57": [[0, 0, "Let him do his worst."], [1, 11, "The services I've done for the state will drown out his complaints. People don't know yet (and I'll announce it only when boasting becomes honorable) that I come from royal ancestors, and my merits entitle me, without hat in hand, to as proud a fortune as the one I've won. Because know this, Iago: if I didn't love gentle Desdemona, I wouldn't give up my free, unattached life for all the treasure in the sea. But look! What are those lights over there?"]], "65": [[0, 0, "Something from Cyprus, I'd guess."], [1, 3, "It's urgent business. The warships have sent a dozen messengers tonight, one right after the other, and many of the senators have been woken and are already at the Duke's."], [4, 8, "You've been urgently called for. When you weren't at your lodging, the Senate sent out three separate search parties to find you."]], "85": [[0, 0, "You filthy thief, where have you hidden my daughter?"], [1, 9, "Damned as you are, you've bewitched her. I appeal to common sense: if she weren't bound by magic chains, would a girl so gentle, beautiful, and happy, so against marriage that she rejected the rich, curly-haired young men of our nation, ever run from her father's protection, making herself a public joke, to the sooty chest of a thing like you, something to fear, not to enjoy?"], [10, 13, "Let the world judge if it isn't obvious that you've worked foul spells on her, abused her young innocence with drugs or potions that dull the senses."], [14, 14, "I'll have it tried in court."], [15, 17, "It's probable and obvious. So I arrest you as a corrupter of society, a practitioner of forbidden, illegal arts."], [18, 19, "Seize him. If he resists, subdue him by force."]], "86": [[0, 1, "Hold it, both my side and the rest of you."], [2, 4, "If it were my cue to fight, I'd have known it without a prompter. Where do you want me to go to answer your charge?"]], "88": [[0, 0, "And if I obey?"], [1, 4, "How would that satisfy the Duke, whose messengers are standing here beside me, to bring me to him on urgent state business?"]], "90": [[0, 0, "What?"], [1, 1, "The Duke in council at this time of night? Bring him along."], [2, 4, "My case isn't trivial. The Duke himself, or any of my fellow senators, can't help but feel this wrong as if it were their own."], [5, 6, "Because if things like this are allowed, slaves and heathens will end up running our government."]], "96": [[0, 0, "And mine, two hundred."], [1, 4, "But although they don't agree on the exact number (reports based on estimates often differ), they all confirm a Turkish fleet heading for Cyprus."]], "97": [[0, 0, "Yes, that seems likely enough."], [1, 3, "I don't take false comfort from the discrepancies; I believe the main point, and it scares me."]], "116": [[0, 1, "Brave Othello, we need to send you immediately against our common enemy, the Turks."], [2, 2, "[To Brabantio. I didn't see you there; welcome, good sir."], [3, 3, "We missed your advice and help tonight."]], "117": [[0, 0, "And I missed yours."], [1, 6, "Your Grace, forgive me: it wasn't my position or any news of state business that got me out of bed, and public concerns don't grip me now. My personal grief is so overwhelming, like a flood through open gates, that it swallows up every other sorrow and remains just as huge."]], "121": [[0, 0, "Yes, to me."], [1, 2, "She's been abused, stolen from me, and corrupted by spells and potions bought from con men."], [3, 5, "For nature to go so absurdly wrong, when she isn't defective, blind, or stupid, would be impossible without witchcraft."]], "123": [[0, 0, "I humbly thank your Grace."], [1, 3, "Here is the man: this Moor, who it seems you've summoned here for state affairs."]], "127": [[0, 3, "Most powerful, serious, and respected lords, my noble and proven masters: it's true that I've taken this old man's daughter. It's true; I've married her."], [4, 6, "That's the full extent of my offense, no more. I'm rough in my speech and not gifted with the smooth language of peacetime."], [7, 11, "Since I was seven years old, until about nine months ago, these arms have done their best work on the battlefield, and I can say little about the wider world beyond fighting and battle."], [12, 18, "So I won't help my case much by speaking for myself. Still, with your kind patience, I'll tell you a plain, unpolished story of my whole courtship: what drugs, what charms, what spells, and what powerful magic (since that's what I'm accused of) I used to win his daughter."]], "128": [[0, 4, "A girl who was never bold, so quiet and shy that she blushed at her own feelings. And she, against her nature, her age, her country, her reputation, everything, fell in love with what she was afraid to look at!"], [5, 12, "Only a crippled and faulty judgment would claim that perfection could go so wrong against all the rules of nature. One has to look to the tricks of cunning hell to explain it. So I swear again that he worked on her with some potion that affects the blood, or some drug enchanted for this purpose."]], "130": [[0, 0, "But Othello, speak."], [1, 2, "Did you use underhanded and forced methods to overpower and poison this young woman's affections?"], [3, 4, "Or did it come through courtship and honest conversation, soul to soul?"]], "131": [[0, 2, "I beg you, send for the lady at the Sagittary and let her speak about me in front of her father."], [3, 6, "If her account shows me guilty, don't just take away the trust and command you've given me: let your sentence fall on my life."]], "137": [[0, 3, "Her father loved me and often invited me over. He kept asking me the story of my life, year by year: the battles, sieges, and fortunes I'd been through."], [4, 5, "I told it all, from my boyhood up to the moment he asked."], [6, 11, "I talked about terrible disasters, thrilling adventures at sea and on land, narrow escapes from death when the walls were breached, being captured by an arrogant enemy and sold into slavery, buying my freedom, and how I behaved in all my travels."], [12, 18, "I described huge caves and empty deserts, rough quarries, rocks, and mountains so high they touch heaven; that was my story. And I told of the cannibals who eat each other, the Anthropophagi, and men whose heads grow beneath their shoulders. Desdemona would lean in eagerly to hear all this."], [19, 31, "But household chores would keep pulling her away, and whenever she could finish them quickly, she'd come back and devour my words with a hungry ear. Noticing that, I found a good moment and got her to beg me sincerely to tell her my whole journey in full, since she'd only heard bits and pieces, not the whole story. I agreed, and often brought her to tears when I talked about some painful blow I suffered in my youth. When I finished, she gave me a world of sighs for my trouble."], [32, 32, "She swore it was strange, truly strange, pitiful, so incredibly pitiful."], [33, 38, "She wished she hadn't heard it, yet she wished heaven had made her a man like that. She thanked me and told me that if I had a friend who loved her, I should just teach him how to tell my story, and that would win her. With that hint, I spoke up."], [39, 40, "She loved me for the dangers I had been through, and I loved her because she pitied them."], [41, 41, "That's the only witchcraft I've used."], [42, 42, "Here comes the lady; let her confirm it."]], "139": [[0, 0, "I think a story like that would win my daughter too."], [1, 2, "Good Brabantio, make the best of this messy situation."], [3, 4, "Men would rather fight with broken weapons than with their bare hands."]], "140": [[0, 0, "Please, hear her speak."], [1, 3, "If she admits she was half the wooer, let me be destroyed if I blame the man! Come here, gentle lady."], [4, 5, "Do you see, in this noble company, to whom you owe the most obedience?"]], "141": [[0, 1, "My noble father, I see that my duty is divided here."], [2, 9, "To you I owe my life and upbringing, and both teach me to respect you. You're the one I owe duty to; so far I've been your daughter. But here is my husband. And just as much duty as my mother showed you, putting you before her own father, I claim the right to show to the Moor, my husband."]], "142": [[0, 0, "God be with you! I'm done."], [1, 1, "Your Grace, please, go on to the state business."], [2, 2, "I'd rather adopt a child than have one of my own."], [3, 3, "Come here, Moor."], [4, 7, "I give you, with all my heart, what I'd keep from you with all my heart if you didn't already have it. Because of you, my jewel, I'm glad in my soul I have no other children, because your escape would make me a tyrant, chaining them up."], [8, 9, "I'm done, my lord."]], "143": [[0, 2, "Let me speak as you would, and offer some wise sayings that might be a step to help these lovers back into your good graces."], [3, 4, "When there's no cure left, grief ends once we see the worst that we used to hope wouldn't happen."], [5, 6, "Mourning a misfortune that's past and gone is the surest way to bring a new one."], [7, 8, "When Fortune takes what can't be saved, patience makes a joke of the injury."], [9, 10, "The robbed man who smiles steals something back from the thief; the one who wastes time on useless grief robs himself."]], "144": [[0, 1, "So let the Turks cheat us out of Cyprus; we haven't lost it as long as we can smile."], [2, 3, "A man takes this advice well when it costs him nothing and he only hears the free comfort in it."], [4, 5, "But a man who must pay off his grief by borrowing from his poor patience has to bear both the advice and the sorrow."], [6, 7, "These sayings, sweet or bitter, cut both ways, so they mean nothing."], [8, 9, "Words are just words. I've never heard of a bruised heart being healed through the ear."], [10, 10, "I humbly beg you, go on with the affairs of state."]], "145": [[0, 0, "The Turk is heading for Cyprus with a huge force."], [1, 6, "Othello, you know that place's defenses best. Although we have a highly capable deputy there, public opinion, which ultimately decides things, has more confidence in you. So you'll have to accept tarnishing the shine of your new happiness with this rougher, more violent expedition."]], "146": [[0, 5, "Habit, that tyrant, most serious senators, has made the hard, stony, steel bed of war feel to me like the softest feather bed. I admit I feel a natural, eager readiness for hardship, and I take on this war against the Turks."], [6, 10, "So, humbly bowing to your authority, I ask for proper arrangements for my wife: suitable lodging, an allowance, and the kind of accommodation and company that fits her upbringing."]], "152": [[0, 3, "That I loved the Moor enough to live with him, my bold break with convention and my reckless gamble with my future can announce to the world. My heart has been won over by his very nature."], [4, 6, "I saw Othello's true face in his mind, and I dedicated my soul and fortune to his honor and his courage."], [7, 11, "So, dear lords, if I'm left behind, a useless moth living in peace while he goes to war, I'm robbed of the very things I love him for, and I'll have to endure a heavy wait in his absence. Let me go with him."]], "153": [[0, 0, "Give her your approval."], [1, 4, "Heaven be my witness, I don't ask this to satisfy my appetite or my passions (the urges of youth are dead in me) or for my own pleasure, but to be generous to her wishes."], [5, 14, "And heaven forbid you good men think I'll neglect your serious and important business because she's with me. No: if the light-winged toys of feathered Cupid ever blind my eyes and dull my mind with lust, so that my pleasures corrupt and spoil my work, let housewives turn my helmet into a cooking pot, and let every shameful and humiliating misfortune rise up against my reputation!"]], "158": [[0, 0, "We'll meet here again at nine in the morning."], [1, 4, "Othello, leave an officer behind, and he'll bring you our official orders and whatever else concerns your rank and position."]], "159": [[0, 0, "If it please your Grace, my ensign."], [1, 1, "He's an honest and trustworthy man."], [2, 4, "I'll leave my wife in his care, along with anything else your Grace thinks should be sent after me."]], "160": [[0, 0, "So be it."], [1, 3, "Good night, everyone. [To Brabantio. And, noble sir, if goodness has its own beauty, your son-in-law is far more fair than black."]], "164": [[0, 1, "I'd bet my life on her loyalty! Honest Iago, I have to leave my Desdemona with you."], [2, 3, "Please have your wife look after her, and bring them after me when it's most convenient."], [4, 6, "Come, Desdemona, I have only an hour to spend with you on love, practical matters, and instructions. We must do what the time demands."]], "175": [[0, 0, "Strength? Nonsense! It's up to us whether we're one way or another."], [1, 8, "Our bodies are gardens, and our wills are the gardeners. Whether we plant nettles or lettuce, grow hyssop or weed out thyme, fill it with one kind of herb or many, let it go barren through laziness or fertilize it with hard work, the power to control all this lies in our wills. If our lives didn't have reason on one side of the scale to balance our desires on the other, our lust and baser nature would lead us to absurd results."], [9, 11, "But we have reason to cool our raging urges, our sexual desires, our unbridled lusts. And I think what you call love is just an offshoot of that."]], "177": [[0, 12, "It's nothing but lust of the blood that the will allows. Come on, be a man! Drown yourself? Drown cats and blind puppies. I've said I'm your friend, and I admit I'm bound to you with unbreakable cables. I've never been more useful to you than now. Put money in your wallet. Follow the army to the wars. Disguise your face with a fake beard. I'm telling you, put money in your wallet. Desdemona can't go on loving the Moor for long (put money in your wallet), nor he her. It started violently, and you'll see it end just as abruptly (just put money in your wallet). These Moors are fickle (fill your wallet with money). The food that tastes as sweet as candy to him now will soon taste as bitter as poison. She'll want someone younger. When she's had enough of his body, she'll realize her mistake."], [13, 22, "She has to have a change, she must, so put money in your wallet. If you're set on damning yourself, do it in a more pleasant way than drowning. Raise all the money you can. If a holy ceremony and a fragile vow between a wandering barbarian and an overly clever Venetian girl aren't too much for my wits and all the powers of hell, you'll have her. So make money. To hell with drowning yourself! It's completely beside the point. You'd be better off being hanged for getting what you want than drowning without her."]], "188": [[0, 0, "This is how I always make my fool pay my way."], [1, 8, "I'd be wasting what I've learned if I spent time with such an idiot except for my own fun and profit. I hate the Moor. And people say he's slept with my wife. I don't know if it's true, but just the suspicion is enough for me; I'll act as if it were certain. He thinks well of me; that will make my plan work on him all the better. Cassio's a handsome man."], [9, 13, "Let me see now: how to get his job and pull off my plan in a double scam. How? How? Let's see. After a while, I'll whisper in Othello's ear that Cassio is too familiar with his wife."], [14, 15, "Cassio has the looks and smooth manner to be suspected; he's made to make women unfaithful."], [16, 19, "The Moor is open and trusting by nature. He thinks men are honest if they only seem to be, and he can be led by the nose as easily as a donkey. I've got it."], [20, 21, "It's conceived. Hell and darkness must bring this monstrous birth into the light of the world."]], "194": [[0, 0, "I think the wind has roared loudly on land too; a stronger gust never shook our walls."], [1, 4, "If it has been this violent at sea, what oak ships can hold together when mountains of water crash down on them? What news will we hear after this?"]], "195": [[0, 0, "That the Turkish fleet has been scattered."], [1, 5, "Just stand on the foaming shore: the battered waves seem to hit the clouds, and the wind-whipped surge, with its huge monstrous mane, seems to throw water on the stars of the Great Bear and put out the stars that guard the fixed North Star."], [6, 7, "I've never seen such turmoil on the raging sea."]], "198": [[0, 0, "News, men! Our war is over."], [1, 4, "This furious storm has smashed the Turks so badly that their plans are finished. A noble ship from Venice saw most of their fleet wrecked and ruined."]], "203": [[0, 2, "I pray to heaven he is. I've served under him, and the man commands like a true soldier."], [3, 6, "Let's go to the shore! We'll see the ship that's come in, and look out for brave Othello until the sea and the sky blur together."]], "208": [[0, 1, "His ship is solidly built, and his pilot is highly skilled and experienced."], [2, 3, "So my hopes, which aren't yet dead, are still strong."]], "224": [[0, 0, "He's had a very quick and lucky voyage."], [1, 6, "Storms, high seas, howling winds, jagged rocks, and sandbars (traitors lying underwater to trap innocent ships) all seem to have a sense of beauty and set aside their deadly nature to let the divine Desdemona pass safely."]], "228": [[0, 1, "Oh, look! The ship's treasure has come ashore!"], [2, 2, "Men of Cyprus, kneel to her."], [3, 5, "Hail to you, lady! May heaven's grace surround you, in front, behind, and on every side!"]], "237": [[0, 0, "Good ensign, welcome. [To Emilia. Welcome, madam."], [1, 3, "Don't be offended, good Iago, that I'm being so forward with my manners. It's my upbringing that makes me show such bold courtesy. [Kisses her.]"]], "240": [[0, 0, "Honestly, she says too much."], [1, 1, "I notice it whenever I want to sleep."], [2, 4, "Of course, in front of you, my lady, I admit she bites her tongue a bit and only scolds in her thoughts."]], "252": [[0, 1, "I'm working on it, but my ideas come out of my head like glue off a wool cloth: they pull my brains out with them."], [2, 5, "But my Muse is in labor, and here's what she gives birth to: If a woman is fair and wise, with beauty and brains, her beauty is for using, and her brains know how to use it."]], "261": [[0, 5, "A woman who was always beautiful but never proud, who could speak her mind but was never loud, who always had money but never dressed flashy, who held back from what she wanted even when she could have it; a woman who, when angered and able to take revenge, let the insult go and her anger fade; a woman who was never so foolish as to trade something good for something worthless; who could think without blurting out her thoughts, and could have men chasing her without looking back."], [6, 10, "She'd be the kind of woman, if such a woman ever existed..."]], "266": [[0, 0, "[Aside. He takes her by the hand. Yes, that's it, whisper."], [1, 7, "With a web this small I'll catch a fly as big as Cassio. Yes, smile at her, go on. I'll trap you in your own courtly manners. That's right, exactly. If tricks like these cost you your lieutenancy, you'd have been better off not kissing your fingers so often, which you're now so eager to do again like a fine gentleman. Very good. Nicely kissed! Excellent manners! Exactly. Your fingers to your lips again?"], [8, 8, "I wish they were enema tubes, for your sake! [Trumpet offstage."], [9, 9, "The Moor! I know his trumpet."]], "273": [[0, 1, "It's as amazing as it is wonderful to find you here before me. Oh, my soul's joy!"], [2, 3, "If every storm is followed by a calm like this, let the winds blow until they wake the dead!"], [4, 10, "Let the struggling ship climb mountains of waves as high as Olympus and then drop as low as hell is from heaven! If I were to die right now, I'd die the happiest man alive, because I'm afraid my soul is so completely content that I'll never feel happiness like this again in my unknown future."]], "275": [[0, 0, "Amen to that, sweet heaven!"], [1, 1, "I can't say enough about how happy I am."], [2, 2, "It catches me here; it's too much joy."], [3, 4, "And may this, and this [Kisses her], be the worst conflict our hearts ever have!"]], "277": [[0, 0, "Come, let's go to the castle."], [1, 1, "News, friends: the war is over; the Turks have drowned."], [2, 2, "How are my old friends on this island?"], [3, 7, "Darling, you'll be very welcome in Cyprus; I've found great affection here. Oh, my sweet, I'm babbling and going on about my own happiness. Please, good Iago, go to the bay and unload my chests."], [8, 11, "Bring the ship's captain to the fort; he's a good man, and his ability deserves a lot of respect. Come, Desdemona. Once again, welcome to Cyprus."]], "279": [[0, 2, "Meet me at the harbor right away. Come here. If you're brave (and they say even lowborn men get a nobility from being in love that they don't normally have), listen to me."], [3, 4, "The lieutenant is on guard duty tonight. First, I have to tell you this: Desdemona is definitely in love with him."]], "281": [[0, 10, "Put your finger to your lips like this, and let your soul learn something. Remember how violently she first loved the Moor, just because he bragged and told her fantastic lies. Will she keep loving him for his chatter? Don't you believe it. Her eyes need feeding, and what pleasure will she get from looking at the devil? When sex has dulled the passion, it takes good looks, a similar age, manners, and beauty to rekindle it and give a full stomach a fresh appetite, and the Moor lacks all of these. Without these necessary qualities, her delicate sensibilities will feel cheated. She'll start to feel sick, lose her taste for the Moor, and loathe him."], [11, 23, "Nature itself will teach her this and push her to a second choice. Now, sir, given that (and it's a very obvious and natural conclusion), who is better placed to get lucky than Cassio? A smooth-talking rascal, with no more conscience than it takes to put on a show of politeness and manners to hide his lustful, secret desires. Nobody, nobody! A slippery, cunning rascal, an opportunist, with an eye that can create and fake opportunities even when no real ones exist. A devilish rascal! Besides, he's handsome, young, and has everything that foolish, inexperienced women look for. A thoroughly rotten rascal, and the woman has already got her eye on him."]], "283": [[0, 2, "Blessed nonsense! The wine she drinks is made of grapes like anyone else's. If she were so blessed, she'd never have loved the Moor. Blessed pudding! Didn't you see her stroking the palm of his hand?"], [3, 3, "Didn't you notice that?"]], "285": [[0, 4, "It was lust, I swear by this hand. A preview and secret prologue to a story of lust and dirty thoughts. Their lips came so close that their breath embraced. Villainous thoughts, Roderigo! When these intimacies lead the way, soon after comes the main event, the joining of bodies."], [5, 6, "Disgusting! But, sir, do as I say. I brought you from Venice. Be on guard duty tonight; I'll arrange for you to be posted."], [7, 10, "Cassio doesn't know you. I won't be far away. Find some way to make Cassio angry, either by talking too loudly, or mocking his discipline, or any other way you like that the moment offers."]], "287": [[0, 3, "Sir, he's reckless and quick-tempered, and he may well hit you. Provoke him so he does. Because from that alone I'll get the people of Cyprus to riot, and they won't be calmed down again until Cassio is removed."], [4, 7, "That way you'll have a shorter path to what you want, through the means I'll then have to advance you, and the obstacle will be conveniently removed. Without that, we'd have no hope of success."]], "292": [[0, 0, "That Cassio loves her, I can well believe."], [1, 1, "That she loves him is likely and very believable."], [2, 13, "The Moor, though I can't stand him, is faithful, loving, and noble by nature, and I'd guess he'll be a very loving husband to Desdemona. Now, I love her too, not purely out of lust (though I may be guilty of just as great a sin), but partly to feed my revenge, because I suspect the lusty Moor has slept with my wife. The thought of it eats at my insides like poison, and nothing can or will satisfy my soul until I get even with him, wife for wife. Or if I fail at that, then at least I'll make the Moor so jealous that reason can't cure him."], [14, 25, "To do that, if this Venetian trash Roderigo, whom I keep on a leash so he'll hunt eagerly, does what I push him to do, I'll have Michael Cassio at my mercy. I'll slander him to the Moor as a womanizer (because I suspect Cassio with my wife too), and make the Moor thank me, love me, and reward me for making a complete fool of him and scheming against his peace of mind until he goes mad. The plan is here in my head, but still muddled."], [26, 26, "Villainy never shows its full face until it's put to use."]], "302": [[0, 0, "Iago is very honest."], [1, 3, "Michael, good night. Come talk to me first thing tomorrow. Come, my dear love. The deal is made; now the rewards are to follow."], [4, 4, "That pleasure is still to come between you and me."], [5, 5, "Good night."]], "323": [[0, 6, "If I can just get one more cup into him, on top of what he's already had tonight, he'll be as quarrelsome and touchy as a little lady's lapdog. Now my lovesick fool Roderigo, whom love has turned almost inside out, has tonight been drinking toasts to Desdemona by the jugful, and he's on guard duty."], [7, 13, "Three young men of Cyprus, proud and touchy about their honor, the very essence of this warlike island, I've gotten drunk tonight with overflowing cups, and they're on watch too. Now, among this flock of drunks, I'll get Cassio to do something that will offend the island. But here they come."], [14, 15, "If things turn out the way I've imagined, my boat will sail freely with both wind and current behind it."]], "327": [[0, 0, "Some wine, here!"], [1, 1, "[Sings."], [2, 2, "\"And let me clink the drinking cup, clink, clink; and let me clink the drinking cup."], [3, 5, "A soldier's a man; a man's life is short; so let a soldier drink."], [6, 6, "Some wine, boys!"]], "334": [[0, 0, "Oh, sweet England!"], [1, 2, "[Sings. \"King Stephen was a worthy lord; his pants cost him only a crown."], [3, 4, "He thought them sixpence overpriced, and so he called the tailor a clown."], [5, 6, "He was a man of high renown, and you are just of low degree."], [7, 7, "It's pride that brings the country down, so wrap your old cloak around thee."], [8, 9, "Some wine, here!"]], "346": [[0, 0, "You see that fellow who just left?"], [1, 2, "He's a soldier fit to stand beside Caesar and give orders. And yet look at his vice."], [3, 4, "It exactly balances his virtue, like day and night at the equinox, one as long as the other. It's a pity."], [5, 7, "I'm afraid the trust Othello places in him, at some moment when his weakness takes hold, will shake this island."]], "349": [[0, 1, "The general should be told about it."], [2, 4, "Maybe he doesn't see it, or his good nature values the good qualities in Cassio and overlooks his faults. Isn't that right?"]], "353": [[0, 2, "And it's a great pity that the noble Moor would risk such an important post as his second-in-command on a man with such an ingrained weakness."], [3, 4, "It would be the honest thing to tell the Moor."]], "376": [[0, 0, "Why, what's this? How did this start?"], [1, 2, "Have we turned into Turks and done to ourselves what heaven stopped the Turks from doing?"], [3, 3, "For the sake of Christian decency, stop this savage brawl."], [4, 5, "The next man who moves to strike out of his own anger doesn't value his life; he dies the moment he moves."], [6, 7, "Silence that terrible bell; it's scaring the island out of its wits. What's the matter, gentlemen?"], [8, 9, "Honest Iago, you look dead with grief. Speak: who started this? I order you, by your loyalty."]], "377": [[0, 6, "I don't know. Everyone was friends just a moment ago, getting along like a bride and groom undressing for bed. And then, just now, as if some planet had driven men insane, swords were out and they were lunging at each other's chests in a bloody fight. I can't tell you how this stupid quarrel began."], [7, 8, "I wish I'd lost my legs in some glorious battle rather than have them bring me here to see any part of it!"]], "380": [[0, 0, "Worthy Montano, you used to be well-behaved."], [1, 6, "The world has noticed your seriousness and calm since your youth, and the wisest judges speak highly of you. What's going on, that you throw away your reputation like this and trade your good name for that of a night-time brawler? Answer me."]], "381": [[0, 0, "Worthy Othello, I'm seriously hurt."], [1, 7, "Your officer Iago can tell you everything I know, while I save my breath, since talking hurts me right now. I don't know of anything I've said or done wrong tonight, unless looking after yourself is sometimes a vice, and defending ourselves is a sin when violence attacks us."]], "382": [[0, 12, "Now, by heaven, my temper is starting to overrule my better judgment, and anger, having clouded my reason, is trying to take over. If I move, or even lift this arm, the best of you will fall under my punishment. Tell me how this disgraceful riot started and who began it. Whoever is proven guilty, even if he were my twin brother, born at the same moment, will lose me. What? In a garrison town, still unsettled, with the people's hearts full of fear, to start a private, personal quarrel at night, at the very guard post meant to keep the peace!"], [13, 13, "It's outrageous. Iago, who started it?"]], "384": [[0, 0, "Don't hit me where it hurts."], [1, 2, "I'd rather have my tongue cut out than have it harm Michael Cassio."], [3, 4, "Still, I'm sure telling the truth won't hurt him. Here's what happened, general."], [5, 9, "Montano and I were talking when a man came running in shouting for help, with Cassio chasing him, sword drawn, ready to strike him. Sir, this gentleman stepped in front of Cassio and begged him to stop."], [10, 19, "I went after the screaming man so his shouting wouldn't frighten the town, which is what happened anyway. He was too fast for me, and I came back all the quicker because I heard swords clashing and Cassio swearing loudly, which I'd never heard him do before tonight. When I got back (all this happened quickly), I found them fighting at close quarters, striking and thrusting, just as they were when you yourself separated them. I can't tell you any more than that."], [20, 21, "But men are men; even the best sometimes forget themselves."], [22, 26, "Though Cassio did him some small wrong, as men in a rage strike even those who mean them well, I do believe Cassio must have received some outrageous insult from the man who ran away, something he couldn't let pass."]], "391": [[0, 1, "Iago, look carefully around the town and calm down anyone this ugly brawl has upset."], [2, 2, "Come, Desdemona."], [3, 3, "This is the soldier's life: having peaceful sleep broken by fighting."]], "398": [[0, 2, "I'd rather ask to be despised than trick such a good commander into keeping such a worthless, drunken, reckless officer. Drunk? Babbling like a parrot?"], [3, 5, "Squabbling, swaggering, swearing, ranting nonsense at my own shadow? Oh, you invisible spirit of wine, if you don't have a name yet, let's call you devil!"]], "409": [[0, 4, "You or any man alive can get drunk sometimes, man. I'll tell you what to do. Our general's wife is now the general. I can say that because he has devoted himself completely to admiring and studying her qualities and charms. Confess everything to her."], [5, 8, "Beg her to help you get your job back. She's so generous, so kind, so willing, so good-natured that she thinks it's a fault in her goodness not to do more than she's asked."], [9, 10, "Ask her to set this broken bone between you and her husband, and I'll bet everything I have that this crack in your friendship will heal stronger than before."]], "416": [[0, 14, "So who can say I'm playing the villain, when the advice I give is free and honest, reasonable, and really the way to win the Moor back? Because it's very easy to get the willing Desdemona to support any honest request. She's as generous as the free elements. And it's just as easy for her to win over the Moor; even if it meant renouncing his baptism and every sign and symbol of his salvation, his soul is so chained to his love for her that she can make, unmake, or do whatever she likes with him, as her desire plays god over his weak will. So how am I a villain for advising Cassio to take this path, which leads straight to his own good? The theology of hell!"], [15, 21, "When devils want to commit the blackest sins, they first tempt with heavenly appearances, as I'm doing now. Because while this honest fool begs Desdemona to fix his fortunes, and she pleads hard for him with the Moor, I'll pour this poison into the Moor's ear: that she wants Cassio back because she lusts for him."], [22, 23, "And the harder she tries to help Cassio, the more she'll destroy the Moor's trust in her."], [24, 26, "That's how I'll turn her goodness into tar, and from her own kindness make the net that will catch them all."]], "420": [[0, 0, "How poor are those who have no patience!"], [1, 1, "What wound ever healed except gradually?"], [2, 3, "You know we work with brains and not with witchcraft, and brains have to wait for the right time."], [4, 5, "Isn't it going well? Cassio beat you, and with that small injury you've gotten Cassio fired."], [6, 7, "Other things may grow well in the sun, but the fruits that blossom first will ripen first."], [8, 8, "Be patient for a while. By God, it's morning."], [9, 9, "Pleasure and action make the hours fly by. Go away, go to where you're staying."], [10, 10, "Go, I said. You'll find out more later."], [11, 11, "No, get out of here. [Roderigo leaves."], [12, 12, "Two things need to be done. My wife has to plead for Cassio with her mistress; I'll get her to do it."], [13, 17, "Meanwhile I'll draw the Moor aside and bring him in at exactly the moment he can find Cassio pleading with his wife. Yes, that's the way."], [18, 18, "Don't let the plan go stale through hesitation and delay."]], "448": [[0, 0, "I'll send her to you right away."], [1, 3, "And I'll come up with a way to get the Moor out of the way, so you two can talk business more freely."]], "451": [[0, 1, "Good morning, good lieutenant. I'm sorry you're out of favor, but I'm sure everything will be fine."], [2, 9, "The general and his wife are talking about it, and she's defending you strongly. The Moor says the man you injured is well known in Cyprus and well connected, and that the wise thing was to dismiss you. But he insists he cares for you, and needs no one to plead for you but his own affection to take the first safe chance to bring you back."]], "457": [[0, 1, "Iago, give these letters to the ship's pilot and have him send my respects to the Senate."], [2, 2, "When that's done, I'll be walking on the fortifications."], [3, 3, "Meet me there."]], "468": [[0, 0, "I know it, and I thank you. You love my husband."], [1, 3, "You've known him a long time. And rest assured, he'll keep his distance from you only as long as is politically necessary."]], "470": [[0, 3, "Don't worry about that. With Emilia here as witness, I guarantee you'll get your position back. I promise you, if I swear friendship, I'll keep it to the letter. My husband will never get any rest."], [4, 4, "I'll keep him awake until he gives in, and talk until he runs out of patience."], [5, 5, "His bed will feel like a school and his dinner table like a confessional."], [6, 9, "I'll mix Cassio's case into everything he does. So cheer up, Cassio, because your advocate would rather die than give up on you."]], "486": [[0, 2, "Why, your lieutenant, Cassio. My good lord, if I have any charm or power to persuade you, make up with him now."], [3, 5, "Because if he isn't someone who truly loves you, who made a mistake out of ignorance and not on purpose, then I can't judge an honest face."], [6, 6, "Please, call him back."]], "496": [[0, 1, "Then tomorrow night, or Tuesday morning, or Tuesday noon, or night, or Wednesday morning."], [2, 3, "Please name the time, but don't let it be more than three days. Honestly, he's sorry."], [4, 7, "And by ordinary standards his offense (except that they say in wartime you have to make an example of the best men) is hardly a fault worth even a private scolding. When can he come?"], [8, 14, "Tell me, Othello. I really wonder what you could ask of me that I'd refuse, or hesitate over like this. What? Michael Cassio, who came with you when you were courting me, and who so many times took your side when I criticized you? And to have to work this hard to bring him back! Believe me, I could do a lot more—"]], "498": [[0, 0, "Why, this isn't a favor."], [1, 7, "It's like asking you to wear your gloves, or eat healthy food, or keep warm, or begging you to do something good for yourself. No, when I have a request that really tests your love, it'll be serious and difficult, and risky to grant."]], "520": [[0, 2, "\"Thinking, my lord? By heaven, he echoes me, as if there were some monster in his mind too hideous to show. You mean something."], [3, 4, "I heard you say just now that you didn't like it when Cassio left my wife. What didn't you like?"], [5, 6, "And when I told you he was in my confidence during my whole courtship, you said, \"Really!"], [7, 10, "and frowned and wrinkled your brow, as if you'd locked some horrible idea in your brain. If you love me, tell me what you're thinking."]], "522": [[0, 0, "I think you do."], [1, 3, "And because I know you're full of love and honesty, and weigh your words before you say them, these pauses of yours frighten me all the more."], [4, 7, "In a lying, disloyal villain, things like this are just habitual tricks. But in an honest man, they're secret signals coming from the heart, which feelings can't control."]], "528": [[0, 0, "No, there's more to this."], [1, 3, "Please tell me what you're thinking, as you're turning it over, and put your worst thoughts into your worst words."]], "529": [[0, 0, "My good lord, forgive me."], [1, 2, "Though I'm bound to perform every duty, I'm not bound to do what even slaves aren't required to do."], [3, 3, "Speak my thoughts? Why, suppose they're vile and false?"], [4, 8, "After all, where's the palace that dirty things don't sometimes get into? Who has a heart so pure that some unclean suspicions don't hold court there and sit in judgment alongside fair thoughts?"]], "531": [[0, 7, "I beg you, since I may be wrong in my guess (I admit it's a curse of my nature to look for wrongdoing, and my suspicion often invents faults that aren't there), that your wisdom ignore someone whose ideas are so unreliable, and not create trouble for yourself out of my scattered, uncertain observations."], [8, 10, "It wouldn't be good for your peace of mind or your well-being, or for my manhood, honesty, or wisdom, to tell you what I'm thinking."]], "533": [[0, 1, "A good reputation, for a man or a woman, my dear lord, is the most precious jewel of their souls."], [2, 2, "Whoever steals my wallet steals trash."], [3, 3, "It's something, yet nothing; it was mine, now it's his, and it's been owned by thousands."], [4, 6, "But whoever steals my good name takes something that doesn't make him any richer and leaves me truly poor."]], "537": [[0, 0, "Oh, beware of jealousy, my lord!"], [1, 3, "It's the green-eyed monster that mocks the very food it feeds on. The husband whose wife cheats on him is happy if he knows the truth and doesn't love the woman who betrays him."], [4, 5, "But oh, what damned minutes a man counts out who adores his wife yet doubts her, suspects her yet loves her deeply!"]], "539": [[0, 0, "A man who's poor and content is rich, and rich enough."], [1, 2, "But endless riches are as poor as winter to a man who's always afraid he'll become poor."], [3, 4, "Good heaven, protect the souls of all my kind from jealousy!"]], "540": [[0, 0, "Why, why are you saying this?"], [1, 9, "Do you think I'd live a life of jealousy, changing my suspicions with every phase of the moon? No! Once I'm in doubt, I'll settle it at once. Trade me for a goat if I ever let my soul be taken up with inflated, overblown suspicions like the ones you're hinting at. It doesn't make me jealous to hear that my wife is beautiful, has a good appetite, enjoys company, speaks freely, sings, plays, and dances well."], [10, 10, "Where there's virtue, these things only make it more virtuous."], [11, 12, "And I won't take the smallest fear or doubt of her unfaithfulness from my own shortcomings, because she had eyes and she chose me."], [13, 14, "No, Iago, I'll see before I doubt."], [15, 16, "When I doubt, I'll get proof. And once there's proof, that's it: away with either love or jealousy!"]], "541": [[0, 3, "I'm glad to hear it, because now I'll have reason to show my love and loyalty to you more openly. So, as is my duty, hear this from me. I'm not talking about proof yet. Watch your wife."], [4, 4, "Watch her closely with Cassio."], [5, 5, "Keep your eyes like this, neither jealous nor too trusting."], [6, 7, "I wouldn't want your open and noble nature to be taken advantage of because of your own generosity."], [8, 8, "Watch out. I know our Venetian ways well."], [9, 11, "In Venice women let heaven see the tricks they don't dare show their husbands. Their idea of conscience isn't to avoid doing it, but to keep it secret."]], "545": [[0, 0, "Well, there you go."], [1, 3, "She was so young, yet she could put on such a show and blind her father's eyes as tight as oak grain; he thought it was witchcraft."], [4, 5, "But I'm very much to blame. I humbly beg your pardon for loving you too much."]], "549": [[0, 0, "Honestly, I'm afraid it has."], [1, 2, "I hope you'll consider that what I've said comes from my love for you. But I can see you're upset."], [3, 5, "I have to ask you not to stretch what I've said to bigger conclusions or wider meaning than mere suspicion."]], "555": [[0, 5, "Yes, that's the point. To be blunt with you: she rejected many proposed matches with men of her own country, color, and rank, which is what nature tends toward in all things. Ugh, you can smell in a desire like that something rotten, a foul mismatch, unnatural thoughts."], [6, 10, "But forgive me. I'm not speaking specifically about her, although I may fear that her desire, returning to her better judgment, may start to compare you with men from her own country, and maybe regret her choice."]], "559": [[0, 1, "[Returning. My lord, I wish I could beg you not to look into this any further. Leave it to time."], [2, 5, "Although Cassio should have his job back, since he certainly does it very well, if you would keep him waiting for a while, you'll learn a lot about him and his methods."], [6, 7, "Notice if your lady pushes hard for him to be reinstated with strong or urgent pleading."], [8, 11, "That will tell you a lot. In the meantime, think of me as too quick to fear the worst (as I have good reason to think I am), and consider her innocent, I beg you."]], "563": [[0, 15, "This fellow is extremely honest, and he knows all kinds of people and understands human behavior. If I find out she's wild like an untamed hawk, even if her leashes were tied to my own heartstrings, I'd release her and let her fly off on the wind to fend for herself. Maybe because I'm black, and don't have the smooth way of talking that courtiers have, or because I'm getting on in years (though not by much), she's gone. I've been betrayed, and my only relief must be to hate her. Oh, the curse of marriage, that we can call these delicate creatures ours but not their desires! I'd rather be a toad living on the stale air of a dungeon than keep a corner of the thing I love for others to use. Yet it's the plague of great men; they have fewer privileges than ordinary men."], [16, 17, "It's an inescapable destiny, like death."], [18, 19, "We're fated to wear the cuckold's horns from the moment we're born. Here comes Desdemona."]], "576": [[0, 0, "I'm glad I found this handkerchief."], [1, 1, "It was her first keepsake from the Moor."], [2, 8, "My unpredictable husband has asked me a hundred times to steal it. But she loves it so much (because he made her swear to always keep it) that she always has it with her to kiss and talk to. I'll have the embroidery copied and give it to Iago. What he'll do with it heaven knows, not me."], [9, 9, "I only want to satisfy his whims."]], "594": [[0, 3, "I'll drop this handkerchief in Cassio's room and let him find it. Things as light as air seem to the jealous as strong a proof as Holy Scripture. This may do something."], [4, 4, "The Moor is already changing under my poison."], [5, 8, "Dangerous ideas are by nature poisons, which at first barely taste bad, but once they start working on the blood, they burn like sulfur mines. I said so."], [9, 9, "Look, here he comes!"]], "601": [[0, 0, "What did I know about her stolen hours of lust?"], [1, 1, "I didn't see it or think it, and it didn't hurt me."], [2, 2, "I slept well the next night, was carefree and happy."], [3, 3, "I didn't find Cassio's kisses on her lips."], [4, 5, "If a man who's been robbed doesn't miss what was stolen, don't tell him, and he hasn't been robbed at all."]], "603": [[0, 3, "I'd have been happy if the whole army, down to the lowest ditch-diggers, had tasted her sweet body, as long as I knew nothing about it. Oh, now, forever, goodbye to a peaceful mind!"], [4, 9, "Goodbye to contentment! Goodbye to the plumed troops and the great wars that make ambition a virtue! Oh, goodbye, goodbye to the neighing horse and the shrill trumpet, the spirit-stirring drum, the ear-piercing flute, the royal flag, and all the qualities, pride, pageantry, and ceremony of glorious war!"], [10, 12, "And you deadly cannons, whose rough throats imitate the terrifying thunder of immortal Jove, goodbye! Othello's career is over!"]], "605": [[0, 0, "Villain, you'd better prove my love is a whore."], [1, 1, "Make sure of it. Give me proof I can see with my own eyes."], [2, 4, "Or, by the value of man's eternal soul, you'd have been better off born a dog than face my awakened fury!"]], "609": [[0, 1, "If you're slandering her and torturing me, never pray again. Give up all conscience."], [2, 2, "Pile horrors on top of horrors."], [3, 3, "Do things that make heaven weep and astonish the whole earth."], [4, 5, "Because you can't add anything to your damnation worse than that."]], "610": [[0, 0, "Oh, mercy! Heaven protect me!"], [1, 1, "Are you a man? Do you have a soul or any sense?"], [2, 3, "God be with you; take my job. Oh, miserable fool, to live to see your honesty turned into a crime!"], [4, 5, "Oh, monstrous world! Take note, take note, world: being direct and honest isn't safe."], [6, 7, "Thank you for this lesson. From now on I'll love no friend, since love leads to such insults."]], "613": [[0, 1, "By the world, I think my wife is faithful, and I think she isn't."], [2, 2, "I think you're honest, and I think you're not. I'll have some proof."], [3, 7, "Her reputation, which was as fresh as the face of Diana, goddess of chastity, is now as dirty and black as my own face. As long as there are ropes or knives, poison or fire or drowning streams, I won't put up with it. I wish I knew for sure!"]], "618": [[0, 3, "I think it would be very hard to arrange for you to see that. Damn them if any eyes but their own ever see them in bed together! So what then? How then?"], [4, 4, "What can I say? Where's your proof?"], [5, 11, "You can't possibly see this, even if they were as horny as goats, as hot as monkeys, as lustful as wolves in heat, and as stupid as drunken idiots. But still, I say, if strong evidence and circumstances that lead straight to the door of truth will satisfy you, you can have that."]], "620": [[0, 0, "I don't like this job."], [1, 5, "But since I've gone this far into it, driven by foolish honesty and love, I'll go on. I was sharing a bed with Cassio recently, and since I had a terrible toothache, I couldn't sleep."], [6, 7, "There are some men so loose-lipped that they talk about their affairs in their sleep."], [8, 8, "Cassio is one of them."], [9, 10, "In his sleep I heard him say, \"Sweet Desdemona, let's be careful; let's hide our love."], [11, 16, "And then, sir, he'd grab and squeeze my hand, cry out, \"Oh, sweet creature! and kiss me hard, as if he were pulling up kisses by the roots that grew on my lips. Then he laid his leg over my thigh, and sighed, and kissed, and then cried, \"Cursed fate that gave you to the Moor!\""]], "626": [[0, 0, "No, be sensible. We haven't seen her do anything yet."], [1, 1, "She may still be faithful."], [2, 3, "Just tell me this: haven't you sometimes seen a handkerchief embroidered with strawberries in your wife's hand?"]], "631": [[0, 0, "Oh, I wish the villain had forty thousand lives!"], [1, 1, "One is too poor, too weak for my revenge."], [2, 3, "Now I see it's true. Look here, Iago: I blow all my foolish love away to heaven. It's gone."], [4, 5, "Rise, black vengeance, from your hollow hell!"], [6, 8, "Give up, love, your crown and your throne in my heart to tyrannical hate! Swell, my heart, with your cargo, because it's made of snakes' tongues!"]], "636": [[0, 0, "Don't get up yet. [He kneels."], [1, 7, "Witness, you stars burning forever above, you elements that surround us, witness that Iago here dedicates all his intelligence, his hands, and his heart to the service of wronged Othello! Let him command, and I'll obey out of compassion for him, whatever bloody deed it is. [They stand.]"]], "637": [[0, 2, "I welcome your loyalty, not with empty thanks but with full acceptance, and I'll put you to the test right now."], [3, 4, "Within the next three days, let me hear you say that Cassio is dead."]], "639": [[0, 0, "Damn her, the lewd slut! Oh, damn her!"], [1, 3, "Come, come away with me. I'll go and figure out some quick way to kill the beautiful devil. Now you're my lieutenant."]], "670": [[0, 0, "This suggests a passionate and generous heart."], [1, 6, "Hot, hot, and moist. This hand of yours needs to be kept away from freedom, with fasting and prayer, a lot of discipline, and religious exercise, because there's a young, sweating devil here that often rebels. It's a good hand, a very open one."]], "682": [[0, 1, "That's a mistake. An Egyptian woman gave that handkerchief to my mother."], [2, 10, "She was a sorceress who could almost read people's minds. She told my mother that as long as she kept it, it would make her desirable and keep my father completely in love with her. But if she lost it or gave it away, my father would look at her with disgust and his desires would go chasing after new loves. When she was dying, she gave it to me and told me to give it to my wife when I married."], [11, 11, "I did, so take good care of it. Treasure it like your own precious eyes."], [12, 13, "To lose it or give it away would be a disaster like no other."]], "684": [[0, 0, "It's true. There's magic woven into it."], [1, 3, "A prophetess who had lived two hundred years sewed it in a prophetic trance."], [4, 6, "The silkworms that made the silk were sacred, and it was dyed with fluid from mummified virgins' hearts."]], "710": [[0, 0, "It doesn't take a year or two to show us what a man is."], [1, 1, "They're all just stomachs and we're just food."], [2, 3, "They eat us hungrily, and when they're full, they belch us up. Look! Cassio and my husband."]], "714": [[0, 4, "Madam, the same request as before. I beg you, through your good influence, let me live again and be a part of the love of the man I honor with all my heart. I don't want any delay."], [5, 9, "If my offense is so serious that neither my past service, nor my present sorrow, nor my promise of good service in the future can buy back his love, then just knowing that will be a benefit to me."], [10, 12, "Then I'll force myself to be content and take some other path, relying on Fortune's charity."]], "715": [[0, 0, "Alas, thrice-gentle Cassio!"], [1, 1, "My pleading isn't working right now."], [2, 3, "My husband isn't himself. I wouldn't recognize him if his face had changed as much as his mood."], [4, 7, "So help me every holy spirit, I've spoken for you as well as I can and made myself the target of his anger for speaking so freely! You'll have to be patient for a while. What I can do, I will."], [8, 9, "And I'll do more for you than I'd dare to do for myself. Let that be enough for you."]], "718": [[0, 3, "Can he be angry? I've seen the cannon blow his soldiers into the air and, like the devil, blast his own brother right out of his arms. And he's angry?"], [4, 4, "It must be something important, then. I'll go find him."], [5, 5, "There's really something to it if he's angry."]], "721": [[0, 5, "It must be some state business, either news from Venice or some plot uncovered here in Cyprus, that has muddied his clear mind. In cases like that, men's tempers quarrel with small things even though big things are really on their minds. That's how it is."], [6, 12, "If our finger aches, the rest of our healthy body feels the pain too. No, we have to remember men aren't gods, and we can't expect them to be as attentive as on the wedding day. Scold me, Emilia: like the clumsy soldier I am, I was accusing him of unkindness in my heart."], [13, 14, "But now I realize I bribed the witness, and he's been falsely charged."]], "724": [[0, 0, "But jealous people won't accept that answer."], [1, 3, "They're not jealous for a reason; they're jealous because they're jealous. It's a monster that conceives itself and gives birth to itself."]], "733": [[0, 0, "And I was going to your place, Cassio."], [1, 1, "What, stay away for a week? Seven days and nights?"], [2, 3, "A hundred and sixty-eight hours? And lovers' hours apart are a hundred and sixty times longer than clock hours."], [4, 4, "Oh, what a tiring count!"]], "734": [[0, 0, "Forgive me, Bianca."], [1, 1, "I've been weighed down with heavy thoughts lately."], [2, 3, "But when I have more uninterrupted time, I'll pay off this debt of absence. Sweet Bianca,"]], "737": [[0, 0, "Oh, Cassio, where did this come from?"], [1, 1, "This is a gift from some new girlfriend."], [2, 2, "Now I know the reason for your absence."], [3, 3, "Has it come to this? Well, well."]], "738": [[0, 0, "Come on, woman!"], [1, 3, "Throw your nasty guesses back in the devil's teeth, where you got them from. Now you're jealous that this is from some mistress, some keepsake."], [4, 4, "No, I swear, Bianca."]], "740": [[0, 0, "I don't know, sweetheart. I found it in my room."], [1, 2, "I like the embroidery. Before someone asks for it back (which they probably will), I'd like to have it copied."], [3, 3, "Take it and do it, and leave me for now."]], "756": [[0, 0, "Naked in bed, Iago, and not mean any harm!"], [1, 1, "That's hypocrisy aimed at the devil."], [2, 3, "People who mean well and still do that are having their virtue tempted by the devil, and they're tempting heaven."]], "762": [[0, 0, "By heaven, I'd gladly have forgotten it."], [1, 3, "You said (oh, it hangs over my memory like a raven over a plague-stricken house, a bad omen for everyone) that he had my handkerchief."]], "765": [[0, 1, "What if I'd said I'd seen him wrong you?"], [2, 6, "Or heard him say... There are scoundrels out there who, once they've seduced a woman by their own persistent pleading or because she willingly fell for them, can't help bragging about it—"]], "774": [[0, 3, "Lie with her! Lie on her! We say \"lie on her\" when people tell lies about her. Lie with her! Damn it, that's disgusting! Handkerchief... confessions... handkerchief! Let him confess and be hanged for it. No, first hang him, and then let him confess. I'm shaking."], [4, 5, "My body wouldn't be overcome by such dark passion if there weren't some truth to this. It isn't just words that shake me like this."], [6, 7, "Ugh! Noses, ears, and lips. Is it possible? Confess? Handkerchief? Oh, devil!"]], "776": [[0, 3, "Keep working, my medicine, keep working! This is how gullible fools are caught. And this is how many worthy, chaste women, completely innocent, get disgraced. Hey! My lord!"], [4, 4, "My lord, I say! Othello!"]], "782": [[0, 0, "No, don't."], [1, 1, "The fit has to run its course quietly."], [2, 3, "Otherwise he foams at the mouth and soon breaks out into savage madness. Look, he's moving."], [4, 6, "Step away for a little while. He'll recover soon. When he's gone, I need to talk to you about something important."]], "790": [[0, 0, "Good sir, be a man."], [1, 4, "Think of every bearded man who's married: he's pulling the same cart you are. There are millions of men alive right now who go to bed every night in beds others have used, and they'd swear those beds were theirs alone."], [5, 8, "Your situation is better. Oh, it's hell's own spite, the devil's greatest joke, to kiss a slut in a bed you think is safe and believe she's chaste! No, I'd rather know. And knowing what I am, I know what she'll get."]], "792": [[0, 1, "Stand aside for a while and keep yourself under control."], [2, 5, "While you were lying here overcome by your grief (a passion that doesn't suit a man like you), Cassio came by. I got rid of him and gave a good excuse for your fit."], [6, 9, "I told him to come back soon and talk to me here, which he promised to do. Just hide yourself and watch the sneers, the mockery, and the obvious contempt all over his face."], [10, 12, "Because I'll get him to tell the story again: where, how, how often, how long ago, and when he has slept with your wife and will again."], [13, 15, "Just watch his gestures, I say. But be patient, or I'll say you're nothing but temper and not a man at all."]], "796": [[0, 4, "Now I'll ask Cassio about Bianca, a woman who sells her body to buy herself bread and clothes. She's crazy about Cassio, since it's a whore's curse to fool many men and be fooled by one."], [5, 6, "When he hears her name, he can't help laughing his head off. Here he comes."]], "798": [[0, 0, "When he smiles, Othello will go mad."], [1, 3, "And his ignorant jealousy will completely misread poor Cassio's smiles, gestures, and lighthearted behavior. How are you now, lieutenant?"]], "828": [[0, 4, "Let the devil and his mother follow you around! What did you mean by that handkerchief you just gave me? I was a real fool to take it. I'm supposed to copy the embroidery? A likely story, that you found it in your room and don't know who left it there! This is a present from some slut, and I'm supposed to copy it?"], [5, 6, "Here, give it to your little whore. Wherever you got it, I won't copy any of it."]], "849": [[0, 2, "Yes, let her rot and perish and be damned tonight, because she won't live. No, my heart has turned to stone. I hit it, and it hurts my hand. Oh, the world has no sweeter creature."], [3, 3, "She could lie beside an emperor and give him orders."]], "897": [[0, 0, "Oh, devil, devil!"], [1, 2, "If the earth could be made pregnant by women's tears, every tear she drops would turn into a crocodile."], [3, 3, "Get out of my sight!"]], "904": [[0, 0, "Yes, you wanted me to make her turn around."], [1, 2, "Sir, she can turn and turn, and still keep going, and turn again. And she can cry, sir, cry."], [3, 4, "And she's obedient, as you say, obedient, very obedient. Go on with your tears."], [5, 6, "About this letter, sir... Oh, what a well-acted show of grief! I'm ordered home."], [7, 8, "Get out of here; I'll send for you soon. Sir, I'll obey the order and return to Venice. Go, get out!"]], "915": [[0, 0, "Alas, alas!"], [1, 5, "It wouldn't be honest of me to tell you what I've seen and known. You watch him, and his own actions will show you what he is, so I won't have to say anything. Just follow him and see how he goes on."]], "931": [[0, 2, "My lord, I'd bet my soul that she's faithful. If you think otherwise, get rid of the thought; it's poisoning your heart."], [3, 4, "If some wretch has put this into your head, let heaven punish him with the curse it gave the serpent!"], [5, 7, "Because if she isn't honest, chaste, and true, no husband is happy; the purest wife is as foul as slander."]], "934": [[0, 2, "She says enough. But any brothel-keeper who couldn't say as much would be a simple one. This woman's a clever whore, a locked cabinet full of wicked secrets."], [3, 3, "And yet she'll kneel and pray; I've seen her do it."]], "941": [[0, 1, "[To Emilia. Do your job, madam. Leave the lovers alone and shut the door."], [2, 2, "Cough or say \"ahem\" if anyone comes."], [3, 3, "Your trade, your trade! Go on, hurry."]], "946": [[0, 0, "Come on, swear it, and damn yourself."], [1, 2, "Because you look like an angel, the devils themselves might be afraid to grab you."], [3, 3, "So be doubly damned: swear you're faithful."]], "951": [[0, 0, "Oh, what a terrible day! Why are you crying?"], [1, 1, "Am I the reason for these tears, my lord?"], [2, 5, "If you suspect my father had a hand in your being called home, don't blame me. If you've lost his friendship, well, I've lost him too."]], "952": [[0, 8, "If heaven had wanted to test me with suffering, if it had rained every kind of sore and shame on my bare head, drowned me in poverty up to my lips, made a prisoner of me and all my highest hopes, I'd have found somewhere in my soul a drop of patience. But, alas, to make me a fixed target for the scornful world to point its slow, unmoving finger at!"], [9, 9, "Still, I could bear that too, well, very well."], [10, 13, "But there, where I've stored up my heart, where I must either live or not live at all, the spring my life flows from or else dries up: to be thrown out of there!"], [14, 17, "Or to have to keep it as a tank where filthy toads tangle and breed! Change color at that, Patience, you young, rosy-lipped angel. Yes, at that, look as grim as hell!"]], "956": [[0, 1, "Was this beautiful paper, this lovely book, made to have \"whore\" written on it? Committed?"], [2, 2, "What have you committed? Oh, you common prostitute!"], [3, 5, "If I just named what you've done, my cheeks would burn like furnaces and turn modesty to ashes. What have you committed!"], [6, 6, "Heaven holds its nose at it, and the moon shuts its eyes."], [7, 9, "The promiscuous wind, which kisses everything it meets, hides in the hollow caves of the earth and won't listen to it. What have you committed?"], [10, 10, "Shameless whore!"]], "959": [[0, 0, "No, as I'm a Christian."], [1, 3, "If keeping this body for my husband alone, away from any other foul, unlawful touch, means I'm not a whore, then I'm not one."]], "964": [[0, 0, "Then I beg your pardon."], [1, 4, "I mistook you for that cunning whore of Venice who married Othello. [Raising his voice. You, madam, whose job is the opposite of Saint Peter's, guarding the gate of hell!"]], "975": [[0, 0, "I have none. Don't talk to me, Emilia."], [1, 4, "I can't cry, and I have no answers except tears. Please, tonight, put my wedding sheets on my bed. Remember. And call your husband here."]], "981": [[0, 1, "I don't know. People who teach young children do it gently and with easy tasks."], [2, 3, "He could have scolded me that way, because honestly, I'm a child when it comes to being scolded."]], "998": [[0, 0, "May a noose forgive him! And may hell gnaw his bones!"], [1, 1, "Why would he call her a whore?"], [2, 2, "Who has she been with? Where? When? How? What's the evidence?"], [3, 4, "The Moor's been tricked by some vicious villain, some low, notorious villain, some scummy creep."], [5, 8, "Oh heaven, I wish you'd expose such men and put a whip in every honest hand to lash those rascals naked across the world, from east to west!"]], "1002": [[0, 1, "Oh, good Iago, what should I do to win my husband back?"], [2, 3, "Good friend, go to him, because by the light of heaven, I don't know how I lost him."], [4, 13, "Here I kneel. If my heart ever betrayed his love, either in thought or in action, or if my eyes, my ears, or any of my senses ever took pleasure in any other man, or if I don't still love him dearly, and always did, and always will, even if he throws me off into a beggarly divorce, may I never know comfort again! Unkindness can do a lot, and his unkindness may destroy my life, but it will never spoil my love."], [14, 14, "I can't say \"whore. It disgusts me just to say the word."], [15, 16, "Not all the riches in the world could make me do what would earn that name."]], "1005": [[0, 0, "That's all it is, I promise. [Trumpets offstage."], [1, 1, "Listen, those trumpets are calling everyone to supper!"], [2, 2, "The messengers from Venice are waiting to eat."], [3, 3, "Go in, and don't cry. Everything will be fine."]], "1056": [[0, 0, "My mother had a maid named Barbary."], [1, 2, "She was in love, and the man she loved went mad and left her. She had a song called \"Willow."], [3, 7, "It was an old song, but it described her situation, and she died singing it. Tonight I can't get that song out of my head. It's all I can do not to hang my head to one side and sing it like poor Barbary. Please, hurry."]], "1062": [[0, 0, "[Singing."], [1, 4, "\"The poor soul sat sighing by a sycamore tree, sing all a green willow; her hand on her chest, her head on her knee, sing willow, willow, willow."], [5, 6, "The fresh streams ran by her and murmured her moans, sing willow, willow, willow; her salt tears fell from her and softened the stones."], [7, 11, "Put these away. \"Sing willow, willow, willow. Please, hurry; he'll be here soon. \"Sing all a green willow must be my garland."], [12, 13, "Let nobody blame him; I accept his scorn. No, that's not the next line. Listen, who's knocking?"]], "1064": [[0, 0, "[Singing."], [1, 1, "\"I called my love false love; but what did he say then?"], [2, 2, "Sing willow, willow, willow."], [3, 4, "If I court more women, you'll sleep with more men. So go now. Good night. My eyes itch."], [5, 5, "Does that mean I'll cry?"]], "1066": [[0, 0, "I've heard it said that it does. Oh, these men, these men!"], [1, 3, "Do you honestly think (tell me, Emilia) that there are women who cheat on their husbands so grossly?"]], "1075": [[0, 0, "Honestly, I think I would, and undo it once I'd done it."], [1, 5, "Of course, I wouldn't do it for a cheap ring, or for some fine linen, or for dresses, petticoats, hats, or any little gift. But for the whole world? Why, who wouldn't cheat on her husband to make him a king? I'd risk purgatory for that."]], "1079": [[0, 1, "Yes, a dozen, and as many more as would fill the world they gambled for."], [2, 13, "But I do think it's the husbands' fault when wives go wrong. Say they neglect their duties and pour what's ours into other women's laps; or they break out in petty jealousy and lock us up; or say they hit us, or cut our allowance out of spite. Why, we have tempers, and though we have some kindness, we can also take revenge. Husbands should know their wives have senses like them. They see and smell and have tastes for both sweet and sour, just like husbands. What are they doing when they trade us for other women? Is it for fun?"], [14, 14, "I think it is. Does desire drive it? I think it does."], [15, 15, "Is it weakness that makes them stray?"], [16, 17, "That too. And don't we have desires, a wish for fun, and weakness, just like men?"], [18, 19, "So let them treat us well. Otherwise, let them know that the wrongs we do, they taught us."]], "1084": [[0, 0, "Here, stand behind this wall. He'll be here any minute."], [1, 1, "Have your sword drawn, and drive it in deep."], [2, 2, "Quick, quick. Don't be afraid; I'll be right beside you."], [3, 4, "This makes us or breaks us. Think about that, and keep your resolve firm."]], "1088": [[0, 6, "I've rubbed this young pimple almost raw, and he's getting angry. Now, whether he kills Cassio, or Cassio kills him, or they kill each other, I win either way. If Roderigo lives, he'll demand I pay back all the gold and jewels I swindled from him as gifts for Desdemona. That can't happen."], [7, 10, "If Cassio survives, he has a daily goodness in his life that makes me look ugly. Besides, the Moor might reveal my story to him, and then I'm in great danger."], [11, 11, "No, he has to die. So be it. I hear him coming."]], "1101": [[0, 1, "It's him. Oh, brave Iago, honest and fair, who feels his friend's wrong so nobly! You're teaching me."], [2, 3, "You slut, your lover lies dead, and your own cursed fate is coming fast. Whore, I'm coming!"], [4, 4, "Those charms of yours, your eyes, are wiped from my heart."], [5, 5, "Your bed, stained with lust, will be spattered with lust's blood."]], "1149": [[0, 1, "Gentlemen, I suspect this trash had a part in this attack."], [2, 2, "Be patient a little while, good Cassio."], [3, 3, "Come, come, give me a light. Do we know this face or not?"], [4, 5, "Oh no, my friend and dear countryman Roderigo? No... yes, it is. Oh heaven! Roderigo."]], "1157": [[0, 0, "It's him, it's him. [A chair is brought in. Oh, good, the chair."], [1, 2, "Someone carry him carefully away from here."], [3, 5, "I'll get the general's surgeon. [To Bianca. As for you, madam, don't bother. Cassio, the man lying dead here was my dear friend. What quarrel was there between you?"]], "1161": [[0, 0, "Stay, good gentlemen. Are you pale, madam?"], [1, 1, "Do you see the terror in her eyes?"], [2, 2, "No, if you stare like that, we'll hear more soon."], [3, 3, "Look at her closely; please, look at her."], [4, 5, "Do you see, gentlemen? Guilt will speak for itself, even if no one says a word."]], "1172": [[0, 0, "Kind gentlemen, let's go see poor Cassio's wounds dressed."], [1, 1, "Come, madam, you'll have to tell us a different story."], [2, 3, "Emilia, run to the fort and tell my lord and lady what's happened!"], [4, 5, "Will you go ahead? [Aside. This is the night that either makes me or completely ruins me."]], "1176": [[0, 0, "It's the cause, it's the cause, my soul."], [1, 1, "Let me not name it to you, you chaste stars!"], [2, 4, "It's the cause. Yet I won't shed her blood, or scar that skin of hers, whiter than snow and smooth as marble on a tomb."], [5, 5, "Yet she must die, or she'll betray more men."], [6, 6, "Put out the light, and then put out the light."], [7, 14, "If I put you out, you flaming candle, I can light you again if I change my mind. But once I put out your light, you most perfect model of nature's best work, I don't know where to find the divine fire that could relight you. Once I've picked the rose, I can't make it grow again. It has to wither. I'll smell it while it's still on the bush. [He kisses her."], [15, 16, "Oh, sweet breath, that almost persuades Justice to break her sword! One more, one more."], [17, 18, "Be like this when you're dead, and I'll kill you and love you afterward. One more, and this is the last."], [19, 21, "Nothing so sweet was ever so deadly. I have to cry, but these are cruel tears. This sorrow is like heaven's: it punishes what it loves. She's waking up."]], "1195": [[0, 0, "It's an unnatural death that kills someone for loving."], [1, 1, "Oh, why are you biting your lower lip like that?"], [2, 2, "Some violent passion is shaking your whole body."], [3, 4, "These are bad signs. But still I hope, I hope, they aren't aimed at me."]], "1202": [[0, 0, "Yes, right now."], [1, 4, "So confess your sin freely, because denying each charge under oath can't remove or smother the strong belief that's tormenting me. You are going to die."]], "1206": [[0, 0, "By heaven, I saw my handkerchief in his hand."], [1, 3, "Oh, lying woman! You turn my heart to stone, and make me call what I'm going to do a murder, when I thought it was a sacrifice."], [4, 4, "I saw the handkerchief."]], "1228": [[0, 0, "What's that noise? Not dead? Not quite dead yet?"], [1, 1, "I may be cruel, but I'm still merciful."], [2, 2, "I don't want you to linger in pain."], [3, 3, "There, there."]], "1232": [[0, 0, "Yes, it's Emilia. In a moment. She's dead."], [1, 1, "She's probably coming to tell me about Cassio's death."], [2, 2, "The noise was loud. Ha! No more moving?"], [3, 3, "Still as the grave. Should I let her in? Would that be wise?"], [4, 4, "I think she's moving again. No. What's the best thing to do?"], [5, 5, "If she comes in, she'll certainly speak to my wife."], [6, 6, "My wife! My wife! What wife? I have no wife."], [7, 7, "Oh, unbearable! Oh, terrible hour!"], [8, 10, "I think there should be a huge eclipse of the sun and moon right now, and the terrified earth should split open at this change."]], "1262": [[0, 0, "Cassio slept with her. Ask your husband if you don't believe me."], [1, 3, "Oh, I'd be damned to the lowest depths of hell if I hadn't had good reason to go this far. Your husband knew all about it."]], "1277": [[0, 1, "You don't have half the power to hurt me that I have to endure it. Oh, you idiot!"], [2, 4, "You fool! As ignorant as dirt! You've done a deed... I don't care about your sword. I'll expose you, even if I lose twenty lives. Help! Help!"], [5, 5, "Help! The Moor has killed my mistress! Murder, murder!"]], "1282": [[0, 0, "Prove this villain wrong, if you're a man."], [1, 1, "He says you told him his wife was unfaithful."], [2, 2, "I know you didn't; you're not that kind of villain."], [3, 3, "Speak, because my heart is about to burst."]], "1294": [[0, 0, "Villainy, villainy, villainy!"], [1, 1, "I'm thinking about it, I'm thinking, I can smell it. Oh, villainy!"], [2, 2, "I suspected it back then. I'll kill myself with grief."], [3, 3, "Oh, villainy, villainy!"]], "1299": [[0, 0, "[Standing. Oh, she was filthy!"], [1, 2, "I hardly recognized you, uncle. There lies your niece, whose breath these hands have just stopped."], [3, 3, "I know this looks horrible and grim."]], "1300": [[0, 0, "Poor Desdemona! I'm glad your father's dead."], [1, 5, "Your marriage killed him; pure grief cut his old thread of life in two. If he were alive now, this sight would drive him to some desperate act. He'd curse his guardian angel away and fall into damnation."]], "1304": [[0, 0, "It'll come out, it will. Me, be quiet?"], [1, 1, "No, I'll speak as freely as the north wind."], [2, 3, "Let heaven and men and devils, let all of them, all, all, cry shame on me, and I'll still speak."]], "1320": [[0, 1, "He's an infamous villain. Take this weapon, which I've just taken from the Moor."], [2, 4, "Come, guard the door from outside. Don't let him pass; kill him first. I'll go after that villain, because he's a damned slave."]], "1322": [[0, 1, "I'm not brave anymore either; any puny little fighter can take my sword."], [2, 2, "But why should my reputation outlive my honor?"], [3, 3, "Let it all go."]], "1323": [[0, 0, "What did your song predict, lady?"], [1, 2, "Listen, can you hear me? I'll be like the swan and die singing. [Singing. \"Willow, willow, willow."], [3, 3, "Moor, she was chaste. She loved you, cruel Moor."], [4, 4, "May my soul go to heaven as I'm telling the truth."], [5, 5, "Saying what I believe, I die, I die. [She dies.]"]], "1329": [[0, 0, "Look, I have a weapon."], [1, 5, "A better one never hung at a soldier's side. I've seen the day when, with this little arm and this good sword, I fought my way through obstacles twenty times stronger than you. But, oh, what an empty boast! Who can control his fate?"], [6, 6, "It's not like that now."], [7, 7, "Don't be afraid, even though you see me armed."], [8, 9, "This is the end of my journey, my final goal, the landmark of my last voyage."], [10, 10, "Are you backing away in fear? There's no need."], [11, 12, "Just point a reed at Othello's chest, and he'll retreat. Where would Othello go?"], [13, 13, "Now, how do you look now? Oh, unlucky girl! Pale as your nightgown!"], [14, 16, "When we meet on Judgment Day, this look of yours will hurl my soul out of heaven, and devils will snatch it up. Cold, cold, my girl?"], [17, 17, "Just like your chastity. Oh, cursed, cursed slave that I am!"], [18, 19, "Whip me, you devils, away from the sight of this heavenly creature!"], [20, 20, "Blow me around in the winds! Roast me in sulfur!"], [21, 21, "Wash me in deep pits of liquid fire!"], [22, 22, "Oh, Desdemona! Dead, Desdemona! Dead!"], [23, 23, "Oh! Oh! Oh!"]], "1353": [[0, 0, "I found it in my room."], [1, 3, "And he himself confessed just now that he dropped it there for a specific purpose, which worked out the way he wanted."]], "1356": [[0, 0, "You have to leave this room and come with us."], [1, 7, "Your power and command are taken away, and Cassio rules in Cyprus. As for this slave, if there's any clever cruelty that can torture him a lot and keep him alive a long time, it will be his. You will remain a closely guarded prisoner until the Venetian government learns the nature of your crime. Come, bring him away."]], "1357": [[0, 0, "Wait. A word or two before you go."], [1, 1, "I've done the state some service, and they know it. Enough of that."], [2, 6, "I ask you, in your letters, when you report these unhappy events, describe me as I am. Don't make excuses for me, and don't write anything out of malice."], [7, 13, "Then you must speak of a man who loved not wisely but too well; of a man not easily made jealous, but who, once manipulated, was driven to extreme confusion; of a man whose hand, like the ignorant Indian, threw away a pearl worth more than his whole tribe; of a man whose defeated eyes, though not used to weeping, now drop tears as fast as Arabian trees drip their healing gum."], [14, 18, "Write that down. And say also that once in Aleppo, when a hostile, turbaned Turk beat a Venetian and insulted the state, I took the circumcised dog by the throat and struck him, like this. [He stabs himself.]"]], "1363": [[0, 1, "[To Iago. Oh, you vicious dog, more cruel than pain, hunger, or the sea!"], [2, 2, "Look at the tragic load on this bed."], [3, 3, "This is your work. The sight poisons the eyes; cover it up."], [4, 8, "Gratiano, take charge of the house and take possession of the Moor's property, because you inherit it. To you, Lord Governor, falls the sentencing of this hellish villain: the time, the place, the torture. Oh, carry it out!"], [9, 10, "I'll go aboard ship right away, and with a heavy heart report this heavy deed to the state."]]};
+const QUOTES={
+"themes": {
+"jealousy": [
+"Jealousy",
+"How suspicion, once planted, feeds on itself until it destroys Othello."
+],
+"deception": [
+"Deception and appearance",
+"Iago's 'honesty' and the gap between seeming and being."
+],
+"race": [
+"Race and otherness",
+"How Venice sees Othello as an outsider, and how he comes to see himself."
+],
+"love": [
+"Love and marriage",
+"Othello and Desdemona's love, its strength and its fragility."
+],
+"women": [
+"Women and power",
+"Desdemona, Emilia and Bianca in a world controlled by men."
+],
+"reputation": [
+"Reputation and honour",
+"Cassio's lost reputation, Othello's soldierly honour, Iago's use of both."
+],
+"evidence": [
+"Proof and evidence",
+"'Ocular proof', the handkerchief, and how Iago makes rumour look like fact."
+],
+"manipulation": [
+"Manipulation",
+"Iago's method: suggestion, timing and letting victims convince themselves."
+]
+},
+"quotes": [
+{
+"id": "9",
+"who": "IAGO",
+"text": "For daws to peck at: I am not what I am.",
+"themes": [
+"deception",
+"manipulation"
+],
+"note": "Iago's motto: he is the opposite of what he seems."
+},
+{
+"id": "9",
+"who": "IAGO",
+"text": "I follow him to serve my turn upon him:",
+"themes": [
+"deception",
+"manipulation"
+],
+"note": "Iago openly admits his loyalty is a pretence."
+},
+{
+"id": "21",
+"who": "IAGO",
+"text": "Even now, now, very now, an old black ram",
+"themes": [
+"race"
+],
+"note": "Iago uses animal imagery to inflame Brabantio's racism."
+},
+{
+"id": "21",
+"who": "IAGO",
+"text": "Is tupping your white ewe. Arise, arise!",
+"themes": [
+"race"
+],
+"note": "Crude black/white animal imagery: Othello reduced to a beast."
+},
+{
+"id": "59",
+"who": "OTHELLO",
+"text": "My parts, my title, and my perfect soul",
+"themes": [
+"reputation",
+"love"
+],
+"note": "Othello's calm confidence in his own worth at the start."
+},
+{
+"id": "127",
+"who": "OTHELLO",
+"text": "Hath this extent, no more. Rude am I in my speech,",
+"themes": [
+"race",
+"reputation"
+],
+"note": "Othello's modest claim, made in some of the play's finest speech."
+},
+{
+"id": "137",
+"who": "OTHELLO",
+"text": "She loved me for the dangers I had pass'd,",
+"themes": [
+"love"
+],
+"note": "The heart of Othello and Desdemona's love: stories and pity."
+},
+{
+"id": "141",
+"who": "DESDEMONA",
+"text": "I do perceive here a divided duty.",
+"themes": [
+"women",
+"love"
+],
+"note": "Desdemona stands up to her father in front of the Senate."
+},
+{
+"id": "162",
+"who": "BRABANTIO",
+"text": "Look to her, Moor, if thou hast eyes to see;",
+"themes": [
+"jealousy",
+"women"
+],
+"note": "Brabantio's warning that Iago later echoes."
+},
+{
+"id": "160",
+"who": "DUKE",
+"text": "If virtue no delighted beauty lack,",
+"themes": [
+"race"
+],
+"note": "The Duke's backhanded praise: Othello is 'far more fair than black'."
+},
+{
+"id": "179",
+"who": "IAGO",
+"text": "and I retell thee again and again, I hate the Moor. My cause is",
+"themes": [
+"manipulation",
+"race"
+],
+"note": "Iago states his hatred plainly in soliloquy."
+},
+{
+"id": "177",
+"who": "IAGO",
+"text": "better stead thee than now. Put money in thy purse; follow thou",
+"themes": [
+"manipulation"
+],
+"note": "Iago's refrain as he drains Roderigo."
+},
+{
+"id": "188",
+"who": "IAGO",
+"text": "The Moor is of a free and open nature,",
+"themes": [
+"manipulation",
+"deception"
+],
+"note": "Iago knows Othello's trust is his weakness."
+},
+{
+"id": "273",
+"who": "OTHELLO",
+"text": "As hell's from heaven! If it were now to die,",
+"themes": [
+"love"
+],
+"note": "Othello's joy on reaching Cyprus, shadowed by foreboding."
+},
+{
+"id": "396",
+"who": "CASSIO",
+"text": "Reputation, reputation, reputation! O, I have lost my",
+"themes": [
+"reputation"
+],
+"note": "Cassio's despair after losing his post."
+},
+{
+"id": "416",
+"who": "IAGO",
+"text": "And what's he then that says I play the villain?",
+"themes": [
+"deception",
+"manipulation"
+],
+"note": "Iago mocks the audience: his advice looks honest."
+},
+{
+"id": "416",
+"who": "IAGO",
+"text": "So will I turn her virtue into pitch,",
+"themes": [
+"manipulation"
+],
+"note": "Iago plans to use Desdemona's goodness against her."
+},
+{
+"id": "504",
+"who": "OTHELLO",
+"text": "Excellent wretch! Perdition catch my soul,",
+"themes": [
+"love",
+"jealousy"
+],
+"note": "Othello's love, with a chilling hint of 'chaos' to come."
+},
+{
+"id": "478",
+"who": "IAGO",
+"text": "Ha! I like not that.",
+"themes": [
+"manipulation"
+],
+"note": "The first small seed of suspicion."
+},
+{
+"id": "525",
+"who": "IAGO",
+"text": "Men should be what they seem;",
+"themes": [
+"deception"
+],
+"note": "Deep irony: Iago says this to Othello."
+},
+{
+"id": "533",
+"who": "IAGO",
+"text": "Who steals my purse steals trash; 'tis something, nothing;",
+"themes": [
+"reputation",
+"deception"
+],
+"note": "Iago praises good name while stealing Othello's peace."
+},
+{
+"id": "537",
+"who": "IAGO",
+"text": "O, beware, my lord, of jealousy!",
+"themes": [
+"jealousy",
+"manipulation"
+],
+"note": "The 'green-eyed monster': Iago warns against what he creates."
+},
+{
+"id": "543",
+"who": "IAGO",
+"text": "She did deceive her father, marrying you;",
+"themes": [
+"jealousy",
+"women",
+"manipulation"
+],
+"note": "Iago turns Brabantio's warning into a weapon."
+},
+{
+"id": "563",
+"who": "OTHELLO",
+"text": "To prey at fortune. Haply, for I am black",
+"themes": [
+"race",
+"jealousy"
+],
+"note": "Othello begins to doubt himself as an outsider."
+},
+{
+"id": "563",
+"who": "OTHELLO",
+"text": "Must be to loathe her. O curse of marriage,",
+"themes": [
+"jealousy",
+"love",
+"women"
+],
+"note": "Othello's view of marriage starts to sour."
+},
+{
+"id": "594",
+"who": "IAGO",
+"text": "And let him find it. Trifles light as air",
+"themes": [
+"evidence",
+"jealousy"
+],
+"note": "Iago knows the handkerchief will be 'proof' enough."
+},
+{
+"id": "603",
+"who": "OTHELLO",
+"text": "Farewell the tranquil mind! Farewell content!",
+"themes": [
+"jealousy",
+"reputation"
+],
+"note": "Othello says goodbye to his peace and his soldier's identity."
+},
+{
+"id": "605",
+"who": "OTHELLO",
+"text": "Be sure of it. Give me the ocular proof;",
+"themes": [
+"evidence"
+],
+"note": "Othello demands proof, and Iago will manufacture it."
+},
+{
+"id": "635",
+"who": "OTHELLO",
+"text": "Never, Iago. Like to the Pontic Sea,",
+"themes": [
+"jealousy"
+],
+"note": "Othello's revenge, as unstoppable as a current."
+},
+{
+"id": "640",
+"who": "IAGO",
+"text": "I am your own forever.",
+"themes": [
+"manipulation"
+],
+"note": "Iago kneels: a dark parody of a marriage vow."
+},
+{
+"id": "724",
+"who": "EMILIA",
+"text": "They are not ever jealous for the cause,",
+"themes": [
+"jealousy",
+"women"
+],
+"note": "Emilia's insight: jealousy feeds on itself."
+},
+{
+"id": "710",
+"who": "EMILIA",
+"text": "'Tis not a year or two shows us a man.",
+"themes": [
+"women"
+],
+"note": "Emilia on how men use and discard women."
+},
+{
+"id": "774",
+"who": "OTHELLO",
+"text": "Lie with her! lie on her! We say lie on her, when they",
+"themes": [
+"jealousy"
+],
+"note": "Othello's language breaks down before his fit."
+},
+{
+"id": "908",
+"who": "LODOVICO",
+"text": "Is this the noble Moor whom our full Senate",
+"themes": [
+"reputation"
+],
+"note": "Lodovico is shocked by how Othello has changed."
+},
+{
+"id": "1079",
+"who": "EMILIA",
+"text": "Yet have we some revenge. Let husbands know",
+"themes": [
+"women"
+],
+"note": "Emilia argues wives have the same desires and faults as husbands."
+},
+{
+"id": "1176",
+"who": "OTHELLO",
+"text": "It is the cause, it is the cause, my soul.",
+"themes": [
+"love",
+"jealousy"
+],
+"note": "Othello's final soliloquy over the sleeping Desdemona."
+},
+{
+"id": "1176",
+"who": "OTHELLO",
+"text": "Put out the light, and then put out the light.",
+"themes": [
+"love"
+],
+"note": "Candle and life: once her light is out it cannot be relit."
+},
+{
+"id": "1251",
+"who": "DESDEMONA",
+"text": "Nobody; I myself. Farewell;",
+"themes": [
+"love",
+"women"
+],
+"note": "Desdemona's last words protect Othello."
+},
+{
+"id": "1260",
+"who": "OTHELLO",
+"text": "She was false as water.",
+"themes": [
+"jealousy"
+],
+"note": "Othello justifies the murder; Emilia answers 'true as heaven'."
+},
+{
+"id": "1344",
+"who": "IAGO",
+"text": "Demand me nothing; what you know, you know.",
+"themes": [
+"deception",
+"manipulation"
+],
+"note": "Iago's final silence: he never explains himself."
+},
+{
+"id": "1357",
+"who": "OTHELLO",
+"text": "Of one that loved not wisely but too well;",
+"themes": [
+"love",
+"reputation",
+"jealousy"
+],
+"note": "Othello's own epitaph, and his last appeal to his reputation."
+},
+{
+"id": "1357",
+"who": "OTHELLO",
+"text": "Like the base Indian, threw a pearl away",
+"themes": [
+"race",
+"jealousy"
+],
+"note": "Othello's image of himself throwing away a pearl."
+}
+]
+};
 const SOLO={"188":1,"292":1,"323":1,"416":1,"420":1,"563":1,"576":1,"594":1,"1088":1,"1176":1};
 const COLORS={OTHELLO:"#b5651d",DESDEMONA:"#3f7cc4",IAGO:"#b4413a",EMILIA:"#8a5cb8",CASSIO:"#2f8f6e",RODERIGO:"#a08a2a",BRABANTIO:"#6b7d8a",BIANCA:"#c25b8a"};
 const roman={I:1,II:2,III:3,IV:4,V:5}, R=["","I","II","III","IV","V"];
+const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","Actus Quintus"],SL={I:"Scena Prima",II:"Scena Secunda",III:"Scena Tertia",IV:"Scena Quarta"};
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 const $=id=>document.getElementById(id);
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,1800)}
+const wide=()=>innerWidth>=760;
+function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
 
 /* ---------- data ---------- */
-const pages=[], speech={}, whoSet=new Set();
+const scenes=[], speech={}, whoSet=new Set();
 {let cur=null,n=0;
 for(const it of DATA){
-  if(it.t==="scene"){n=0;cur={id:`a${it.act}s${roman[it.scene]}`,act:it.act,sc:roman[it.scene],scene:it.scene,loc:it.loc||"",items:[]};pages.push(cur);}
+  if(it.t==="scene"){n=0;cur={id:`a${it.act}s${roman[it.scene]}`,act:it.act,sc:roman[it.scene],scene:it.scene,loc:it.loc||"",items:[]};scenes.push(cur);}
   else{if(it.t==="sp"){it.page=cur.id;it.start=n+1;n+=it.lines.length;speech[it.id]=it;if(it.who)whoSet.add(it.who);}cur.items.push(it);}
 }}
-const pageIdx=id=>pages.findIndex(p=>p.id===id);
+const sIdx=id=>scenes.findIndex(p=>p.id===id);
+const sName=p=>`Act ${R[p.act]}, Scene ${p.scene.toLowerCase()}`;
 const shortLoc=p=>p.loc.split(/[.;]/)[0];
 const firstSentence=t=>(t||"").split(/(?<=\.)\s/)[0];
 const G=STUDY.gloss, gkeys=Object.keys(G).sort((a,b)=>b.length-a.length), gmap={};gkeys.forEach(k=>gmap[k.toLowerCase()]=k);
 const gre=new RegExp("(^|[^A-Za-z'])("+gkeys.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")(?![A-Za-z])","gi");
-function gloss(text,seen){return esc(text).replace(gre,(m,pre,w)=>{const k=gmap[w.toLowerCase()];if(!k||seen.has(k))return m;seen.add(k);return `${pre}<abbr class="g" data-k="${esc(k)}" tabindex="0">${w}</abbr>`})}
+function gloss(text){return esc(text).replace(gre,(m,pre,w)=>{const k=gmap[w.toLowerCase()];return k?`${pre}<abbr class="g">${w}</abbr>`:m})}
+function glossList(sp){const found=new Set();sp.lines.join(" ").replace(gre,(m,pre,w)=>{const k=gmap[w.toLowerCase()];if(k)found.add(k);return m});return [...found]}
+const CH={};STUDY.chars.forEach(c=>CH[c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","")]=c);
+const QBY={};QUOTES.quotes.forEach((q,i)=>{q.i=i;(QBY[q.id]=QBY[q.id]||[]).push(q)});
+const sceneOf=id=>scenes[sIdx(speech[id].page)];
+const pageWords=p=>p.items.reduce((n,it)=>n+(it.t==="sp"?it.lines.join(" ").split(/\s+/).length:0),0);
 
 /* ---------- saved state: marks + progress (account db, browser fallback) ---------- */
-let marks={},prog={done:{},quiz:{}},store=null,progDoc=null;
+let marks={},prog={done:{},quiz:{},cards:{}},store=null,progDoc=null;
 try{marks=JSON.parse(LS.get("oth-marks")||"{}")}catch(e){}
-try{prog=Object.assign(prog,JSON.parse(LS.get("oth-prog")||"{}"))}catch(e){}
+try{prog=Object.assign(prog,JSON.parse(LS.get("oth-prog")||"{}"));prog.cards=prog.cards||{}}catch(e){}
 async function initStore(){
   try{
     if(!window.claude||!claude.use)return;
@@ -1099,7 +1595,7 @@ async function initStore(){
     store.onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{const v=d.data();if(v)m[d.id]=v});
       if(first&&snap.empty&&Object.keys(marks).length)Object.entries(marks).forEach(([k,v])=>store.doc(k).set(v).catch(()=>{}));
       else{marks=m;LS.set("oth-marks",JSON.stringify(marks));refreshMarks()}first=false},()=>{});
-    progDoc.onSnapshot(sn=>{if(sn.exists){const v=sn.data();prog={done:Object.assign({},v.done||{}),quiz:Object.assign({},v.quiz||{})};LS.set("oth-prog",JSON.stringify(prog));if(view==="home")renderHome()}
+    progDoc.onSnapshot(sn=>{if(sn.exists){const v=sn.data();prog={done:Object.assign({},v.done||{}),quiz:Object.assign({},v.quiz||{}),cards:Object.assign({},v.cards||{})};LS.set("oth-prog",JSON.stringify(prog));if(view==="home")renderHome()}
       else if(Object.keys(prog.done).length||Object.keys(prog.quiz).length)progDoc.set(JSON.parse(JSON.stringify(prog))).catch(()=>{})},()=>{});
   }catch(e){}
 }
@@ -1111,167 +1607,365 @@ async function saveMark(id,patch){
 async function saveProg(){LS.set("oth-prog",JSON.stringify(prog));if(progDoc){try{await progDoc.set(JSON.parse(JSON.stringify(prog)))}catch(e){}}}
 
 /* ---------- settings ---------- */
-let curWords=0;
-const pageWords=p=>p.items.reduce((n,it)=>n+(it.t==="sp"?it.lines.join(" ").split(/\s+/).length:0),0);
-const S={mode:LS.get("oth-mode2")||"test",pair:LS.get("oth-pair")==="1",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",who:""};
+const S={mode:LS.get("oth-show")||"orig",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",sum:LS.get("oth-sumon")!=="0",who:"",stab:LS.get("oth-stab")||"quotes"};
 function applySettings(){
-  document.body.classList.remove("mode-orig","mode-mod","mode-test");
-  if(S.mode==="orig")document.body.classList.add("mode-orig");if(S.mode==="mod")document.body.classList.add("mode-mod");if(S.mode==="test")document.body.classList.add("mode-test");
+  const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
   if(S.theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",S.theme);
-  LS.set("oth-mode2",S.mode);LS.set("oth-pair",S.pair?"1":"0");LS.set("oth-size",S.scale);LS.set("oth-theme",S.theme);
+  LS.set("oth-show",S.mode);LS.set("oth-size",S.scale);LS.set("oth-theme",S.theme);LS.set("oth-sumon",S.sum?"1":"0");
 }
 
-/* ---------- views ---------- */
-let view="home",idx=0;
-function go(hash,push){if(location.hash.slice(1)!==hash){try{history[push?"pushState":"replaceState"](null,"","#"+hash)}catch(e){}}route()}
+/* ---------- views & routing ---------- */
+let view="home";
+let pos=null;try{pos=JSON.parse(LS.get("oth-pos")||"null")}catch(e){}
+function setHash(h,push){if(location.hash.slice(1)!==h){try{history[push?"pushState":"replaceState"](null,"","#"+h)}catch(e){}}}
+function show(v){view=v;$("home").hidden=v!=="home";$("reader").hidden=v!=="reader";$("study").hidden=v!=="study";closePanel();
+  document.body.style.overflow=v==="reader"?"hidden":"";if(v!=="reader")document.body.classList.remove("chrome");else setTimeout(hint,400)}
 function route(){
-  const h=location.hash.slice(1);const k=pageIdx(h);
-  if(k>=0){view="reader";$("home").hidden=true;$("reader").hidden=false;showScene(k)}
-  else{view="home";$("reader").hidden=true;$("home").hidden=false;renderHome();window.scrollTo(0,0)}
+  const h=location.hash.slice(1);
+  if(h==="home"){show("home");renderHome();scrollTo(0,0);return}
+  if(h==="study"){show("study");renderStudy();scrollTo(0,0);return}
+  const k=sIdx(h);
+  if(k>=0){show("reader");openScene(k,pos&&pos.s===h?{key:pos.key,keep:true}:{page:0});return}
+  if(pos&&sIdx(pos.s)>=0){setHash(pos.s,false);show("reader");openScene(sIdx(pos.s),{key:pos.key,keep:true});return}
+  show("home");renderHome();
 }
 addEventListener("hashchange",route);addEventListener("popstate",route);
+function goScene(k,opts){setHash(scenes[k].id,true);show("reader");openScene(k,opts||{page:0})}
+function goSpeech(id){const sp=speech[id];if(!sp)return;if(S.who&&sp.who!==S.who)S.who="";closeSheet();goScene(sIdx(sp.page),{speech:+id,flash:true})}
+function goStudy(tab){if(tab){S.stab=tab;LS.set("oth-stab",tab)}setHash("study",true);show("study");renderStudy();scrollTo(0,0)}
+function goHome(){setHash("home",true);show("home");renderHome();scrollTo(0,0)}
 
 /* ---------- home ---------- */
 function renderHome(){
-  const last=LS.get("oth-last"),lp=pages[Math.max(0,pageIdx(last))];
-  const done=pages.filter(p=>prog.done[p.id]).length;
-  const qs=Object.values(prog.quiz);const qc=qs.reduce((a,q)=>a+q[0],0),qt=qs.reduce((a,q)=>a+q[1],0);
-  $("contcard").innerHTML=`<button class="go" id="contbtn"><small>${last?"Continue reading":"Begin reading"}</small><b>Act ${R[lp.act]}, Scene ${lp.scene.toLowerCase()} · ${esc(shortLoc(lp))}</b></button>
-    <div class="meter"><i style="width:${done/pages.length*100}%"></i></div>
-    <div class="stats"><span><b>${done}</b> of ${pages.length} scenes read</span><span>quiz <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(marks).length}</b> notes</span></div>`;
-  $("contbtn").onclick=()=>go(lp.id,true);
-  let h="";const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","Actus Quintus"];
-  for(let a=1;a<=5;a++){const ps=pages.filter(p=>p.act===a);const ad=ps.filter(p=>prog.done[p.id]).length;
-    h+=`<div class="actcol"><h3><span>${LAT[a]}</span><small>Act ${R[a]} · ${ad}/${ps.length} read</small></h3><div class="row">`+
+  const lp=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)]:scenes[0];
+  const done=scenes.filter(p=>prog.done[p.id]).length;
+  const qs=Object.entries(prog.quiz).filter(([k])=>k!=="all").map(x=>x[1]);const qc=qs.reduce((a,q)=>a+q[0],0),qt=qs.reduce((a,q)=>a+q[1],0);
+  $("contcard").innerHTML=`<div class="row2"><button class="go" id="contbtn"><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)} · ${esc(shortLoc(lp))}</b></button>
+    <button class="go alt" id="studybtn"><small>Revise</small><b>Study</b></button></div>
+    <div class="meter"><i style="width:${done/scenes.length*100}%"></i></div>
+    <div class="stats"><span><b>${done}</b> of ${scenes.length} scenes read</span><span>quizzes <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(marks).length}</b> notes</span><span><b>${Object.keys(prog.cards).length}</b> of ${QUOTES.quotes.length} quotes learnt</span></div>`;
+  $("contbtn").onclick=()=>{const k=sIdx(lp.id);goScene(k,pos&&pos.s===lp.id?{key:pos.key}:{page:0})};
+  $("studybtn").onclick=()=>goStudy();
+  let h="";
+  for(let a=1;a<=5;a++){const ps=scenes.filter(p=>p.act===a);const ad=ps.filter(p=>prog.done[p.id]).length;
+    h+=`<div class="actcol"><h3><span>${LAT[a]}</span><small>Act ${R[a]} · ${ad}/${ps.length} read</small></h3><div>`+
       ps.map(p=>{const q=prog.quiz[p.id];const s=STUDY.scenes[p.id]||{};
-        return `<button class="srow${prog.done[p.id]?" done":""}${p.id===last?" here":""}" data-go="${p.id}"><span class="n">${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · ${q[0]}/${q[1]}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></div>`}
+        return `<button class="srow${prog.done[p.id]?" done":""}${pos&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="n">${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${q[0]}/${q[1]}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></div>`}
   $("actsmap").innerHTML=h;
   $("cast").innerHTML=STUDY.chars.map(c=>{const key=c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","");const has=whoSet.has(key);
     return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p></div>`}).join("");
 }
-$("home").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go,true);const f=e.target.closest("[data-follow]");if(f){S.who=f.dataset.follow;const p=pages.find(p=>p.items.some(i=>i.who===S.who));go(p.id,true);toast("Showing only "+title(S.who))}});
+$("home").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goScene(sIdx(g.dataset.go));
+  const f=e.target.closest("[data-follow]");if(f){S.who=f.dataset.follow;const k=scenes.findIndex(p=>p.items.some(i=>i.who===S.who));goScene(k);toast("Showing only "+title(S.who))}});
 $("hsearch").addEventListener("submit",e=>{e.preventDefault();openSearch($("hq").value)});
 $("h-notes").onclick=openNotes;$("h-set").onclick=openSettings;
 
-/* ---------- reader ---------- */
-const stage=$("stage");
-function speechHTML(it,seen){
-  const c=COLORS[it.who],aside=it.lines.some(l=>/\[Aside/.test(l)),solo=SOLO[it.id];
-  const tag=solo?`<span class="tag" title="Alone on stage: private thoughts">Soliloquy</span>`:aside?`<span class="tag" title="Not heard by others on stage">Aside</span>`:"";
-  const line=(l,num)=>{const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}>${gloss(t,seen)}</span>`};
+/* ---------- reader: blocks ---------- */
+const pg=$("pg"),measure=$("measure"),vp=$("vp");
+// a scene is a list of blocks; long speeches split into units (single lines, or aligned chunks when modern text shows)
+function sceneBlocks(p){
+  const b=[];
+  if(!S.who)b.push({t:"head",key:"h"});
+  p.items.forEach((it,ix)=>{
+    if(it.t==="sd"){if(!S.who)b.push({t:"sd",it,key:"d"+ix})}
+    else if(!S.who||it.who===S.who){
+      const units=S.mode==="orig"?it.lines.map((l,i)=>[i,i,null]):(ALIGN[it.id]?ALIGN[it.id].map(c=>[c[0],c[1],c[2]]):[[0,it.lines.length-1,it.m]]);
+      b.push({t:"sp",it,units,u0:0,u1:units.length,key:it.id+":0"});
+    }});
+  b.push({t:"end",key:"e"});
+  return b;
+}
+function lineHTML(l,num){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}>${gloss(t)}</span>`}
+function blockHTML(bk,p){
+  if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
+    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
+  if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
+  if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
+    return `<div class="blk endblk"><div class="orn">❧</div><b>End of ${sName(p)}</b>${n?`<span>Turn the page for ${sName(n)} · ${esc(shortLoc(n))}</span>`:`<span>Finis</span>`}</div>`}
+  const it=bk.it,c=COLORS[it.who],cont=bk.u0>0||it.cont,aside=it.lines.some(l=>/\[Aside/.test(l)),solo=SOLO[it.id];
+  const tag=solo?`<span class="tag">Soliloquy</span>`:aside?`<span class="tag">Aside</span>`:"";
+  const m=marks[it.id]||{},flags=(STUDY.notes[it.id]||QBY[it.id]?`<span class="flag" title="Has a study note">◆</span>`:"")+(m.note?`<span class="flag" title="Your note">✎</span>`:"");
+  const us=bk.units.slice(bk.u0,bk.u1),whole=bk.u0===0&&bk.u1===bk.units.length;
   let body;
-  if(S.pair&&ALIGN[it.id]){
-    body=ALIGN[it.id].map(ch=>`<div class="chunk"><div class="o">${it.lines.slice(ch[0],ch[1]+1).map((l,j)=>line(l,it.start+ch[0]+j)).join("")}</div><div class="m">${esc(ch[2])}</div></div>`).join("");
-  } else body=`<div class="o">${it.lines.map((l,j)=>line(l,it.start+j)).join("")}</div><div class="m">${esc(it.m)}</div>`;
-  const sn=STUDY.notes[it.id];
-  return `<article class="sp${solo||aside?" solo":""}" id="r${it.id}" data-id="${it.id}" tabindex="-1">
-    <div class="hd"><span class="nm${it.cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${it.cont?" (cont.)":""}</span>${tag}
-      <span class="mk"><button class="b-hl" aria-pressed="false" aria-label="Highlight">☆ Highlight</button><button class="b-note" aria-label="Add note">✎ Note</button></span></div>
-    ${body}
-    <div class="xtra">${sn?`<div class="snote"><b>Study note</b>${esc(sn)}</div>`:""}<div class="mine"></div></div></article>`;
+  if(S.mode==="orig")body=`<div class="o">${us.map(u=>lineHTML(it.lines[u[0]],it.start+u[0])).join("")}</div>`;
+  else if(whole)body=`<div class="o">${it.lines.map((l,j)=>lineHTML(l,it.start+j)).join("")}</div><div class="m">${esc(it.m)}</div>`;
+  else body=us.map(u=>`<div class="chunk"><div class="o">${it.lines.slice(u[0],u[1]+1).map((l,j)=>lineHTML(l,it.start+u[0]+j)).join("")}</div><div class="m">${esc(u[2])}</div></div>`).join("");
+  return `<article class="blk sp${m.hl?" hl":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}"><div class="hd"><span class="nm${cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div><div class="body">${body}</div></article>`;
 }
-function showScene(k,target){
-  idx=Math.max(0,Math.min(pages.length-1,k));const p=pages[idx],s=STUDY.scenes[p.id]||{},seen=new Set();
-  LS.set("oth-last",p.id);
-  $("w-title").textContent=`Act ${R[p.act]}, Scene ${p.scene.toLowerCase()}`;$("w-sub").textContent=shortLoc(p).toUpperCase();curWords=pageWords(p);
-  const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","Actus Quintus"],SL={I:"Scena Prima",II:"Scena Secunda",III:"Scena Tertia",IV:"Scena Quarta"};
-  let h=`<div class="scenehead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>Act ${R[p.act]}, Scene ${p.scene.toLowerCase()}</h1><div class="loc">${esc(p.loc)}</div></div>`;
-  if(s.sum)h+=`<details class="recap" id="recap"${(LS.get("oth-sum")||(innerWidth<700?"closed":"open"))==="closed"?"":" open"}><summary><span class="eyebrow">The Argument</span></summary><p>${esc(s.sum)}</p>${s.key?`<ul>${s.key.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</details>`;
-  if(S.who)h+=`<div class="filterpill">Showing only ${esc(title(S.who))} <button class="btn" id="clearwho">Show everyone</button></div>`;
-  h+=`<div class="facing"><div class="lab lo">Shakespeare’s text</div><div class="lab lm">In modern English</div>`;
-  for(const it of p.items){
-    if(it.t==="sd"){if(!S.who)h+=`<div class="sd">${esc(it.text)}</div>`}
-    else if(!S.who||it.who===S.who)h+=speechHTML(it,seen);
+/* ---------- pagination: fill each screen, split long speeches between pages ---------- */
+let cur={k:-1,pages:[],i:0,words:0,sig:""};
+function paginate(p){
+  const blocks=sceneBlocks(p);
+  measure.className="pg";measure.style.width=pg.clientWidth+"px";measure.style.maxWidth="none";
+  const H=pg.clientHeight-2,pages=[];let page=[];measure.innerHTML="";
+  const fits=()=>measure.scrollHeight<=H;
+  const flush=()=>{if(page.length)pages.push(page);page=[];measure.innerHTML=""};
+  const add=bk=>{measure.insertAdjacentHTML("beforeend",blockHTML(bk,p));return measure.lastElementChild};
+  for(const bk0 of blocks){
+    let bk=bk0,guard=0;
+    while(guard++<500){
+      const el=add(bk);
+      if(fits()){page.push(bk);break}
+      el.remove();
+      if(bk.t==="sp"&&bk.u1-bk.u0>1){
+        let best=0;
+        for(let u=bk.u1-1;u>bk.u0;u--){const e=add(Object.assign({},bk,{u1:u}));const ok=fits();e.remove();if(ok){best=u;break}}
+        if(best){const part=Object.assign({},bk,{u1:best});add(part);page.push(part);flush();bk=Object.assign({},bk,{u0:best,key:bk.it.id+":"+bk.units[best][0]});continue}
+      }
+      if(page.length){flush();continue}
+      add(bk);page.push(bk);flush();break; // taller than a whole page on its own
+    }
   }
-  h+=`</div><div class="endcard">`;
-  if(s.quiz&&!S.who){const best=prog.quiz[p.id];
-    h+=`<section class="quiz"><div class="eyebrow">End of the scene</div><h2>Check your understanding</h2>`+
-      s.quiz.map((q,qi)=>`<div class="q" data-a="${q.a}"><p>${qi+1}. ${esc(q.q)}</p><div class="opts">${q.o.map((o,oi)=>`<button data-i="${oi}">${esc(o)}</button>`).join("")}</div></div>`).join("")+
-      `<div class="score" id="score">${best?`Best so far: ${best[0]} of ${best[1]}`:""}</div></section>`}
-  if(idx<pages.length-1){const n=pages[idx+1];h+=`<button class="nextcard" id="nextcard"><small>Next</small><b>Act ${R[n.act]}, Scene ${n.scene.toLowerCase()}</b><span>${esc(shortLoc(n))}</span></button>`}
-  else h+=`<div class="fin">The End</div><button class="btn" id="tohome">Back to contents</button>`;
-  h+=`</div>`;
-  stage.innerHTML=h;
-  const rc=$("recap");if(rc)rc.addEventListener("toggle",()=>LS.set("oth-sum",rc.open?"open":"closed"));
-  const cw=$("clearwho");if(cw)cw.onclick=()=>{S.who="";showScene(idx)};
-  const nc=$("nextcard");if(nc)nc.onclick=()=>go(pages[idx+1].id,true);
-  const th=$("tohome");if(th)th.onclick=()=>go("home",true);
-  refreshMarks();
-  if(target){const el=$("r"+target);if(el){el.scrollIntoView({block:"center"});el.classList.add("sel");el.focus({preventScroll:true})}}
-  else window.scrollTo(0,0);
-  onScroll();
+  flush();measure.innerHTML="";
+  return pages.length?pages:[[]];
 }
-function refreshMarks(){
-  document.querySelectorAll(".sp").forEach(r=>{const m=marks[r.dataset.id]||{};
-    r.classList.toggle("hl",!!m.hl);const b=r.querySelector(".b-hl");b.setAttribute("aria-pressed",!!m.hl);b.textContent=m.hl?"★ Highlighted":"☆ Highlight";
-    const mine=r.querySelector(".mine");if(!mine.querySelector(".ned"))mine.innerHTML=m.note?`<div class="mynote" title="Edit note"><b>My note</b>${esc(m.note)}</div>`:""});
+const sig=()=>[S.mode,S.scale,S.who,S.sum,pg.clientWidth,pg.clientHeight].join("|");
+function openScene(k,opts){
+  opts=opts||{};const p=scenes[k];
+  if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
+  let i=0;
+  if(opts.page==="last")i=cur.pages.length-1;
+  else if(typeof opts.page==="number")i=Math.max(0,Math.min(cur.pages.length-1,opts.page));
+  if(opts.key!=null){const f=findKey(opts.key);if(f>=0)i=f}
+  if(opts.speech!=null){const f=cur.pages.findIndex(pb=>pb.some(b=>b.t==="sp"&&b.it.id===opts.speech));if(f>=0)i=f}
+  $("w-title").textContent=sName(p);
+  renderPage(i,0,opts.keep);
+  if(opts.flash&&opts.speech!=null){const el=pg.querySelector(`.sp[data-id="${opts.speech}"]`);if(el){el.classList.add("active");setTimeout(()=>el.classList.remove("active"),1600)}}
 }
-stage.addEventListener("click",e=>{
-  const sp=e.target.closest(".sp");
-  if(e.target.closest(".b-hl")){const id=sp.dataset.id,on=!(marks[id]||{}).hl;saveMark(id,{hl:on});toast(on?"Highlighted":"Highlight removed");return}
-  if(e.target.closest(".b-note")||e.target.closest(".mynote")){const id=sp.dataset.id,mine=sp.querySelector(".mine");
-    mine.innerHTML=`<div class="ned"><label class="sr" for="ne${id}">Your note</label><textarea id="ne${id}" placeholder="Your thoughts on this speech…">${esc((marks[id]||{}).note||"")}</textarea><div><button class="btn primary ne-save">Save note</button><button class="btn ne-cancel">Cancel</button></div></div>`;
-    mine.querySelector("textarea").focus();return}
-  if(e.target.closest(".ne-save")){const id=sp.dataset.id,v=sp.querySelector("textarea").value;sp.querySelector(".mine").innerHTML="";saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed");return}
-  if(e.target.closest(".ne-cancel")){sp.querySelector(".mine").innerHTML="";refreshMarks();return}
-  const ob=e.target.closest(".opts button");
-  if(ob){const q=ob.closest(".q");if(q.dataset.done)return;q.dataset.done=1;const a=+q.dataset.a;
-    q.querySelectorAll("button").forEach((b,i)=>{if(i===a)b.classList.add("right");else if(b===ob)b.classList.add("wrong");b.disabled=true});
-    const all=[...document.querySelectorAll(".q")],dn=all.filter(x=>x.dataset.done),ok=dn.filter(x=>!x.querySelector(".wrong"));
-    $("score").textContent=`${ok.length} of ${dn.length} correct`;
-    if(dn.length===all.length){const pid=pages[idx].id,old=prog.quiz[pid];if(!old||ok.length>=old[0]){prog.quiz[pid]=[ok.length,all.length];saveProg()}$("score").textContent+=ok.length===all.length?" · perfect!":" · answers shown above"}
-    return}
-  const hid=e.target.closest("body.mode-test .m");if(hid&&!(hid.classList.contains("shown")&&getSelection().toString())){hid.classList.toggle("shown");return}
-  if(sp&&!e.target.closest("abbr,button,textarea,a")){document.querySelectorAll(".sp.sel").forEach(x=>x!==sp&&x.classList.remove("sel"));sp.classList.toggle("sel")}
-});
+function findKey(key){
+  key=String(key);
+  for(let i=0;i<cur.pages.length;i++)if(cur.pages[i].some(b=>b.key===key))return i;
+  const [sid,ln]=key.split(":");if(ln==null)return -1;
+  let best=-1;for(let i=0;i<cur.pages.length;i++)for(const b of cur.pages[i])if(b.t==="sp"&&String(b.it.id)===sid&&b.units[b.u0][0]<= +ln)best=i;
+  return best;
+}
+function renderPage(i,dir,keep){
+  const p=scenes[cur.k];cur.i=i;
+  const html=cur.pages[i].map(b=>blockHTML(b,p)).join("");
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const put=()=>{pg.innerHTML=html;pg.scrollTop=0;pg.style.overflowY=pg.scrollHeight>pg.clientHeight+2?"auto":"hidden"};
+  if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
+  const first=cur.pages[i].find(b=>b.t==="sp")||cur.pages[i][0];
+  if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set("oth-pos",JSON.stringify(pos))}
+  if(i===cur.pages.length-1&&!prog.done[p.id]){prog.done[p.id]=Date.now();saveProg()}
+  const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140);
+  $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;
+  $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
+  $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
+  const r=$("p-range");r.max=n;r.value=i+1;
+}
+function turn(d){
+  if(toolsId!=null)closePanel();
+  if(d>0){if(cur.i<cur.pages.length-1)renderPage(cur.i+1,1);else if(cur.k<scenes.length-1){setHash(scenes[cur.k+1].id,false);openScene(cur.k+1,{page:0})}else toast("The end of the play")}
+  else{if(cur.i>0)renderPage(cur.i-1,-1);else if(cur.k>0){setHash(scenes[cur.k-1].id,false);openScene(cur.k-1,{page:"last"})}}
+}
+function repaginate(){if(view!=="reader"||cur.k<0)return;const key=pos&&pos.key;cur.sig="";openScene(cur.k,{key,keep:true})}
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(repaginate,180)});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>repaginate());
+function refreshMarks(){if(view==="reader"&&cur.k>=0){pg.innerHTML=cur.pages[cur.i].map(b=>blockHTML(b,scenes[cur.k])).join("");if(toolsId!=null)pg.querySelectorAll(`.sp[data-id="${toolsId}"]`).forEach(x=>x.classList.add("active"))}}
 
-/* reading progress, auto-hiding bar, swipe */
-const bar=$("bar");let lastY=scrollY;
-function onScroll(){
-  if(view!=="reader")return;
-  const max=document.documentElement.scrollHeight-innerHeight,f=max>0?Math.min(1,scrollY/max):1;$("prog").style.width=f*100+"%";
-  {const p=pages[idx],mins=Math.ceil(curWords*(1-f)/140);$("w-sub").textContent=shortLoc(p).toUpperCase()+(f<.97&&mins>0?` · ${mins} MIN LEFT`:" · END OF SCENE")}
-  if(f>=.97&&!prog.done[pages[idx].id]){prog.done[pages[idx].id]=Date.now();saveProg();toast("Scene marked as read ✓")}
-  const y=scrollY;if($("sheet").hidden){if(y>lastY+8&&y>200)bar.classList.add("away");else if(y<lastY-6)bar.classList.remove("away")}lastY=y;
-}
-addEventListener("scroll",()=>{onScroll();$("pop").hidden=true},{passive:true});
-let tx=null,ty=null;
-stage.addEventListener("touchstart",e=>{if(e.touches.length===1){tx=e.touches[0].clientX;ty=e.touches[0].clientY}},{passive:true});
-stage.addEventListener("touchend",e=>{if(tx===null)return;const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;tx=null;
-  if(Math.abs(dx)>90&&Math.abs(dy)<45&&!getSelection().toString()){const k=idx+(dx<0?1:-1);if(k>=0&&k<pages.length)go(pages[k].id,true)}},{passive:true});
+/* ---------- reader: gestures (tap edges / swipe to turn, tap middle for menus, long-press for tools) ---------- */
+let press=null,swallow=false;
+vp.addEventListener("pointerdown",e=>{if(e.button)return;
+  const sp=e.target.closest(".sp");press={x:e.clientX,y:e.clientY,t:Date.now(),sp,timer:null,moved:false};
+  if(sp){press.pt=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved)sp.classList.add("pressing")},160);
+    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}openTools(+sp.dataset.id)}},480)}});
+vp.addEventListener("pointermove",e=>{if(!press)return;if(Math.abs(e.clientX-press.x)>10||Math.abs(e.clientY-press.y)>10){press.moved=true;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing")}});
+function endPress(e,cancel){if(!press)return;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");
+  const P=press;press=null;if(cancel)return;
+  if(swallow){swallow=false;return}
+  const dx=e.clientX-P.x,dy=e.clientY-P.y;
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3){turn(dx<0?1:-1);return}
+  if(P.moved||Date.now()-P.t>450)return;
+  if(toolsId!=null&&wide()){closePanel();return}
+  const w=innerWidth,x=e.clientX;
+  if(x<w*.26)turn(-1);else if(x>w*.74)turn(1);else toggleChrome()}
+vp.addEventListener("pointerup",e=>endPress(e,false));
+vp.addEventListener("pointercancel",e=>endPress(e,true));
+vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}if(toolsId!==+sp.dataset.id)openTools(+sp.dataset.id)});
+vp.addEventListener("wheel",e=>{const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(d)<25)return;const now=Date.now();if(now-(vp.lw||0)<450)return;vp.lw=now;turn(d>0?1:-1)},{passive:true});
+function toggleChrome(on){document.body.classList.toggle("chrome",on)}
+$("p-prev").onclick=()=>turn(-1);$("p-next").onclick=()=>turn(1);
+$("p-range").addEventListener("input",e=>renderPage(+e.target.value-1,0));
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){$("pop").hidden=true;closeSheet();return}
-  if(e.key==="Enter"&&e.target.matches("abbr.g")){showGloss(e.target);return}
+  if(e.key==="Escape"){if(!$("sheet").hidden)closeSheet();else if(toolsId!=null)closePanel();else toggleChrome(false);return}
   if(view!=="reader"||!$("sheet").hidden||e.target.closest("input,textarea,select"))return;
-  if(e.key==="ArrowRight"&&idx<pages.length-1)go(pages[idx+1].id,true);if(e.key==="ArrowLeft"&&idx>0)go(pages[idx-1].id,true)});
+  if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();turn(1)}
+  if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();turn(-1)}});
 
-/* glossary popover */
-const pop=$("pop");
-function showGloss(el){const k=el.dataset.k;pop.innerHTML=`<b>${esc(k)}</b> — ${esc(G[k])}`;placePop(el)}
-const CH={};STUDY.chars.forEach(c=>CH[c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","")]=c);
-function placePop(el){const r=el.getBoundingClientRect(),w=Math.min(280,innerWidth-24);pop.style.maxWidth=w+"px";
-  pop.style.left=Math.max(12,Math.min(r.left,innerWidth-w-12))+"px";pop.style.top=Math.min(r.bottom+8,innerHeight-160)+"px";pop.hidden=false}
-function showChar(el){const who=el.closest(".sp")&&speech[el.closest(".sp").dataset.id].who;if(!who)return;const c=CH[who];
-  pop.innerHTML=`<span class="chr">${esc(title(who))}</span>${c?esc(c.desc):"A minor character in this scene."}<br><button class="pop-follow" data-follow="${esc(who)}">${S.who===who?"Show everyone":"Follow only their lines"}</button>`;placePop(el)}
-document.addEventListener("click",e=>{const a=e.target.closest("abbr.g");if(a){showGloss(a);e.stopPropagation();return}
-  const n=e.target.closest("#stage .nm");if(n){showChar(n);e.stopPropagation();return}
-  const f=e.target.closest(".pop-follow");if(f){const w=f.dataset.follow;S.who=S.who===w?"":w;pop.hidden=true;showScene(idx);toast(S.who?"Showing only "+title(S.who):"Showing everyone");e.stopPropagation();return}
-  if(!e.target.closest("#pop"))pop.hidden=true},true);
+/* ---------- speech tools: side panel (wide) or sheet (phone) ---------- */
+let toolsId=null;
+function toolsHTML(id){
+  const sp=speech[id],p=sceneOf(id),m=marks[id]||{},gl=glossList(sp),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[];
+  return `<div class="tool">
+    <div class="ref">${sName(p)} · lines ${sp.start}–${sp.start+sp.lines.length-1}</div>
+    ${c?`<p class="who">${esc(c.desc)}</p>`:""}
+    <h3 class="lbl">Modern English</h3><div class="modern">${esc(sp.m)}</div>
+    ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
+    ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
+    ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
+    <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
+    <div class="acts"><button class="btn sm" id="t-save">Save note</button><button class="btn sm${m.hl?" on":""}" id="t-hl" aria-pressed="${!!m.hl}">${m.hl?"★ Highlighted":"☆ Highlight"}</button><button class="btn sm" id="t-follow">${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))+"’s lines"}</button><button class="btn sm" id="t-copy">Copy lines</button></div>
+    <h3 class="lbl">Original</h3><div class="orig">${sp.lines.map(l=>esc(l.replace(/^~/,""))).join("<br>")}</div>
+  </div>`}
+function wireTools(id){
+  const sp=speech[id];
+  $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
+  $("t-hl").onclick=()=>{const on=!(marks[id]||{}).hl;saveMark(id,{hl:on});const b=$("t-hl");b.classList.toggle("on",on);b.textContent=on?"★ Highlighted":"☆ Highlight";b.setAttribute("aria-pressed",on);toast(on?"Highlighted":"Highlight removed")};
+  $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
+  $("t-copy").onclick=()=>copyText(sp.lines.map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
+}
+function openTools(id){
+  toolsId=id;const sp=speech[id];
+  pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));
+  pg.querySelectorAll(`.sp[data-id="${id}"]`).forEach(x=>x.classList.add("active"));
+  if(wide()){document.body.classList.add("tools");$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=toolsHTML(id);$("panel").classList.add("open");$("panel-body").scrollTop=0;wireTools(id)}
+  else{openSheet(title(sp.who),toolsHTML(id));wireTools(id)}
+}
+function closePanel(){$("panel").classList.remove("open");document.body.classList.remove("tools");toolsId=null;pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"))}
+$("panel-close").onclick=closePanel;
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Copied":"Copy didn’t work here. Select the text and copy it yourself.")}}
+
+/* ---------- study ---------- */
+const TABS=[["quotes","Key quotes"],["cards","Flashcards"],["themes","Essay helper"],["quiz","Quizzes"],["revise","Revision sheet"]];
+function renderStudy(){
+  if(!TABS.some(t=>t[0]===S.stab))S.stab="quotes";
+  $("stabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${S.stab===k}" data-tab="${k}">${l}</button>`).join("");
+  ({quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
+}
+$("stabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){S.stab=b.dataset.tab;LS.set("oth-stab",S.stab);renderStudy()}});
+$("s-back").onclick=()=>{if(pos&&sIdx(pos.s)>=0)goScene(sIdx(pos.s),{key:pos.key});else goScene(0)};
+$("s-home").onclick=goHome;
+function quoteHTML(q){const sp=speech[q.id];return `<div class="qt" style="--c:${COLORS[sp.who]||"var(--ink)"}"><blockquote>“${esc(q.text)}”</blockquote>
+  <div class="meta"><b>${esc(title(sp.who))}</b><span>${sName(sceneOf(q.id))}</span><button class="link" data-speech="${q.id}">Read in context</button></div>
+  <p>${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}<br>${esc(q.note)}</p></div>`}
+let qf={who:"",th:""};
+function studyQuotes(){
+  const whos=[...new Set(QUOTES.quotes.map(q=>speech[q.id].who))];
+  const list=QUOTES.quotes.filter(q=>(!qf.who||speech[q.id].who===qf.who)&&(!qf.th||q.themes.includes(qf.th)));
+  $("sbody").innerHTML=`<p class="intro">The play's most quoted lines, in order. Filter by character or theme.</p>
+   <div class="filt"><div class="chips" data-f="who"><button class="chip" aria-pressed="${!qf.who}" data-v="">All characters</button>${whos.map(w=>`<button class="chip" aria-pressed="${qf.who===w}" data-v="${w}">${esc(title(w))}</button>`).join("")}</div>
+   <div class="chips" data-f="th"><button class="chip" aria-pressed="${!qf.th}" data-v="">All themes</button>${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" aria-pressed="${qf.th===k}" data-v="${k}">${esc(v[0])}</button>`).join("")}</div></div>
+   <p class="muted" style="font-size:.8rem">${list.length} quote${list.length===1?"":"s"}</p>${list.map(quoteHTML).join("")}`;
+}
+/* flashcards: quotes not yet learnt come first, shuffled */
+let deck=null,flip=false;
+function newDeck(){const all=QUOTES.quotes.map(q=>q.i),sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);deck=[...sh(all.filter(i=>!prog.cards[i])),...sh(all.filter(i=>prog.cards[i]))];flip=false}
+function studyCards(){
+  if(!deck||!deck.length)newDeck();
+  const q=QUOTES.quotes[deck[0]],sp=speech[q.id],p=sceneOf(q.id),known=Object.keys(prog.cards).length;
+  $("sbody").innerHTML=`<p class="intro">Who said it, and when? Think of your answer, then turn the card.</p>
+   <div class="card" style="--c:${COLORS[sp.who]||"var(--ink)"}"><blockquote>“${esc(q.text)}”</blockquote>
+   ${flip?`<div class="ans"><b>${esc(title(sp.who))}</b><span>${sName(p)} · ${esc(shortLoc(p))}</span><p>${esc(q.note)}</p></div>`:""}</div>
+   <div class="cardbtns">${flip?`<button class="btn" id="c-again">Not yet</button><button class="btn primary" id="c-knew">I knew it</button><button class="link" data-speech="${q.id}">Read in context</button>`:`<button class="btn primary" id="c-flip">Turn the card</button>`}</div>
+   <div class="cardstat">${known} of ${QUOTES.quotes.length} learnt · ${deck.length} left in this round · <button class="link" id="c-reset">Start over</button></div>`;
+  if($("c-flip"))$("c-flip").onclick=()=>{flip=true;studyCards()};
+  if($("c-knew"))$("c-knew").onclick=()=>{prog.cards[q.i]=Date.now();saveProg();deck.shift();flip=false;if(!deck.length)toast("Round finished");studyCards()};
+  if($("c-again"))$("c-again").onclick=()=>{delete prog.cards[q.i];saveProg();deck.push(deck.shift());flip=false;studyCards()};
+  $("c-reset").onclick=()=>{prog.cards={};saveProg();newDeck();studyCards()};
+}
+/* essay helper: a theme traced from beginning to end */
+let thSel=Object.keys(QUOTES.themes)[0];
+function themePlan(k){
+  const qs=QUOTES.quotes.filter(q=>q.themes.includes(k));
+  const stage=(lo,hi)=>qs.filter(q=>{const a=sceneOf(q.id).act;return a>=lo&&a<=hi});
+  return [["Beginning","Acts I–II",stage(1,2)],["Turning point","Act III",stage(3,3)],["Ending","Acts IV–V",stage(4,5)]];
+}
+function studyThemes(){
+  const [name,desc]=QUOTES.themes[thSel];
+  $("sbody").innerHTML=`<p class="intro">Pick a theme to see how it develops from beginning to end, with quotes you can use as evidence.</p>
+   <div class="filt"><div class="chips" data-f="theme">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" aria-pressed="${thSel===k}" data-v="${k}">${esc(v[0])}</button>`).join("")}</div></div>
+   <h2 style="font:400 1.9rem var(--f-old);margin:6px 0 4px">${esc(name)}</h2><p class="intro">${esc(desc)}</p>
+   ${themePlan(thSel).map(([h,s,qs])=>`<div class="stage3"><h3>${h}</h3><small>${s}</small></div>${qs.length?qs.map(quoteHTML).join(""):`<p class="muted">No key quote for this theme here. The scene summaries on the Contents page cover this part of the play.</p>`}`).join("")}
+   <div class="row"><button class="btn" id="th-copy">Copy as an essay plan</button></div>`;
+  $("th-copy").onclick=()=>{let t=`ESSAY PLAN: ${name}\n${desc}\n`;themePlan(thSel).forEach(([h,s,qs])=>{t+=`\n${h} (${s})\n`;qs.forEach(q=>{t+=`- "${q.text}" (${title(speech[q.id].who)}, ${sName(sceneOf(q.id))}): ${q.note}\n`})});copyText(t)};
+}
+/* quizzes: one question at a time */
+let qz=null;
+function startQuiz(kind){
+  let qs=[];
+  if(kind==="all"){scenes.forEach(p=>((STUDY.scenes[p.id]||{}).quiz||[]).forEach(q=>qs.push(Object.assign({s:p.id},q))));qs=qs.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]).slice(0,20)}
+  else qs=((STUDY.scenes[kind]||{}).quiz||[]).map(q=>Object.assign({s:kind},q));
+  qz={kind,qs,i:0,ok:0,ans:null};studyQuiz();scrollTo(0,0);
+}
+function studyQuiz(){
+  if(qz&&qz.i<qz.qs.length){const q=qz.qs[qz.i],p=scenes[sIdx(q.s)];
+    $("sbody").innerHTML=`<div class="qz"><div class="qn">${qz.kind==="all"?"Whole play":sName(p)} · question ${qz.i+1} of ${qz.qs.length}</div><h3>${esc(q.q)}</h3>
+      <div class="opts">${q.o.map((o,i)=>`<button data-i="${i}"${qz.ans!=null?" disabled":""} class="${qz.ans!=null?(i===q.a?"right":i===qz.ans?"wrong":""):""}">${esc(o)}</button>`).join("")}</div>
+      <div class="row">${qz.ans!=null?`<button class="btn primary" id="qz-next">${qz.i+1<qz.qs.length?"Next question":"See score"}</button>`:""}<button class="link" id="qz-quit">Stop quiz</button>${qz.kind==="all"?`<span class="muted" style="font-size:.8rem">from ${sName(p)}</span>`:""}</div></div>`;
+    $("sbody").querySelectorAll(".opts button").forEach(b=>b.onclick=()=>{qz.ans=+b.dataset.i;if(qz.ans===q.a)qz.ok++;studyQuiz()});
+    if($("qz-next"))$("qz-next").onclick=()=>{qz.i++;qz.ans=null;studyQuiz()};
+    $("qz-quit").onclick=()=>{qz=null;studyQuiz()};return}
+  if(qz){const k=qz.kind,old=prog.quiz[k];if(k==="all"||!old||qz.ok>=old[0]){prog.quiz[k]=[qz.ok,qz.qs.length];saveProg()}
+    $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">${k==="all"?"Whole play":sName(scenes[sIdx(k)])}</div><div class="big">${qz.ok} of ${qz.qs.length}</div><p class="muted">${qz.ok===qz.qs.length?"Perfect score.":"The right answers were shown as you went."}</p><div class="row" style="justify-content:center"><button class="btn primary" id="qz-again">Try again</button><button class="btn" id="qz-list">All quizzes</button></div></div>`;
+    $("qz-again").onclick=()=>startQuiz(k);$("qz-list").onclick=()=>{qz=null;studyQuiz()};return}
+  const all=prog.quiz.all;
+  $("sbody").innerHTML=`<p class="intro">Test yourself scene by scene, or take 20 random questions from the whole play.</p>
+   <button class="go" id="qz-all" style="width:100%"><small>Practice test${all?` · last score ${all[0]} of ${all[1]}`:""}</small><b>Whole-play quiz · 20 questions</b></button>
+   ${[1,2,3,4,5].map(a=>`<div class="stage3"><h3>${LAT[a]}</h3><small>Act ${R[a]}</small></div><div class="qlist">${scenes.filter(p=>p.act===a).map(p=>{const b=prog.quiz[p.id];return `<button class="${b?"done":""}" data-q="${p.id}"><b>Scene ${p.scene.toLowerCase()}</b><span>${b?`Best: ${b[0]} of ${b[1]}`:`${((STUDY.scenes[p.id]||{}).quiz||[]).length} questions`}</span></button>`}).join("")}</div>`).join("")}`;
+  $("qz-all").onclick=()=>startQuiz("all");
+  $("sbody").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>startQuiz(b.dataset.q));
+}
+/* revision sheet + backup */
+function revisionText(){
+  let t=`OTHELLO: REVISION SHEET\n${new Date().toLocaleDateString()}\n\n`;
+  const ids=Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b);
+  t+=`MY HIGHLIGHTS AND NOTES (${ids.length})\n`;
+  if(!ids.length)t+="None yet. While reading, press and hold a speech to highlight it or add a note.\n";
+  let ls="";ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k);if(p.id!==ls){t+=`\n${sName(p)} (${shortLoc(p)})\n`;ls=p.id}
+    t+=`  ${title(sp.who)}${m.hl?" ★":""}: ${sp.lines.map(l=>l.replace(/^~/,"")).join(" / ")}\n`;if(m.note)t+=`    My note: ${m.note.replace(/\n/g," ")}\n`});
+  const qs=Object.entries(prog.quiz).filter(([k])=>k!=="all"&&sIdx(k)>=0).sort((a,b)=>sIdx(a[0])-sIdx(b[0]));
+  t+=`\nQUIZ SCORES\n`+(qs.length?qs.map(([k,v])=>`  ${sName(scenes[sIdx(k)])}: ${v[0]}/${v[1]}`).join("\n"):"  None yet")+(prog.quiz.all?`\n  Whole-play quiz (last): ${prog.quiz.all[0]}/${prog.quiz.all[1]}`:"")+"\n";
+  const kn=QUOTES.quotes.filter(q=>prog.cards[q.i]),un=QUOTES.quotes.filter(q=>!prog.cards[q.i]);
+  t+=`\nQUOTES STILL TO LEARN (${un.length})\n`+un.map(q=>`  "${q.text}" (${title(speech[q.id].who)}, ${sName(sceneOf(q.id))})`).join("\n")+"\n";
+  t+=`\nQUOTES LEARNT (${kn.length})\n`+(kn.map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")||"  None yet")+"\n";
+  return t}
+function download(name,text,type){try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
+  toast("Downloading. If nothing appears, use Copy instead.")}
+const backup=()=>JSON.stringify({app:"othello-reader",v:1,saved:new Date().toISOString(),marks,prog});
+function restore(txt){let d;try{d=JSON.parse(String(txt).trim())}catch(e){toast("That isn't a valid backup");return false}
+  if(!d||d.app!=="othello-reader"){toast("That isn't an Othello backup");return false}
+  Object.entries(d.marks||{}).forEach(([k,v])=>{if(!marks[k]||(v.t||0)>(marks[k].t||0)){marks[k]=v;if(store)store.doc(String(k)).set(v).catch(()=>{})}});LS.set("oth-marks",JSON.stringify(marks));
+  const p=d.prog||{};Object.assign(prog.done,p.done||{});Object.assign(prog.cards,p.cards||{});
+  Object.entries(p.quiz||{}).forEach(([k,v])=>{if(!prog.quiz[k]||v[0]>prog.quiz[k][0])prog.quiz[k]=v});saveProg();
+  toast(`Imported ${Object.keys(d.marks||{}).length} notes and your progress`);return true}
+function backupHTML(){return `<div class="box"><h3>Move to another device</h3><p class="intro">Notes, highlights and progress are saved on this device. To move them, export here and import on the other device. Importing adds to what is already there.</p>
+  <div class="row"><button class="btn" id="bk-copy">Copy backup</button><button class="btn" id="bk-dl">Download backup file</button></div>
+  <label for="bk-in" class="lbl" style="display:block;margin-top:12px">Import: paste a backup, or choose the file</label><textarea id="bk-in" placeholder='Paste the backup here. It starts with {"app":"othello-reader"'></textarea>
+  <div class="row"><button class="btn primary" id="bk-go">Import pasted backup</button><label class="btn" for="bk-file" style="cursor:pointer">Choose backup file</label><input type="file" id="bk-file" accept=".json,application/json,text/plain" hidden></div></div>`}
+function wireBackup(after){
+  $("bk-copy").onclick=()=>copyText(backup());
+  $("bk-dl").onclick=()=>download("othello-backup.json",backup(),"application/json");
+  $("bk-go").onclick=()=>{if(restore($("bk-in").value)){$("bk-in").value="";after&&after()}};
+  $("bk-file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{if(restore(r.result))after&&after()};r.readAsText(f)};
+}
+function studyRevise(){
+  const t=revisionText();
+  $("sbody").innerHTML=`<p class="intro">Everything you've marked, your quiz scores and the quotes you still need to learn, on one sheet.</p>
+   <div class="row"><button class="btn primary" id="rv-copy">Copy revision sheet</button><button class="btn" id="rv-dl">Download as text</button></div>
+   <div class="rev">${esc(t)}</div>${backupHTML()}`;
+  $("rv-copy").onclick=()=>copyText(t);$("rv-dl").onclick=()=>download("othello-revision.txt",t,"text/plain");
+  wireBackup(studyRevise);
+}
+$("sbody").addEventListener("click",e=>{
+  const s=e.target.closest("[data-speech]");if(s){goSpeech(s.dataset.speech);return}
+  const c=e.target.closest(".chips .chip");if(c){const f=c.parentNode.dataset.f,v=c.dataset.v;
+    if(f==="who")qf.who=v;else if(f==="th")qf.th=v;else if(f==="theme")thSel=v;renderStudy()}});
 
 /* ---------- sheets ---------- */
 const sheet=$("sheet");let lastFocus=null;
-function openSheet(t,html){if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;sheet.querySelector(".box").scrollTop=0;sheet.querySelector(".box").focus({preventScroll:true})}
-function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
+function openSheet(t,html){if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;const b=sheet.querySelector(".sbox");b.scrollTop=0;b.focus({preventScroll:true})}
+function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
 sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
-  const g=e.target.closest("[data-speech]");if(g){closeSheet();const sp=speech[g.dataset.speech];if(S.who&&sp.who!==S.who)S.who="";if(view==="reader"&&pages[idx].id===sp.page)showScene(idx,sp.id);else{go(sp.page,true);showScene(pageIdx(sp.page),sp.id)}return}
-  const pg=e.target.closest("[data-go]");if(pg){closeSheet();go(pg.dataset.go,true)}});
+  const g=e.target.closest("[data-speech]");if(g){goSpeech(g.dataset.speech);return}
+  const p=e.target.closest("[data-go]");if(p){closeSheet();goScene(sIdx(p.dataset.go))}});
 sheet.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-speech],[data-go]");if(g)g.click()}});
-const where=sp=>{const p=pages.find(x=>x.id===sp.page);return `Act ${R[p.act]}, Scene ${p.scene} · ${title(sp.who)}`};
+const where=sp=>`${sName(sceneOf(sp.id))} · ${title(sp.who)}`;
 function snippet(t,q){const i=t.toLowerCase().indexOf(q.toLowerCase()),a=Math.max(0,i-50),b=Math.min(t.length,i+q.length+80);
   return (a>0?"…":"")+esc(t.slice(a,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length,b))+(b<t.length?"…":"")}
-function searchResults(q){q=q.trim();if(q.length<2)return `<p class="muted">Type at least two letters. Searches both the original and the modern English.</p>`;
+function searchResults(q){q=q.trim();if(q.length<2)return `<p class="muted">Type at least two letters. Searches the original and the modern English.</p>`;
   const res=[];for(const id in speech){const sp=speech[id],o=sp.lines.join(" ").replace(/~/g,"");
     if(o.toLowerCase().includes(q.toLowerCase()))res.push(`<div class="item" data-speech="${id}" tabindex="0"><small>${esc(where(sp))}</small>${snippet(o,q)}</div>`);
     else if(sp.m.toLowerCase().includes(q.toLowerCase()))res.push(`<div class="item" data-speech="${id}" tabindex="0"><small>${esc(where(sp))} · modern</small>${snippet(sp.m,q)}</div>`)}
@@ -1280,33 +1974,40 @@ function openSearch(q){openSheet("Search",`<label for="sq" class="sr">Search</la
   const sq=$("sq"),run=()=>{$("sres").innerHTML=searchResults(sq.value)};let t;sq.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});run();setTimeout(()=>sq.focus(),30)}
 function openNotes(){
   const ids=Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b);
-  let h=`<p class="muted">${store?"Saved to your account, so they appear on every device.":"Saved in this browser."}</p>`;
-  if(!ids.length)h+=`<p>Nothing yet. Tap any speech, then choose ☆ Highlight or ✎ Note.</p>`;
-  let la=0;ids.forEach(k=>{const sp=speech[k],m=marks[k],p=pages.find(x=>x.id===sp.page);
-    if(p.act!==la){h+=`<h3 style="font-family:var(--f-display);margin:14px 0 0">Act ${R[p.act]}</h3>`;la=p.act}
+  let h=`<p class="muted">${store?"Saved to your account.":"Saved on this device."} Tap one to go to it.</p>`;
+  if(!ids.length)h+=`<p>Nothing yet. While reading, press and hold a speech to highlight it or add a note.</p>`;
+  let la=0;ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k);
+    if(p.act!==la){h+=`<div class="eyebrow" style="margin:14px 0 0">${LAT[p.act]}</div>`;la=p.act}
     const o=sp.lines.join(" ").replace(/~/g,"");
-    h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${esc(where(sp))}${m.hl?" · ★":""}</small><span style="font-family:var(--f-text)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote" style="margin-top:6px">${esc(m.note)}</div>`:""}</div>`});
+    h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${esc(where(sp))}${m.hl?" · ★":""}</small><span style="font-family:var(--f-old)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote">${esc(m.note)}</div>`:""}</div>`});
   openSheet("My notes",h)}
 function openPicker(){
-  let h="";for(let a=1;a<=5;a++){h+=`<div class="eyebrow" style="margin:10px 0 6px">Act ${R[a]}</div><div class="pick">`+
-    pages.filter(p=>p.act===a).map(p=>`<button class="scard${prog.done[p.id]?" done":""}${view==="reader"&&p.id===pages[idx].id?" here":""}" data-go="${p.id}"><span class="st">${prog.done[p.id]?"✓":""}</span><b>Scene ${p.scene}</b><span>${esc(shortLoc(p))}</span></button>`).join("")+`</div>`}
+  let h="";for(let a=1;a<=5;a++){h+=`<div class="eyebrow" style="margin:10px 0 6px">${LAT[a]}</div><div class="pick">`+
+    scenes.filter(p=>p.act===a).map(p=>`<button class="scard${view==="reader"&&cur.k===sIdx(p.id)?" here":""}" data-go="${p.id}"><span class="st">${prog.done[p.id]?"✓":""}</span><b>Scene ${p.scene.toLowerCase()}</b><span>${esc(shortLoc(p))}</span></button>`).join("")+`</div>`}
   openSheet("Go to scene",h)}
 function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
-  openSheet("Reading settings",`
-    <div class="opt"><div class="lbl">Show</div>${segs("mode",[["both","Both"],["orig","Original"],["mod","Modern"],["test","Collapsed"]],S.mode)}<small>Collapsed hides the modern English under each speech until you tap it.</small></div>
-    <div class="opt"><div class="lbl">Pairing</div>${segs("pair",[["false","Whole speeches"],["true","Line by line"]],S.pair)}<small>Line by line splits long speeches into matching chunks (automatic, may be slightly off).</small></div>
-    <div class="opt"><label for="whosel">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
+  openSheet("Settings",`
+    <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, press and hold any speech to see its modern English.</small></div>
     <div class="opt"><div class="lbl">Text size</div>${segs("scale",[["1.15","Small"],["1.3","Normal"],["1.5","Large"],["1.75","Extra large"]],S.scale)}</div>
     <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"]],S.theme)}</div>
-    <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress and quiz scores</button><small id="resetmsg"></small></div>`);
+    <div class="opt"><div class="lbl">Scene summary on the first page</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
+    <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
+    <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Tap or swipe the right and left edges to turn pages (arrow keys on a keyboard). Tap the middle to show or hide the menus. Press and hold a speech (right-click on a computer) for its modern English, word meanings and notes.</small></div>
+    ${backupHTML()}
+    <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;
-    if(k==="pair")v=v==="true";if(k==="scale")v=parseFloat(v);S[k]=v;applySettings();b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));if(k==="pair"&&view==="reader")showScene(idx)});
-  $("whosel").onchange=e=>{S.who=e.target.value;if(view==="reader")showScene(idx)};
-  let armed=false;$("resetprog").onclick=()=>{if(!armed){armed=true;$("resetmsg").textContent="Tap again to confirm. Your notes are kept.";return}prog={done:{},quiz:{}};saveProg();$("resetmsg").textContent="Progress reset.";armed=false;if(view==="home")renderHome()};
+    if(k==="scale")v=parseFloat(v);if(k==="sum")v=v==="true";S[k]=v;applySettings();b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+  $("whosel").onchange=e=>{S.who=e.target.value;repaginate()};
+  wireBackup(()=>{if(view==="home")renderHome();refreshMarks()});
+  let armed=false;$("resetprog").onclick=()=>{if(!armed){armed=true;$("resetmsg").textContent="Tap again to confirm. Your notes are kept.";return}prog={done:{},quiz:{},cards:{}};saveProg();$("resetmsg").textContent="Progress reset.";armed=false;if(view==="home")renderHome()};
 }
-$("b-home").onclick=()=>go("home",true);$("b-where").onclick=openPicker;$("b-search").onclick=()=>openSearch("");$("b-notes").onclick=openNotes;$("b-set").onclick=openSettings;
+$("b-home").onclick=goHome;$("b-where").onclick=openPicker;$("b-search").onclick=()=>openSearch("");$("b-study").onclick=()=>goStudy();$("b-set").onclick=openSettings;
+
+/* ---------- first-run hint ---------- */
+function hint(){if(LS.get("oth-hint2")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.innerHTML=`<b>How to read</b><ul><li>Tap or swipe the right edge for the next page, the left edge to go back.</li><li>Tap the middle to show the menus.</li><li>Press and hold a speech for its modern English, word meanings and notes.</li></ul><button>Got it</button>`;
+  $("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.querySelector("button").onclick=()=>{d.remove();LS.set("oth-hint2","1")}}
 
 /* ---------- start ---------- */
 applySettings();
