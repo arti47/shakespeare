@@ -1284,19 +1284,25 @@ function setPlayer(){const P=$("player");P.classList.toggle("on",spk.on);$("pl-i
   const cur=spk.on&&spk.list[spk.i];$("pl-who").textContent=cur?title(speech[cur.dataset.id].who):"Listen";
   $("pl-main").setAttribute("aria-label",spk.on&&!spk.paused?"Pause":"Read the scene aloud")}
 function stopSpeech(){if(!TTS)return;spk.tok++;spk.on=false;spk.paused=false;try{speechSynthesis.cancel()}catch(e){}document.querySelectorAll(".sp.speaking").forEach(x=>x.classList.remove("speaking"));setPlayer()}
-function sayAt(i){const tok=++spk.tok;try{speechSynthesis.cancel()}catch(e){}
+let started=false;
+function sayAt(i,fromTap){const tok=++spk.tok;let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;if(busy)speechSynthesis.cancel();speechSynthesis.resume()}catch(e){}
   document.querySelectorAll(".sp.speaking").forEach(x=>x.classList.remove("speaking"));
   if(i<0)i=0;if(i>=spk.list.length){stopSpeech();toast("End of scene");return}
   spk.i=i;const el=spk.list[i],it=speech[el.dataset.id];el.classList.add("speaking");el.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
   const text=(S.listen==="mod"?it.m:cleanO(it))||"";const vc=voiceFor(it.who),parts=chunks(text);setPlayer();
   if(!parts.length){setTimeout(()=>tok===spk.tok&&sayAt(i+1),50);return}
-  parts.forEach((t,j)=>{const u=new SpeechSynthesisUtterance(t);if(vc.v)u.voice=vc.v;u.lang=vc.v?vc.v.lang:"en-GB";u.pitch=vc.pitch;u.rate=vc.rate;
+  const go=()=>{if(tok!==spk.tok)return;
+  if(!started)setTimeout(()=>{if(!started&&tok===spk.tok)toast("No sound? Turn off silent mode and check the volume")},3500);
+  parts.forEach((t,j)=>{const u=new SpeechSynthesisUtterance(t);if(vc.v)u.voice=vc.v;u.lang=vc.v?vc.v.lang:"en-GB";u.pitch=vc.pitch;u.rate=vc.rate;u.volume=1;
+    u.onstart=()=>{started=true};
     if(j===parts.length-1){u.onend=()=>{if(tok===spk.tok&&spk.on)setTimeout(()=>tok===spk.tok&&sayAt(i+1),260)}}
     u.onerror=ev=>{if(tok===spk.tok&&ev.error!=="interrupted"&&ev.error!=="canceled"){stopSpeech();toast("Read-aloud is not available here")}};
-    speechSynthesis.speak(u)})}
+    speechSynthesis.speak(u)})};
+  /* speaking straight after cancel() is dropped by some browsers; the first tap must speak synchronously (iOS) */
+  if(busy&&!fromTap)setTimeout(go,120);else go()}
 function playFrom(el){if(!TTS){toast("Read-aloud is not available in this browser");return}
   spk.list=[...document.querySelectorAll("#stage .sp")];spk.on=true;spk.paused=false;
-  let i=el?spk.list.indexOf(el):spk.list.findIndex(x=>x.getBoundingClientRect().bottom>90);sayAt(i<0?0:i)}
+  let i=el?spk.list.indexOf(el):spk.list.findIndex(x=>x.getBoundingClientRect().bottom>90);sayAt(i<0?0:i,true)}
 if(TTS){
   $("pl-main").onclick=()=>{if(!spk.on){playFrom(null);return}
     if(spk.paused){spk.paused=false;try{speechSynthesis.resume()}catch(e){}}else{spk.paused=true;try{speechSynthesis.pause()}catch(e){}}setPlayer()};
