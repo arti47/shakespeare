@@ -116,6 +116,8 @@ abbr.g{text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,tran
 body.mode-both .pg{max-width:1120px}
 #measure{position:absolute;visibility:hidden;left:0;top:0;pointer-events:none;height:auto!important;overflow:visible!important}
 .blk{padding-bottom:.85em}
+.sp.blk{padding-bottom:1em}
+.sp+.sp{border-top:1px solid var(--rule);padding-top:.75em}
 .shead{text-align:center;padding:1.2em 0 .6em}
 .shead .eyebrow{font-size:.8em}
 .shead h1{font:400 2.4em var(--f-old);margin:.05em 0;line-height:1}
@@ -129,7 +131,9 @@ body.mode-both .pg{max-width:1120px}
 .nm.cont{opacity:.6}
 .tag{font:500 .46em var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--berry)}
 .flag{font-size:.5em;color:var(--accent)}
-.o{font-family:var(--f-old);line-height:1.5}
+.o{font-family:var(--f-old);line-height:1.55}
+.o .l.brk{margin-bottom:.5em}
+.m p,.modern p{margin:0 0 .65em}.m p:last-child,.modern p:last-child{margin-bottom:0}
 .o .l{display:block;position:relative;padding-left:1.1em;text-indent:-1.1em}
 .o .l[data-n]::before{content:attr(data-n);position:absolute;left:-2.4em;width:1.8em;text-indent:0;text-align:right;top:.5em;font:500 .5em var(--f-ui);color:var(--muted);font-variant-numeric:tabular-nums}
 .o .song{font-style:italic;padding-left:2.2em}
@@ -1676,7 +1680,13 @@ function sceneBlocks(p){
   b.push({t:"end",key:"e"});
   return b;
 }
-function lineHTML(l,num){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}>${gloss(t)}</span>`}
+/* breathing space: long speeches get a small gap after each full sentence; modern English is split into short paragraphs */
+const endsSentence=l=>/[.?!]["'’”)\]]*\s*$/.test(l.replace(/\s*\[[^\]]*\]\s*$/,""));
+function lineHTML(l,num,brk){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}${brk?" brk":""}"${num%5===0?` data-n="${num}"`:""}>${gloss(t)}</span>`}
+function linesHTML(it,a,b){const long=it.lines.length>=5;let h="";for(let j=a;j<=b;j++){const l=it.lines[j];h+=lineHTML(l,it.start+j,long&&j<b&&j<it.lines.length-1&&endsSentence(l))}return h}
+function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
+  ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
+  return out.map(p=>`<p>${esc(p)}</p>`).join("")}
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
     return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
@@ -1688,9 +1698,9 @@ function blockHTML(bk,p){
   const m=marks[it.id]||{},flags=(STUDY.notes[it.id]||QBY[it.id]?`<span class="flag" title="Has a study note">◆</span>`:"")+(m.note?`<span class="flag" title="Your note">✎</span>`:"");
   const us=bk.units.slice(bk.u0,bk.u1),whole=bk.u0===0&&bk.u1===bk.units.length;
   let body;
-  if(S.mode==="orig")body=`<div class="o">${us.map(u=>lineHTML(it.lines[u[0]],it.start+u[0])).join("")}</div>`;
-  else if(whole)body=`<div class="o">${it.lines.map((l,j)=>lineHTML(l,it.start+j)).join("")}</div><div class="m">${esc(it.m)}</div>`;
-  else body=us.map(u=>`<div class="chunk"><div class="o">${it.lines.slice(u[0],u[1]+1).map((l,j)=>lineHTML(l,it.start+u[0]+j)).join("")}</div><div class="m">${esc(u[2])}</div></div>`).join("");
+  if(S.mode==="orig")body=`<div class="o">${linesHTML(it,us[0][0],us[us.length-1][1])}</div>`;
+  else if(whole)body=`<div class="o">${linesHTML(it,0,it.lines.length-1)}</div><div class="m">${paras(it.m)}</div>`;
+  else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2])}</div></div>`).join("");
   return `<article class="blk sp${m.hl?" hl":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}"><div class="hd"><span class="nm${cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div><div class="body">${body}</div></article>`;
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ---------- */
@@ -1801,7 +1811,7 @@ function toolsHTML(id){
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start}–${sp.start+sp.lines.length-1}</div>
     ${c?`<p class="who">${esc(c.desc)}</p>`:""}
-    <h3 class="lbl">Modern English</h3><div class="modern">${esc(sp.m)}</div>
+    <h3 class="lbl">Modern English</h3><div class="modern">${paras(sp.m)}</div>
     ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
     ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
