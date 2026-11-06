@@ -1,4 +1,4 @@
-# Shakespeare Folio
+# Shakespeare Folio 
 
 One installable app (PWA) holding reading apps for Shakespeare plays: original text with modern English beside it, notes, study tools.
 
