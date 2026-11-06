@@ -3169,8 +3169,10 @@ function studyQuotes(){
 }
 /* explore: timeline, maps, plan, context, critics, imagery, symbols, contrasts, insults, pronouns, glossary */
 let exSel="";
-const EXT=[["timeline","Plot timeline","17 key moments, in order"],["map","Character map","Who loves, trusts, hates or deceives whom, act by act"],["iago","Caesar's rise","Each step of Octavius's climb to sole ruler, ticked as you read"],["arcs","Power shift","How Antony's power drains to Caesar, scene by scene"],["context","Context","Rome, Egypt, Plutarch, Actium, boy actors"],["critics","Critics' views","What critics have said, by theme"],["devices","Imagery","Serpents, melting, food, the sea, giants, theatre"],["symbols","Symbol tracker","Every serpent, sword, ship and more"],["contrast","Contrast pairs","Characters set side by side"],["insults","Insults and oaths","Who curses whom, and why it matters"],["pronouns","Thou and you","What a pronoun reveals about a relationship"],["glossary","Word list A to Z","Every underlined word and where it's used"],["compare","Compare two quotes","Side by side, with shared themes and essay prompts"]];
+const EXT=[["facts","Key facts","The play at a glance: setting, conflict, climax"],["analysis","Character analysis","The main characters in depth, with their key quotes"],["motifs","Motifs and symbols","Sight, animals, poison, hell, the handkerchief"],["bigq","Big questions","Debates to have about the play, with points to make"],["timeline","Plot timeline","17 key moments, in order"],["map","Character map","Who loves, trusts, hates or deceives whom, act by act"],["iago","Caesar's rise","Each step of Octavius's climb to sole ruler, ticked as you read"],["arcs","Power shift","How Antony's power drains to Caesar, scene by scene"],["context","Context","Rome, Egypt, Plutarch, Actium, boy actors"],["critics","Critics' views","What critics have said, by theme"],["devices","Imagery","Serpents, melting, food, the sea, giants, theatre"],["symbols","Symbol tracker","Every serpent, sword, ship and more"],["contrast","Contrast pairs","Characters set side by side"],["insults","Insults and oaths","Who curses whom, and why it matters"],["pronouns","Thou and you","What a pronoun reveals about a relationship"],["glossary","Word list A to Z","Every underlined word and where it's used"],["compare","Compare two quotes","Side by side, with shared themes and essay prompts"]];
 let cmp=[0,1];
+const EXK={facts:"keyfacts",analysis:"analysis",motifs:"motifs",bigq:"bigq"};
+const exHas=k=>!EXK[k]||Object.keys(EX[EXK[k]]||{}).length>0;let anSel="";
 const spLine=id=>{const sp=speech[id];return sp?`<div class="o2">${esc(sp.lines.join(" ").replace(/~/g,"").slice(0,160))}${sp.lines.join(" ").length>160?"…":""}</div><small>${esc(where(sp))} · <button class="link" data-speech="${id}">Read in context</button></small>`:""};
 function relSVG(act){const E=EX.rel[act],N=[...new Set(E.flatMap(e=>[e[0],e[1]]))],W=360,H=320,cx=W/2,cy=H/2,r=120;
   const P={};N.forEach((n,i)=>{const a=-Math.PI/2+i*2*Math.PI/N.length;P[n]=[cx+r*Math.cos(a),cy+r*Math.sin(a)]});
@@ -3191,7 +3193,7 @@ function arcSVG(){const W=360,H=200,L=30,T=12,B=30,n=scenes.length,x=i=>L+i*(W-L
 let GLOSSUSE=null;
 function glossUse(){if(GLOSSUSE)return GLOSSUSE;GLOSSUSE={};for(const id in speech)speech[id].lines.join(" ").replace(gre,(m,pre,w)=>{const k=gmap[w.toLowerCase()];if(k&&!GLOSSUSE[k])GLOSSUSE[k]=id;return m});return GLOSSUSE}
 function studyExplore(){
-  if(!exSel){$("sbody").innerHTML=`<p class="intro">Ways into the play beyond the text: plot, characters, context and language.</p><div class="exgrid">${EXT.map(([k,tl,d])=>`<button data-ex="${k}"><b>${tl}</b><span>${d}</span></button>`).join("")}</div>`;return}
+  if(!exSel){$("sbody").innerHTML=`<p class="intro">Ways into the play beyond the text: plot, characters, context and language.</p><div class="exgrid">${EXT.filter(([k])=>exHas(k)).map(([k,tl,d])=>`<button data-ex="${k}"><b>${tl}</b><span>${d}</span></button>`).join("")}</div>`;return}
   const [,tl]=EXT.find(x=>x[0]===exSel);let h="";
   const hereK=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1;
   if(exSel==="timeline")h=EX.timeline.map((e,i)=>`<div class="exitem"><small>${i+1} · ${sName(scenes[sIdx(e.s)])}</small><br><b>${esc(e.t)}</b>${spLine(e.id)}</div>`).join("");
@@ -3211,6 +3213,13 @@ function studyExplore(){
     const L=[...new Set(ks.map(k=>k.replace(/^'/,"")[0].toUpperCase()))];
     h=`<div class="az">${L.map(l=>`<button data-az="${l}">${l}</button>`).join("")}</div>`+ks.map(k=>`<div class="exitem" data-letter="${k.replace(/^'/,"")[0].toUpperCase()}"><b>${esc(k)}</b><p>${esc(G[k])}</p>${u[k]?`<small>First used: ${esc(where(speech[u[k]]))} · <button class="link" data-speech="${u[k]}">Read</button></small>`:""}</div>`).join("")}
   if(exSel==="compare")h=compareHTML();
+  if(exSel==="facts")h=`<dl class="facts">${EX.keyfacts.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl>`;
+  if(exSel==="analysis"){const ks=Object.keys(EX.analysis);if(!ks.includes(anSel))anSel=ks[0];
+    h=`<div class="chips" style="margin-bottom:10px">${ks.map(k=>`<button class="chip" data-an="${esc(k)}" aria-pressed="${anSel===k}">${esc(title(k))}</button>`).join("")}</div>`+
+      EX.analysis[anSel].map(x=>`<p class="anp">${esc(x)}</p>`).join("")+(()=>{const qs=QUOTES.quotes.filter(q=>speech[q.id].who===anSel);return qs.length?`<div class="stage3"><h3>Their key quotes</h3><small>${qs.length}</small></div>`+qs.map(quoteHTML).join(""):""})()}
+  if(exSel==="motifs")h=`<p class="intro">A motif is an idea or image that keeps coming back. A symbol is an object that stands for something bigger.</p>`+EX.motifs.map(([n,x,qi])=>`<div class="exitem"><b>${esc(n)}</b><p>${esc(x)}</p>${(qi||[]).map(i=>QUOTES.quotes[i]?quoteHTML(QUOTES.quotes[i]):"").join("")}</div>`).join("")+
+      ((EX.symbols2||[]).length?`<div class="stage3"><h3>Symbols</h3></div>`+EX.symbols2.map(([n,x])=>`<div class="exitem"><b>${esc(n)}</b><p>${esc(x)}</p></div>`).join("")+`<p><button class="link" data-ex="symbols">Find every mention in the Symbol tracker ›</button></p>`:"");
+  if(exSel==="bigq")h=`<p class="intro">Questions with no single right answer. Take a side, then use the points and quotes as evidence.</p>`+EX.bigq.map(([q,pts,qi])=>`<details class="exitem"><summary><b>${esc(q)}</b></summary><ul>${pts.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>${(qi||[]).map(i=>QUOTES.quotes[i]?quoteHTML(QUOTES.quotes[i]):"").join("")}</details>`).join("");
   $("sbody").innerHTML=`<div class="exh"><button class="btn sm" data-ex="">‹ All topics</button><h2>${tl}</h2></div>${h}`;
 }
 /* practise: gap fill, memory ladder, explain a line, who said it, order events */
@@ -3434,6 +3443,7 @@ function studyRevise(){
 $("sbody").addEventListener("click",e=>{
   const dk=e.target.closest("[data-drill]");if(dk){dr={k:dk.dataset.drill};studyDrill();scrollTo(0,0);return}
   const ex=e.target.closest("[data-ex]");if(ex){exSel=ex.dataset.ex;studyExplore();scrollTo(0,0);return}
+  const an=e.target.closest("[data-an]");if(an){anSel=an.dataset.an;studyExplore();return}
   const ma=e.target.closest("[data-mapact]");if(ma){mapAct=+ma.dataset.mapact;studyExplore();return}
   const az=e.target.closest("[data-az]");if(az){const el=document.querySelector(`[data-letter="${az.dataset.az}"]`);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});return}
   const s=e.target.closest("[data-speech]");if(s){goSpeech(s.dataset.speech);return}
@@ -3580,5 +3590,5 @@ route();
 initStore();
 </script>
 
-<script src="../update.js?v=4402ddc5" defer></script>
+<script src="../update.js?v=979c8a78" defer></script>
 </body></html>

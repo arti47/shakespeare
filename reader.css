@@ -140,6 +140,8 @@ abbr.g{padding:.2em 0;margin:-.2em 0}
 .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
 .az{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 12px}.az button{border:1px solid var(--rule);background:transparent;border-radius:4px;min-width:30px;padding:4px}
 
+.facts{display:grid;grid-template-columns:minmax(90px,30%) 1fr;gap:8px 14px;margin:0}.facts dt{font-weight:600;font-size:.85rem;color:var(--muted)}.facts dd{margin:0}
+.anp{font-size:1.02rem;line-height:1.6;margin:0 0 12px}
 /* ---------- batch D: notes & sharing ---------- */
 .icon.bm svg path{fill:none;stroke:currentColor;stroke-width:2}.icon.bm.on svg path{fill:currentColor}.icon.bm.on{color:var(--ink)}
 .nfilt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.nfilt input{grid-column:1/-1}
