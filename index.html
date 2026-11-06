@@ -15,7 +15,7 @@
 <script>
 // Launch straight back into the last play (Folio app start, not when returning via "‹ Folio")
 (function(){try{
-  var q=location.search,ls=localStorage,ss=sessionStorage,last=ls.getItem("folio-last"),ok=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}].some(function(p){return p.id===last});
+  var q=location.search,ls=localStorage,ss=sessionStorage,last=ls.getItem("folio-last"),ok=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}, {"id": "antony-and-cleopatra", "prefix": "ant-", "title": "Antony and Cleopatra", "kind": "Tragedy", "year": "c. 1606", "blurb": "Rome against Egypt, love against empire, and a queen's last triumph."}].some(function(p){return p.id===last});
   var app=/[?&]launch/.test(q)||matchMedia("(display-mode: standalone)").matches||navigator.standalone;
   if(ok&&app&&!/[?&]shelf/.test(q)&&!ss.getItem("folio-in")){ss.setItem("folio-in","1");location.replace(last+"/");}
   ss.setItem("folio-in","1");
@@ -84,7 +84,7 @@ button.pri{background:var(--accent);border-color:var(--accent);color:var(--accen
   <p class="tip" id="tip">Use Add to Home Screen to install the Folio. Every play then works offline.</p>
 </main>
 <script>
-const PLAYS=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}];
+const PLAYS=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}, {"id": "antony-and-cleopatra", "prefix": "ant-", "title": "Antony and Cleopatra", "kind": "Tragedy", "year": "c. 1606", "blurb": "Rome against Egypt, love against empire, and a queen's last triumph."}];
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 function ago(t){const d=Math.floor((Date.now()-t)/864e5);return d<=0?"today":d===1?"yesterday":d<7?d+" days ago":d<60?Math.round(d/7)+" weeks ago":Math.round(d/30)+" months ago"}
