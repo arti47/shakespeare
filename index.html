@@ -411,7 +411,8 @@ fi.onchange=async()=>{const f=fi.files[0];fi.value="";if(!f)return;let j;try{j=J
 
 renderTheme();
 go(location.hash.slice(1)||"library");
-if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+
 </script>
+<script src="update.js?v=c14092e9" defer></script>
 </body>
 </html>
