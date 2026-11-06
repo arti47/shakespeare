@@ -7,5 +7,6 @@ Live site: https://arti47.github.io/shakespeare/
 - `index.html` — Folio shelf (progress per play, one backup for all plays). Installed app reopens at the last page read.
 - `manifest.webmanifest`, `sw.js` — the single app manifest and service worker; caches every play for offline use.
 - `othello/` — Othello.
+- `antony-and-cleopatra/` — Antony and Cleopatra (prefix `ant-`).
 
 Conventions for play folders: per-play localStorage prefix (`oth-`); shared settings under `folio-`; play writes `folio-last` and `folio-stat-<id>`; play links `../manifest.webmanifest`, registers `../sw.js`, and has a `‹ Folio` link to `../?shelf`. Add the play to `PLAYS` in the Folio build script and rebuild `index.html`/`sw.js`.
