@@ -1,6 +1,6 @@
-// build 93a1e592 (changes on every build, so installed apps update)
-const C="folio-93a1e592",F=["./", "index.html", "fonts.css", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable.png", "apple-touch-icon.png", "fonts/046090ca20.woff2", "fonts/284bb947c5.woff2", "fonts/2ab8100f02.woff2", "fonts/40cc5d41cc.woff2", "fonts/89041f5bc8.woff2", "fonts/b2d7cad803.woff2", "fonts/dc19a5199f.woff2", "search/othello.json", "search/antony-and-cleopatra.json", "search/king-lear.json", "othello/index.html", "othello/", "antony-and-cleopatra/index.html", "antony-and-cleopatra/", "king-lear/index.html", "king-lear/", "update.js"];
-const FRESH=u=>/(\/|\.html|\.json|\.webmanifest|update\.js)$/.test(u.pathname);
+// build 4402ddc5 (changes on every build, so installed apps update)
+const C="folio-4402ddc5",F=["./", "index.html", "fonts.css", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable.png", "apple-touch-icon.png", "fonts/046090ca20.woff2", "fonts/284bb947c5.woff2", "fonts/2ab8100f02.woff2", "fonts/40cc5d41cc.woff2", "fonts/89041f5bc8.woff2", "fonts/b2d7cad803.woff2", "fonts/dc19a5199f.woff2", "search/othello.json", "search/antony-and-cleopatra.json", "search/king-lear.json", "reader.css", "othello/index.html", "othello/", "antony-and-cleopatra/index.html", "antony-and-cleopatra/", "king-lear/index.html", "king-lear/", "update.js"];
+const FRESH=u=>/(\/|\.html|\.json|\.webmanifest|update\.js|reader\.css)$/.test(u.pathname);
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(f=>new Request(f,{cache:"reload"})))))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("message",e=>{if(e.data==="skip")self.skipWaiting()});
