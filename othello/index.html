@@ -44,6 +44,23 @@
   --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216;
   --hl:#3a1a24; --hl-ink:#f4bcc5; --berry:#f08a9b;
   --ok:#6cc38a; --bad:#ef8a83; --shade:rgba(0,0,0,.6); color-scheme:dark}
+/* Paper: e-ink style. Warm matte off-white, faint grain, near-black ink, no colour glare, page turns snap instead of sliding */
+:root[data-theme="paper"]{
+  --bg:#e9e5dc; --page:#f3efe6; --ink:#141414; --soft:#262626; --muted:#4d4b47; --rule:#d2cdc2; --card:#f6f3ec; --nmix:#000000; --nmw:80%;
+  --accent:#3d3a35; --accent-ink:#f3efe6; --accent-soft:#e4ded2;
+  --hl:#e3dccd; --hl-ink:#141414; --berry:#5a2a2a;
+  --ok:#2f5a3a; --bad:#7a2a2a; --shade:rgba(20,18,14,.4); --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); color-scheme:light}
+:root[data-theme="papernight"]{
+  --bg:#0b0b0b; --page:#141414; --ink:#e9e6df; --soft:#d8d4cc; --muted:#a29e96; --rule:#2e2e2e; --card:#1b1b1b; --nmix:#ffffff; --nmw:60%;
+  --accent:#d9d4ca; --accent-ink:#141414; --accent-soft:#262523;
+  --hl:#2c2a26; --hl-ink:#f0ece4; --berry:#e2b0b0;
+  --ok:#9cc4a0; --bad:#e8a39a; --shade:rgba(0,0,0,.6); --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); color-scheme:dark}
+:root[data-theme="paper"]{--hl-ev:#ece2bf;--hl-fav:#d9e1ea;--hl-cf:#ecd9d9}
+:root[data-theme="papernight"]{--hl-ev:#35301c;--hl-fav:#1d2733;--hl-cf:#3a2226}
+:root[data-theme^="paper"] body,:root[data-theme^="paper"] #reader,:root[data-theme^="paper"] .sheet .sbox,:root[data-theme^="paper"] .panel,:root[data-theme^="paper"] .sheet .head{background-image:var(--grain)}
+:root[data-theme^="paper"] .pg{text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+:root[data-theme^="paper"] *{box-shadow:none!important}
+:root[data-theme^="paper"] .pg.turnL,:root[data-theme^="paper"] .pg.turnR{opacity:1;transform:none}
 *{box-sizing:border-box}
 html{background:var(--page)}
 body{background:var(--page);color:var(--ink);font-family:var(--f-ui);font-size:1rem;line-height:1.55;-webkit-tap-highlight-color:transparent;margin:0}
@@ -1784,7 +1801,7 @@ const S={lh:parseFloat(LS.get("oth-lh"))||1.55,focus:LS.get("oth-focus")||"",cle
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
-  let th=S.theme;if(th==="timed"){const h=new Date().getHours();th=h>=20||h<7?"night":"auto"}
+  let th=S.theme;if(th==="timed"){const h=new Date().getHours();th=h>=20||h<7?"night":"auto"}if(th==="papertimed"){const h=new Date().getHours();th=h>=20||h<7?"papernight":"paper"}
   if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);
   document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
   LS.set("oth-lh",S.lh);LS.set("oth-focus",S.focus);LS.set("oth-clean",S.clean?"1":"0");LS.set("oth-onehand",S.onehand?"1":"0");
@@ -1985,7 +2002,7 @@ function findKey(key){
 function renderPage(i,dir,keep){
   const p=scenes[cur.k];cur.i=i;
   const html=cur.pages[i].map(b=>blockHTML(b,p)).join("");
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches||/^paper/.test(document.documentElement.dataset.theme||"");
   const put=()=>{pg.innerHTML=html;pg.scrollTop=0;pg.style.overflowY=pg.scrollHeight>pg.clientHeight+2?"auto":"hidden"};
   if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
   const first=cur.pages[i].find(b=>b.t==="sp")||cur.pages[i][0];
@@ -2468,7 +2485,7 @@ function searchResults(q){q=q.trim();if(q.length<2)return `<p class="muted">Type
   return `<p class="muted">${res.length} match${res.length===1?"":"es"}</p>`+res.slice(0,300).join("")}
 function openSearch(q){openSheet("Search",`<label for="sq" class="sr">Search</label><input class="sinput" id="sq" type="search" placeholder="A word or phrase…" value="${esc(q||"")}" autocomplete="off"><div id="sres" style="margin-top:8px"></div>`);
   const sq=$("sq"),run=()=>{$("sres").innerHTML=searchResults(sq.value)};let t;sq.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});run();setTimeout(()=>sq.focus(),30)}
-setInterval(()=>{if(S.theme==="timed")applySettings()},600000);
+setInterval(()=>{if(/timed$/.test(S.theme))applySettings()},600000);
 /* bookmarks: whole pages, this device (and in backups) */
 let BM=[];try{BM=JSON.parse(LS.get("oth-bm")||"[]")}catch(e){}
 const saveBM=()=>LS.set("oth-bm",JSON.stringify(BM));
@@ -2556,7 +2573,7 @@ function openSettings(){
   openSheet("Settings",`
     <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, press and hold any speech to see its modern English.</small></div>
     <div class="opt"><div class="lbl">Text size</div>${segs("scale",[["1.15","Small"],["1.3","Normal"],["1.5","Large"],["1.75","Extra large"]],S.scale)}</div>
-    <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"],["night","Night"],["timed","Night after 8pm"]],S.theme)}<small>Night is a warm, dim colour scheme for reading in bed. "Night after 8pm" switches to it automatically until 7am.</small></div>
+    <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["paper","Paper"],["papernight","Paper night"],["papertimed","Paper, night after 8pm"]],S.theme)}${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"],["night","Night"],["timed","Night after 8pm"]],S.theme)}<small>Paper looks like an e-reader: a matte, warm page with crisp black text, and pages that change without sliding. Night is a warm, dim scheme for reading in bed. The "after 8pm" options switch to the night version until 7am.</small></div>
     <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
     <div class="opt"><div class="lbl">Clean page</div>${segs("clean",[["false","Off"],["true","On"]],S.clean)}<small>Hides line numbers, tags and underlines for pure reading. Tapping still works.</small></div>
     <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
@@ -2567,7 +2584,7 @@ function openSettings(){
     ${backupHTML()}
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;
-    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand")v=v==="true";S[k]=v;applySettings();b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   $("whosel").onchange=e=>{S.who=e.target.value;repaginate()};
   $("focsel").onchange=e=>{S.focus=e.target.value;applySettings();refreshMarks()};
   wireBackup(()=>{if(view==="home")renderHome();refreshMarks()});
