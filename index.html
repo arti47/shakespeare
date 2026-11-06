@@ -3,39 +3,129 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Shakespeare Shelf</title>
+<title>Shakespeare Folio</title>
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#18191d" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Folio">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+// Launch straight back into the last play (Folio app start, not when returning via "‹ Folio")
+(function(){try{
+  var q=location.search,ls=localStorage,ss=sessionStorage,last=ls.getItem("folio-last"),ok=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}].some(function(p){return p.id===last});
+  var app=/[?&]launch/.test(q)||matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  if(ok&&app&&!/[?&]shelf/.test(q)&&!ss.getItem("folio-in")){ss.setItem("folio-in","1");location.replace(last+"/");}
+  ss.setItem("folio-in","1");
+  var th=ls.getItem("folio-theme")||"auto";if(th==="timed"){var h=new Date().getHours();th=h>=20||h<7?"night":"auto"}
+  if(th!=="auto")document.documentElement.setAttribute("data-theme",th);
+  var sc=parseFloat(ls.getItem("folio-size"));if(sc)document.documentElement.style.setProperty("--scale",sc);
+}catch(e){}})();
+</script>
 <link rel="stylesheet" href="fonts.css">
 <style>
-:root{--page:#ffffff;--ink:#111215;--soft:#2b2d33;--muted:#5f6270;--rule:#d9d8d4;--accent:#7a4f0e;--hover:#f4efe6}
-@media (prefers-color-scheme:dark){:root{--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--hover:#24231f;color-scheme:dark}}
+:root{--page:#ffffff;--ink:#111215;--soft:#2b2d33;--muted:#5f6270;--rule:#d9d8d4;--accent:#7a4f0e;--accent-ink:#ffffff;--hover:#f4efe6;--track:#e6e3dd;--scale:1.3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--hover:#24231f;--track:#33353c;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--hover:#24231f;--track:#33353c;color-scheme:dark}
+:root[data-theme="night"]{--page:#1b1510;--ink:#f1dcba;--soft:#e2cba7;--muted:#ab9470;--rule:#3a2e22;--accent:#e7a95a;--accent-ink:#1b1510;--hover:#2f2418;--track:#3a2e22;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--page);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif}
-main{max-width:720px;margin:0 auto;padding-block:max(48px,env(safe-area-inset-top,0px)) 64px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
-h1{font:400 clamp(2.6rem,10vw,4.4rem) "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;text-align:center;margin:0}
-.sub{text-align:center;font:italic 400 1.2rem "IM Fell English",Georgia,serif;color:var(--soft);margin:6px 0 40px}
-ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
-a.play{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;padding:18px 6px;border-bottom:1px solid var(--rule);color:inherit;text-decoration:none}
-a.play:hover{background:var(--hover)}
-a.play b{font:400 1.7rem "IM Fell English",Georgia,serif}
-a.play span{font-size:.9rem;color:var(--soft);grid-column:1 / -1}
-a.play small{font-size:.75rem;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
-.soon{padding:16px 6px;color:var(--muted);font-size:.9rem}
-footer{margin-top:36px;font-size:.8rem;color:var(--muted);text-align:center}
+html{font-size:calc(18.5px * var(--scale))}
+body{margin:0;background:var(--page);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;line-height:1.45}
+main{max-width:760px;margin:0 auto;padding-block:max(40px,env(safe-area-inset-top,0px)) max(48px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.pre{text-align:center;font:italic 400 1rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0}
+h1{font:400 clamp(2.2rem,11vw,3.4rem) "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;text-align:center;margin:0;line-height:1.05}
+.sub{text-align:center;font:italic 400 1rem "IM Fell English",Georgia,serif;color:var(--soft);margin:4px 0 0}
+.orn{text-align:center;color:var(--accent);font-size:1.3rem;margin:10px 0 22px}
+h2{font:500 .62rem "Instrument Sans",system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+ul{list-style:none;margin:0;padding:0;border-top:1.5px solid var(--ink)}
+a.play{display:block;padding:16px 6px 18px;border-bottom:1px solid var(--rule);color:inherit;text-decoration:none}
+a.play:hover,a.play:focus-visible{background:var(--hover);outline:none}
+.row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px}
+a.play b{font:400 1.45rem "IM Fell English",Georgia,serif}
+a.play small{font-size:.62rem;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+a.play p{margin:2px 0 0;font-size:.8rem;color:var(--soft)}
+.prog{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.7rem;color:var(--soft)}
+.bar{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.soon{padding:14px 6px;color:var(--muted);font-size:.72rem}
+.box{margin-top:30px;border-top:1px solid var(--rule);padding-top:18px}
+.box p{font-size:.72rem;color:var(--soft);margin:0 0 12px}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+button{font:500 .72rem "Instrument Sans",system-ui,sans-serif;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:6px;padding:10px 16px;cursor:pointer;min-height:44px}
+button.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+#msg{margin-top:12px;font-size:.72rem;color:var(--ink)}
+#msg:empty{display:none}
+.tip{margin-top:28px;font-size:.62rem;color:var(--muted);text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
 <body>
 <main>
+  <p class="pre">Mr. William</p>
   <h1>Shakespeare</h1>
-  <p class="sub">The plays, with modern English on the facing page</p>
-  <ul>
-    <li><a class="play" href="othello/"><b>Othello</b><small>Tragedy · c. 1603</small><span>The Moor of Venice, Iago's plot and the handkerchief. Full text, translation, notes and scene quizzes.</span></a></li>
-  </ul>
-  <p class="soon">More plays coming.</p>
-  <footer>Open a play, then use Add to Home Screen to install it as an app that works offline.</footer>
+  <p class="sub">The Folio · the plays with modern English beside them</p>
+  <div class="orn" aria-hidden="true">❦</div>
+  <h2>The plays</h2>
+  <ul id="shelf"></ul>
+  <p class="soon">More plays are added here as they are finished.</p>
+
+  <section class="box" aria-labelledby="bk">
+    <h2 id="bk">Backup</h2>
+    <p>One file holds your notes, highlights, bookmarks, progress and settings for every play. Save it to move to another device.</p>
+    <div class="btns">
+      <button class="pri" id="exp">Save backup</button>
+      <button id="imp">Restore from backup</button>
+      <label class="sr" for="file">Backup file</label><input type="file" id="file" accept=".json,application/json" hidden>
+    </div>
+    <div id="msg" role="status"></div>
+  </section>
+  <p class="tip" id="tip">Use Add to Home Screen to install the Folio. Every play then works offline.</p>
 </main>
+<script>
+const PLAYS=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}];
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+function ago(t){const d=Math.floor((Date.now()-t)/864e5);return d<=0?"today":d===1?"yesterday":d<7?d+" days ago":d<60?Math.round(d/7)+" weeks ago":Math.round(d/30)+" months ago"}
+function render(){
+  const last=LS.get("folio-last");
+  document.getElementById("shelf").innerHTML=PLAYS.map(p=>{
+    let st=null;try{st=JSON.parse(LS.get("folio-stat-"+p.id)||"null")}catch(e){}
+    const prog=st?`<div class="prog"><div class="bar" role="progressbar" aria-label="Progress" aria-valuenow="${st.pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,st.pct)}%"></i></div><span>${Math.round(st.pct)}% · ${esc(st.where)} · ${ago(st.t)}</span></div>`
+      :`<div class="prog"><span>Not started</span></div>`;
+    return `<li><a class="play" href="${p.id}/"${p.id===last?' aria-current="true"':""}><div class="row"><b>${esc(p.title)}</b><small>${esc(p.kind)} · ${esc(p.year)}</small></div><p>${esc(p.blurb)}</p>${prog}</a></li>`}).join("");
+}
+render();addEventListener("pageshow",render);
+if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)document.getElementById("tip").hidden=true;
+
+// One backup for the whole Folio: every play's keys + shared folio- keys
+const mine=k=>k.startsWith("folio-")||PLAYS.some(p=>k.startsWith(p.prefix));
+const msg=t=>document.getElementById("msg").textContent=t;
+document.getElementById("exp").onclick=async()=>{
+  const data={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(mine(k))data[k]=localStorage.getItem(k)}}catch(e){}
+  const d=new Date().toISOString().slice(0,10),name=`folio-backup-${d}.json`;
+  const blob=new Blob([JSON.stringify({folio:1,saved:new Date().toISOString(),plays:PLAYS.map(p=>p.id),data})],{type:"application/json"});
+  const file=new File([blob],name,{type:"application/json"});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});msg("Backup saved.");LS.set("folio-lastbk",Date.now());return}}catch(e){if(e&&e.name==="AbortError")return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  LS.set("folio-lastbk",Date.now());msg(`Backup saved as ${name} (${Object.keys(data).length} items).`);
+};
+const fi=document.getElementById("file");
+document.getElementById("imp").onclick=()=>fi.click();
+fi.onchange=async()=>{
+  const f=fi.files[0];fi.value="";if(!f)return;
+  let j;try{j=JSON.parse(await f.text())}catch(e){msg("That file is not a Folio backup.");return}
+  let data=j&&j.folio&&j.data;
+  if(!data&&j&&typeof j==="object"){ // older single-play backup (e.g. Othello's own Export): hand it to that play
+    msg("This is a single-play backup. Open that play and use its own Restore.");return}
+  const n=Object.keys(data).filter(mine).length;
+  const box=document.getElementById("msg");
+  box.innerHTML=`Restore ${n} items saved ${esc((j.saved||"").slice(0,10))}? This replaces the same items on this device. <span class="btns" style="margin-top:8px"><button class="pri" id="ok">Restore</button><button id="no">Cancel</button></span>`;
+  document.getElementById("no").onclick=()=>msg("");
+  document.getElementById("ok").onclick=()=>{let c=0;for(const[k,v]of Object.entries(data))if(mine(k)&&typeof v==="string"){LS.set(k,v);c++}msg(`Restored ${c} items.`);render()};
+};
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
 </body>
 </html>

@@ -1,10 +1,11 @@
-# Shakespeare
+# Shakespeare Folio
 
-Reading apps for Shakespeare plays: original text with modern English on the facing page, notes and quizzes.
+One installable app (PWA) holding reading apps for Shakespeare plays: original text with modern English beside it, notes, study tools.
 
 Live site: https://arti47.github.io/shakespeare/
 
-- `index.html` — shelf page listing the plays
-- `othello/` — Othello (installable, works offline)
+- `index.html` — Folio shelf (progress per play, one backup for all plays). Installed app reopens at the last page read.
+- `manifest.webmanifest`, `sw.js` — the single app manifest and service worker; caches every play for offline use.
+- `othello/` — Othello.
 
-Each play is a self-contained folder; add new plays as new folders and link them from `index.html`.
+Conventions for play folders: per-play localStorage prefix (`oth-`); shared settings under `folio-`; play writes `folio-last` and `folio-stat-<id>`; play links `../manifest.webmanifest`, registers `../sw.js`, and has a `‹ Folio` link to `../?shelf`. Add the play to `PLAYS` in the Folio build script and rebuild `index.html`/`sw.js`.

@@ -8,9 +8,9 @@
 <meta name="theme-color" content="#18191d" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Othello">
+<meta name="apple-mobile-web-app-title" content="Folio">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="fonts.css">
@@ -185,6 +185,7 @@ abbr.g{padding:.2em 0;margin:-.2em 0}
 
 /* ---------- HOME ---------- */
 #home{max-width:980px;margin:0 auto;padding-block:clamp(20px,5vw,56px) 80px}
+.tofolio{display:inline-block;font:500 .9rem var(--f-ui);color:var(--accent);text-decoration:none;padding:10px 4px 0;letter-spacing:.04em}
 .tp{padding:4px 0 0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
 .tp .pre{font:italic 400 1.05rem var(--f-old);color:var(--soft)}
 .tp h1{font:400 clamp(2.6rem,9vw,3.6rem) var(--f-sc);letter-spacing:.06em;line-height:1;margin:2px 0 0}
@@ -439,6 +440,7 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 
 <!-- HOME -->
 <section id="home" class="gut" hidden>
+  <a class="tofolio" id="tofolio" href="../?shelf" hidden>‹ Folio</a>
   <div class="tp">
     <div class="pre">The Tragedy of</div>
     <h1>Othello</h1>
@@ -1722,7 +1724,9 @@ const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","A
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 const $=id=>document.getElementById(id);
-const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const PLAY="othello",FSH={"oth-lh":1,"oth-clean":1,"oth-onehand":1,"oth-show":1,"oth-size":1,"oth-theme":1,"oth-sumon":1};
+const LS={key(k){return FSH[k]?"folio-"+k.slice(4):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
+LS.set("folio-last",PLAY);
 const wide=()=>innerWidth>=760;
 function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
 
@@ -1794,6 +1798,7 @@ function weekStats(){let s=0,p=0,days=0;for(let i=0;i<7;i++){const d=new Date();
   const sc=Object.values(prog.done).filter(t=>Date.now()-t<7*864e5).length;return {min:Math.round(s/60),p,days,sc}}
 /* ---------- views & routing ---------- */
 let view="home";
+if(/\/othello\/(index\.html)?$/.test(location.pathname)&&location.protocol.startsWith("http"))$("tofolio").hidden=false;
 let pos=null;try{pos=JSON.parse(LS.get("oth-pos")||"null")}catch(e){}
 /* no history entries: Safari's edge back-swipe then has nothing in the app to slide back to */
 function setHash(h){if(location.hash.slice(1)!==h){try{history.replaceState(null,"","#"+h)}catch(e){}}}
@@ -1980,7 +1985,7 @@ function renderPage(i,dir,keep){
   const put=()=>{pg.innerHTML=html;pg.scrollTop=0;pg.style.overflowY=pg.scrollHeight>pg.clientHeight+2?"auto":"hidden"};
   if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
   const first=cur.pages[i].find(b=>b.t==="sp")||cur.pages[i][0];
-  if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set("oth-pos",JSON.stringify(pos))}
+  if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set("oth-pos",JSON.stringify(pos));LS.set("folio-stat-"+PLAY,JSON.stringify({pct:Math.round((cur.k+(i+1)/cur.pages.length)/scenes.length*1000)/10,where:sName(p),t:Date.now()}))}
   if(i===cur.pages.length-1&&!prog.done[p.id]){prog.done[p.id]=Date.now();saveProg()}
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140);
   $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;$("pgbar").style.width=((i+1)/n*100)+"%";logRead();
@@ -2575,5 +2580,5 @@ route();
 initStore();
 </script>
 
-<script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+<script>if("serviceWorker" in navigator)addEventListener("load",()=>{navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>{if(/\/othello\/$/.test(r.scope))r.unregister()})).catch(()=>{});navigator.serviceWorker.register("../sw.js",{scope:"../"}).catch(()=>{})});</script>
 </body></html>
