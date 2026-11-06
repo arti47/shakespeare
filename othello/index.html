@@ -142,6 +142,17 @@ abbr.g{padding:.2em 0;margin:-.2em 0}
 .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
 .az{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 12px}.az button{border:1px solid var(--rule);background:transparent;border-radius:4px;min-width:30px;padding:4px}
 
+/* ---------- batch D: notes & sharing ---------- */
+.icon.bm svg path{fill:none;stroke:currentColor;stroke-width:2}.icon.bm.on svg path{fill:currentColor}.icon.bm.on{color:var(--ink)}
+.nfilt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.nfilt input{grid-column:1/-1}
+.nfilt select,.nfilt input{font:inherit;font-size:.9rem;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);min-width:0}
+.tchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.tchips .chip[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px;margin:10px 0}
+.cmp>div{border:1px solid var(--rule);border-radius:10px;padding:14px;background:var(--card)}
+.cmp blockquote{margin:0 0 8px;font:400 1.25rem/1.4 var(--f-old)}.cmp select{width:100%;font:inherit;font-size:.9rem;padding:8px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);margin-bottom:10px}
+.qimg{width:100%;border:1px solid var(--rule);border-radius:8px;display:block}
+#printarea{display:none}
+@media print{body.printing>*:not(#printarea){display:none!important}body.printing #printarea{display:block!important;color:#000;font:12pt/1.45 Georgia,serif}#printarea h1{font-size:18pt}#printarea .pi{border-bottom:1px solid #999;padding:8px 0;break-inside:avoid}#printarea small{color:#444}#printarea i{display:block;margin-top:4px}}
 /* ---------- batch C: exam ---------- */
 .endbtns{display:flex;flex-wrap:wrap;gap:.5em;justify-content:center;margin-top:1em}
 .endbtns button{font-size:.62em;border:1px solid var(--rule);background:var(--page);border-radius:999px;padding:.5em 1em;color:var(--ink)}
@@ -453,6 +464,7 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
     <button class="icon" id="b-home" aria-label="Contents">☰</button>
     <button class="where" id="b-where" aria-label="Choose scene"><b id="w-title"></b><small id="w-sub"></small></button>
     <button class="icon" id="b-search" aria-label="Search">⌕</button>
+    <button class="icon bm" id="b-bm" aria-label="Bookmark this page" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
     <button class="icon txt" id="b-study">Study</button>
     <button class="icon" id="b-set" aria-label="Settings">Aa</button>
   </div></header>
@@ -1754,7 +1766,7 @@ async function initStore(){
   }catch(e){}
 }
 async function saveMark(id,patch){
-  const v=Object.assign({},marks[id]||{},patch,{t:Date.now()}),empty=!v.hl&&!(v.note&&v.note.trim());
+  const v=Object.assign({},marks[id]||{},patch,{t:Date.now()}),empty=!v.hl&&!(v.note&&v.note.trim())&&!(v.th&&v.th.length);
   if(empty)delete marks[id];else marks[id]=v;LS.set("oth-marks",JSON.stringify(marks));refreshMarks();
   if(store){try{empty?await store.doc(String(id)).delete():await store.doc(String(id)).set(v)}catch(e){}}
 }
@@ -1790,6 +1802,7 @@ function show(v){view=v;$("home").hidden=v!=="home";$("reader").hidden=v!=="read
   document.body.style.overflow=v==="reader"?"hidden":"";if(v!=="reader")document.body.classList.remove("chrome");else setTimeout(hint,400)}
 function route(){
   const h=location.hash.slice(1);
+  if(h.startsWith("share=")){const ids=h.slice(6).split(".").filter(i=>speech[i]);setHash("home");show("home");renderHome();openShared(ids);return}
   if(h==="home"){show("home");renderHome();scrollTo(0,0);return}
   if(h==="study"){show("study");renderStudy();scrollTo(0,0);return}
   const k=sIdx(h);
@@ -1804,6 +1817,9 @@ function goStudy(tab){if(tab){S.stab=tab;LS.set("oth-stab",tab)}setHash("study",
 function goHome(){setHash("home",true);show("home");renderHome();scrollTo(0,0)}
 
 /* ---------- home ---------- */
+function bkRemHTML(){const n=Object.keys(marks).length+BM.length;if(!n)return "";let f=+LS.get("oth-first")||0;if(!f){f=Date.now();LS.set("oth-first",String(f))}
+  const lb=+LS.get("oth-lastbk")||0,since=Math.floor((Date.now()-Math.max(lb,f))/864e5);if(since<7)return "";
+  return `<div class="examc">${lb?`It's been ${Math.floor((Date.now()-lb)/864e5)} days since you last backed up`:"You haven't backed up yet"}. Your ${n} note${n===1?"":"s"} and bookmarks live only on this device. <button class="link" id="bk-rem">Back up now</button></div>`}
 function examHTML(){if(!prog.exam)return `<button class="link" id="ex-set" style="margin-top:6px">Set your exam date for a daily reading plan</button>`;
   const days=Math.ceil((new Date(prog.exam+"T09:00")-Date.now())/864e5);if(days<0)return `<div class="examc">Exam date passed. <button class="link" id="ex-set">Set a new date</button></div>`;
   const un=scenes.filter(p=>!prog.done[p.id]),per=Math.max(1,Math.ceil(un.length/Math.max(1,days-2)));
@@ -1819,7 +1835,8 @@ function renderHome(){
     <div class="meter"><i style="width:${done/scenes.length*100}%"></i></div>
     <div class="stats"><span><b>${done}</b> of ${scenes.length} scenes read</span><span>quizzes <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(marks).length}</b> notes</span><span><b>${Object.keys(prog.cards).length}</b> of ${QUOTES.quotes.length} quotes learnt</span></div>
     ${(()=>{const s=streak(),w=weekStats(),td=Math.round(((LOG[today()]||{}).s||0)/60);return `<div class="stats"><span>🔥 <b>${s}</b> day${s===1?"":"s"} in a row</span><span><b>${td}</b> min today</span><span>This week: <b>${w.min}</b> min · <b>${w.p}</b> pages · <b>${w.sc}</b> scene${w.sc===1?"":"s"}</span></div>`})()}`;
-  $("contcard").insertAdjacentHTML("beforeend",examHTML());if($("ex-set"))$("ex-set").onclick=openExamDate;
+  $("contcard").insertAdjacentHTML("beforeend",examHTML()+bkRemHTML());if($("ex-set"))$("ex-set").onclick=openExamDate;
+  if($("bk-rem"))$("bk-rem").onclick=()=>{openSheet("Back up",backupHTML());wireBackup(renderHome)};
   $("contbtn").onclick=()=>{const k=sIdx(lp.id);goScene(k,pos&&pos.s===lp.id?{key:pos.key}:{page:0})};
   $("studybtn").onclick=()=>goStudy();
   let h="";
@@ -1969,7 +1986,7 @@ function renderPage(i,dir,keep){
   $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;$("pgbar").style.width=((i+1)/n*100)+"%";logRead();
   $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
   $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
-  const r=$("p-range");r.max=n;r.value=i+1;
+  const r=$("p-range");r.max=n;r.value=i+1;bmState();
 }
 function turn(d){
   hideGloss();if(toolsId!=null)closePanel();
@@ -2045,7 +2062,8 @@ function toolsHTML(id,pi){
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
     <div class="iconrow">${HLC.map(([k,l])=>`<button class="ib hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i>${l}</button>`).join("")}</div>
-    <div class="iconrow"><button class="ib" id="t-focus"><span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}</button><button class="ib" id="t-follow"><span>◐</span>${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))}</button><button class="ib" id="t-copy"><span>⧉</span>Copy</button></div>
+    <div class="iconrow"><button class="ib" id="t-focus"><span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}</button><button class="ib" id="t-follow"><span>◐</span>${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))}</button><button class="ib" id="t-copy"><span>⧉</span>Copy</button><button class="ib" id="t-img"><span>▣</span>Image</button></div>
+    <h3 class="lbl">Tag themes</h3><div class="tchips">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" data-tth="${k}" aria-pressed="${(m.th||[]).includes(k)}">${esc(v[0])}</button>`).join("")}</div>
     <div style="height:12px"></div><div class="modern">${pairHTML(sp,q)}</div>
     ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
     ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
@@ -2063,6 +2081,8 @@ function wireTools(id,pi){
     document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
   $("t-focus").onclick=()=>{S.focus=S.focus===sp.who?"":sp.who;applySettings();refreshMarks();markPart();$("t-focus").innerHTML=`<span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}`;toast(S.focus?"Dimming everyone except "+title(S.focus):"Showing everyone normally")};
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
+  document.querySelectorAll(".tool [data-tth]").forEach(b=>b.onclick=()=>{const k=b.dataset.tth,th=((marks[id]||{}).th||[]).slice(),i=th.indexOf(k);if(i<0)th.push(k);else th.splice(i,1);saveMark(id,{th});b.setAttribute("aria-pressed",i<0);toast(i<0?"Tagged: "+QUOTES.themes[k][0]:"Tag removed")});
+  $("t-img").onclick=()=>{const kq=(QBY[id]||[])[0];openImage(kq?[kq.text]:sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")),title(sp.who),sName(sceneOf(id))+", lines "+(sp.start+q[0])+"–"+(sp.start+q[1]))};
   $("t-copy").onclick=()=>copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
 }
 /* tap an underlined word: small pop-up with its meaning (wins over the part tap) */
@@ -2144,7 +2164,8 @@ function studyQuotes(){
 }
 /* explore: timeline, maps, plan, context, critics, imagery, symbols, contrasts, insults, pronouns, glossary */
 let exSel="";
-const EXT=[["timeline","Plot timeline","16 key moments, in order"],["map","Character map","Who loves, trusts, hates or deceives whom, act by act"],["iago","Iago's plan","Each step of his scheme, ticked as you read"],["arcs","Trust and control","How Othello's trust and Iago's grip change"],["context","Context","Venice, Cyprus, race, rank, women, honour"],["critics","Critics' views","What critics have said, by theme"],["devices","Imagery","Animal, light and dark, poison, sea, monsters"],["symbols","Symbol tracker","Every mention of the handkerchief and more"],["contrast","Contrast pairs","Characters set side by side"],["insults","Insults and oaths","Who curses whom, and why it matters"],["pronouns","Thou and you","What a pronoun reveals about a relationship"],["glossary","Word list A to Z","Every underlined word and where it's used"]];
+const EXT=[["timeline","Plot timeline","16 key moments, in order"],["map","Character map","Who loves, trusts, hates or deceives whom, act by act"],["iago","Iago's plan","Each step of his scheme, ticked as you read"],["arcs","Trust and control","How Othello's trust and Iago's grip change"],["context","Context","Venice, Cyprus, race, rank, women, honour"],["critics","Critics' views","What critics have said, by theme"],["devices","Imagery","Animal, light and dark, poison, sea, monsters"],["symbols","Symbol tracker","Every mention of the handkerchief and more"],["contrast","Contrast pairs","Characters set side by side"],["insults","Insults and oaths","Who curses whom, and why it matters"],["pronouns","Thou and you","What a pronoun reveals about a relationship"],["glossary","Word list A to Z","Every underlined word and where it's used"],["compare","Compare two quotes","Side by side, with shared themes and essay prompts"]];
+let cmp=[0,1];
 const spLine=id=>{const sp=speech[id];return sp?`<div class="o2">${esc(sp.lines.join(" ").replace(/~/g,"").slice(0,160))}${sp.lines.join(" ").length>160?"…":""}</div><small>${esc(where(sp))} · <button class="link" data-speech="${id}">Read in context</button></small>`:""};
 function relSVG(act){const E=EX.rel[act],N=[...new Set(E.flatMap(e=>[e[0],e[1]]))],W=360,H=320,cx=W/2,cy=H/2,r=120;
   const P={};N.forEach((n,i)=>{const a=-Math.PI/2+i*2*Math.PI/N.length;P[n]=[cx+r*Math.cos(a),cy+r*Math.sin(a)]});
@@ -2184,6 +2205,7 @@ function studyExplore(){
   if(exSel==="glossary"){const u=glossUse(),ks=Object.keys(G).sort((a,b)=>a.toLowerCase().replace(/^'/,"").localeCompare(b.toLowerCase().replace(/^'/,"")));
     const L=[...new Set(ks.map(k=>k.replace(/^'/,"")[0].toUpperCase()))];
     h=`<div class="az">${L.map(l=>`<button data-az="${l}">${l}</button>`).join("")}</div>`+ks.map(k=>`<div class="exitem" data-letter="${k.replace(/^'/,"")[0].toUpperCase()}"><b>${esc(k)}</b><p>${esc(G[k])}</p>${u[k]?`<small>First used: ${esc(where(speech[u[k]]))} · <button class="link" data-speech="${u[k]}">Read</button></small>`:""}</div>`).join("")}
+  if(exSel==="compare")h=compareHTML();
   $("sbody").innerHTML=`<div class="exh"><button class="btn sm" data-ex="">‹ All topics</button><h2>${tl}</h2></div>${h}`;
 }
 /* practise: gap fill, memory ladder, explain a line, who said it, order events */
@@ -2315,6 +2337,7 @@ function studyThemes(){
    ${coverageHTML()}
    <h2 style="font:400 1.9rem var(--f-old);margin:6px 0 4px">${esc(name)}</h2><p class="intro">${esc(desc)}</p>
    ${themePlan(thSel).map(([h,s,qs])=>`<div class="stage3"><h3>${h}</h3><small>${s}</small></div>${qs.length?qs.map(quoteHTML).join(""):`<p class="muted">No key quote for this theme here. The scene summaries on the Contents page cover this part of the play.</p>`}`).join("")}
+   ${(()=>{const mine=Object.keys(marks).filter(k=>speech[k]&&(marks[k].th||[]).includes(thSel)).sort((a,b)=>a-b);return mine.length?`<div class="stage3"><h3>Your tagged lines</h3><small>${mine.length}</small></div>`+mine.map(k=>`<div class="exitem">${spLine(k)}${marks[k].note?`<div class="mynote">${esc(marks[k].note)}</div>`:""}</div>`).join(""):`<p class="muted">Lines you tag with this theme (press and hold a speech, then "Tag themes") will appear here.</p>`})()}
    <div class="row"><button class="btn" id="th-copy">Copy as an essay plan</button></div>`;
   $("th-copy").onclick=()=>{let t=`ESSAY PLAN: ${name}\n${desc}\n`;themePlan(thSel).forEach(([h,s,qs])=>{t+=`\n${h} (${s})\n`;qs.forEach(q=>{t+=`- "${q.text}" (${title(speech[q.id].who)}, ${sName(sceneOf(q.id))}): ${q.note}\n`})});copyText(t)};
 }
@@ -2373,20 +2396,25 @@ function revisionText(){
   return t}
 function download(name,text,type){if(window.claude){copyText(text);setTimeout(()=>toast("Files can’t be saved here, so it was copied instead. The home-screen app can save files."),1300);return}try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
   toast("Downloading. If nothing appears, use Copy instead.")}
-const backup=()=>JSON.stringify({app:"othello-reader",v:1,saved:new Date().toISOString(),marks,prog});
+const backup=()=>JSON.stringify({app:"othello-reader",v:2,saved:new Date().toISOString(),marks,prog,bm:BM,plan:PLAN,prof:PROF,log:LOG});
 function restore(txt){let d;try{d=JSON.parse(String(txt).trim())}catch(e){toast("That isn't a valid backup");return false}
   if(!d||d.app!=="othello-reader"){toast("That isn't an Othello backup");return false}
   Object.entries(d.marks||{}).forEach(([k,v])=>{if(!marks[k]||(v.t||0)>(marks[k].t||0)){marks[k]=v;if(store)store.doc(String(k)).set(v).catch(()=>{})}});LS.set("oth-marks",JSON.stringify(marks));
   const p=d.prog||{};Object.assign(prog.done,p.done||{});Object.assign(prog.cards,p.cards||{});Object.assign(prog.srs,p.srs||{});Object.assign(prog.conf,p.conf||{});if(p.exam)prog.exam=p.exam;
   Object.entries(p.quiz||{}).forEach(([k,v])=>{if(!prog.quiz[k]||v[0]>prog.quiz[k][0])prog.quiz[k]=v});saveProg();
+  (d.bm||[]).forEach(b=>{if(!BM.some(x=>x.s===b.s&&x.key===b.key))BM.push(b)});saveBM();
+  Object.entries(d.plan||{}).forEach(([k,v])=>{if(!(k in PLAN))PLAN[k]=v});savePlan();
+  Object.entries(d.prof||{}).forEach(([k,v])=>{if(!(k in PROF))PROF[k]=v});LS.set("oth-prof",JSON.stringify(PROF));
+  Object.entries(d.log||{}).forEach(([k,v])=>{if(!LOG[k]||v.s>LOG[k].s)LOG[k]=v});LS.set("oth-log",JSON.stringify(LOG));
   toast(`Imported ${Object.keys(d.marks||{}).length} notes and your progress`);return true}
 function backupHTML(){return `<div class="box"><h3>Move to another device</h3><p class="intro">Notes, highlights and progress are saved on this device. To move them, export here and import on the other device. Importing adds to what is already there.</p>
   <div class="row"><button class="btn" id="bk-copy">Copy backup</button><button class="btn" id="bk-dl">Download backup file</button></div>
   <label for="bk-in" class="lbl" style="display:block;margin-top:12px">Import: paste a backup, or choose the file</label><textarea id="bk-in" placeholder='Paste the backup here. It starts with {"app":"othello-reader"'></textarea>
   <div class="row"><button class="btn primary" id="bk-go">Import pasted backup</button><label class="btn" for="bk-file" style="cursor:pointer">Choose backup file</label><input type="file" id="bk-file" accept=".json,application/json,text/plain" hidden></div></div>`}
 function wireBackup(after){
-  $("bk-copy").onclick=()=>copyText(backup());
-  $("bk-dl").onclick=()=>download("othello-backup.json",backup(),"application/json");
+  const mk=()=>LS.set("oth-lastbk",String(Date.now()));
+  $("bk-copy").onclick=()=>{copyText(backup());mk()};
+  $("bk-dl").onclick=()=>{download("othello-backup.json",backup(),"application/json");mk()};
   $("bk-go").onclick=()=>{if(restore($("bk-in").value)){$("bk-in").value="";after&&after()}};
   $("bk-file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{if(restore(r.result))after&&after()};r.readAsText(f)};
 }
@@ -2406,7 +2434,7 @@ $("sbody").addEventListener("click",e=>{
   const s=e.target.closest("[data-speech]");if(s){goSpeech(s.dataset.speech);return}
   const c=e.target.closest(".chips .chip");if(c){const f=c.parentNode.dataset.f,v=c.dataset.v;
     if(f==="who")qf.who=v;else if(f==="th")qf.th=v;else if(f==="theme")thSel=v;renderStudy()}});
-$("sbody").addEventListener("change",e=>{const s=e.target.closest("[data-qf]");if(s){qf[s.dataset.qf]=s.value;renderStudy()}});
+$("sbody").addEventListener("change",e=>{const c=e.target.closest("[data-cmp]");if(c){cmp[+c.dataset.cmp]=+c.value;studyExplore();return}const s=e.target.closest("[data-qf]");if(s){qf[s.dataset.qf]=s.value;renderStudy()}});
 
 /* ---------- sheets ---------- */
 const sheet=$("sheet");let lastFocus=null;
@@ -2414,10 +2442,12 @@ function openSheet(t,html){if(sheet.hidden)lastFocus=document.activeElement;$("s
 function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
 sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
+  const bd=e.target.closest("[data-bmdel]");if(bd){BM.splice(+bd.dataset.bmdel,1);saveBM();bmState();openNotes();return}
+  const bk=e.target.closest("[data-bm]");if(bk){const b=BM[+bk.dataset.bm];closeSheet();setHash(b.s);show("reader");openScene(sIdx(b.s),{key:b.key});return}
   const rc=e.target.closest("[data-recent]");if(rc){const [id,pi]=rc.dataset.recent.split(":").map(Number);goSpeech(id);setTimeout(()=>{showPartPage(id,pi);openPart(id,pi,false)},250);return}
   const g=e.target.closest("[data-speech]");if(g){goSpeech(g.dataset.speech);return}
   const p=e.target.closest("[data-go]");if(p){closeSheet();goScene(sIdx(p.dataset.go))}});
-sheet.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-speech],[data-go]");if(g)g.click()}});
+sheet.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-speech],[data-go],[data-bm]");if(g)g.click()}});
 const where=sp=>`${sName(sceneOf(sp.id))} · ${title(sp.who)}`;
 function snippet(t,q){const i=t.toLowerCase().indexOf(q.toLowerCase()),a=Math.max(0,i-50),b=Math.min(t.length,i+q.length+80);
   return (a>0?"…":"")+esc(t.slice(a,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length,b))+(b<t.length?"…":"")}
@@ -2429,15 +2459,76 @@ function searchResults(q){q=q.trim();if(q.length<2)return `<p class="muted">Type
 function openSearch(q){openSheet("Search",`<label for="sq" class="sr">Search</label><input class="sinput" id="sq" type="search" placeholder="A word or phrase…" value="${esc(q||"")}" autocomplete="off"><div id="sres" style="margin-top:8px"></div>`);
   const sq=$("sq"),run=()=>{$("sres").innerHTML=searchResults(sq.value)};let t;sq.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});run();setTimeout(()=>sq.focus(),30)}
 setInterval(()=>{if(S.theme==="timed")applySettings()},600000);
-function openNotes(){
-  const ids=Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b);
-  let h=`<p class="muted">${store?"Saved to your account.":"Saved on this device."} Tap one to go to it.</p>`;
-  if(!ids.length)h+=`<p>Nothing yet. While reading, press and hold a speech to highlight it or add a note.</p>`;
-  let la=0;ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k);
+/* bookmarks: whole pages, this device (and in backups) */
+let BM=[];try{BM=JSON.parse(LS.get("oth-bm")||"[]")}catch(e){}
+const saveBM=()=>LS.set("oth-bm",JSON.stringify(BM));
+const bmHere=()=>pos?BM.findIndex(b=>b.s===pos.s&&b.key===pos.key):-1;
+function bmState(){const b=$("b-bm");if(!b)return;const on=bmHere()>=0;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.setAttribute("aria-label",on?"Remove bookmark":"Bookmark this page")}
+function keyText(s,key){const [id,ln]=String(key).split(":"),sp=speech[id];return sp?(sp.lines[+ln||0]||sp.lines[0]).replace(/^~/,""):sName(scenes[sIdx(s)])}
+function toggleBM(){if(!pos)return;const i=bmHere();if(i>=0){BM.splice(i,1);toast("Bookmark removed")}else{BM.push({s:pos.s,key:pos.key,t:Date.now(),txt:keyText(pos.s,pos.key)});BM.sort((a,b)=>sIdx(a.s)-sIdx(b.s)||String(a.key).localeCompare(String(b.key),void 0,{numeric:true}));toast("Page bookmarked. Find it in My notes.")}saveBM();bmState()}
+/* my notes: search, filters, print, share */
+let nf={q:"",th:"",who:"",c:""};
+function notesIds(){const q=nf.q.trim().toLowerCase();
+  return Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b).filter(k=>{const sp=speech[k],m=marks[k];
+    if(nf.who&&sp.who!==nf.who)return false;
+    if(nf.th&&!((m.th||[]).includes(nf.th)||(QBY[k]||[]).some(x=>x.themes.includes(nf.th))))return false;
+    if(nf.c==="note"&&!(m.note&&m.note.trim()))return false;if(nf.c&&nf.c!=="note"&&hlOf(m)!==nf.c)return false;
+    if(q&&!((m.note||"").toLowerCase().includes(q)||sp.lines.join(" ").toLowerCase().includes(q)||sp.m.toLowerCase().includes(q)))return false;return true})}
+function notesList(){const ids=notesIds();let h=`<p class="muted">${ids.length} of ${Object.keys(marks).filter(k=>speech[k]).length} shown</p>`,la=0;
+  ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k),hl=hlOf(m);
     if(p.act!==la){h+=`<div class="eyebrow" style="margin:14px 0 0">${LAT[p.act]}</div>`;la=p.act}
     const o=sp.lines.join(" ").replace(/~/g,"");
-    h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${esc(where(sp))}${m.hl?" · ★":""}</small><span style="font-family:var(--f-old)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote">${esc(m.note)}</div>`:""}</div>`});
-  openSheet("My notes",h)}
+    h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${hl?`<i class="hlk ${hl}"></i> `:""}${esc(where(sp))}${(m.th||[]).length?" · "+m.th.map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><span style="font-family:var(--f-old)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote">${esc(m.note)}</div>`:""}</div>`});
+  return h}
+function openNotes(){
+  const all=Object.keys(marks).filter(k=>speech[k]),whos=[...new Set(all.map(k=>speech[k].who))].sort();
+  let h=`<p class="muted">${store?"Saved to your account.":"Saved on this device."} Tap one to go to it.</p>`;
+  if(BM.length)h+=`<div class="eyebrow" style="margin:10px 0 0">Bookmarks</div>`+BM.map((b,i)=>`<div class="item" data-bm="${i}" tabindex="0"><small>${esc(sName(scenes[sIdx(b.s)]))} · <button class="link" data-bmdel="${i}">Remove</button></small><span style="font-family:var(--f-old)">${esc(b.txt||"")}</span></div>`).join("");
+  if(!all.length)h+=`<p>No notes yet. While reading, press and hold a speech to highlight it, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
+  else h+=`<div class="eyebrow" style="margin:14px 0 0">Notes and highlights</div><div class="nfilt"><label class="sr" for="nf-q">Search notes</label><input type="search" id="nf-q" placeholder="Search your notes and lines…" value="${esc(nf.q)}">
+    <label class="sr" for="nf-c">Colour</label><select id="nf-c"><option value="">Any colour</option>${HLC.map(([k,l])=>`<option value="${k}"${nf.c===k?" selected":""}>${l}</option>`).join("")}<option value="note"${nf.c==="note"?" selected":""}>With a written note</option></select>
+    <label class="sr" for="nf-th">Theme</label><select id="nf-th"><option value="">Any theme</option>${Object.entries(QUOTES.themes).map(([k,v])=>`<option value="${k}"${nf.th===k?" selected":""}>${esc(v[0])}</option>`).join("")}</select>
+    <label class="sr" for="nf-who">Character</label><select id="nf-who" style="grid-column:1/-1"><option value="">Any character</option>${whos.map(w=>`<option value="${esc(w)}"${nf.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
+    <div class="row"><button class="btn sm" id="nf-print">Print</button><button class="btn sm" id="nf-copy">Copy</button><button class="btn sm" id="nf-share">Share as a link</button></div><div id="nlist">${notesList()}</div>`;
+  openSheet("My notes",h);if(!all.length)return;
+  let tm;$("nf-q").oninput=e=>{nf.q=e.target.value;clearTimeout(tm);tm=setTimeout(()=>$("nlist").innerHTML=notesList(),150)};
+  ["c","th","who"].forEach(f=>$("nf-"+f).onchange=e=>{nf[f]=e.target.value;$("nlist").innerHTML=notesList()});
+  const txt=()=>notesIds().map(k=>{const sp=speech[k],m=marks[k];return `${where(sp)}\n${sp.lines.map(l=>l.replace(/^~/,"")).join("\n")}${m.note?`\nNote: ${m.note}`:""}`}).join("\n\n");
+  $("nf-copy").onclick=()=>copyText("MY OTHELLO NOTES\n\n"+txt());
+  $("nf-print").onclick=()=>printArea("My Othello notes",notesIds().map(k=>{const sp=speech[k],m=marks[k];return `<div class="pi"><small>${esc(where(sp))}${(m.th||[]).length?" · "+m.th.map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><div>${sp.lines.map(l=>esc(l.replace(/^~/,""))).join("<br>")}</div>${m.note?`<i>${esc(m.note)}</i>`:""}</div>`}).join(""));
+  $("nf-share").onclick=()=>shareIds(notesIds());
+}
+function printArea(tl,html){let pa=$("printarea");if(!pa){pa=document.createElement("div");pa.id="printarea";document.body.appendChild(pa)}
+  pa.innerHTML=`<h1>${esc(tl)}</h1>${html}`;document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");removeEventListener("afterprint",done)};addEventListener("afterprint",done);
+  try{window.print()}catch(e){toast("Printing isn’t available here. Use Copy instead.")}setTimeout(done,60000)}
+function shareIds(ids){if(!ids.length){toast("Nothing to share");return}const url=location.href.split("#")[0]+"#share="+ids.slice(0,200).join(".");
+  if(navigator.share)navigator.share({title:"Othello quotes",text:"My Othello quotes",url}).catch(()=>{});else copyText(url)}
+function openShared(ids){if(!ids.length){toast("That link has no quotes in it");return}
+  openSheet("Shared quotes",`<p class="intro">Someone shared ${ids.length} line${ids.length===1?"":"s"} with you. Tap one to read it in context.</p><div class="row"><button class="btn primary" id="sh-save">Add all to my notes</button></div>`+ids.map(k=>{const sp=speech[k];return `<div class="item" data-speech="${k}" tabindex="0"><small>${esc(where(sp))}</small><span style="font-family:var(--f-old)">${sp.lines.map(l=>esc(l.replace(/^~/,""))).join("<br>")}</span></div>`}).join(""));
+  $("sh-save").onclick=()=>{ids.forEach(k=>{if(!(marks[k]&&marks[k].hl))saveMark(k,{hl:"fav"})});toast(`Added ${ids.length} as favourites`);$("sh-save").disabled=true}}
+/* quote image card */
+function quoteImage(paras,who,ref){const W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+  x.fillStyle="#f7f2e7";x.fillRect(0,0,W,H);x.strokeStyle="#1a1a1a";x.lineWidth=3;x.strokeRect(44,44,W-88,H-88);x.fillStyle="#1a1a1a";x.textAlign="center";
+  const F=s=>`${s}px Georgia, "Times New Roman", serif`;
+  const wrap=(fs)=>{x.font=F(fs);const L=[];paras.forEach((p,pi)=>{let l="";const t=(pi===0?"“":"")+p+(pi===paras.length-1?"”":"");t.split(/\s+/).forEach(w=>{const tt=l?l+" "+w:w;if(x.measureText(tt).width>W-240&&l){L.push(l);l=w}else l=tt});if(l)L.push(l)});return L};
+  let fs=58,L=wrap(fs);while(fs>26&&L.length*fs*1.4>H-560){fs-=4;L=wrap(fs)}
+  const lh=fs*1.4;let y=(H-L.length*lh)/2-40+fs;x.font=F(fs);L.forEach(l=>{x.fillText(l,W/2,y);y+=lh});
+  y+=40;x.font="600 "+F(38);x.fillText("— "+who,W/2,y);x.font=F(30);x.fillStyle="#555";x.fillText(ref,W/2,y+50);
+  x.font="italic "+F(28);x.fillText("Othello · William Shakespeare",W/2,H-100);return c}
+function openImage(paras,who,ref){const c=quoteImage(paras,who,ref),url=c.toDataURL("image/png");
+  openSheet("Quote image",`<img class="qimg" src="${url}" alt="${esc(paras.join(" "))}, ${esc(who)}"><p class="muted">Press and hold the image to save it, or use the buttons.</p><div class="row"><button class="btn primary" id="qi-dl">Download</button>${navigator.share?`<button class="btn" id="qi-sh">Share</button>`:""}</div>`);
+  $("qi-dl").onclick=()=>{try{const a=document.createElement("a");a.href=url;a.download="othello-quote.png";document.body.appendChild(a);a.click();a.remove()}catch(e){}toast("Downloading. If nothing appears, press and hold the image.")};
+  if($("qi-sh"))$("qi-sh").onclick=()=>c.toBlob(b=>{const f=new File([b],"othello-quote.png",{type:"image/png"});const d={files:[f],title:"Othello quote"};(navigator.canShare&&navigator.canShare(d)?navigator.share(d):navigator.share({title:"Othello quote",text:`“${paras.join(" ")}” — ${who}, ${ref}`})).catch(()=>{})})}
+/* compare two key quotes */
+function compareHTML(){const Q=QUOTES.quotes,a=Q[cmp[0]],b=Q[cmp[1]];
+  const sel=i=>`<label class="sr" for="cmp${i}">Quote ${i+1}</label><select id="cmp${i}" data-cmp="${i}">${Q.map(q=>`<option value="${q.i}"${q.i===cmp[i]?" selected":""}>${esc(title(speech[q.id].who))}: ${esc(q.text.slice(0,50))}</option>`).join("")}</select>`;
+  const card=(q,i)=>{const sp=speech[q.id];return `<div>${sel(i)}<blockquote>“${esc(q.text)}”</blockquote><small>${esc(where(sp))}</small><p>${esc(q.note)}</p>${EX.why[q.i]?`<p><b>Why it matters:</b> ${esc(EX.why[q.i])}</p>`:""}<p class="muted">${q.themes.map(t=>esc(QUOTES.themes[t][0])).join(" · ")}</p><button class="link" data-speech="${q.id}">Read in context</button></div>`};
+  const sa=speech[a.id],sb=speech[b.id],pa=sceneOf(a.id),pb=sceneOf(b.id),sh=a.themes.filter(t=>b.themes.includes(t)).map(t=>QUOTES.themes[t][0]);
+  const pr=[];if(sa.who===sb.who)pr.push(`Both are spoken by ${title(sa.who)}. What has changed in them between ${sName(pa)} and ${sName(pb)}, and what caused it?`);
+  else pr.push(`How do ${title(sa.who)} and ${title(sb.who)} see things differently here? Whose view does the audience trust, and why?`);
+  if(sh.length)pr.push(`Both are about ${sh.join(" and ").toLowerCase()}. How does Shakespeare's presentation of this differ between the two?`);else pr.push(`They share no main theme. Is there a link in imagery, tone or situation you could use to connect them?`);
+  pr.push(`Compare the language: look at the imagery, the length of the sentences and whether each speaker uses verse or prose.`);
+  return `<p class="intro">Pick any two key quotes. Comparing them is a quick way to build an essay paragraph.</p><div class="cmp">${card(a,0)}${card(b,1)}</div><div class="exitem"><b>Shared themes</b><p>${sh.length?esc(sh.join(", ")):"None"}</p></div><div class="exitem"><b>Questions to answer</b><ul>${pr.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`}
 function jumpLine(v){const m=String(v).trim().match(/^(\d)\D+(\d)\D+(\d+)$/);if(!m){toast("Type act, scene and line, like 3.3.165");return}
   const p=scenes.find(x=>x.act===+m[1]&&x.sc===+m[2]);if(!p){toast("No such scene");return}const ln=+m[3];
   const sp=p.items.find(i=>i.t==="sp"&&ln>=i.start&&ln<i.start+i.lines.length)||p.items.filter(i=>i.t==="sp").pop();
@@ -2472,7 +2563,7 @@ function openSettings(){
   wireBackup(()=>{if(view==="home")renderHome();refreshMarks()});
   let armed=false;$("resetprog").onclick=()=>{if(!armed){armed=true;$("resetmsg").textContent="Tap again to confirm. Your notes are kept.";return}prog={done:{},quiz:{},cards:{},srs:{},miss:{q:[],c:{}},conf:{},exam:prog.exam};saveProg();$("resetmsg").textContent="Progress reset.";armed=false;if(view==="home")renderHome()};
 }
-$("b-home").onclick=goHome;$("b-where").onclick=openPicker;$("b-search").onclick=()=>openSearch("");$("b-study").onclick=()=>goStudy();$("b-set").onclick=openSettings;
+$("b-home").onclick=goHome;$("b-where").onclick=openPicker;$("b-search").onclick=()=>openSearch("");$("b-study").onclick=()=>goStudy();$("b-set").onclick=openSettings;$("b-bm").onclick=toggleBM;
 
 /* ---------- first-run hint ---------- */
 function hint(){if(LS.get("oth-hint3")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.innerHTML=`<b>How to read</b><ul><li>Swipe left or right to turn the page.</li><li>Tap an underlined word for its meaning.</li><li>Tap any other part of the lines to see them in modern English. Long speeches come in parts; expand to read the whole speech.</li><li>Tap empty space to show the menus.</li><li>Press and hold a speech for word meanings and notes.</li></ul><button>Got it</button>`;
