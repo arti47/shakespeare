@@ -34,6 +34,11 @@
   --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216;
   --hl:#3a1a24; --hl-ink:#f4bcc5; --berry:#f08a9b;
   --ok:#6cc38a; --bad:#ef8a83; --shade:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="night"]{
+  --bg:#130f0b; --page:#1b1510; --ink:#f1dcba; --soft:#e2cba7; --muted:#ab9470; --rule:#3a2e22; --card:#221a13; --nmix:#f1dcba; --nmw:55%;
+  --accent:#e7a95a; --accent-ink:#1b1510; --accent-soft:#2f2418;
+  --hl:#3e2a1e; --hl-ink:#f6c9a4; --berry:#f0a08a;
+  --ok:#9cc88a; --bad:#f09a83; --shade:rgba(0,0,0,.6); color-scheme:dark}
 :root[data-theme="dark"]{
   --bg:#101114; --page:#18191d; --ink:#f3f1ec; --soft:#dedad2; --muted:#a3a3ab; --rule:#33353c; --card:#202227; --nmix:#ffffff; --nmw:55%;
   --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216;
@@ -67,6 +72,41 @@ button{cursor:pointer}
 .gpop b{display:block;font:400 1.15rem var(--f-old);color:var(--page);margin-bottom:2px}
 abbr.g.on{background:var(--accent-soft);border-radius:2px}
 abbr.g{text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,transparent);text-underline-offset:4px}
+
+/* ---------- batch A: reader extras ---------- */
+:root{--hl-ev:#f7e9b5;--hl-fav:#d8e7fb;--hl-cf:#f8dbe0;--lh:1.55}
+:root[data-theme="dark"],:root[data-theme="night"]{--hl-ev:#3b3315;--hl-fav:#172a42;--hl-cf:#40202b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hl-ev:#3b3315;--hl-fav:#172a42;--hl-cf:#40202b}}
+.sp.hl.hl-ev .o,.sp.hl.hl-ev .m{background:var(--hl-ev);box-shadow:0 0 0 .25em var(--hl-ev)}
+.sp.hl.hl-fav .o,.sp.hl.hl-fav .m{background:var(--hl-fav);box-shadow:0 0 0 .25em var(--hl-fav)}
+.sp.hl.hl-cf .o,.sp.hl.hl-cf .m{background:var(--hl-cf);box-shadow:0 0 0 .25em var(--hl-cf)}
+.hlk{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:-.05em;margin-right:4px;border:1px solid var(--rule)}
+.hlk.ev{background:var(--hl-ev)}.hlk.fav{background:var(--hl-fav)}.hlk.cf{background:var(--hl-cf)}
+.tool .ib.hlb{padding:7px 11px}.tool .ib.hlb.on{outline:2px solid var(--ink);outline-offset:1px;background:var(--page);color:var(--ink);border-color:var(--rule)}
+.o{line-height:var(--lh)}
+.onstage{font:500 .62em var(--f-ui);letter-spacing:.06em;color:var(--muted);margin-top:.6em;text-align:center}
+.onstage span{color:color-mix(in srgb,var(--c,var(--ink)) var(--nmw),var(--nmix));font-weight:600}
+body.focusing .sp:not(.fwho){opacity:.36}
+.sp.aside .o{font-style:italic;border-left:3px solid var(--berry);padding-left:.55em}
+.sp.solo .o{border-left:3px solid var(--accent);padding-left:.55em}
+.sp.prose .o{border-left:2px dotted var(--muted);padding-left:.55em}
+.tag.pr{color:var(--muted)}
+.o .l.cpl::after{content:" \2040";color:var(--accent);font-size:.8em}
+body.clean .o .l[data-n]::before,body.clean .flag,body.clean .tag{display:none}
+body.clean abbr.g{text-decoration:none}
+body.clean .nm{color:var(--soft)}
+@keyframes pulse{0%,100%{background:transparent}30%{background:var(--accent-soft)}}
+.pt.pulse{animation:pulse 1.6s ease 2}
+.pgbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:transparent;pointer-events:none}
+.pgbar i{display:block;height:100%;background:var(--accent);opacity:.55;transition:width .2s}
+.scrub{position:fixed;z-index:14;bottom:calc(70px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:min(420px,90vw);background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);font-size:.85rem}
+.scrub b{display:block;font:500 .7rem var(--f-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.scrub span{font:400 1.05rem var(--f-old)}
+.tool .pnav{display:flex;gap:8px;margin-top:8px}
+.tool .pnav .btn{flex:1}
+.tool .qn2 textarea{min-height:64px}
+.jump{display:flex;gap:8px;margin:4px 0 12px}.jump input{flex:1;min-width:0}
+abbr.g{padding:.2em 0;margin:-.2em 0}
 
 /* ---------- HOME ---------- */
 #home{max-width:980px;margin:0 auto;padding-block:clamp(20px,5vw,56px) 80px}
@@ -343,7 +383,7 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 <!-- READER -->
 <section id="reader" hidden>
   <div class="viewport gut" id="vp"><div class="pg" id="pg"></div></div>
-  <div class="pgfoot" id="pgfoot"></div>
+  <div class="pgfoot" id="pgfoot"></div><div class="pgbar"><i id="pgbar"></i></div>
   <header class="bar" id="bar"><div class="in gut">
     <button class="icon" id="b-home" aria-label="Contents">☰</button>
     <button class="where" id="b-where" aria-label="Choose scene"><b id="w-title"></b><small id="w-sub"></small></button>
@@ -1654,14 +1694,25 @@ async function saveMark(id,patch){
 async function saveProg(){LS.set("oth-prog",JSON.stringify(prog));if(progDoc){try{await progDoc.set(JSON.parse(JSON.stringify(prog)))}catch(e){}}}
 
 /* ---------- settings ---------- */
-const S={mode:LS.get("oth-show")||"orig",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",sum:LS.get("oth-sumon")!=="0",who:"",stab:LS.get("oth-stab")||"quotes"};
+const S={lh:parseFloat(LS.get("oth-lh"))||1.55,focus:LS.get("oth-focus")||"",clean:LS.get("oth-clean")==="1",onehand:LS.get("oth-onehand")==="1",mode:LS.get("oth-show")||"orig",scale:parseFloat(LS.get("oth-size"))||1.3,theme:LS.get("oth-theme")||"auto",sum:LS.get("oth-sumon")!=="0",who:"",stab:LS.get("oth-stab")||"quotes"};
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
-  if(S.theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",S.theme);
+  let th=S.theme;if(th==="timed"){const h=new Date().getHours();th=h>=20||h<7?"night":"auto"}
+  if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);
+  document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
+  LS.set("oth-lh",S.lh);LS.set("oth-focus",S.focus);LS.set("oth-clean",S.clean?"1":"0");LS.set("oth-onehand",S.onehand?"1":"0");
   LS.set("oth-show",S.mode);LS.set("oth-size",S.scale);LS.set("oth-theme",S.theme);LS.set("oth-sumon",S.sum?"1":"0");
 }
 
+/* reading log: minutes and pages per day (this device) */
+let LOG={};try{LOG=JSON.parse(LS.get("oth-log")||"{}")}catch(e){}
+const today=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+let lastTurn=0;
+function logRead(){const now=Date.now(),k=today(),d=LOG[k]=LOG[k]||{s:0,p:0};d.p++;if(lastTurn)d.s+=Math.min(120,(now-lastTurn)/1000);lastTurn=now;LS.set("oth-log",JSON.stringify(LOG))}
+function streak(){let n=0,d=new Date();if(!LOG[today(d)])d.setDate(d.getDate()-1);while(LOG[today(d)]){n++;d.setDate(d.getDate()-1)}return n}
+function weekStats(){let s=0,p=0,days=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);const v=LOG[today(d)];if(v){s+=v.s;p+=v.p;days++}}
+  const sc=Object.values(prog.done).filter(t=>Date.now()-t<7*864e5).length;return {min:Math.round(s/60),p,days,sc}}
 /* ---------- views & routing ---------- */
 let view="home";
 let pos=null;try{pos=JSON.parse(LS.get("oth-pos")||"null")}catch(e){}
@@ -1676,7 +1727,7 @@ function route(){
   if(h==="study"){show("study");renderStudy();scrollTo(0,0);return}
   const k=sIdx(h);
   if(k>=0){show("reader");openScene(k,pos&&pos.s===h?{key:pos.key,keep:true}:{page:0});return}
-  if(pos&&sIdx(pos.s)>=0){setHash(pos.s,false);show("reader");openScene(sIdx(pos.s),{key:pos.key,keep:true});return}
+  if(pos&&sIdx(pos.s)>=0){setHash(pos.s,false);show("reader");openScene(sIdx(pos.s),{key:pos.key,keep:true});setTimeout(pulseLast,500);return}
   show("home");renderHome();
 }
 addEventListener("hashchange",route);addEventListener("popstate",route);
@@ -1693,7 +1744,8 @@ function renderHome(){
   $("contcard").innerHTML=`<div class="row2"><button class="go" id="contbtn"><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)} · ${esc(shortLoc(lp))}</b></button>
     <button class="go alt" id="studybtn"><small>Revise</small><b>Study</b></button></div>
     <div class="meter"><i style="width:${done/scenes.length*100}%"></i></div>
-    <div class="stats"><span><b>${done}</b> of ${scenes.length} scenes read</span><span>quizzes <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(marks).length}</b> notes</span><span><b>${Object.keys(prog.cards).length}</b> of ${QUOTES.quotes.length} quotes learnt</span></div>`;
+    <div class="stats"><span><b>${done}</b> of ${scenes.length} scenes read</span><span>quizzes <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(marks).length}</b> notes</span><span><b>${Object.keys(prog.cards).length}</b> of ${QUOTES.quotes.length} quotes learnt</span></div>
+    ${(()=>{const s=streak(),w=weekStats(),td=Math.round(((LOG[today()]||{}).s||0)/60);return `<div class="stats"><span>🔥 <b>${s}</b> day${s===1?"":"s"} in a row</span><span><b>${td}</b> min today</span><span>This week: <b>${w.min}</b> min · <b>${w.p}</b> pages · <b>${w.sc}</b> scenes</span></div>`})()}`;
   $("contbtn").onclick=()=>{const k=sIdx(lp.id);goScene(k,pos&&pos.s===lp.id?{key:pos.key}:{page:0})};
   $("studybtn").onclick=()=>goStudy();
   let h="";
@@ -1729,27 +1781,39 @@ function sceneBlocks(p){
 }
 /* breathing space: long speeches get a small gap after each full sentence; modern English is split into short paragraphs */
 const endsSentence=l=>/[.?!]["'’”)\]]*\s*$/.test(l.replace(/\s*\[[^\]]*\]\s*$/,""));
-function lineHTML(l,num){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}>${gloss(t)}</span>`}
+function lineHTML(l,num,cpl){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}${cpl?" cpl":""}"${num%5===0?` data-n="${num}"`:""}>${gloss(t)}</span>`}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
-function linesHTML(it,a,b){let h="";partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
+function linesHTML(it,a,b){let h="";const cp=CPL[it.id];partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,cp!=null&&j>=cp);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
   return out.map(p=>`<p>${esc(p)}</p>`).join("")}
+function onStage(p){const ws=[];p.items.forEach(i=>{if(i.t==="sp"&&i.who&&!ws.includes(i.who))ws.push(i.who)});
+  return `<div class="onstage">On stage: ${ws.map(w=>`<span style="--c:${COLORS[w]||"var(--ink)"}">${esc(title(w))}</span>`).join(" · ")}</div>`}
+/* verse or prose; rhyming couplets */
+const PROSE={};for(const id in speech){const L=speech[id].lines.map(l=>l.replace(/^~/,"").replace(/\[[^\]]*\]\s*/g,""));if(L.length<2)continue;
+  const low=L.slice(1).filter(l=>/^[a-z]/.test(l)).length,long=L.filter(l=>l.length>62).length;PROSE[id]=low/(L.length-1)>=.5||long>=Math.max(1,L.length/3)}
+const lastWord=l=>(l.replace(/^~/,"").replace(/\[[^\]]*\]/g,"").toLowerCase().match(/([a-z']+)[^a-z']*$/)||[])[1]||"";
+function rhymes(a,b){a=lastWord(a);b=lastWord(b);if(!a||!b||a===b||a.length<2||b.length<2)return false;const e=w=>w.replace(/'/g,"").slice(-3);
+  if(e(a)===e(b))return true;const v=w=>(w.match(/[aeiouy]+[^aeiouy]*$/)||[""])[0];return v(a).length>=2&&v(a)===v(b)}
+const CPL={};for(const id in speech){const L=speech[id].lines;if(L.length>=2&&!PROSE[id]&&rhymes(L[L.length-2],L[L.length-1]))CPL[id]=L.length-2}
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
-    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
+    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${onStage(p)}${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
   if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
     return `<div class="blk endblk"><div class="orn">❧</div><b>End of ${sName(p)}</b>${n?`<span>Turn the page for ${sName(n)} · ${esc(shortLoc(n))}</span>`:`<span>Finis</span>`}</div>`}
   const it=bk.it,c=COLORS[it.who],cont=bk.u0>0||it.cont,aside=it.lines.some(l=>/\[Aside/.test(l)),solo=SOLO[it.id];
-  const tag=solo?`<span class="tag">Soliloquy</span>`:aside?`<span class="tag">Aside</span>`:"";
+  let prevSp=null;for(const x of p.items){if(x===it)break;if(x.t==="sp"&&x.who===it.who)prevSp=x}
+  const sw=PROSE[it.id]&&prevSp&&!PROSE[prevSp.id];
+  const tag=(solo?`<span class="tag">Soliloquy</span>`:aside?`<span class="tag">Aside</span>`:"")+(PROSE[it.id]&&!bk.u0?`<span class="tag pr">${sw?"Switches to prose":"Prose"}</span>`:"");
   const m=marks[it.id]||{},flags=(STUDY.notes[it.id]||QBY[it.id]?`<span class="flag" title="Has a study note">◆</span>`:"")+(m.note?`<span class="flag" title="Your note">✎</span>`:"");
   const us=bk.units.slice(bk.u0,bk.u1),whole=bk.u0===0&&bk.u1===bk.units.length;
   let body;
   if(S.mode==="orig")body=`<div class="o">${linesHTML(it,us[0][0],us[us.length-1][1])}</div>`;
   else if(whole&&partsOf(it).length<2)body=`<div class="o">${linesHTML(it,0,it.lines.length-1)}</div><div class="m">${paras(it.m)}</div>`;
   else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2])}</div></div>`).join("");
-  return `<article class="blk sp${m.hl?" hl":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}"><div class="hd"><span class="nm${cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div><div class="body">${body}</div></article>`;
+  const hc=m.hl?" hl hl-"+(m.hl===true?"ev":m.hl):"";
+  return `<article class="blk sp${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}"><div class="hd"><span class="nm${cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div><div class="body">${body}</div></article>`;
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ---------- */
 let cur={k:-1,pages:[],i:0,words:0,sig:""};
@@ -1780,7 +1844,7 @@ function paginate(p){
   flush();measure.innerHTML="";
   return pages.length?pages:[[]];
 }
-const sig=()=>[S.mode,S.scale,S.who,S.sum,pg.clientWidth,pg.clientHeight].join("|");
+const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,pg.clientWidth,pg.clientHeight].join("|");
 function openScene(k,opts){
   opts=opts||{};const p=scenes[k];
   if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
@@ -1810,7 +1874,7 @@ function renderPage(i,dir,keep){
   if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set("oth-pos",JSON.stringify(pos))}
   if(i===cur.pages.length-1&&!prog.done[p.id]){prog.done[p.id]=Date.now();saveProg()}
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140);
-  $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;
+  $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;$("pgbar").style.width=((i+1)/n*100)+"%";logRead();
   $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
   $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
   const r=$("p-range");r.max=n;r.value=i+1;
@@ -1832,14 +1896,15 @@ vp.addEventListener("pointerdown",e=>{if(e.button)return;
   if(sp){press.pt=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved)sp.classList.add("pressing")},160);
     press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}openTools(+sp.dataset.id,partAt(press.tgt,sp))}},480)}});
 vp.addEventListener("pointermove",e=>{if(!press)return;if(Math.abs(e.clientX-press.x)>10||Math.abs(e.clientY-press.y)>10){press.moved=true;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing")}});
-function endPress(e,cancel){if(!press)return;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");
+function endPress(e,cancel){if(!press||pinch)return;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");
   const P=press;press=null;if(cancel)return;
   if(swallow){swallow=false;return}
   const dx=e.clientX-P.x,dy=e.clientY-P.y;
   if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3){turn(dx<0?1:-1);return}
   if(P.moved||Date.now()-P.t>450)return;
   if(gpop){hideGloss();return}
-  const gw=P.tgt.closest&&P.tgt.closest("abbr.g");if(gw){showGloss(gw);return}
+  if(S.onehand&&P.y>innerHeight*.78&&(P.x<innerWidth*.3||P.x>innerWidth*.7)){turn(P.x<innerWidth*.3?-1:1);return}
+  const gw=nearGloss(P.tgt,P.x,P.y);if(gw){showGloss(gw);return}
   if(P.sp){const pt=P.tgt.closest(".pt")||(P.tgt.closest(".chunk")||P.sp).querySelector(".pt");
     if(pt){const id=+P.sp.dataset.id,pi=+pt.dataset.p;if(partSel&&partSel.id===id&&partSel.pi===pi&&toolsId!=null){closePanel();return}openPart(id,pi,false);return}}
   if(toolsId!=null&&wide()){closePanel();return}
@@ -1848,9 +1913,23 @@ vp.addEventListener("pointerup",e=>endPress(e,false));
 vp.addEventListener("pointercancel",e=>endPress(e,true));
 vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}openTools(+sp.dataset.id,partAt(e.target,sp))});
 vp.addEventListener("wheel",e=>{const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(d)<25)return;const now=Date.now();if(now-(vp.lw||0)<450)return;vp.lw=now;turn(d>0?1:-1)},{passive:true});
+/* a tap within a few pixels of an underlined word counts as tapping it */
+function nearGloss(tgt,x,y){const d=tgt&&tgt.closest&&tgt.closest("abbr.g");if(d)return d;
+  for(const [dx,dy] of [[0,-9],[0,9],[-12,0],[12,0],[-9,-7],[9,-7],[-9,7],[9,7],[0,-15],[0,15]]){const el=document.elementFromPoint(x+dx,y+dy);const g=el&&el.closest&&el.closest("abbr.g");if(g)return g}return null}
+/* pinch with two fingers to change the text size */
+let pinch=null;const SIZES=[1.15,1.3,1.5,1.75];
+vp.addEventListener("touchstart",e=>{if(e.touches.length===2){const [a,b]=e.touches;pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),r:1};press=null}},{passive:true});
+vp.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const [a,b]=e.touches;pinch.r=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.d}},{passive:true});
+vp.addEventListener("touchend",e=>{if(!pinch||e.touches.length)return;const r=pinch.r;pinch=null;swallow=false;press=null;
+  let i=SIZES.indexOf(S.scale);if(i<0)i=1;const ni=r>1.15?Math.min(SIZES.length-1,i+1):r<.87?Math.max(0,i-1):i;
+  if(ni!==i){S.scale=SIZES[ni];applySettings();repaginate();toast(["Small","Normal","Large","Extra large"][ni]+" text")}},{passive:true});
 function toggleChrome(on){document.body.classList.toggle("chrome",on)}
 $("p-prev").onclick=()=>turn(-1);$("p-next").onclick=()=>turn(1);
-$("p-range").addEventListener("input",e=>renderPage(+e.target.value-1,0));
+function pagePreview(i){const b=cur.pages[i]||[];const f=b.find(x=>x.t==="sp");if(!f)return b.some(x=>x.t==="head")?"Scene opening":"End of scene";
+  return `<i style="font-style:normal;color:var(--muted)">${esc(title(f.it.who))}:</i> ${esc(f.it.lines[f.units[f.u0][0]].replace(/^~/,"").slice(0,70))}…`}
+$("p-range").addEventListener("input",e=>{const i=+e.target.value-1;let d=document.querySelector(".scrub");if(!d){d=document.createElement("div");d.className="scrub";document.body.appendChild(d)}
+  d.innerHTML=`<b>Page ${i+1} of ${cur.pages.length}</b><span>${pagePreview(i)}</span>`});
+$("p-range").addEventListener("change",e=>{const d=document.querySelector(".scrub");if(d)d.remove();renderPage(+e.target.value-1,0)});
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"&&gpop){hideGloss();return}
   if(e.key==="Escape"){if(!$("sheet").hidden)closeSheet();else if(toolsId!=null)closePanel();else toggleChrome(false);return}
@@ -1860,6 +1939,8 @@ document.addEventListener("keydown",e=>{
 
 /* ---------- speech tools: side panel (wide) or sheet (phone) ---------- */
 let toolsId=null;
+const HLC=[["ev","Evidence"],["fav","Favourite"],["cf","Confusing"]];
+const hlOf=m=>m.hl===true?"ev":m.hl||"";
 function pairHTML(sp,q,cur){const og=sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
   return `<div class="pair${cur?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`}
 const partAt=(el,sp)=>{const pt=el&&el.closest&&(el.closest(".pt")||(el.closest(".chunk")||sp).querySelector(".pt"));return pt?+pt.dataset.p:0};
@@ -1867,7 +1948,8 @@ function toolsHTML(id,pi){
   const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[];
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
-    <div class="iconrow"><button class="ib${m.hl?" on":""}" id="t-hl" aria-pressed="${!!m.hl}"><span>${m.hl?"★":"☆"}</span>${m.hl?"Highlighted":"Highlight"}</button><button class="ib" id="t-follow"><span>◐</span>${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))}</button><button class="ib" id="t-copy"><span>⧉</span>Copy</button></div>
+    <div class="iconrow">${HLC.map(([k,l])=>`<button class="ib hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i>${l}</button>`).join("")}</div>
+    <div class="iconrow"><button class="ib" id="t-focus"><span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}</button><button class="ib" id="t-follow"><span>◐</span>${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))}</button><button class="ib" id="t-copy"><span>⧉</span>Copy</button></div>
     <div style="height:12px"></div><div class="modern">${pairHTML(sp,q)}</div>
     ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
     ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
@@ -1879,7 +1961,9 @@ function toolsHTML(id,pi){
 function wireTools(id,pi){
   const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0];
   $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
-  $("t-hl").onclick=()=>{const on=!(marks[id]||{}).hl;saveMark(id,{hl:on});const b=$("t-hl");b.classList.toggle("on",on);b.innerHTML=on?"<span>★</span>Highlighted":"<span>☆</span>Highlight";b.setAttribute("aria-pressed",on);toast(on?"Highlighted":"Highlight removed")};
+  document.querySelectorAll(".tool [data-hl]").forEach(b=>b.onclick=()=>{const k=b.dataset.hl,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});
+    document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
+  $("t-focus").onclick=()=>{S.focus=S.focus===sp.who?"":sp.who;applySettings();refreshMarks();markPart();$("t-focus").innerHTML=`<span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}`;toast(S.focus?"Dimming everyone except "+title(S.focus):"Showing everyone normally")};
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
   $("t-copy").onclick=()=>copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
 }
@@ -1893,6 +1977,13 @@ function showGloss(el){const w=el.textContent,k=gmap[w.toLowerCase()];if(!k)retu
   d.addEventListener("pointerup",e=>e.stopPropagation())}
 document.addEventListener("pointerdown",e=>{if(gpop&&!e.target.closest(".gpop,#vp"))hideGloss()},true);
 function hideGloss(){if(gpop){gpop._el&&gpop._el.classList.remove("on");gpop.remove();gpop=null}}
+function pulseLast(){let lp=null;try{lp=JSON.parse(LS.get("oth-lastpart")||"null")}catch(e){}if(!lp)return;
+  const el=pg.querySelector(`.sp[data-id="${lp.id}"] .pt[data-p="${lp.pi}"]`);if(el){el.classList.add("pulse");setTimeout(()=>el.classList.remove("pulse"),3400)}}
+let RECENT=[];try{RECENT=JSON.parse(LS.get("oth-recent")||"[]")}catch(e){}
+function addRecent(id,pi){RECENT=[{id,pi},...RECENT.filter(r=>!(r.id===id&&r.pi===pi))].slice(0,10);LS.set("oth-recent",JSON.stringify(RECENT));LS.set("oth-lastpart",JSON.stringify({id,pi}))}
+/* jump the page to show a given part */
+function showPartPage(id,pi){const sp=speech[id];if(sIdx(sp.page)!==cur.k)return;const ln=partsOf(sp)[pi][0];
+  if(pg.querySelector(`.sp[data-id="${id}"] .pt[data-p="${pi}"]`))return;const f=findKey(id+":"+ln);if(f>=0&&f!==cur.i)renderPage(f,0)}
 /* tap a part: its modern English; expand to the whole speech (tapped part faintly marked) and collapse back */
 let partSel=null;
 function markPart(){if(partSel)pg.querySelectorAll(`.sp[data-id="${partSel.id}"] .pt[data-p="${partSel.pi}"]`).forEach(x=>x.classList.add("cur"))}
@@ -1901,7 +1992,9 @@ function partHTML(id,pi,all){const sp=speech[id],ps=partsOf(sp),p=ps[pi],n=ps.le
   const body=all?`<div class="pmod wholemod"><div class="ptag">Modern English · whole speech</div>${ps.map((q,i)=>`<p class="mp${i===pi?" cur":""}">${esc(q[2])}</p>`).join("")}</div>`:pairHTML(sp,p);
   return `<div class="tool"><div class="ref">${ref}</div>
     <div class="acts partnav">${n>1?`<button class="btn sm" id="pt-x" aria-expanded="${all}">${all?"Collapse to this part":"Expand to whole speech"}</button>`:""}<button class="btn sm" id="pt-more">Notes &amp; word meanings</button></div>
-    <div style="height:14px"></div><div class="modern${all?" whole":""}">${body}</div></div>`}
+    ${n>1?`<div class="pnav"><button class="btn sm" id="pt-prev"${pi===0?" disabled":""}>‹ Previous part</button><button class="btn sm" id="pt-next"${pi===n-1?" disabled":""}>Next part ›</button></div>`:""}
+    <div style="height:14px"></div><div class="modern${all?" whole":""}">${body}</div>
+    ${all?"":`<div class="qn2"><h3 class="lbl">Quick note</h3><label for="qn" class="sr">Quick note</label><textarea id="qn" placeholder="Your thoughts on this speech…">${esc((marks[id]||{}).note||"")}</textarea><div class="acts"><button class="btn sm" id="qn-save">Save note</button></div></div>`}</div>`}
 function openPart(id,pi,all){
   partSel={id,pi};toolsId=id;const sp=speech[id];
   pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
@@ -1910,6 +2003,10 @@ function openPart(id,pi,all){
   else openSheet(title(sp.who),h);
   const x=$("pt-x");if(x)x.onclick=()=>{openPart(id,pi,!all);const c=document.querySelector(".modern.whole .mp.cur");if(c)c.scrollIntoView({block:"center"})};
   $("pt-more").onclick=()=>openTools(id,pi);
+  const go=d=>{const np=pi+d;showPartPage(id,np);openPart(id,np,all)};
+  if($("pt-prev"))$("pt-prev").onclick=()=>go(-1);if($("pt-next"))$("pt-next").onclick=()=>go(1);
+  if($("qn-save"))$("qn-save").onclick=()=>{const v=$("qn").value;saveMark(id,{note:v});markPart();toast(v.trim()?"Note saved":"Note removed")};
+  addRecent(id,pi);
 }
 function openTools(id,pi){
   pi=pi||0;toolsId=id;partSel={id,pi};const sp=speech[id];
@@ -2054,6 +2151,7 @@ function openSheet(t,html){if(sheet.hidden)lastFocus=document.activeElement;$("s
 function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
 sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
+  const rc=e.target.closest("[data-recent]");if(rc){const [id,pi]=rc.dataset.recent.split(":").map(Number);goSpeech(id);setTimeout(()=>{showPartPage(id,pi);openPart(id,pi,false)},250);return}
   const g=e.target.closest("[data-speech]");if(g){goSpeech(g.dataset.speech);return}
   const p=e.target.closest("[data-go]");if(p){closeSheet();goScene(sIdx(p.dataset.go))}});
 sheet.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-speech],[data-go]");if(g)g.click()}});
@@ -2067,6 +2165,7 @@ function searchResults(q){q=q.trim();if(q.length<2)return `<p class="muted">Type
   return `<p class="muted">${res.length} match${res.length===1?"":"es"}</p>`+res.slice(0,300).join("")}
 function openSearch(q){openSheet("Search",`<label for="sq" class="sr">Search</label><input class="sinput" id="sq" type="search" placeholder="A word or phrase…" value="${esc(q||"")}" autocomplete="off"><div id="sres" style="margin-top:8px"></div>`);
   const sq=$("sq"),run=()=>{$("sres").innerHTML=searchResults(sq.value)};let t;sq.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});run();setTimeout(()=>sq.focus(),30)}
+setInterval(()=>{if(S.theme==="timed")applySettings()},600000);
 function openNotes(){
   const ids=Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b);
   let h=`<p class="muted">${store?"Saved to your account.":"Saved on this device."} Tap one to go to it.</p>`;
@@ -2076,25 +2175,37 @@ function openNotes(){
     const o=sp.lines.join(" ").replace(/~/g,"");
     h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${esc(where(sp))}${m.hl?" · ★":""}</small><span style="font-family:var(--f-old)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote">${esc(m.note)}</div>`:""}</div>`});
   openSheet("My notes",h)}
+function jumpLine(v){const m=String(v).trim().match(/^(\d)\D+(\d)\D+(\d+)$/);if(!m){toast("Type act, scene and line, like 3.3.165");return}
+  const p=scenes.find(x=>x.act===+m[1]&&x.sc===+m[2]);if(!p){toast("No such scene");return}const ln=+m[3];
+  const sp=p.items.find(i=>i.t==="sp"&&ln>=i.start&&ln<i.start+i.lines.length)||p.items.filter(i=>i.t==="sp").pop();
+  closeSheet();const li=Math.max(0,Math.min(sp.lines.length-1,ln-sp.start));goScene(sIdx(p.id),{key:sp.id+":"+li});
+  setTimeout(()=>{const pi=partsOf(sp).findIndex(q=>li>=q[0]&&li<=q[1]);const el=pg.querySelector(`.sp[data-id="${sp.id}"] .pt[data-p="${pi}"]`);if(el){el.classList.add("pulse");setTimeout(()=>el.classList.remove("pulse"),3400)}},300)}
 function openPicker(){
-  let h="";for(let a=1;a<=5;a++){h+=`<div class="eyebrow" style="margin:10px 0 6px">${LAT[a]}</div><div class="pick">`+
+  let h=`<div class="jump"><label for="jl" class="sr">Go to line</label><input class="sinput" id="jl" inputmode="decimal" placeholder="Go to line, e.g. 3.3.165"><button class="btn" id="jl-go">Go</button></div>`;
+  const rc=RECENT.filter(r=>speech[r.id]);if(rc.length)h+=`<div class="eyebrow" style="margin:6px 0 2px">Recently viewed</div>`+rc.map(r=>{const sp=speech[r.id],q=partsOf(sp)[r.pi]||partsOf(sp)[0];
+    return `<div class="item" data-recent="${r.id}:${r.pi}" tabindex="0"><small>${esc(where(sp))}</small><span style="font-family:var(--f-old)">${esc(sp.lines[q[0]].replace(/^~/,""))}…</span></div>`}).join("");for(let a=1;a<=5;a++){h+=`<div class="eyebrow" style="margin:10px 0 6px">${LAT[a]}</div><div class="pick">`+
     scenes.filter(p=>p.act===a).map(p=>`<button class="scard${view==="reader"&&cur.k===sIdx(p.id)?" here":""}" data-go="${p.id}"><span class="st">${prog.done[p.id]?"✓":""}</span><b>Scene ${p.scene.toLowerCase()}</b><span>${esc(shortLoc(p))}</span></button>`).join("")+`</div>`}
-  openSheet("Go to scene",h)}
+  openSheet("Go to scene",h);$("jl-go").onclick=()=>jumpLine($("jl").value);$("jl").onkeydown=e=>{if(e.key==="Enter")jumpLine($("jl").value)}}
 function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
   openSheet("Settings",`
     <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, press and hold any speech to see its modern English.</small></div>
     <div class="opt"><div class="lbl">Text size</div>${segs("scale",[["1.15","Small"],["1.3","Normal"],["1.5","Large"],["1.75","Extra large"]],S.scale)}</div>
-    <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"]],S.theme)}</div>
+    <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"],["night","Night"],["timed","Night after 8pm"]],S.theme)}<small>Night is a warm, dim colour scheme for reading in bed. "Night after 8pm" switches to it automatically until 7am.</small></div>
+    <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
+    <div class="opt"><div class="lbl">Clean page</div>${segs("clean",[["false","Off"],["true","On"]],S.clean)}<small>Hides line numbers, tags and underlines for pure reading. Tapping still works.</small></div>
+    <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
+    <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
     <div class="opt"><div class="lbl">Scene summary on the first page</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
     <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
-    <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Swipe left or right to turn pages (arrow keys or the scroll wheel on a computer). Tap an underlined word for its meaning. Tap any other part of the lines for their modern English; long speeches are split into parts, and you can expand to the whole speech. Tap empty space to show or hide the menus. Press and hold a speech (right-click on a computer) for word meanings, notes and highlights.</small></div>
+    <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Swipe left or right to turn pages (arrow keys or the scroll wheel on a computer). Tap an underlined word for its meaning. Tap any other part of the lines for their modern English; long speeches are split into parts, and you can expand to the whole speech. Tap empty space to show or hide the menus. Press and hold a speech (right-click on a computer) for word meanings, notes and highlights. Pinch with two fingers to change the text size. Drag the page slider in the bottom menu to preview pages.</small></div>
     ${backupHTML()}
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;
-    if(k==="scale")v=parseFloat(v);if(k==="sum")v=v==="true";S[k]=v;applySettings();b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand")v=v==="true";S[k]=v;applySettings();b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   $("whosel").onchange=e=>{S.who=e.target.value;repaginate()};
+  $("focsel").onchange=e=>{S.focus=e.target.value;applySettings();refreshMarks()};
   wireBackup(()=>{if(view==="home")renderHome();refreshMarks()});
   let armed=false;$("resetprog").onclick=()=>{if(!armed){armed=true;$("resetmsg").textContent="Tap again to confirm. Your notes are kept.";return}prog={done:{},quiz:{},cards:{}};saveProg();$("resetmsg").textContent="Progress reset.";armed=false;if(view==="home")renderHome()};
 }
