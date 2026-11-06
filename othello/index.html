@@ -185,6 +185,8 @@ abbr.g{padding:.2em 0;margin:-.2em 0}
 
 /* ---------- HOME ---------- */
 #home{max-width:980px;margin:0 auto;padding-block:clamp(20px,5vw,56px) 80px}
+.tofolio-b{text-decoration:none;color:var(--accent)}
+@media (max-width:430px){.bar .icon{min-width:34px;padding:0 4px}.bar .icon.txt{padding:0 6px}}
 .tofolio{display:inline-block;font:500 .9rem var(--f-ui);color:var(--accent);text-decoration:none;padding:10px 4px 0;letter-spacing:.04em}
 .tp{padding:4px 0 0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
 .tp .pre{font:italic 400 1.05rem var(--f-old);color:var(--soft)}
@@ -463,6 +465,7 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
   <div class="viewport gut" id="vp"><div class="pg" id="pg"></div></div>
   <div class="pgfoot" id="pgfoot"></div><div class="pgbar"><i id="pgbar"></i></div>
   <header class="bar" id="bar"><div class="in gut">
+    <a class="icon tofolio-b" id="b-folio" href="../?shelf" aria-label="Back to the Folio" title="Folio" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg></a>
     <button class="icon" id="b-home" aria-label="Contents">☰</button>
     <button class="where" id="b-where" aria-label="Choose scene"><b id="w-title"></b><small id="w-sub"></small></button>
     <button class="icon" id="b-search" aria-label="Search">⌕</button>
@@ -1798,7 +1801,7 @@ function weekStats(){let s=0,p=0,days=0;for(let i=0;i<7;i++){const d=new Date();
   const sc=Object.values(prog.done).filter(t=>Date.now()-t<7*864e5).length;return {min:Math.round(s/60),p,days,sc}}
 /* ---------- views & routing ---------- */
 let view="home";
-if(/\/othello\/(index\.html)?$/.test(location.pathname)&&location.protocol.startsWith("http"))$("tofolio").hidden=false;
+if(/\/othello\/(index\.html)?$/.test(location.pathname)&&location.protocol.startsWith("http")){$("tofolio").hidden=false;$("b-folio").hidden=false}
 let pos=null;try{pos=JSON.parse(LS.get("oth-pos")||"null")}catch(e){}
 /* no history entries: Safari's edge back-swipe then has nothing in the app to slide back to */
 function setHash(h){if(location.hash.slice(1)!==h){try{history.replaceState(null,"","#"+h)}catch(e){}}}
@@ -1808,6 +1811,7 @@ function show(v){view=v;$("home").hidden=v!=="home";$("reader").hidden=v!=="read
 function route(){
   const h=location.hash.slice(1);
   if(h.startsWith("share=")){const ids=h.slice(6).split(".").filter(i=>speech[i]);setHash("home");show("home");renderHome();openShared(ids);return}
+  if(h.startsWith("sp=")){const id=h.slice(3),k=scenes.findIndex(s=>s.items.some(x=>String(x.id)===id));if(k>=0){setHash(scenes[k].id);show("reader");openScene(k,{key:id+":0",flash:true,speech:id});return}}
   if(h==="home"){show("home");renderHome();scrollTo(0,0);return}
   if(h==="study"){show("study");renderStudy();scrollTo(0,0);return}
   const k=sIdx(h);
@@ -1985,7 +1989,8 @@ function renderPage(i,dir,keep){
   const put=()=>{pg.innerHTML=html;pg.scrollTop=0;pg.style.overflowY=pg.scrollHeight>pg.clientHeight+2?"auto":"hidden"};
   if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
   const first=cur.pages[i].find(b=>b.t==="sp")||cur.pages[i][0];
-  if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set("oth-pos",JSON.stringify(pos));LS.set("folio-stat-"+PLAY,JSON.stringify({pct:Math.round((cur.k+(i+1)/cur.pages.length)/scenes.length*1000)/10,where:sName(p),t:Date.now()}))}
+  if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set("oth-pos",JSON.stringify(pos));const st={pct:Math.round((cur.k+(i+1)/cur.pages.length)/scenes.length*1000)/10,where:sName(p),t:Date.now()};LS.set("folio-stat-"+PLAY,JSON.stringify(st));
+    setTimeout(()=>{const sp=pg.querySelector(".sp[data-id]");if(!sp)return;const l=sp.querySelector(".o .l")||sp.querySelector(".o");st.who=first&&first.t==="sp"?title(first.it.who):"";st.line=l?l.textContent.replace(/^\s*\d+\s*/,"").trim().slice(0,140):"";LS.set("folio-stat-"+PLAY,JSON.stringify(st))},250)}
   if(i===cur.pages.length-1&&!prog.done[p.id]){prog.done[p.id]=Date.now();saveProg()}
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140);
   $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;$("pgbar").style.width=((i+1)/n*100)+"%";logRead();

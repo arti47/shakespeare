@@ -13,117 +13,285 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>
-// Launch straight back into the last play (Folio app start, not when returning via "‹ Folio")
+// App start: reopen the last play. "‹ Folio" links carry ?shelf so they never bounce back.
 (function(){try{
-  var q=location.search,ls=localStorage,ss=sessionStorage,last=ls.getItem("folio-last"),ok=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}, {"id": "antony-and-cleopatra", "prefix": "ant-", "title": "Antony and Cleopatra", "kind": "Tragedy", "year": "c. 1606", "blurb": "Rome against Egypt, love against empire, and a queen's last triumph."}].some(function(p){return p.id===last});
+  var q=location.search,ls=localStorage,ss=sessionStorage,last=ls.getItem("folio-last"),ok=[{"id": "othello", "prefix": "oth-", "log": "oth-log", "group": "Tragedies", "mono": "O", "pre": "The Tragedy of", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}, {"id": "antony-and-cleopatra", "prefix": "ant-", "log": "ant-log", "group": "Tragedies", "mono": "A", "pre": "The Tragedy of", "title": "Antony and Cleopatra", "kind": "Tragedy", "year": "c. 1606", "blurb": "Rome against Egypt, love against empire, and a queen's last triumph."}].some(function(p){return p.id===last});
   var app=/[?&]launch/.test(q)||matchMedia("(display-mode: standalone)").matches||navigator.standalone;
   if(ok&&app&&!/[?&]shelf/.test(q)&&!ss.getItem("folio-in")){ss.setItem("folio-in","1");location.replace(last+"/");}
   ss.setItem("folio-in","1");
-  var th=ls.getItem("folio-theme")||"auto";if(th==="timed"){var h=new Date().getHours();th=h>=20||h<7?"night":"auto"}
-  if(th!=="auto")document.documentElement.setAttribute("data-theme",th);
-  var sc=parseFloat(ls.getItem("folio-size"));if(sc)document.documentElement.style.setProperty("--scale",sc);
 }catch(e){}})();
+function folioTheme(){try{var ls=localStorage,th=ls.getItem("folio-theme")||"auto";if(th==="timed"){var h=new Date().getHours();th=h>=20||h<7?"night":"auto"}
+  if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);
+  var sc=parseFloat(ls.getItem("folio-size"))||1.3;document.documentElement.style.setProperty("--scale",sc)}catch(e){}}
+folioTheme();
 </script>
 <link rel="stylesheet" href="fonts.css">
 <style>
-:root{--page:#ffffff;--ink:#111215;--soft:#2b2d33;--muted:#5f6270;--rule:#d9d8d4;--accent:#7a4f0e;--accent-ink:#ffffff;--hover:#f4efe6;--track:#e6e3dd;--scale:1.3}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--hover:#24231f;--track:#33353c;color-scheme:dark}}
-:root[data-theme="dark"]{--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--hover:#24231f;--track:#33353c;color-scheme:dark}
-:root[data-theme="night"]{--page:#1b1510;--ink:#f1dcba;--soft:#e2cba7;--muted:#ab9470;--rule:#3a2e22;--accent:#e7a95a;--accent-ink:#1b1510;--hover:#2f2418;--track:#3a2e22;color-scheme:dark}
+:root{--page:#ffffff;--ink:#111215;--soft:#2b2d33;--muted:#5f6270;--rule:#d9d8d4;--accent:#7a4f0e;--accent-ink:#ffffff;--accent-soft:#f4ecdd;--hover:#f6f1e8;--track:#e6e3dd;--tile:#18191d;--tile-ink:#f3f1ec;--tile-gold:#e2b65c;--scale:1.3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--accent-soft:#272216;--hover:#202227;--track:#33353c;--tile:#0e0f12;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--accent-soft:#272216;--hover:#202227;--track:#33353c;--tile:#0e0f12;color-scheme:dark}
+:root[data-theme="night"]{--page:#1b1510;--ink:#f1dcba;--soft:#e2cba7;--muted:#ab9470;--rule:#3a2e22;--accent:#e7a95a;--accent-ink:#1b1510;--accent-soft:#2f2418;--hover:#251c14;--track:#3a2e22;--tile:#120d09;--tile-ink:#f1dcba;--tile-gold:#e7a95a;color-scheme:dark}
 *{box-sizing:border-box}
-html{font-size:calc(18.5px * var(--scale))}
-body{margin:0;background:var(--page);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;line-height:1.45}
-main{max-width:760px;margin:0 auto;padding-block:max(40px,env(safe-area-inset-top,0px)) max(48px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.pre{text-align:center;font:italic 400 1rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0}
-h1{font:400 clamp(2.2rem,11vw,3.4rem) "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;text-align:center;margin:0;line-height:1.05}
-.sub{text-align:center;font:italic 400 1rem "IM Fell English",Georgia,serif;color:var(--soft);margin:4px 0 0}
-.orn{text-align:center;color:var(--accent);font-size:1.3rem;margin:10px 0 22px}
-h2{font:500 .62rem "Instrument Sans",system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
-ul{list-style:none;margin:0;padding:0;border-top:1.5px solid var(--ink)}
-a.play{display:block;padding:16px 6px 18px;border-bottom:1px solid var(--rule);color:inherit;text-decoration:none}
+html{font-size:calc(18.5px * var(--scale));-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;line-height:1.45;transition:background .25s,color .25s}
+main{max-width:780px;margin:0 auto;padding-block:max(28px,env(safe-area-inset-top,0px)) max(48px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.fell{font-family:"IM Fell English",Georgia,serif}
+.sc{font-family:"IM Fell English SC","IM Fell English",Georgia,serif}
+.eyebrow{font:500 .58rem "Instrument Sans",system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+
+/* 1623 title page */
+.tp{position:relative;border:2px solid var(--ink);padding:22px 16px 20px;text-align:center;margin-bottom:26px}
+.tp::before{content:"";position:absolute;inset:5px;border:1px solid var(--ink);pointer-events:none}
+.tp .l1{font:italic 400 .95rem "IM Fell English",Georgia,serif;margin:0}
+.tp h1{font:400 clamp(1.7rem,8.4vw,2.7rem) "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.04em;line-height:1.05;margin:4px 0 2px}
+.tp .l3{font:400 clamp(1.05rem,5vw,1.45rem) "IM Fell English",Georgia,serif;margin:0;letter-spacing:.02em}
+.tp .orn{color:var(--accent);font-size:1.4rem;line-height:1;margin:10px 0 6px}
+.tp .l4{font:italic 400 .72rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0}
+.tools{position:absolute;top:10px;right:10px;display:flex;gap:2px;z-index:2}
+.ib{border:0;background:transparent;color:var(--soft);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0}
+.ib:hover{background:var(--hover);color:var(--ink)}
+.ib svg{width:20px;height:20px}
+
+/* continue */
+.cont{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;background:var(--accent-soft);border-left:4px solid var(--accent);padding:16px 16px 16px 14px;margin-bottom:26px;color:inherit;text-decoration:none;border-radius:0 8px 8px 0}
+.cont:hover{filter:brightness(.98)}
+.cont .who{font:500 .6rem "Instrument Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.cont q{display:block;font:italic 400 1.05rem "IM Fell English",Georgia,serif;quotes:none;margin:2px 0 6px;color:var(--ink);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cont .go{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;font-size:.68rem;color:var(--soft)}
+.cont .go b{color:var(--accent);font-weight:600;font-size:.72rem}
+
+/* monogram tile (same mark as the app icons) */
+.mono{width:62px;height:62px;flex:none;background:var(--tile);position:relative;display:grid;place-items:center;font:400 34px "IM Fell English",Georgia,serif;color:var(--tile-ink);border-radius:3px}
+.mono::before{content:"";position:absolute;inset:6px;border:2px solid var(--tile-gold)}
+.mono::after{content:"";position:absolute;inset:10px;border:1px solid var(--tile-gold)}
+.mono.big{width:72px;height:72px;font-size:40px}
+
+/* day strip */
+.days{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 2px 14px;border-bottom:1px solid var(--rule);margin-bottom:22px}
+.dots{display:flex;gap:6px}
+.dot{width:30px;text-align:center;font-size:.5rem;color:var(--muted);letter-spacing:.04em}
+.dot i{display:block;width:16px;height:16px;margin:0 auto 3px;border-radius:50%;border:1.5px solid var(--rule)}
+.dot.on i{background:var(--accent);border-color:var(--accent)}
+.dot.today{color:var(--ink);font-weight:600}
+.streak{font-size:.68rem;color:var(--soft)}
+.streak b{font:600 1.05rem "Instrument Sans",sans-serif;color:var(--ink);margin-right:2px}
+
+/* catalogue */
+.sect{display:flex;align-items:center;gap:12px;margin:0 0 4px}
+.sect h2{font:400 1.15rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.08em;margin:0}
+.sect::after{content:"";flex:1;height:1px;background:var(--ink)}
+ul{list-style:none;margin:0 0 22px;padding:0}
+a.play{display:flex;gap:14px;align-items:flex-start;padding:16px 4px 18px;border-bottom:1px solid var(--rule);color:inherit;text-decoration:none}
 a.play:hover,a.play:focus-visible{background:var(--hover);outline:none}
-.row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px}
-a.play b{font:400 1.45rem "IM Fell English",Georgia,serif}
-a.play small{font-size:.62rem;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
-a.play p{margin:2px 0 0;font-size:.8rem;color:var(--soft)}
-.prog{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.7rem;color:var(--soft)}
-.bar{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+a.play .tx{flex:1;min-width:0}
+.row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0 10px}
+a.play b{font:400 1.4rem "IM Fell English",Georgia,serif;line-height:1.15}
+a.play small{font-size:.58rem;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+a.play p{margin:3px 0 0;font-size:.76rem;color:var(--soft)}
+.prog{display:flex;align-items:center;gap:10px;margin-top:9px;font-size:.62rem;color:var(--soft)}
+.bar{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden;min-width:60px}
 .bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
-.soon{padding:14px 6px;color:var(--muted);font-size:.72rem}
-.box{margin-top:30px;border-top:1px solid var(--rule);padding-top:18px}
-.box p{font-size:.72rem;color:var(--soft);margin:0 0 12px}
+.soon{color:var(--muted);font-size:.66rem;margin:-10px 0 26px 4px;font-style:italic}
+
+/* line of the day */
+.lotd{text-align:center;padding:22px 10px 24px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:26px}
+.lotd blockquote{margin:0 auto;max-width:30ch;font:italic 400 1.25rem "IM Fell English",Georgia,serif;line-height:1.35}
+.lotd cite{display:block;margin-top:10px;font:normal 500 .6rem "Instrument Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.lotd .acts{margin-top:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+
+/* buttons, panels */
+button.btn,a.btn{font:500 .66rem "Instrument Sans",system-ui,sans-serif;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:999px;padding:9px 16px;cursor:pointer;min-height:42px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{border-color:var(--rule)}
+details.box{border-top:1px solid var(--rule)}
+details.box:last-of-type{border-bottom:1px solid var(--rule)}
+details.box summary{list-style:none;cursor:pointer;padding:14px 4px;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;font-weight:500}
+details.box summary::-webkit-details-marker{display:none}
+details.box summary::after{content:"+";font-size:1.1rem;color:var(--accent)}
+details.box[open] summary::after{content:"–"}
+details.box summary small{font-weight:400;color:var(--muted);font-size:.62rem;margin-left:auto;margin-right:12px}
+.pad{padding:0 4px 18px}
+.pad p{font-size:.7rem;color:var(--soft);margin:0 0 12px}
 .btns{display:flex;flex-wrap:wrap;gap:10px}
-button{font:500 .72rem "Instrument Sans",system-ui,sans-serif;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:6px;padding:10px 16px;cursor:pointer;min-height:44px}
-button.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-#msg{margin-top:12px;font-size:.72rem;color:var(--ink)}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.seg button{border:0;background:transparent;color:var(--ink);font:500 .62rem "Instrument Sans",sans-serif;padding:9px 13px;min-height:40px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+.lbl{display:block;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2px 0 6px}
+#msg{margin-top:12px;font-size:.68rem}
 #msg:empty{display:none}
-.tip{margin-top:28px;font-size:.62rem;color:var(--muted);text-align:center}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+footer{margin-top:28px;font:italic .62rem "IM Fell English",Georgia,serif;color:var(--muted);text-align:center}
+
+/* curtain when opening a play */
+.curtain{position:fixed;inset:0;background:var(--page);display:grid;place-items:center;z-index:50;opacity:0;pointer-events:none;transition:opacity .28s}
+.curtain.on{opacity:1;pointer-events:auto}
+.curtain div{text-align:center;transform:translateY(8px);transition:transform .4s}
+.curtain.on div{transform:none}
+.curtain small{display:block;font:italic 400 1rem "IM Fell English",Georgia,serif;color:var(--soft)}
+.curtain b{display:block;font:400 clamp(2.4rem,12vw,3.6rem) "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;font-weight:400}
+.curtain i{display:block;color:var(--accent);font-style:normal;font-size:1.5rem;margin-top:6px}
+@media (prefers-reduced-motion:reduce){.curtain,.curtain div,body{transition:none}}
+@media (min-width:700px){.tp{padding:30px 24px 26px}.mono{width:72px;height:72px;font-size:40px}}
 </style>
 </head>
 <body>
 <main>
-  <p class="pre">Mr. William</p>
-  <h1>Shakespeare</h1>
-  <p class="sub">The Folio · the plays with modern English beside them</p>
-  <div class="orn" aria-hidden="true">❦</div>
-  <h2>The plays</h2>
-  <ul id="shelf"></ul>
-  <p class="soon">More plays are added here as they are finished.</p>
-
-  <section class="box" aria-labelledby="bk">
-    <h2 id="bk">Backup</h2>
-    <p>One file holds your notes, highlights, bookmarks, progress and settings for every play. Save it to move to another device.</p>
-    <div class="btns">
-      <button class="pri" id="exp">Save backup</button>
-      <button id="imp">Restore from backup</button>
-      <label class="sr" for="file">Backup file</label><input type="file" id="file" accept=".json,application/json" hidden>
+  <header class="tp">
+    <div class="tools">
+      <button class="ib" id="themeb" aria-label="Change theme" title="Theme"></button>
     </div>
-    <div id="msg" role="status"></div>
-  </section>
-  <p class="tip" id="tip">Use Add to Home Screen to install the Folio. Every play then works offline.</p>
+    <p class="l1">Mr. William</p>
+    <h1>Shakespeares</h1>
+    <p class="l3">Comedies, Histories, &amp; Tragedies</p>
+    <div class="orn" aria-hidden="true">❦</div>
+    <p class="l4">With the modern English set beside them</p>
+  </header>
+
+  <a class="cont" id="cont" hidden></a>
+  <div class="days" id="days" hidden></div>
+  <div id="shelf"></div>
+  <p class="soon">More plays join the shelf as they are finished.</p>
+
+  <section class="lotd" id="lotd" hidden></section>
+
+  <details class="box" id="setbox">
+    <summary>Reading settings <small id="setsum"></small></summary>
+    <div class="pad">
+      <span class="lbl">Theme, for every play</span>
+      <div class="seg" id="seg-theme" role="group" aria-label="Theme">
+        <button data-th="auto">Auto</button><button data-th="light">Light</button><button data-th="dark">Dark</button><button data-th="night">Candle</button>
+      </div>
+      <span class="lbl">Text size, for every play</span>
+      <div class="seg" id="seg-size" role="group" aria-label="Text size">
+        <button data-sz="1.15">Small</button><button data-sz="1.3">Normal</button><button data-sz="1.5">Large</button><button data-sz="1.75">Extra large</button>
+      </div>
+    </div>
+  </details>
+  <details class="box" id="bkbox">
+    <summary>Backup <small id="bksum"></small></summary>
+    <div class="pad">
+      <p>One file holds your notes, highlights, bookmarks, progress and settings for every play. Save it to keep it safe or move to another device.</p>
+      <div class="btns">
+        <button class="btn pri" id="exp">Save backup</button>
+        <button class="btn" id="imp">Restore from backup</button>
+        <label class="sr" for="file">Backup file</label><input type="file" id="file" accept=".json,application/json" hidden>
+      </div>
+      <div id="msg" role="status"></div>
+    </div>
+  </details>
+  <details class="box" id="instbox">
+    <summary>Install the Folio <small id="instsum"></small></summary>
+    <div class="pad">
+      <p id="insttxt">On iPhone or iPad: tap Share, then Add to Home Screen. On Android or desktop Chrome: use the browser menu's Install app. The Folio then opens like an app and every play works offline.</p>
+      <div class="btns"><button class="btn pri" id="instb" hidden>Install now</button></div>
+    </div>
+  </details>
+  <footer>Imprinted for the reader · printed at London, 1623</footer>
 </main>
+<div class="curtain" id="curtain" aria-hidden="true"><div><small id="cpre"></small><b id="ctitle"></b><i>❦</i></div></div>
 <script>
-const PLAYS=[{"id": "othello", "prefix": "oth-", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}, {"id": "antony-and-cleopatra", "prefix": "ant-", "title": "Antony and Cleopatra", "kind": "Tragedy", "year": "c. 1606", "blurb": "Rome against Egypt, love against empire, and a queen's last triumph."}];
+const PLAYS=[{"id": "othello", "prefix": "oth-", "log": "oth-log", "group": "Tragedies", "mono": "O", "pre": "The Tragedy of", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}, {"id": "antony-and-cleopatra", "prefix": "ant-", "log": "ant-log", "group": "Tragedies", "mono": "A", "pre": "The Tragedy of", "title": "Antony and Cleopatra", "kind": "Tragedy", "year": "c. 1606", "blurb": "Rome against Egypt, love against empire, and a queen's last triumph."}],LINES=[{"play": "othello", "id": "9", "who": "Iago", "text": "For daws to peck at: I am not what I am."}, {"play": "othello", "id": "9", "who": "Iago", "text": "I follow him to serve my turn upon him:"}, {"play": "othello", "id": "21", "who": "Iago", "text": "Even now, now, very now, an old black ram"}, {"play": "othello", "id": "21", "who": "Iago", "text": "Is tupping your white ewe. Arise, arise!"}, {"play": "othello", "id": "59", "who": "Othello", "text": "My parts, my title, and my perfect soul"}, {"play": "othello", "id": "127", "who": "Othello", "text": "Hath this extent, no more. Rude am I in my speech,"}, {"play": "othello", "id": "137", "who": "Othello", "text": "She loved me for the dangers I had pass'd,"}, {"play": "othello", "id": "141", "who": "Desdemona", "text": "I do perceive here a divided duty."}, {"play": "othello", "id": "162", "who": "Brabantio", "text": "Look to her, Moor, if thou hast eyes to see;"}, {"play": "othello", "id": "160", "who": "Duke", "text": "If virtue no delighted beauty lack,"}, {"play": "othello", "id": "179", "who": "Iago", "text": "and I retell thee again and again, I hate the Moor. My cause is"}, {"play": "othello", "id": "177", "who": "Iago", "text": "better stead thee than now. Put money in thy purse; follow thou"}, {"play": "othello", "id": "188", "who": "Iago", "text": "The Moor is of a free and open nature,"}, {"play": "othello", "id": "273", "who": "Othello", "text": "As hell's from heaven! If it were now to die,"}, {"play": "othello", "id": "396", "who": "Cassio", "text": "Reputation, reputation, reputation! O, I have lost my"}, {"play": "othello", "id": "416", "who": "Iago", "text": "And what's he then that says I play the villain?"}, {"play": "othello", "id": "416", "who": "Iago", "text": "So will I turn her virtue into pitch,"}, {"play": "othello", "id": "504", "who": "Othello", "text": "Excellent wretch! Perdition catch my soul,"}, {"play": "othello", "id": "478", "who": "Iago", "text": "Ha! I like not that."}, {"play": "othello", "id": "525", "who": "Iago", "text": "Men should be what they seem;"}, {"play": "othello", "id": "533", "who": "Iago", "text": "Who steals my purse steals trash; 'tis something, nothing;"}, {"play": "othello", "id": "537", "who": "Iago", "text": "O, beware, my lord, of jealousy!"}, {"play": "othello", "id": "543", "who": "Iago", "text": "She did deceive her father, marrying you;"}, {"play": "othello", "id": "563", "who": "Othello", "text": "To prey at fortune. Haply, for I am black"}, {"play": "othello", "id": "563", "who": "Othello", "text": "Must be to loathe her. O curse of marriage,"}, {"play": "othello", "id": "594", "who": "Iago", "text": "And let him find it. Trifles light as air"}, {"play": "othello", "id": "603", "who": "Othello", "text": "Farewell the tranquil mind! Farewell content!"}, {"play": "othello", "id": "605", "who": "Othello", "text": "Be sure of it. Give me the ocular proof;"}, {"play": "othello", "id": "635", "who": "Othello", "text": "Never, Iago. Like to the Pontic Sea,"}, {"play": "othello", "id": "640", "who": "Iago", "text": "I am your own forever."}, {"play": "othello", "id": "724", "who": "Emilia", "text": "They are not ever jealous for the cause,"}, {"play": "othello", "id": "710", "who": "Emilia", "text": "'Tis not a year or two shows us a man."}, {"play": "othello", "id": "774", "who": "Othello", "text": "Lie with her! lie on her! We say lie on her, when they"}, {"play": "othello", "id": "908", "who": "Lodovico", "text": "Is this the noble Moor whom our full Senate"}, {"play": "othello", "id": "1079", "who": "Emilia", "text": "Yet have we some revenge. Let husbands know"}, {"play": "othello", "id": "1176", "who": "Othello", "text": "It is the cause, it is the cause, my soul."}, {"play": "othello", "id": "1176", "who": "Othello", "text": "Put out the light, and then put out the light."}, {"play": "othello", "id": "1251", "who": "Desdemona", "text": "Nobody; I myself. Farewell;"}, {"play": "othello", "id": "1260", "who": "Othello", "text": "She was false as water."}, {"play": "othello", "id": "1344", "who": "Iago", "text": "Demand me nothing; what you know, you know."}, {"play": "othello", "id": "1357", "who": "Othello", "text": "Of one that loved not wisely but too well;"}, {"play": "othello", "id": "1357", "who": "Othello", "text": "Like the base Indian, threw a pearl away"}, {"play": "antony-and-cleopatra", "id": "2", "who": "Philo", "text": "Nay, but this dotage of our general's"}, {"play": "antony-and-cleopatra", "id": "4", "who": "Philo", "text": "The triple pillar of the world transform'd"}, {"play": "antony-and-cleopatra", "id": "7", "who": "Antony", "text": "There's beggary in the love that can be reckon'd."}, {"play": "antony-and-cleopatra", "id": "16", "who": "Antony", "text": "Let Rome in Tiber melt, and the wide arch"}, {"play": "antony-and-cleopatra", "id": "16", "who": "Antony", "text": "Kingdoms are clay: our dungy earth alike"}, {"play": "antony-and-cleopatra", "id": "102", "who": "Antony", "text": "These strong Egyptian fetters I must break,"}, {"play": "antony-and-cleopatra", "id": "136", "who": "Cleopatra", "text": "I did not send you:--if you find him sad,"}, {"play": "antony-and-cleopatra", "id": "156", "who": "Cleopatra", "text": "Eternity was in our lips and eyes,"}, {"play": "antony-and-cleopatra", "id": "172", "who": "Cleopatra", "text": "O, my oblivion is a very Antony,"}, {"play": "antony-and-cleopatra", "id": "179", "who": "Caesar", "text": "A man who is the abstract of all faults"}, {"play": "antony-and-cleopatra", "id": "187", "who": "Caesar", "text": "Was borne so like a soldier that thy cheek"}, {"play": "antony-and-cleopatra", "id": "211", "who": "Cleopatra", "text": "Or murmuring 'Where's my serpent of old Nile?'"}, {"play": "antony-and-cleopatra", "id": "228", "who": "Cleopatra", "text": "My salad days,"}, {"play": "antony-and-cleopatra", "id": "330", "who": "Enobarbus", "text": "The barge she sat in, like a burnish'd throne,"}, {"play": "antony-and-cleopatra", "id": "338", "who": "Enobarbus", "text": "Age cannot wither her, nor custom stale"}, {"play": "antony-and-cleopatra", "id": "362", "who": "Antony", "text": "I' the East my pleasure lies."}, {"play": "antony-and-cleopatra", "id": "514", "who": "Enobarbus", "text": "amity:  Octavia is of a holy, cold, and still conversation."}, {"play": "antony-and-cleopatra", "id": "516", "who": "Enobarbus", "text": "Not he that himself is not so; which is Mark Antony. He will to his Egyptian dish again: then shall the sighs of Octavia blow the"}, {"play": "antony-and-cleopatra", "id": "411", "who": "Cleopatra", "text": "The most infectious pestilence upon thee!"}, {"play": "antony-and-cleopatra", "id": "446", "who": "Cleopatra", "text": "Though he be painted one way like a Gorgon,"}, {"play": "antony-and-cleopatra", "id": "569", "who": "Pompey", "text": "'Tis not my profit that does lead mine honour:"}, {"play": "antony-and-cleopatra", "id": "608", "who": "Ventidius", "text": "Who does i' the wars more than his captain can"}, {"play": "antony-and-cleopatra", "id": "706", "who": "Octavia", "text": "'O, bless my brother!' Husband win, win brother,"}, {"play": "antony-and-cleopatra", "id": "719", "who": "Enobarbus", "text": "Then, world, thou hast a pair of chaps, no more;"}, {"play": "antony-and-cleopatra", "id": "750", "who": "Caesar", "text": "Hath nodded him to her. He hath given his empire"}, {"play": "antony-and-cleopatra", "id": "768", "who": "Cleopatra", "text": "Appear there for a man. Speak not against it;"}, {"play": "antony-and-cleopatra", "id": "827", "who": "Scarus", "text": "Claps on his sea-wing, and, like a doting mallard,"}, {"play": "antony-and-cleopatra", "id": "864", "who": "Antony", "text": "My heart was to thy rudder tied by the strings,"}, {"play": "antony-and-cleopatra", "id": "868", "who": "Antony", "text": "Fall not a tear, I say; one of them rates"}, {"play": "antony-and-cleopatra", "id": "909", "who": "Enobarbus", "text": "Mine honesty and I begin to square."}, {"play": "antony-and-cleopatra", "id": "946", "who": "Antony", "text": "I found you as a morsel cold upon"}, {"play": "antony-and-cleopatra", "id": "966", "who": "Cleopatra", "text": "Is Antony again I will be Cleopatra."}, {"play": "antony-and-cleopatra", "id": "971", "who": "Enobarbus", "text": "Restores his heart: when valour preys on reason,"}, {"play": "antony-and-cleopatra", "id": "1022", "who": "Second Soldier", "text": "'Tis the god Hercules, whom Antony lov'd,"}, {"play": "antony-and-cleopatra", "id": "1070", "who": "Antony", "text": "Corrupted honest men!--Eros, despatch."}, {"play": "antony-and-cleopatra", "id": "1088", "who": "Enobarbus", "text": "I am alone the villain of the earth,"}, {"play": "antony-and-cleopatra", "id": "1157", "who": "Antony", "text": "Like friends long lost.--Triple-turn'd whore! 'tis thou"}, {"play": "antony-and-cleopatra", "id": "1181", "who": "Antony", "text": "Yet cannot hold this visible shape, my knave."}, {"play": "antony-and-cleopatra", "id": "1189", "who": "Antony", "text": "Unarm, Eros; the long day's task is done,"}, {"play": "antony-and-cleopatra", "id": "1213", "who": "Antony", "text": "A bridegroom in my death, and run into't"}, {"play": "antony-and-cleopatra", "id": "1257", "who": "Antony", "text": "Not Caesar's valour hath o'erthrown Antony,"}, {"play": "antony-and-cleopatra", "id": "1259", "who": "Antony", "text": "I am dying, Egypt, dying; only"}, {"play": "antony-and-cleopatra", "id": "1272", "who": "Antony", "text": "My countryman, a Roman by a Roman"}, {"play": "antony-and-cleopatra", "id": "1275", "who": "Cleopatra", "text": "And there is nothing left remarkable"}, {"play": "antony-and-cleopatra", "id": "1284", "who": "Cleopatra", "text": "Let's do it after the high Roman fashion,"}, {"play": "antony-and-cleopatra", "id": "1296", "who": "Caesar", "text": "Is not a single doom; in the name lay"}, {"play": "antony-and-cleopatra", "id": "1321", "who": "Cleopatra", "text": "A better life. 'Tis paltry to be Caesar;"}, {"play": "antony-and-cleopatra", "id": "1358", "who": "Cleopatra", "text": "His legs bestrid the ocean; his rear'd arm"}, {"play": "antony-and-cleopatra", "id": "1417", "who": "Cleopatra", "text": "Some squeaking Cleopatra boy my greatness"}, {"play": "antony-and-cleopatra", "id": "1454", "who": "Cleopatra", "text": "Immortal longings in me: now no more"}, {"play": "antony-and-cleopatra", "id": "1454", "who": "Cleopatra", "text": "I am fire and air; my other elements"}, {"play": "antony-and-cleopatra", "id": "1458", "who": "Cleopatra", "text": "Dost thou not see my baby at my breast"}, {"play": "antony-and-cleopatra", "id": "1461", "who": "Charmian", "text": "A lass unparallel'd.--Downy windows, close;"}, {"play": "antony-and-cleopatra", "id": "1472", "who": "Charmian", "text": "It is well done, and fitting for a princess"}, {"play": "antony-and-cleopatra", "id": "1488", "who": "Caesar", "text": "A pair so famous. High events as these"}];
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const J=k=>{try{return JSON.parse(LS.get(k)||"null")}catch(e){return null}};
+const byId=Object.fromEntries(PLAYS.map(p=>[p.id,p]));
 function ago(t){const d=Math.floor((Date.now()-t)/864e5);return d<=0?"today":d===1?"yesterday":d<7?d+" days ago":d<60?Math.round(d/7)+" weeks ago":Math.round(d/30)+" months ago"}
-function render(){
-  const last=LS.get("folio-last");
-  document.getElementById("shelf").innerHTML=PLAYS.map(p=>{
-    let st=null;try{st=JSON.parse(LS.get("folio-stat-"+p.id)||"null")}catch(e){}
-    const prog=st?`<div class="prog"><div class="bar" role="progressbar" aria-label="Progress" aria-valuenow="${st.pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,st.pct)}%"></i></div><span>${Math.round(st.pct)}% · ${esc(st.where)} · ${ago(st.t)}</span></div>`
-      :`<div class="prog"><span>Not started</span></div>`;
-    return `<li><a class="play" href="${p.id}/"${p.id===last?' aria-current="true"':""}><div class="row"><b>${esc(p.title)}</b><small>${esc(p.kind)} · ${esc(p.year)}</small></div><p>${esc(p.blurb)}</p>${prog}</a></li>`}).join("");
+const dkey=d=>{const z=new Date(d);return z.getFullYear()+"-"+String(z.getMonth()+1).padStart(2,"0")+"-"+String(z.getDate()).padStart(2,"0")};
+const mono=(p,big)=>`<span class="mono${big?" big":""}" aria-hidden="true">${esc(p.mono||p.title[0])}</span>`;
+
+function renderCont(){
+  const last=LS.get("folio-last"),p=byId[last],st=p&&J("folio-stat-"+p.id),el=$("cont");
+  if(!p||!st){el.hidden=true;return}
+  el.hidden=false;el.href=p.id+"/";el.dataset.play=p.id;
+  el.innerHTML=`${mono(p,1)}<div><div class="who">${esc(p.title)}${st.who?" · "+esc(st.who):""}</div>${st.line?`<q>${esc(st.line)}</q>`:`<q>${esc(st.where)}</q>`}<div class="go"><b>Continue reading ›</b><span>${esc(st.where)} · ${Math.round(st.pct)}% · ${ago(st.t)}</span></div></div>`;
 }
-render();addEventListener("pageshow",render);
-if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)document.getElementById("tip").hidden=true;
+function renderDays(){
+  const days={};for(const p of PLAYS){const L=J(p.log)||{};for(const[k,v]of Object.entries(L))if(v&&(v.p||v.s))days[k]=(days[k]||0)+(v.s||0)}
+  if(!Object.keys(days).length){$("days").hidden=true;return}
+  const now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
+  let streak=0;for(let i=0;;i++){const d=new Date(now);d.setDate(now.getDate()-i);if(days[dkey(d)]!=null)streak++;else if(i>0)break;else continue}
+  const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60);
+  $("days").hidden=false;
+  $("days").innerHTML=`<div class="dots" aria-label="Days read this week">${wk.map((d,i)=>`<span class="dot${days[dkey(d)]!=null?" on":""}${i===6?" today":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div><div class="streak"><b>${streak}</b> day${streak===1?"":"s"} in a row${mins?` · ${mins} min this week`:""}</div>`;
+}
+function renderShelf(){
+  const last=LS.get("folio-last"),order=["Comedies","Histories","Tragedies"],groups={};
+  for(const p of PLAYS)(groups[p.group]=groups[p.group]||[]).push(p);
+  $("shelf").innerHTML=order.filter(g=>groups[g]).map(g=>`<div class="sect"><h2>${g}</h2></div><ul>${groups[g].map(p=>{
+    const st=J("folio-stat-"+p.id);
+    const prog=st?`<div class="prog"><div class="bar" role="progressbar" aria-label="Progress" aria-valuenow="${st.pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,st.pct)}%"></i></div><span>${Math.round(st.pct)}% · ${esc(st.where)}</span></div>`:`<div class="prog"><span>Not yet begun</span></div>`;
+    return `<li><a class="play" href="${p.id}/" data-play="${p.id}"${p.id===last?' aria-current="true"':""}>${mono(p)}<div class="tx"><div class="row"><b>${esc(p.title)}</b><small>${esc(p.kind)} · ${esc(p.year)}</small></div><p>${esc(p.blurb)}</p>${prog}</div></a></li>`}).join("")}</ul>`).join("");
+}
+function renderLine(){
+  if(!LINES.length)return;
+  const n=Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5);let i=(n*7919)%LINES.length;
+  const draw=()=>{const L=LINES[i],p=byId[L.play];$("lotd").hidden=false;
+    $("lotd").innerHTML=`<p class="eyebrow">Line of the day</p><blockquote>${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite><div class="acts"><a class="btn ghost" href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play</a><button class="btn ghost" id="lnext">Another</button></div>`;
+    $("lnext").onclick=()=>{i=(i+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;draw()}};
+  draw();
+}
+const THN={auto:"Auto",light:"Light",dark:"Dark",night:"Candle",timed:"Timed"};
+const ICON={auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
+ light:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
+ dark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+ night:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21h6M10 21v-9h4v9M12 12V9"/><path d="M12 3c1.6 1.8 2 3 1.2 4.3-.5.8-1.9.8-2.4 0C10 6 10.4 4.8 12 3z" fill="currentColor"/></svg>'};
+function renderSettings(){
+  const th=LS.get("folio-theme")||"auto",sz=parseFloat(LS.get("folio-size"))||1.3;
+  document.querySelectorAll("#seg-theme button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.th===th));
+  let best=null;document.querySelectorAll("#seg-size button").forEach(b=>{if(best==null||Math.abs(b.dataset.sz-sz)<Math.abs(best.dataset.sz-sz))best=b});
+  document.querySelectorAll("#seg-size button").forEach(b=>b.setAttribute("aria-pressed",b===best));
+  $("setsum").textContent=(THN[th]||"Auto")+" · "+(best?best.textContent:"");
+  $("themeb").innerHTML=ICON[th]||ICON.auto;$("themeb").setAttribute("aria-label","Theme: "+(THN[th]||"Auto")+". Tap to change");
+  const bk=+LS.get("folio-lastbk");$("bksum").textContent=bk?"saved "+ago(bk):"never saved";
+}
+document.querySelectorAll("#seg-theme button").forEach(b=>b.onclick=()=>{LS.set("folio-theme",b.dataset.th);folioTheme();renderSettings()});
+document.querySelectorAll("#seg-size button").forEach(b=>b.onclick=()=>{LS.set("folio-size",b.dataset.sz);folioTheme();renderSettings()});
+$("themeb").onclick=()=>{const seq=["auto","light","dark","night"],th=LS.get("folio-theme")||"auto";LS.set("folio-theme",seq[(seq.indexOf(th)+1)%seq.length]);folioTheme();renderSettings()};
+
+function render(){renderCont();renderDays();renderShelf();renderSettings()}
+render();renderLine();
+addEventListener("pageshow",e=>{$("curtain").classList.remove("on");if(e.persisted){folioTheme();render()}});
+
+// Curtain: the play's name rises before it opens
+document.addEventListener("click",e=>{
+  const a=e.target.closest("a[data-play]");if(!a||e.metaKey||e.ctrlKey||e.shiftKey)return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const p=byId[a.dataset.play];e.preventDefault();
+  $("cpre").textContent=p.pre||"";$("ctitle").textContent=p.title;$("curtain").classList.add("on");
+  setTimeout(()=>{location.href=a.getAttribute("href")},380);
+});
+
+// Install
+let deferred=null;const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+if(standalone){$("instbox").hidden=true}
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;$("instb").hidden=false;$("instsum").textContent="ready"});
+$("instb").onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice.catch(()=>{});deferred=null;$("instb").hidden=true};
 
 // One backup for the whole Folio: every play's keys + shared folio- keys
 const mine=k=>k.startsWith("folio-")||PLAYS.some(p=>k.startsWith(p.prefix));
-const msg=t=>document.getElementById("msg").textContent=t;
-document.getElementById("exp").onclick=async()=>{
+const msg=t=>$("msg").textContent=t;
+$("exp").onclick=async()=>{
   const data={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(mine(k))data[k]=localStorage.getItem(k)}}catch(e){}
   const d=new Date().toISOString().slice(0,10),name=`folio-backup-${d}.json`;
   const blob=new Blob([JSON.stringify({folio:1,saved:new Date().toISOString(),plays:PLAYS.map(p=>p.id),data})],{type:"application/json"});
   const file=new File([blob],name,{type:"application/json"});
-  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});msg("Backup saved.");LS.set("folio-lastbk",Date.now());return}}catch(e){if(e&&e.name==="AbortError")return}
+  const done=()=>{LS.set("folio-lastbk",Date.now());renderSettings()};
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});msg("Backup saved.");done();return}}catch(e){if(e&&e.name==="AbortError")return}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-  LS.set("folio-lastbk",Date.now());msg(`Backup saved as ${name} (${Object.keys(data).length} items).`);
+  msg(`Backup saved as ${name} (${Object.keys(data).length} items).`);done();
 };
-const fi=document.getElementById("file");
-document.getElementById("imp").onclick=()=>fi.click();
+const fi=$("file");
+$("imp").onclick=()=>fi.click();
 fi.onchange=async()=>{
   const f=fi.files[0];fi.value="";if(!f)return;
   let j;try{j=JSON.parse(await f.text())}catch(e){msg("That file is not a Folio backup.");return}
-  let data=j&&j.folio&&j.data;
-  if(!data&&j&&typeof j==="object"){ // older single-play backup (e.g. Othello's own Export): hand it to that play
-    msg("This is a single-play backup. Open that play and use its own Restore.");return}
+  const data=j&&j.folio&&j.data;
+  if(!data){msg("This is a single-play backup. Open that play and use its own Restore.");return}
   const n=Object.keys(data).filter(mine).length;
-  const box=document.getElementById("msg");
-  box.innerHTML=`Restore ${n} items saved ${esc((j.saved||"").slice(0,10))}? This replaces the same items on this device. <span class="btns" style="margin-top:8px"><button class="pri" id="ok">Restore</button><button id="no">Cancel</button></span>`;
-  document.getElementById("no").onclick=()=>msg("");
-  document.getElementById("ok").onclick=()=>{let c=0;for(const[k,v]of Object.entries(data))if(mine(k)&&typeof v==="string"){LS.set(k,v);c++}msg(`Restored ${c} items.`);render()};
+  $("msg").innerHTML=`Restore ${n} items saved ${esc((j.saved||"").slice(0,10))}? This replaces the same items on this device. <span class="btns" style="margin-top:8px"><button class="btn pri" id="ok">Restore</button><button class="btn" id="no">Cancel</button></span>`;
+  $("no").onclick=()=>msg("");
+  $("ok").onclick=()=>{let c=0;for(const[k,v]of Object.entries(data))if(mine(k)&&typeof v==="string"){LS.set(k,v);c++}msg(`Restored ${c} items.`);folioTheme();render()};
 };
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
