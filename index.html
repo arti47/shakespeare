@@ -86,9 +86,13 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 
 /* selected play detail */
 .det{text-align:center;max-width:520px;margin:0 auto}
-.det h3{font:400 1.6rem "IM Fell English",Georgia,serif;margin:0;line-height:1.15}
-.det .meta{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:4px 0 8px}
-.det p{margin:0 0 12px;color:var(--soft);font-size:.8rem}
+.det h3{font:400 1.45rem "IM Fell English",Georgia,serif;margin:0;line-height:1.3;text-wrap:balance}
+.det .meta{display:block;font-size:.58rem;line-height:1.4;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:8px 0 10px}
+.det p{margin:0 auto 12px;color:var(--soft);font-size:.8rem;max-width:32ch;text-wrap:balance}
+.det .pg{display:flex;align-items:center;gap:10px;max-width:380px;margin:0 auto 16px;font-size:.62rem;color:var(--soft)}
+.det .pg>span:last-child{flex:none;max-width:60%;text-align:left}
+.det .pg .tr{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden;min-width:50px}
+.det .pg .tr i{display:block;height:100%;background:var(--accent)}
 .det q{display:block;quotes:none;font:italic 400 1.05rem "IM Fell English",Georgia,serif;color:var(--ink);margin:0 auto 6px;max-width:30ch}
 .det .where{font-size:.66rem;color:var(--muted);margin-bottom:14px}
 .acts{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
@@ -298,7 +302,7 @@ function select(id,scroll){sel=id;const p=byId[id];if(!p)return;
   if(scroll){const c=covers.find(c=>c.dataset.play===id);if(c&&innerWidth<900){const r=$("rail");r.scrollLeft=c.offsetLeft-(r.clientWidth-c.clientWidth)/2}}
   const st=J("folio-stat-"+p.id);
   $("det").innerHTML=`<h3>${esc(p.title)}</h3><div class="meta">${esc(p.kind)} · ${esc(p.year)}</div>
-    ${st&&st.line?`<q>${esc(st.line)}</q><div class="where">${st.who?esc(st.who)+" · ":""}${esc(st.where)} · ${Math.round(st.pct)}% · ${ago(st.t)}</div>`:`<p>${esc(p.blurb)}</p>`}
+    <p>${esc(p.blurb)}</p>${st?`<div class="pg"><span class="tr" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(st.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,st.pct)}%"></i></span><span>${Math.round(st.pct)}% · ${esc(st.where)}</span></div>`:`<div class="pg"><span class="tr"></span><span>Not yet begun</span></div>`}
     <div class="acts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#home" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>`;
 }
 let rt=0;$("rail").addEventListener("scroll",()=>{cancelAnimationFrame(rt);rt=requestAnimationFrame(()=>{if(innerWidth>=900)return;const r=$("rail"),mid=r.scrollLeft+r.clientWidth/2;let best=null,bd=1e9;
@@ -413,6 +417,6 @@ renderTheme();
 go(location.hash.slice(1)||"library");
 
 </script>
-<script src="update.js?v=8f6be58b" defer></script>
+<script src="update.js?v=891eb30a" defer></script>
 </body>
 </html>
