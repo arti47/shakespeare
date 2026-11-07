@@ -77,30 +77,37 @@ function streak(){let n=0,d=new Date();if(!LOG[today(d)])d.setDate(d.getDate()-1
 function weekStats(){let s=0,p=0,days=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);const v=LOG[today(d)];if(v){s+=v.s;p+=v.p;days++}}
   const sc=Object.values(prog.done).filter(t=>Date.now()-t<7*864e5).length;return {min:Math.round(s/60),p,days,sc}}
 /* ---------- views & routing ---------- */
-let view="home";
-if(location.pathname.replace(/index\.html$/,"").endsWith("/"+PLAY+"/")&&location.protocol.startsWith("http")){$("tofolio").hidden=false;$("b-folio").hidden=false}
+let view="reader";
 let pos=null;try{pos=JSON.parse(LS.get(PFX+"pos")||"null")}catch(e){}
 /* no history entries: Safari's edge back-swipe then has nothing in the app to slide back to */
 function setHash(h){if(location.hash.slice(1)!==h){try{history.replaceState(null,"","#"+h)}catch(e){}}}
 document.addEventListener("touchstart",e=>{const x=e.touches[0].clientX;if((x<24||x>innerWidth-24)&&!e.target.closest("button,a,input,select,textarea,label,summary"))e.preventDefault()},{passive:false});
-function show(v){view=v;$("home").hidden=v!=="home";$("reader").hidden=v!=="reader";$("study").hidden=v!=="study";closePanel();
+/* one app shell: Read / Study / You views share the Folio's bottom nav (Library goes back to the shelf) */
+function show(v){view=v;$("you").hidden=v!=="you";$("reader").hidden=v!=="reader";$("study").hidden=v!=="study";closePanel();
+  document.body.classList.remove("v-reader","v-study","v-you");document.body.classList.add("v-"+v);
+  document.querySelectorAll("#fnav [data-nav]").forEach(b=>{if(b.dataset.nav===v)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   document.body.style.overflow=v==="reader"?"hidden":"";if(v!=="reader")document.body.classList.remove("chrome");else setTimeout(hint,400)}
 function route(){
   const h=location.hash.slice(1);
-  if(h.startsWith("share=")){const ids=h.slice(6).split(".").filter(i=>speech[i]);setHash("home");show("home");renderHome();openShared(ids);return}
+  if(h.startsWith("share=")){const ids=h.slice(6).split(".").filter(i=>speech[i]);setHash("you");show("you");renderYou();openShared(ids);return}
   if(h.startsWith("sp=")){const id=h.slice(3),k=scenes.findIndex(s=>s.items.some(x=>String(x.id)===id));if(k>=0){setHash(scenes[k].id);show("reader");openScene(k,{key:id+":0",flash:true,speech:id});return}}
-  if(h==="home"){show("home");renderHome();scrollTo(0,0);return}
+  if(h==="you"){show("you");renderYou();scrollTo(0,0);return}
+  /* old play home (#home) and the shelf's Contents link: open the page with the Contents sheet */
+  if(h==="home"||h==="contents"){goRead();setTimeout(()=>openContents("scenes"),60);return}
   if(h==="study"){show("study");renderStudy();scrollTo(0,0);return}
   const k=sIdx(h);
   if(k>=0){show("reader");openScene(k,pos&&pos.s===h?{key:pos.key,keep:true}:{page:0});return}
   if(pos&&sIdx(pos.s)>=0){setHash(pos.s,false);show("reader");openScene(sIdx(pos.s),{key:pos.key,keep:true});setTimeout(pulseLast,500);return}
-  show("home");renderHome();
+  goScene(0,{page:0});
 }
 addEventListener("hashchange",route);addEventListener("popstate",route);
 function goScene(k,opts){setHash(scenes[k].id,true);show("reader");openScene(k,opts||{page:0})}
 function goSpeech(id){const sp=speech[id];if(!sp)return;if(S.who&&sp.who!==S.who)S.who="";closeSheet();goScene(sIdx(sp.page),{speech:+id,flash:true})}
 function goStudy(tab){if(tab){S.stab=tab;LS.set(PFX+"stab",tab)}setHash("study",true);show("study");renderStudy();scrollTo(0,0)}
-function goHome(){setHash("home",true);show("home");renderHome();scrollTo(0,0)}
+function goYou(){setHash("you",true);show("you");renderYou();scrollTo(0,0)}
+function goRead(){if(pos&&sIdx(pos.s)>=0)goScene(sIdx(pos.s),{key:pos.key,keep:true});else goScene(0)}
+$("fnav").addEventListener("click",e=>{const b=e.target.closest("button[data-nav]");if(!b)return;const v=b.dataset.nav;
+  if(v==="reader"){if(view==="reader")toggleChrome(false);else goRead()}else if(v==="study"){if(view!=="study")goStudy();else scrollTo({top:0,behavior:"smooth"})}else if(v==="you"){if(view!=="you")goYou();else scrollTo({top:0,behavior:"smooth"})}});
 
 /* ---------- home ---------- */
 function bkRemHTML(){const n=Object.keys(marks).length+BM.length+FAV.length;if(!n)return "";let f=+LS.get(PFX+"first")||0;if(!f){f=Date.now();LS.set(PFX+"first",String(f))}
@@ -111,37 +118,48 @@ function examHTML(){if(!prog.exam)return `<button class="link" id="ex-set" style
   const un=scenes.filter(p=>!prog.done[p.id]),per=Math.max(1,Math.ceil(un.length/Math.max(1,days-2)));
   return `<div class="examc"><b>${days} day${days===1?"":"s"}</b> to your exam · ${un.length} scene${un.length===1?"":"s"} left to read<br>${un.length?`Today: read ${un.slice(0,per).map(p=>`<button class="link" data-go="${p.id}">${sName(p)}</button>`).join(", ")}`:"All read. Today: flashcards and an essay plan."} · <button class="link" id="ex-set">Change date</button></div>`}
 function openExamDate(){openSheet("Exam date",`<p class="intro">We'll spread the scenes you haven't read across the days left, leaving the last two days for revision.</p><input type="date" class="sinput" id="ex-d" value="${esc(prog.exam||"")}"><div class="row"><button class="btn primary" id="ex-ok">Save</button>${prog.exam?`<button class="btn" id="ex-clr">Remove date</button>`:""}</div>`);
-  $("ex-ok").onclick=()=>{prog.exam=$("ex-d").value;saveProg();closeSheet();renderHome()};if($("ex-clr"))$("ex-clr").onclick=()=>{prog.exam="";saveProg();closeSheet();renderHome()}}
-function renderHome(){
+  $("ex-ok").onclick=()=>{prog.exam=$("ex-d").value;saveProg();closeSheet();renderYou()};if($("ex-clr"))$("ex-clr").onclick=()=>{prog.exam="";saveProg();closeSheet();renderYou()}}
+function renderYou(){
   const lp=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)]:scenes[0];
   const done=scenes.filter(p=>prog.done[p.id]).length;
   const qs=Object.entries(prog.quiz).filter(([k])=>k!=="all").map(x=>x[1]);const qc=qs.reduce((a,q)=>a+q[0],0),qt=qs.reduce((a,q)=>a+q[1],0);
-  $("contcard").innerHTML=`<div class="row2"><button class="go" id="contbtn"><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)} · ${esc(shortLoc(lp))}</b></button>
-    <button class="go alt" id="studybtn"><small>Revise</small><b>Study</b></button></div>
+  $("contcard").innerHTML=`<button class="go" id="contbtn"><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)} · ${esc(shortLoc(lp))}</b></button>
     <div class="meter"><i style="width:${done/scenes.length*100}%"></i></div>
-    <div class="stats"><span><b>${done}</b> of ${scenes.length} scenes read</span><span>quizzes <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(marks).length}</b> notes</span><span><b>${Object.keys(prog.cards).length}</b> of ${QUOTES.quotes.length} quotes learnt</span></div>
+    <div class="stats"><span><b>${done}</b> of ${scenes.length} scenes read</span><span>quizzes <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(prog.cards).length}</b> of ${QUOTES.quotes.length} quotes learnt</span></div>
     ${(()=>{const s=streak(),w=weekStats(),td=Math.round(((LOG[today()]||{}).s||0)/60);return `<div class="stats"><span>🔥 <b>${s}</b> day${s===1?"":"s"} in a row</span><span><b>${td}</b> min today</span><span>This week: <b>${w.min}</b> min · <b>${w.p}</b> pages · <b>${w.sc}</b> scene${w.sc===1?"":"s"}</span></div>`})()}`;
   $("contcard").insertAdjacentHTML("beforeend",examHTML()+bkRemHTML());if($("ex-set"))$("ex-set").onclick=openExamDate;
-  $("contbtn").onclick=()=>{const k=sIdx(lp.id);goScene(k,pos&&pos.s===lp.id?{key:pos.key}:{page:0})};
-  $("studybtn").onclick=()=>goStudy();
-  let h="";
-  for(let a=1;a<=5;a++){const ps=scenes.filter(p=>p.act===a);const ad=ps.filter(p=>prog.done[p.id]).length;
-    h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>Act ${R[a]} · ${ad}/${ps.length} read</small></summary><div class="srows">`+
-      ps.map(p=>{const q=prog.quiz[p.id];const s=STUDY.scenes[p.id]||{};
-        return `<button class="srow${prog.done[p.id]?" done":""}${pos&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="n">${prog.conf[p.id]?`<i class="dot ${esc(prog.conf[p.id])}"></i>`:""}${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${esc(q[0])}/${esc(q[1])}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></details>`}
-  $("actsmap").innerHTML=h;
-  const here=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1;
-  $("tstrip").innerHTML=EX.timeline.map(e=>`<button data-speech="${e.id}" class="${sIdx(e.s)<here?"past":""}"><small>${sName(scenes[sIdx(e.s)]).replace("Act ","").replace(", Scene ",".")}</small><span>${esc(e.t)}</span></button>`).join("");setHtab(LS.get(PFX+"htab")||"contents");
-  $("cast").innerHTML=STUDY.chars.map(c=>{const key=c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","");const has=whoSet.has(key);
-    return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p></div>`}).join("");
+  $("contbtn").onclick=goRead;
+  const nm=Object.keys(marks).filter(k=>speech[k]).length,nf=FAV.filter(f=>speech[f.id]).length;
+  const row=(id,t,sub,href)=>`${href?`<a class="yrow" href="${href}">`:`<button class="yrow" id="${id}">`}<span><b>${t}</b><small>${sub}</small></span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>${href?"</a>":"</button>"}`;
+  $("ylist").innerHTML=row("y-notes","My notes &amp; highlights",`${nm} note${nm===1?"":"s"} · ${nf} phrase${nf===1?"":"s"} · ${BM.length} bookmark${BM.length===1?"":"s"}`)+
+    row("y-cont","Contents, cast &amp; story","Every scene, the characters and the story in "+EX.timeline.length+" moments")+
+    row("y-set","Reading settings","What shows on the page, text size, theme, spacing, focus")+
+    row("","Folio settings &amp; backup","Every play: theme, text size, one backup file",FOLIO_BK);
+  $("y-notes").onclick=openNotes;$("y-set").onclick=openSettings;$("y-cont").onclick=()=>openContents();
 }
-$("home").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goScene(sIdx(g.dataset.go));
-  const ts=e.target.closest("[data-speech]");if(ts)goSpeech(ts.dataset.speech);
-  const f=e.target.closest("[data-follow]");if(f){S.who=f.dataset.follow;const k=scenes.findIndex(p=>p.items.some(i=>i.who===S.who));goScene(k);toast("Showing only "+title(S.who))}});
-function setHtab(k){document.querySelectorAll("[data-htab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.htab===k));$("hp-contents").hidden=k!=="contents";$("hp-cast").hidden=k!=="cast";LS.set(PFX+"htab",k)}
-document.querySelectorAll("[data-htab]").forEach(b=>b.onclick=()=>setHtab(b.dataset.htab));
-$("hsearch").addEventListener("submit",e=>{e.preventDefault();openSearch($("hq").value)});
-$("h-notes").onclick=openNotes;$("h-set").onclick=openSettings;
+$("you").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goScene(sIdx(g.dataset.go))});
+/* Contents sheet (the old play home): scenes with progress, the cast, the story in moments */
+let ctab=LS.get(PFX+"htab");if(!["scenes","cast","story"].includes(ctab))ctab="scenes";
+function contentsHTML(){
+  const here=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1,lp=here>=0?scenes[here]:scenes[0];
+  let h=`<div class="ctabs" role="tablist">${[["scenes","Scenes"],["cast","Cast"],["story","Story"]].map(([k,l])=>`<button role="tab" data-ctab="${k}" aria-selected="${ctab===k}">${l}</button>`).join("")}</div>`;
+  if(ctab==="scenes"){
+    h+=`<div class="jump"><label for="jl" class="sr">Go to line</label><input class="sinput" id="jl" inputmode="decimal" placeholder="Go to line, e.g. 3.3.165"><button class="btn" id="jl-go">Go</button></div>`;
+    const rc=RECENT.filter(r=>speech[r.id]);if(rc.length)h+=`<div class="eyebrow" style="margin:6px 0 2px">Recently viewed</div>`+rc.slice(0,3).map(r=>{const sp=speech[r.id],q=partsOf(sp)[r.pi]||partsOf(sp)[0];
+      return `<div class="item" data-recent="${esc(r.id)}:${esc(r.pi)}" tabindex="0"><small>${esc(where(sp))}</small><span style="font-family:var(--f-old)">${esc(sp.lines[q[0]].replace(/^~/,""))}…</span></div>`}).join("");
+    h+=`<div class="acts-map">`;
+    for(let a=1;a<=5;a++){const ps=scenes.filter(p=>p.act===a);if(!ps.length)continue;const ad=ps.filter(p=>prog.done[p.id]).length;
+      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>Act ${R[a]} · ${ad}/${ps.length} read</small></summary><div class="srows">`+
+        ps.map(p=>{const q=prog.quiz[p.id];const s=STUDY.scenes[p.id]||{};
+          return `<button class="srow${prog.done[p.id]?" done":""}${here>=0&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="n">${prog.conf[p.id]?`<i class="dot ${esc(prog.conf[p.id])}"></i>`:""}${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${esc(q[0])}/${esc(q[1])}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></details>`}
+    h+=`</div>`}
+  else if(ctab==="cast"){h+=`<p class="hcap">The Names of the Actors, as the 1623 Folio lists them</p><div class="cast">`+STUDY.chars.map(c=>{const key=c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","");const has=whoSet.has(key);
+      return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p></div>`}).join("")+`</div>`}
+  else h+=`<p class="hcap">The story in ${EX.timeline.length} moments. Tap one to jump there.</p><ol class="story">`+EX.timeline.map(e=>{const k=sIdx(e.s);return `<li><button data-speech="${e.id}" class="${here>=0&&k<here?"past":""}${k===here?" now":""}"><small>${sName(scenes[k])}</small><span>${esc(e.t)}</span></button></li>`}).join("")+`</ol>`;
+  return h}
+function openContents(t){if(t)ctab=t;LS.set(PFX+"htab",ctab);openSheet("Contents",contentsHTML());
+  if(ctab==="scenes"){$("jl-go").onclick=()=>jumpLine($("jl").value);$("jl").onkeydown=e=>{if(e.key==="Enter")jumpLine($("jl").value)}}}
+function follow(who){S.who=who;closeSheet();const k=scenes.findIndex(p=>p.items.some(i=>i.who===S.who));goScene(k);toast("Showing only "+title(S.who))}
 
 /* ---------- reader: blocks ---------- */
 const pg=$("pg"),measure=$("measure"),vp=$("vp");
@@ -484,14 +502,20 @@ async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Cop
 
 /* ---------- study ---------- */
 const TABS=[["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["plan","Essay planner"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
+/* Study in four groups; the last tool used in each group is kept for this visit */
+const SGROUPS=[["learn","Learn",["explore","acts","prof","themes","quotes"]],["practise","Practise",["cards","drill","quiz"]],["write","Write",["plan"]],["revise","Revise",["revise"]]];
+const sgOf=k=>SGROUPS.find(g=>g[2].includes(k))||SGROUPS[0],sgLast={};
 function renderStudy(){
   if(!TABS.some(t=>t[0]===S.stab))S.stab="quotes";
-  $("stabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${S.stab===k}" data-tab="${k}">${l}</button>`).join("");
+  const g=sgOf(S.stab);sgLast[g[0]]=S.stab;
+  $("sgroups").innerHTML=SGROUPS.map(([k,l])=>`<button role="tab" aria-selected="${g[0]===k}" data-sg="${k}">${l}</button>`).join("");
+  $("stabs").hidden=g[2].length<2;
+  $("stabs").innerHTML=g[2].map(k=>`<button role="tab" aria-selected="${S.stab===k}" data-tab="${k}">${TABS.find(t=>t[0]===k)[1]}</button>`).join("");
   ({drill:studyDrill,plan:studyPlan,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
 }
 $("stabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){S.stab=b.dataset.tab;LS.set(PFX+"stab",S.stab);renderStudy()}});
-$("s-back").onclick=()=>{if(pos&&sIdx(pos.s)>=0)goScene(sIdx(pos.s),{key:pos.key});else goScene(0)};
-$("s-home").onclick=goHome;
+$("sgroups").addEventListener("click",e=>{const b=e.target.closest("[data-sg]");if(!b)return;const g=SGROUPS.find(x=>x[0]===b.dataset.sg);S.stab=sgLast[g[0]]||g[2][0];LS.set(PFX+"stab",S.stab);renderStudy()});
+$("s-search").onclick=$("y-search").onclick=()=>openSearch("");
 function quoteHTML(q){const sp=speech[q.id];return `<div class="qt" style="--c:${COLORS[sp.who]||"var(--ink)"}"><blockquote>“${esc(q.text)}”</blockquote>
   <div class="meta"><b>${esc(title(sp.who))}</b><span>${sName(sceneOf(q.id))}</span><button class="link" data-speech="${q.id}">Read in context</button></div>
   <p>${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}<br>${esc(q.note)}</p></div>`}
@@ -795,6 +819,8 @@ function openSheet(t,html){if(sheet.hidden)lastFocus=document.activeElement;$("s
 function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
 sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
+  const ct=e.target.closest("[data-ctab]");if(ct){openContents(ct.dataset.ctab);return}
+  const fw=e.target.closest("[data-follow]");if(fw){follow(fw.dataset.follow);return}
   const bd=e.target.closest("[data-bmdel]");if(bd){BM.splice(+bd.dataset.bmdel,1);saveBM();bmState();openNotes();return}
   const fd=e.target.closest("[data-fpdel]");if(fd){FAV=FAV.filter(f=>String(f.t)!==fd.dataset.fpdel);saveFav();refreshMarks();openNotes();toast("Phrase removed");return}
   const fh=e.target.closest("[data-fph]");if(fh){const f=FAV.find(x=>String(x.t)===fh.dataset.fph);if(f)goSpeech(f.id);return}
@@ -811,8 +837,8 @@ function searchResults(q){q=q.trim();if(q.length<2)return `<p class="muted">Type
     if(o.toLowerCase().includes(q.toLowerCase()))res.push(`<div class="item" data-speech="${id}" tabindex="0"><small>${esc(where(sp))}</small>${snippet(o,q)}</div>`);
     else if(sp.m.toLowerCase().includes(q.toLowerCase()))res.push(`<div class="item" data-speech="${id}" tabindex="0"><small>${esc(where(sp))} · modern</small>${snippet(sp.m,q)}</div>`)}
   return `<p class="muted">${res.length} match${res.length===1?"":"es"}</p>`+res.slice(0,300).join("")}
-function openSearch(q){openSheet("Search",`<label for="sq" class="sr">Search</label><input class="sinput" id="sq" type="search" placeholder="A word or phrase…" value="${esc(q||"")}" autocomplete="off"><div id="sres" style="margin-top:8px"></div>`);
-  const sq=$("sq"),run=()=>{$("sres").innerHTML=searchResults(sq.value)};let t;sq.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});run();setTimeout(()=>sq.focus(),30)}
+function openSearch(q){openSheet("Search",`<label for="sq" class="sr">Search</label><input class="sinput" id="sq" type="search" placeholder="A word or phrase…" value="${esc(q||"")}" autocomplete="off"><a class="link allplays" id="sq-all" href="../?shelf#search">Search every play instead ›</a><div id="sres" style="margin-top:8px"></div>`);
+  const sq=$("sq"),run=()=>{$("sres").innerHTML=searchResults(sq.value);$("sq-all").href="../?shelf#search="+encodeURIComponent(sq.value.trim())};let t;sq.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});run();setTimeout(()=>sq.focus(),30)}
 setInterval(()=>{if(/timed$/.test(S.theme))applySettings()},600000);
 /* bookmarks: whole pages, this device (and in backups) */
 let BM=[];try{BM=JSON.parse(LS.get(PFX+"bm")||"[]")}catch(e){}if(!Array.isArray(BM))BM=[];BM=BM.filter(b=>b&&sIdx(b.s)>=0);
@@ -890,12 +916,6 @@ function jumpLine(v){const m=String(v).trim().match(/^(\d)\D+(\d)\D+(\d+)$/);if(
   const sp=p.items.find(i=>i.t==="sp"&&ln>=i.start&&ln<i.start+i.lines.length)||p.items.filter(i=>i.t==="sp").pop();
   closeSheet();const li=Math.max(0,Math.min(sp.lines.length-1,ln-sp.start));goScene(sIdx(p.id),{key:sp.id+":"+li});
   setTimeout(()=>{const pi=partsOf(sp).findIndex(q=>li>=q[0]&&li<=q[1]);const el=pg.querySelector(`.sp[data-id="${sp.id}"] .pt[data-p="${pi}"]`);if(el){el.classList.add("pulse");setTimeout(()=>el.classList.remove("pulse"),3400)}},300)}
-function openPicker(){
-  let h=`<div class="jump"><label for="jl" class="sr">Go to line</label><input class="sinput" id="jl" inputmode="decimal" placeholder="Go to line, e.g. 3.3.165"><button class="btn" id="jl-go">Go</button></div>`;
-  const rc=RECENT.filter(r=>speech[r.id]);if(rc.length)h+=`<div class="eyebrow" style="margin:6px 0 2px">Recently viewed</div>`+rc.map(r=>{const sp=speech[r.id],q=partsOf(sp)[r.pi]||partsOf(sp)[0];
-    return `<div class="item" data-recent="${esc(r.id)}:${esc(r.pi)}" tabindex="0"><small>${esc(where(sp))}</small><span style="font-family:var(--f-old)">${esc(sp.lines[q[0]].replace(/^~/,""))}…</span></div>`}).join("");for(let a=1;a<=5;a++){h+=`<div class="eyebrow" style="margin:10px 0 6px">${LAT[a]}</div><div class="pick">`+
-    scenes.filter(p=>p.act===a).map(p=>`<button class="scard${view==="reader"&&cur.k===sIdx(p.id)?" here":""}" data-go="${p.id}"><span class="st">${prog.done[p.id]?"✓":""}</span><b>Scene ${p.scene.toLowerCase()}</b><span>${esc(shortLoc(p))}</span></button>`).join("")+`</div>`}
-  openSheet("Go to scene",h);$("jl-go").onclick=()=>jumpLine($("jl").value);$("jl").onkeydown=e=>{if(e.key==="Enter")jumpLine($("jl").value)}}
 function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
@@ -916,10 +936,10 @@ function openSettings(){
     if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   $("whosel").onchange=e=>{S.who=e.target.value;repaginate()};
   $("focsel").onchange=e=>{S.focus=e.target.value;applySettings();refreshMarks()};
-  wireBackup(()=>{if(view==="home")renderHome();refreshMarks()});
-  let armed=false;$("resetprog").onclick=()=>{if(!armed){armed=true;$("resetmsg").textContent="Tap again to confirm. Your notes are kept.";return}prog={done:{},quiz:{},cards:{},srs:{},miss:{q:[],c:{}},conf:{},exam:prog.exam};saveProg();$("resetmsg").textContent="Progress reset.";armed=false;if(view==="home")renderHome()};
+  wireBackup(()=>{if(view==="you")renderYou();refreshMarks()});
+  let armed=false;$("resetprog").onclick=()=>{if(!armed){armed=true;$("resetmsg").textContent="Tap again to confirm. Your notes are kept.";return}prog={done:{},quiz:{},cards:{},srs:{},miss:{q:[],c:{}},conf:{},exam:prog.exam};saveProg();$("resetmsg").textContent="Progress reset.";armed=false;if(view==="you")renderYou()};
 }
-$("b-home").onclick=goHome;$("b-where").onclick=openPicker;$("b-search").onclick=()=>openSearch("");$("b-study").onclick=()=>goStudy();$("b-set").onclick=openSettings;$("b-bm").onclick=toggleBM;
+$("b-home").onclick=()=>openContents();$("b-where").onclick=()=>openContents("scenes");$("b-search").onclick=()=>openSearch("");$("b-set").onclick=openSettings;$("b-bm").onclick=toggleBM;
 
 /* ---------- first-run hint ---------- */
 function hint(){if(LS.get(PFX+"hint3")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.innerHTML=`<b>How to read</b><ul><li>Swipe left or right to turn the page.</li><li>Tap an underlined word for its meaning.</li><li>Tap any other part of the lines to see them in modern English. Long speeches come in parts; expand to read the whole speech.</li><li>Tap empty space to show the menus.</li><li>Press and hold a word to select a phrase and save it as a favourite. Speech tools (meanings, notes) are in the bar that appears.</li></ul><button>Got it</button>`;
