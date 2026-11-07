@@ -6,6 +6,7 @@ Live site: https://arti47.github.io/shakespeare/
 
 - `index.html` — Folio shelf (progress per play, one backup for all plays). Installed app reopens at the last page read.
 - `manifest.webmanifest`, `sw.js` — the single app manifest and service worker; caches every play for offline use.
+- `reader.js` — the shared reader used by every play.
 - `othello/` — Othello.
 - `antony-and-cleopatra/` — Antony and Cleopatra (prefix `ant-`).
 - `king-lear/` — King Lear (prefix `lear-`).
@@ -13,8 +14,14 @@ Live site: https://arti47.github.io/shakespeare/
 - `much-ado/` — Much Ado About Nothing (prefix `ado-`).
 - `tempest/` — The Tempest (prefix `tem-`).
 
-Conventions for play folders: per-play localStorage prefix (`oth-`); shared settings under `folio-`; play writes `folio-last` and `folio-stat-<id>`; play links `../manifest.webmanifest`, registers `../sw.js`, and has a `‹ Folio` link to `../?shelf`. Add the play to `PLAYS` in `index.html`, then run `node tools/build.js`.
+Layout of a play folder `<id>/`:
+- `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `ALIGN`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
+- `index.html`: generated from `tools/play.html`. It loads `play.js`, then the shared `../reader.js`.
+
+Shared by every play: `reader.js` (all reader and study code), `reader.css`, `update.js`. Each play has its own localStorage prefix (`oth-`); shared settings live under `folio-`; the reader writes `folio-last` and `folio-stat-<id>`.
+
+Adding a play: create `<id>/play.js` (copy one and replace the content), add the play to `PLAYS` in `index.html`, then run `node tools/build.js`.
 
 ## Build
 
-`node tools/build.js` regenerates `search/<id>.json` (from each play's inline `DATA`), `sw.js` (precache list, cache name) and `version.json`. The build hash is a content hash of every cached file, so it only changes when something does. Run it after any edit; CI runs `node tools/build.js --check` and fails if outputs are stale. Local preview: `python3 -m http.server` in the repo root.
+`node tools/build.js` regenerates `<id>/index.html` (from `tools/play.html` and `CFG`), `search/<id>.json` (from `DATA`), `sw.js` (precache list and cache name) and `version.json`. The build hash is a content hash of every cached file, so it only changes when something does. Run it after any edit; CI runs `node tools/build.js --check` and fails if outputs are stale. Local preview: `python3 -m http.server` in the repo root.

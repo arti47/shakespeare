@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>@TITLE@</title>
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18191d" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Folio">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../fonts.css">
+<style>body{margin:0}:root{padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+<link rel="stylesheet" href="../reader.css">@CSS@
+
+<!-- HOME -->
+<section id="home" class="gut" hidden>
+  <a class="tofolio" id="tofolio" href="../?shelf" hidden>‹ Folio</a>
+  <div class="tp">
+@TP@    <div class="cont" id="contcard"></div>
+  </div>
+  <form class="homesearch" id="hsearch"><label for="hq" class="sr">Search the play</label><input id="hq" type="search" placeholder="Search the play, e.g. @EG@" autocomplete="off"><button class="btn" type="submit">Search</button></form>
+  <div class="tstrip-h"><b>The story in @N@ moments</b><small>Tap to jump there</small></div><div class="tstrip" id="tstrip"></div>
+  <div class="htabs" role="tablist"><button role="tab" data-htab="contents">Contents</button><button role="tab" data-htab="cast">Cast</button></div>
+  <div class="hpane" id="hp-contents"><div class="acts-map" id="actsmap"></div></div>
+  <div class="hpane" id="hp-cast" hidden><p class="hcap">The Names of the Actors, as the 1623 Folio lists them</p><div class="cast" id="cast"></div></div>
+  <div class="homefoot">
+    <button class="btn" id="h-notes">My notes &amp; highlights</button>
+    <button class="btn" id="h-set">Settings</button>
+  </div>
+</section>
+
+<!-- READER -->
+<section id="reader" hidden>
+  <div class="viewport gut" id="vp"><div class="pg" id="pg"></div></div>
+  <div class="pgfoot" id="pgfoot"></div><div class="pgbar"><i id="pgbar"></i></div>
+  <header class="bar" id="bar"><div class="in gut">
+    <a class="icon tofolio-b" id="b-folio" href="../?shelf" aria-label="Back to the Folio" title="Folio" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg></a>
+    <button class="icon" id="b-home" aria-label="Contents">☰</button>
+    <button class="where" id="b-where" aria-label="Choose scene"><b id="w-title"></b><small id="w-sub"></small></button>
+    <button class="icon" id="b-search" aria-label="Search"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
+    <button class="icon bm" id="b-bm" aria-label="Bookmark this page" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+    <button class="icon txt" id="b-study">Study</button>
+    <button class="icon" id="b-set" aria-label="Settings">Aa</button>
+  </div></header>
+  <footer class="bbar" id="bbar"><div class="in gut">
+    <button class="icon" id="p-prev" aria-label="Previous page">‹</button>
+    <label for="p-range" class="sr">Page</label><input type="range" id="p-range" min="1" max="1" value="1">
+    <span class="pn" id="p-num"></span>
+    <button class="icon" id="p-next" aria-label="Next page">›</button>
+  </div></footer>
+</section>
+<div id="measure" aria-hidden="true"></div>
+
+<!-- STUDY -->
+<section id="study" class="gut" hidden>
+  <div class="sbar"><button class="icon txt" id="s-back">‹ Read</button><h1>Study</h1><button class="icon" id="s-home" aria-label="Contents">☰</button></div>
+  <div class="tabs" role="tablist" id="stabs"></div>
+  <div id="sbody"></div>
+</section>
+
+<aside class="panel" id="panel" aria-label="Speech tools"><div class="phead"><h2 id="panel-title"></h2><button class="btn sm" id="panel-close">Close</button></div><div class="pbody" id="panel-body"></div></aside>
+<div class="sheet" id="sheet" hidden><div class="sbox" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="grab"></div>
+  <div class="head"><h2 id="sheet-title"></h2><button class="btn" id="sheet-close">Done</button></div>
+  <div id="sheet-body"></div>
+</div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="play.js"></script>
+<script src="../reader.js"></script>
+
+<script src="../update.js" defer></script>
+</body></html>
