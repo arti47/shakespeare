@@ -15,7 +15,7 @@
 <script>
 // App start: reopen the last play. "‹ Folio" links carry ?shelf so they never bounce back.
 (function(){try{
-  var q=location.search,ls=localStorage,ss=sessionStorage,last=ls.getItem("folio-last"),ok=[{"id": "othello", "prefix": "oth-", "log": "oth-log", "group": "Tragedies", "mono": "O", "pre": "The Tragedy of", "title": "Othello", "kind": "Tragedy", "year": "c. 1603", "blurb": "The Moor of Venice, Iago's plot and the handkerchief."}, {"id": "antony-and-cleopatra", "prefix": "ant-", "log": "ant-log", "group": "Tragedies", "mono": "A", "pre": "The Tragedy of", "title": "Antony and Cleopatra", "kind": "Tragedy", "year": "c. 1606", "blurb": "Rome against Egypt, love against empire, and a queen's last triumph."}, {"id": "king-lear", "prefix": "lear-", "log": "lear-log", "group": "Tragedies", "mono": "L", "pre": "The Tragedy of", "title": "King Lear", "kind": "Tragedy", "year": "c. 1606", "blurb": "An old king divides his kingdom, a storm, madness, and two fathers who misjudge their children."}, {"id": "tempest", "prefix": "tem-", "log": "tem-log", "group": "Comedies", "mono": "T", "pre": "", "title": "The Tempest", "kind": "Comedy", "year": "c. 1611", "blurb": "A magician's storm, an island of spirits, and a choice between revenge and forgiveness."}, {"id": "twelfth-night", "prefix": "tn-", "log": "tn-log", "group": "Comedies", "mono": "T", "pre": "", "title": "Twelfth Night", "kind": "Comedy", "year": "c. 1601", "blurb": "A shipwrecked twin in disguise, a love triangle, and a steward in yellow stockings."}, {"id": "much-ado", "prefix": "ado-", "log": "ado-log", "group": "Comedies", "mono": "M", "pre": "", "title": "Much Ado About Nothing", "kind": "Comedy", "year": "c. 1599", "blurb": "A merry war of wits, a slandered bride, and a constable who solves the case by accident."}].some(function(p){return p.id===last});
+  var q=location.search,ls=localStorage,ss=sessionStorage,last=ls.getItem("folio-last"),ok=["othello", "antony-and-cleopatra", "king-lear", "tempest", "twelfth-night", "much-ado"].indexOf(last)>=0;
   var app=/[?&]launch/.test(q)||matchMedia("(display-mode: standalone)").matches||navigator.standalone;
   if(ok&&app&&!/[?&]shelf/.test(q)&&!ss.getItem("folio-in")){ss.setItem("folio-in","1");location.replace(last+"/");}
   ss.setItem("folio-in","1");
@@ -23,6 +23,9 @@
 function folioTheme(){try{var ls=localStorage,th=ls.getItem("folio-theme")||"auto";var h=new Date().getHours(),nt=h>=20||h<7;if(th==="timed")th=nt?"night":"auto";if(th==="papertimed")th=nt?"papernight":"paper";
   if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);
   var sc=parseFloat(ls.getItem("folio-size"))||1.3;document.documentElement.style.setProperty("--scale",sc)}catch(e){}}
+/* status-bar colour follows the chosen theme (the two media metas cover Auto) */
+function folioBar(){try{var d=document.documentElement,t=d.getAttribute("data-theme"),ms=document.querySelectorAll('meta[name="theme-color"]'),pg=t?getComputedStyle(d).getPropertyValue("--page").trim():"";
+  ms.forEach(function(m,i){if(!m.dataset.c)m.dataset.c=m.content;m.content=pg||m.dataset.c})}catch(e){}}
 folioTheme();
 </script>
 <link rel="stylesheet" href="fonts.css">
@@ -41,13 +44,13 @@ button{font:inherit;color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .view{max-width:820px;margin:0 auto;padding:max(18px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(96px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 [hidden]{display:none!important}
-.eyebrow{font:500 .6rem "Instrument Sans",system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+.eyebrow{font:500 max(14px,.6rem) "Instrument Sans",system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
 h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.04em;margin:4px 0 18px;line-height:1.1}
 
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bar);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--rule);padding:6px max(8px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-right,0px))}
 .tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
-.tabs button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 4px;font:500 .6rem "Instrument Sans",sans-serif;letter-spacing:.06em;color:var(--muted);cursor:pointer;min-height:52px;border-radius:10px}
+.tabs button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 4px;font:500 max(14px,.6rem) "Instrument Sans",sans-serif;letter-spacing:.06em;color:var(--muted);cursor:pointer;min-height:52px;border-radius:10px}
 .tabs button svg{width:24px;height:24px}
 .tabs button[aria-current="page"]{color:var(--ink)}
 .tabs button[aria-current="page"] svg{color:var(--accent)}
@@ -87,9 +90,9 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 /* selected play detail */
 .det{text-align:center;max-width:520px;margin:0 auto}
 .det h3{font:400 1.45rem "IM Fell English",Georgia,serif;margin:0;line-height:1.3;text-wrap:balance}
-.det .meta{display:block;font-size:.6rem;line-height:1.4;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:8px 0 10px}
+.det .meta{display:block;font-size:max(14px,.6rem);line-height:1.4;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:8px 0 10px}
 .det p{margin:0 auto 12px;color:var(--soft);font-size:.8rem;max-width:32ch;text-wrap:balance}
-.det .pg{display:flex;align-items:center;gap:10px;max-width:380px;margin:0 auto 16px;font-size:.62rem;color:var(--soft)}
+.det .pg{display:flex;align-items:center;gap:10px;max-width:380px;margin:0 auto 16px;font-size:max(14px,.62rem);color:var(--soft)}
 .det .pg>span:last-child{flex:none;max-width:60%;text-align:left}
 .det .pg .tr{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden;min-width:50px}
 .det .pg .tr i{display:block;height:100%;background:var(--accent)}
@@ -104,9 +107,9 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 /* genre shelves */
 .contl{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 18px;border:1.5px solid var(--accent);border-radius:8px;color:inherit;text-decoration:none;background:var(--accent-soft)}
 .contl .tx{flex:1;min-width:0}
-.contl small{display:block;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.contl small{display:block;font-size:max(14px,.54rem);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
 .contl b{display:block;font:400 1.1rem "IM Fell English",Georgia,serif;line-height:1.25}
-.contl span{display:block;font-size:.62rem;color:var(--soft)}
+.contl span{display:block;font-size:max(14px,.62rem);color:var(--soft)}
 .contl svg{flex:none;width:22px;height:22px;color:var(--accent)}
 .gtile{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:transparent;border:0;border-top:1.5px solid var(--ink);padding:18px 4px 20px;cursor:pointer;color:inherit}
 .gtile:last-of-type{border-bottom:1.5px solid var(--ink)}
@@ -120,12 +123,12 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .gtile .gx{flex:1;min-width:0}
 .gtile h3{font:400 1.5rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;margin:0;line-height:1.15}
 .gtile p{margin:3px 0 4px;font-size:.72rem;color:var(--soft)}
-.gtile .gn{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.gtile .gn{font-size:max(14px,.58rem);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
 .gtile .chev{flex:none;width:22px;height:22px;color:var(--muted)}
 .ghead{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:-4px 0 4px}
 .back{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--accent);font:600 .7rem "Instrument Sans",sans-serif;padding:8px 6px 8px 0;min-height:44px;cursor:pointer}
 .gt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;margin:0;line-height:1.1}
-.soon{text-align:center;color:var(--muted);font-size:.62rem;font-style:italic;margin:26px 0 0}
+.soon{text-align:center;color:var(--muted);font-size:max(14px,.62rem);font-style:italic;margin:26px 0 0}
 
 /* today */
 .date{font:italic 400 1.05rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0}
@@ -133,18 +136,18 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .card.lotd{text-align:center;padding:30px 18px 24px}
 .card.lotd::before{content:"";position:absolute;inset:5px;border:1px solid var(--rule);pointer-events:none;border-radius:2px}
 .lotd blockquote{margin:0 auto;max-width:24ch;font:italic 400 1.55rem "IM Fell English",Georgia,serif;line-height:1.3}
-.lotd cite{display:block;margin:14px 0 16px;font:normal 500 .6rem "Instrument Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.lotd cite{display:block;margin:14px 0 16px;font:normal 500 max(14px,.6rem) "Instrument Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
 .word b{font:400 1.7rem "IM Fell English",Georgia,serif;display:block;line-height:1.1}
 .word p:not(.eyebrow){margin:6px 0 0;font-size:.82rem}
-.word small{display:block;margin-top:8px;font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.word small{display:block;margin-top:8px;font-size:max(14px,.6rem);color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
 .wk{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .wdots{display:flex;gap:6px}
-.wd{width:30px;text-align:center;font-size:.5rem;color:var(--muted)}
+.wd{width:30px;text-align:center;font-size:max(14px,.5rem);color:var(--muted)}
 .wd i{display:block;width:18px;height:18px;margin:0 auto 4px;border-radius:50%;border:1.5px solid var(--rule)}
 .wd.on i{background:var(--accent);border-color:var(--accent)}
 .wd.today{color:var(--ink);font-weight:600}
 .big-n{font:600 1.6rem "Instrument Sans",sans-serif;line-height:1}
-.big-n small{display:block;font-size:.6rem;font-weight:400;color:var(--soft);margin-top:2px}
+.big-n small{display:block;font-size:max(14px,.6rem);font-weight:400;color:var(--soft);margin-top:2px}
 
 /* search */
 .sbox{position:sticky;top:0;z-index:5;background:var(--page);padding:6px 0 10px}
@@ -152,24 +155,24 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .sbox input:focus{box-shadow:0 0 0 3px var(--accent-soft)}
 .sbox .mg{position:absolute;left:16px;top:20px;width:22px;height:22px;color:var(--muted)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
-.chip{flex:none;border:1.5px solid var(--rule);background:transparent;border-radius:999px;padding:7px 14px;font-size:.6rem;font-weight:500;cursor:pointer;min-height:38px}
+.chip{flex:none;border:1.5px solid var(--rule);background:transparent;border-radius:999px;padding:7px 14px;font-size:max(14px,.6rem);font-weight:500;cursor:pointer;min-height:38px}
 .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--page)}
 .hint{color:var(--muted);font-size:.7rem;margin:18px 4px}
 .hint b{color:var(--ink);font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
 .res{list-style:none;margin:0;padding:0}
 .res a{display:block;padding:14px 4px;border-bottom:1px solid var(--rule);color:inherit;text-decoration:none}
 .res a:hover{background:var(--hover)}
-.res .rm{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.res .rm{font-size:max(14px,.6rem);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
 .res .rt{font:400 1.02rem "IM Fell English",Georgia,serif;margin-top:2px}
 .res .rt.mod{font:400 .8rem "Instrument Sans",sans-serif;color:var(--soft)}
 .res mark{background:var(--hl);color:var(--ink);border-radius:2px;padding:0 1px}
-.count{font-size:.6rem;color:var(--muted);margin:8px 4px}
+.count{font-size:max(14px,.6rem);color:var(--muted);margin:8px 4px}
 
 /* you */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
 .stat{border:1.5px solid var(--rule);border-radius:4px;padding:12px 10px;text-align:center}
 .stat b{display:block;font:600 1.35rem "Instrument Sans",sans-serif;line-height:1.1}
-.stat span{font-size:.6rem;color:var(--soft);letter-spacing:.06em;text-transform:uppercase}
+.stat span{font-size:max(14px,.6rem);color:var(--soft);letter-spacing:.06em;text-transform:uppercase}
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:4px;justify-content:start;overflow-x:auto;padding-bottom:4px}
 .heat i{width:16px;height:16px;border-radius:3px;background:var(--track)}
 .heat i.l1{background:color-mix(in srgb,var(--accent) 35%,var(--track))}
@@ -180,16 +183,16 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .sec h3{font:400 1.15rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.06em;margin:0 0 10px;display:flex;align-items:center;gap:10px}
 .sec h3::after{content:"";flex:1;height:1px;background:var(--ink)}
 .sec p{font-size:.7rem;color:var(--soft);margin:0 0 12px}
-.lbl{display:block;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:4px 0 6px}
+.lbl{display:block;font-size:max(14px,.6rem);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:4px 0 6px}
 .seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;margin-bottom:14px;max-width:100%}
-.seg button{border:0;background:transparent;font:500 .6rem "Instrument Sans",sans-serif;padding:9px 12px;min-height:42px;cursor:pointer}
+.seg button{border:0;background:transparent;font:500 max(14px,.6rem) "Instrument Sans",sans-serif;padding:9px 12px;min-height:42px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
 .seg.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));border-radius:14px;width:100%}
 .seg.grid button{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .btns{display:flex;flex-wrap:wrap;gap:10px}
 #msg{margin-top:12px;font-size:.68rem}
 #msg:empty{display:none}
-footer{margin-top:34px;font:italic .62rem "IM Fell English",Georgia,serif;color:var(--muted);text-align:center}
+footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,serif;color:var(--muted);text-align:center}
 
 /* curtain */
 .curt{position:fixed;inset:0;z-index:60;pointer-events:none}
@@ -422,9 +425,9 @@ function renderTheme(){const th=LS.get("folio-theme")||"auto",sz=parseFloat(LS.g
   document.querySelectorAll("#seg-theme button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.th===th));
   let best=null;document.querySelectorAll("#seg-size button").forEach(b=>{if(!best||Math.abs(b.dataset.sz-sz)<Math.abs(best.dataset.sz-sz))best=b});
   document.querySelectorAll("#seg-size button").forEach(b=>b.setAttribute("aria-pressed",b===best))}
-document.querySelectorAll("#seg-theme button").forEach(b=>b.onclick=()=>{LS.set("folio-theme",b.dataset.th);folioTheme();renderTheme()});
-document.querySelectorAll("#seg-size button").forEach(b=>b.onclick=()=>{LS.set("folio-size",b.dataset.sz);folioTheme();renderTheme()});
-$("themeb").onclick=()=>{const seq=["auto","light","paper","dark","papernight","night"],th=LS.get("folio-theme")||"auto";LS.set("folio-theme",seq[(seq.indexOf(th)+1)%seq.length]);folioTheme();renderTheme()};
+document.querySelectorAll("#seg-theme button").forEach(b=>b.onclick=()=>{LS.set("folio-theme",b.dataset.th);folioTheme();folioBar();renderTheme()});
+document.querySelectorAll("#seg-size button").forEach(b=>b.onclick=()=>{LS.set("folio-size",b.dataset.sz);folioTheme();folioBar();renderTheme()});
+$("themeb").onclick=()=>{const seq=["auto","light","paper","dark","papernight","night"],th=LS.get("folio-theme")||"auto";LS.set("folio-theme",seq[(seq.indexOf(th)+1)%seq.length]);folioTheme();folioBar();renderTheme()};
 function renderYou(){
   const days=readDays(),tot=Math.round(Object.values(days).reduce((a,b)=>a+b,0)/60),begun=PLAYS.filter(p=>J("folio-stat-"+p.id)).length;
   $("stats").innerHTML=`<div class="stat"><b>${streak(days)}</b><span>Day streak</span></div><div class="stat"><b>${tot<60?tot+"m":(tot/60).toFixed(1)+"h"}</b><span>Time read</span></div><div class="stat"><b>${begun}/${PLAYS.length}</b><span>Plays begun</span></div>`;
@@ -439,7 +442,7 @@ function renderYou(){
 function openPlay(id,href){const p=byId[id];if(reduce||!p){location.href=href;return}
   $("cpre").textContent=p.pre||"";$("ctitle").textContent=p.title;$("curt").classList.add("on");setTimeout(()=>{location.href=href},560)}
 document.addEventListener("click",e=>{const a=e.target.closest("a[data-play]");if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();openPlay(a.dataset.play,a.getAttribute("href"))});
-addEventListener("pageshow",e=>{$("curt").classList.remove("on");if(e.persisted){folioTheme();go(LS.get("folio-tab")||"library")}});
+addEventListener("pageshow",e=>{$("curt").classList.remove("on");if(e.persisted){folioTheme();folioBar();go(LS.get("folio-tab")||"library")}});
 
 /* ---------- install ---------- */
 let deferred=null;if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)$("instsec").hidden=true;
@@ -462,9 +465,9 @@ fi.onchange=async()=>{const f=fi.files[0];fi.value="";if(!f)return;let j;try{j=J
   const data=j&&j.folio&&j.data;if(!data){msg("This is a single-play backup. Open that play and use its own Restore.");return}
   const n=Object.keys(data).filter(mine).length;
   $("msg").innerHTML=`Restore ${n} items saved ${esc((j.saved||"").slice(0,10))}? This replaces the same items on this device. <span class="btns" style="margin-top:8px"><button class="btn pri" id="ok">Restore</button><button class="btn" id="no">Cancel</button></span>`;
-  $("no").onclick=()=>msg("");$("ok").onclick=()=>{let c=0;for(const[k,v]of Object.entries(data))if(mine(k)&&typeof v==="string"){LS.set(k,v);c++}msg(`Restored ${c} items.`);folioTheme();renderYou()}};
+  $("no").onclick=()=>msg("");$("ok").onclick=()=>{let c=0;for(const[k,v]of Object.entries(data))if(mine(k)&&typeof v==="string"){LS.set(k,v);c++}msg(`Restored ${c} items.`);folioTheme();folioBar();renderYou()}};
 
-renderTheme();
+folioBar();renderTheme();
 go(location.hash.slice(1)||"library");
 
 </script>
