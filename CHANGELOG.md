@@ -4,7 +4,10 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-11-07
+
 ### Added
+- Favourite a phrase: press and hold a speech, tap *Favourite a phrase*, then tap the first and last word. Saved phrases are highlighted on the page (tap for the note), listed in My notes, included in the revision sheet and in backups. Optional note per phrase (#27).
 - `CLAUDE.md` project rules and this changelog (#24).
 
 ### Changed
