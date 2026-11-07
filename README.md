@@ -15,7 +15,7 @@ Live site: https://arti47.github.io/shakespeare/
 - `tempest/` — The Tempest (prefix `tem-`).
 
 Layout of a play folder `<id>/`:
-- `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `ALIGN`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
+- `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
 - `index.html`: generated from `tools/play.html`. It loads `play.js`, then the shared `../reader.js`.
 
 Shared by every play: `reader.js` (all reader and study code), `reader.css`, `update.js`. Each play has its own localStorage prefix (`oth-`); shared settings live under `folio-`; the reader writes `folio-last` and `folio-stat-<id>`.

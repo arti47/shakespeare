@@ -12,7 +12,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | Path | Role | Edit? |
 |---|---|---|
 | `index.html` | Folio shelf. `const PLAYS=[...]` is the play registry (id, prefix, log, group, title…). | Hand-edit |
-| `<slug>/play.js` | **Source of truth** for a play: `CFG` (id, prefix, titles, backup id, per-play wording) + content consts (`DATA`, `STUDY`, `ALIGN`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). | Hand-edit |
+| `<slug>/play.js` | **Source of truth** for a play: `CFG` (id, prefix, titles, backup id, per-play wording) + content consts (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). | Hand-edit |
 | `reader.js` | Shared reader + study code for every play, driven by `CFG`. | Hand-edit |
 | `tools/play.html` | Page shell for play pages. | Hand-edit |
 | `<slug>/index.html` | **Generated** from `tools/play.html` + `CFG`; loads `play.js` then `../reader.js`. | Never by hand |
@@ -40,7 +40,7 @@ Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `
 
 Local preview: `python3 -m http.server` in repo root → `http://localhost:8000/`.
 
-Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** to the duplicate play list in the launch-redirect script near the top of `index.html` (`ok=[...]`, ~line 18), run build, update README play list. No per-play `sw.js` for new plays.
+Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays.
 
 ## Versioning
 

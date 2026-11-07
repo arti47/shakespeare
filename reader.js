@@ -1,5 +1,5 @@
 /* Folio reader: shared by every play. Each play page loads <play>/play.js first (CFG + content consts:
-   DATA, STUDY, ALIGN, PARTS, QUOTES, EX, EXT, MAINS, COLORS, PICS), then this file. */
+   DATA, STUDY, PARTS, QUOTES, EX, EXT, MAINS, COLORS, PICS), then this file. */
 const partsOf=it=>PARTS[it.id]||[[0,it.lines.length-1,it.m]];
 const SOLO=EX.solo;
 const roman={I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7,VIII:8,IX:9,X:10,XI:11,XII:12,XIII:13,XIV:14,XV:15}, R=["","I","II","III","IV","V"];
@@ -33,12 +33,14 @@ const QBY={};QUOTES.quotes.forEach((q,i)=>{q.i=i;(QBY[q.id]=QBY[q.id]||[]).push(
 const sceneOf=id=>scenes[sIdx(speech[id].page)];
 const pageWords=p=>p.items.reduce((n,it)=>n+(it.t==="sp"?it.lines.join(" ").split(/\s+/).length:0),0);
 
-/* ---------- saved state: marks + progress (account db, browser fallback) ---------- */
-let marks={},prog={done:{},quiz:{},cards:{}},store=null,progDoc=null;
-try{marks=JSON.parse(LS.get(PFX+"marks")||"{}")}catch(e){}
+/* ---------- saved state: marks + progress (this device, and in backups) ---------- */
+let marks={},prog={done:{},quiz:{},cards:{}};
+try{marks=JSON.parse(LS.get(PFX+"marks")||"{}")}catch(e){}if(!marks||typeof marks!=="object"||Array.isArray(marks))marks={};
+for(const k in marks){const v=marks[k];if(!v||typeof v!=="object")delete marks[k];else if(v.note!=null&&typeof v.note!=="string")v.note=String(v.note)}
 /* favourite phrases: a run of words in one speech's original lines, this device (and in backups).
    {id, a:[line,word], b:[line,word], txt, note, t}; line = index into the speech's lines, word = index of a non-space run */
 let FAV=[];try{FAV=JSON.parse(LS.get(PFX+"fav")||"[]")}catch(e){}if(!Array.isArray(FAV))FAV=[];
+FAV=FAV.filter(f=>f&&Array.isArray(f.a)&&Array.isArray(f.b)&&f.a.length===2&&f.b.length===2&&[...f.a,...f.b].every(Number.isInteger));
 const saveFav=()=>LS.set(PFX+"fav",JSON.stringify(FAV));
 const favSort=()=>FAV.sort((x,y)=>x.id-y.id||x.a[0]-y.a[0]||x.a[1]-y.a[1]||x.b[0]-y.b[0]||x.b[1]-y.b[1]);
 const FC=[["r","Rose"],["y","Yellow"],["g","Green"],["b","Blue"],["v","Violet"]],fcOk=c=>FC.some(x=>x[0]===c)?c:"r";
@@ -47,26 +49,10 @@ const lineWords=l=>String(l).replace(/^~/,"").split(/\s+/).filter(Boolean);
 function favText(id,a,b){const sp=speech[id];if(!sp)return "";const out=[];for(let l=a[0];l<=b[0];l++){const w=lineWords(sp.lines[l]||"");out.push(w.slice(l===a[0]?a[1]:0,l===b[0]?b[1]+1:w.length).join(" "))}return out.filter(Boolean).join(" / ")}
 try{prog=Object.assign(prog,JSON.parse(LS.get(PFX+"prog")||"{}"));prog.cards=prog.cards||{}}catch(e){}
 prog.srs=prog.srs||{};prog.miss=prog.miss||{q:[],c:{}};prog.conf=prog.conf||{};prog.exam=prog.exam||"";
-async function initStore(){
-  try{
-    if(!window.claude||!claude.use)return;
-    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);if(!db||!user)return;
-    const uid=await user.id();if(!uid)return;
-    store=db.collection("data/users/"+uid+"/marks");progDoc=db.doc("data/users/"+uid+"/meta/progress");
-    let first=true;
-    store.onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{const v=d.data();if(v)m[d.id]=v});
-      if(first&&snap.empty&&Object.keys(marks).length)Object.entries(marks).forEach(([k,v])=>store.doc(k).set(v).catch(()=>{}));
-      else{marks=m;LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks()}first=false},()=>{});
-    progDoc.onSnapshot(sn=>{if(sn.exists){const v=sn.data();prog=Object.assign({done:{},quiz:{},cards:{},srs:{},miss:{q:[],c:{}},conf:{},exam:""},JSON.parse(JSON.stringify(v)));LS.set(PFX+"prog",JSON.stringify(prog));if(view==="home")renderHome()}
-      else if(Object.keys(prog.done).length||Object.keys(prog.quiz).length)progDoc.set(JSON.parse(JSON.stringify(prog))).catch(()=>{})},()=>{});
-  }catch(e){}
-}
-async function saveMark(id,patch){
+function saveMark(id,patch){
   const v=Object.assign({},marks[id]||{},patch,{t:Date.now()}),empty=!v.hl&&!(v.note&&v.note.trim())&&!(v.th&&v.th.length);
-  if(empty)delete marks[id];else marks[id]=v;LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks();
-  if(store){try{empty?await store.doc(String(id)).delete():await store.doc(String(id)).set(v)}catch(e){}}
-}
-async function saveProg(){LS.set(PFX+"prog",JSON.stringify(prog));if(progDoc){try{await progDoc.set(JSON.parse(JSON.stringify(prog)))}catch(e){}}}
+  if(empty)delete marks[id];else marks[id]=v;LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks();}
+const saveProg=()=>LS.set(PFX+"prog",JSON.stringify(prog));
 
 /* ---------- settings ---------- */
 const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",who:"",stab:LS.get(PFX+"stab")||"quotes"};
@@ -75,6 +61,8 @@ function applySettings(){
   document.documentElement.style.setProperty("--scale",S.scale);
   let th=S.theme;if(th==="timed"){const h=new Date().getHours();th=h>=20||h<7?"night":"auto"}if(th==="papertimed"){const h=new Date().getHours();th=h>=20||h<7?"papernight":"paper"}
   if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);
+  const pc=th==="auto"?"":getComputedStyle(document.documentElement).getPropertyValue("--page").trim();
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.c)m.dataset.c=m.content;m.content=pc||m.dataset.c});
   document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
   LS.set(PFX+"lh",S.lh);LS.set(PFX+"focus",S.focus);LS.set(PFX+"clean",S.clean?"1":"0");LS.set(PFX+"onehand",S.onehand?"1":"0");
   LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");
@@ -117,7 +105,7 @@ function goHome(){setHash("home",true);show("home");renderHome();scrollTo(0,0)}
 /* ---------- home ---------- */
 function bkRemHTML(){const n=Object.keys(marks).length+BM.length+FAV.length;if(!n)return "";let f=+LS.get(PFX+"first")||0;if(!f){f=Date.now();LS.set(PFX+"first",String(f))}
   const lb=Math.max(+LS.get(PFX+"lastbk")||0,+LS.get("folio-lastbk")||0),since=Math.floor((Date.now()-Math.max(lb,f))/864e5);if(since<7)return "";
-  return `<div class="examc">${lb?`It's been ${Math.floor((Date.now()-lb)/864e5)} days since you last backed up`:"You haven't backed up yet"}. Your ${n} note${n===1?"":"s"} and bookmarks live only on this device. <button class="link" id="bk-rem">Back up now</button></div>`}
+  return `<div class="examc">${lb?`It's been ${Math.floor((Date.now()-lb)/864e5)} days since you last backed up`:"You haven't backed up yet"}. Your ${n} note${n===1?"":"s"} and bookmarks live only on this device. <a class="link" href="${FOLIO_BK}">Back up now</a></div>`}
 function examHTML(){if(!prog.exam)return `<button class="link" id="ex-set" style="margin-top:6px">Set your exam date for a daily reading plan</button>`;
   const days=Math.ceil((new Date(prog.exam+"T09:00")-Date.now())/864e5);if(days<0)return `<div class="examc">Exam date passed. <button class="link" id="ex-set">Set a new date</button></div>`;
   const un=scenes.filter(p=>!prog.done[p.id]),per=Math.max(1,Math.ceil(un.length/Math.max(1,days-2)));
@@ -134,7 +122,6 @@ function renderHome(){
     <div class="stats"><span><b>${done}</b> of ${scenes.length} scenes read</span><span>quizzes <b>${qt?Math.round(qc/qt*100)+"%":"–"}</b></span><span><b>${Object.keys(marks).length}</b> notes</span><span><b>${Object.keys(prog.cards).length}</b> of ${QUOTES.quotes.length} quotes learnt</span></div>
     ${(()=>{const s=streak(),w=weekStats(),td=Math.round(((LOG[today()]||{}).s||0)/60);return `<div class="stats"><span>🔥 <b>${s}</b> day${s===1?"":"s"} in a row</span><span><b>${td}</b> min today</span><span>This week: <b>${w.min}</b> min · <b>${w.p}</b> pages · <b>${w.sc}</b> scene${w.sc===1?"":"s"}</span></div>`})()}`;
   $("contcard").insertAdjacentHTML("beforeend",examHTML()+bkRemHTML());if($("ex-set"))$("ex-set").onclick=openExamDate;
-  if($("bk-rem"))$("bk-rem").onclick=()=>{openSheet("Back up",backupHTML());wireBackup(renderHome)};
   $("contbtn").onclick=()=>{const k=sIdx(lp.id);goScene(k,pos&&pos.s===lp.id?{key:pos.key}:{page:0})};
   $("studybtn").onclick=()=>goStudy();
   let h="";
@@ -179,7 +166,7 @@ function favLine(t,id,j){if(id==null||!FAV.length&&!SEL)return gloss(t);const ws
   const add=(a,b,k,c,sel)=>{if(j<a[0]||j>b[0])return;const s=j===a[0]?a[1]:0,e=Math.min(ws.length-1,j===b[0]?b[1]:ws.length-1);if(s>=ws.length||e<s)return;cov.push({s:ws[s][0],e:ws[e][1],k,c:fcOk(c),sel})};
   FAV.forEach(f=>{if(f.id===id&&!(SEL&&SEL.edit===f.t))add(f.a,f.b,f.t,f.c,false)});if(SEL&&SEL.id===id)add(SEL.a,SEL.b,SEL.edit||"",SEL.c,true);
   if(!cov.length)return gloss(t);const P=[...new Set([0,t.length,...cov.flatMap(c=>[c.s,c.e])])].sort((a,b)=>a-b);let h="",g=null,buf="";
-  const flush=()=>{if(!buf)return;h+=g?`<mark class="fph fc-${g.c}${g.sel?" fsel":""}"${g.k!==""?` data-fp="${g.k}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
+  const flush=()=>{if(!buf)return;h+=g?`<mark class="fph fc-${g.c}${g.sel?" fsel":""}"${g.k!==""?` data-fp="${esc(g.k)}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
   for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];let top=null;cov.forEach(c=>{if(c.s<=a&&c.e>=b)top=c});if(top!==g){flush();g=top}buf+=t.slice(a,b)}flush();return h}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
 function linesHTML(it,a,b){let h="";const cp=CPL[it.id];partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,cp!=null&&j>=cp,it.id,j);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
@@ -225,7 +212,7 @@ function blockHTML(bk,p){
   if(S.mode==="orig")body=`<div class="o">${linesHTML(it,us[0][0],us[us.length-1][1])}</div>`;
   else if(whole&&partsOf(it).length<2)body=`<div class="o">${linesHTML(it,0,it.lines.length-1)}</div><div class="m">${paras(it.m)}</div>`;
   else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2])}</div></div>`).join("");
-  const hc=m.hl?" hl hl-"+(m.hl===true?"ev":m.hl):"";
+  const hl=hlOf(m),hc=hl?" hl hl-"+hl:"";
   return `<article class="blk sp${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}"><div class="hd"><span class="nm${cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div><div class="body">${body}</div></article>`;
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ---------- */
@@ -288,7 +275,7 @@ function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidde
     setTimeout(()=>{const sp=pg.querySelector(".sp[data-id]");if(!sp)return;const l=sp.querySelector(".o .l")||sp.querySelector(".o");st.who=first&&first.t==="sp"?title(first.it.who):"";st.line=l?l.textContent.replace(/^\s*\d+\s*/,"").trim().slice(0,140):"";LS.set("folio-stat-"+PLAY,JSON.stringify(st))},250)}
   if(i===cur.pages.length-1&&!prog.done[p.id]){prog.done[p.id]=Date.now();saveProg()}
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140);
-  $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;$("pgbar").style.width=((i+1)/n*100)+"%";logRead();
+  $("pgfoot").textContent=`${sName(p)} · ${i+1} / ${n}`;$("pgbar").style.width=((i+1)/n*100)+"%";if(!keep)logRead();
   $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
   $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
   const r=$("p-range");r.max=n;r.value=i+1;bmState();
@@ -372,7 +359,7 @@ function wordAt(x,y){const el=document.elementFromPoint(x,y),l=el&&el.closest&&e
   if(!node||!l.contains(node))return null;const r=document.createRange();r.setStart(l,0);r.setEnd(node,off);const n=r.toString().length;
   const ws=[];l.textContent.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return null;let i=ws.findIndex(w=>n<w[1]);if(i<0)i=ws.length-1;
   return {id:+sp.dataset.id,w:[+l.dataset.j,i]}}
-function startSel(h){if(toolsId!=null)closePanel();hideGloss();SEL={id:h.id,a:h.w,b:h.w,anc:h.w,drag:true,edit:0,c:fcOk(LS.get(PFX+"fc")),note:""};selPaint(true)}
+function startSel(h,drag=true){if(toolsId!=null)closePanel();hideGloss();SEL={id:h.id,a:h.w,b:h.w,anc:h.w,drag,edit:0,c:fcOk(LS.get(PFX+"fc")),note:""};selPaint(true)}
 function editSel(f){hideGloss();if(toolsId!=null)closePanel();SEL={id:f.id,a:f.a.slice(),b:f.b.slice(),anc:f.a.slice(),drag:false,edit:f.t,c:fcOk(f.c),note:f.note||""};selPaint(true)}
 function selMove(w){if(wlt(w,SEL.a))SEL.a=w;else if(wlt(SEL.b,w))SEL.b=w;else if(wlin(SEL.id,w)-wlin(SEL.id,SEL.a)<=wlin(SEL.id,SEL.b)-wlin(SEL.id,w))SEL.a=w;else SEL.b=w;SEL.anc=SEL.a;selPaint()}
 function clearSel(){if(!SEL)return;SEL=null;const d=$("fsbar");if(d)d.hidden=true;refreshMarks()}
@@ -401,7 +388,9 @@ function saveSel(){if(!SEL)return;const {id,a,b,c}=SEL,note=(SEL.note||"").trim(
 /* ---------- speech tools: side panel (wide) or sheet (phone) ---------- */
 let toolsId=null;
 const HLC=[["ev","Evidence"],["fav","Favourite"],["cf","Confusing"]];
-const hlOf=m=>m.hl===true?"ev":m.hl||"";
+/* stored values come from this device or an imported backup: only known highlight keys and theme ids reach the page */
+const hlOf=m=>{const h=m.hl===true?"ev":m.hl;return HLC.some(x=>x[0]===h)?h:""};
+const thOf=m=>(Array.isArray(m.th)?m.th:[]).filter(x=>QUOTES.themes[x]);
 function pairHTML(sp,q,cur){const og=sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
   return `<div class="pair${cur?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`}
 const partAt=(el,sp)=>{const pt=el&&el.closest&&(el.closest(".pt")||(el.closest(".chunk")||sp).querySelector(".pt"));return pt?+pt.dataset.p:0};
@@ -409,7 +398,7 @@ function toolsHTML(id,pi){
   const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[];
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
-    <div class="iconrow">${HLC.map(([k,l])=>`<button class="ib hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i>${l}</button>`).join("")}<button class="ib" id="t-fph"><span>♥</span>Favourite a phrase${FAV.some(f=>f.id===id)?` (${FAV.filter(f=>f.id===id).length})`:""}</button></div>
+    <div class="iconrow">${HLC.map(([k,l])=>`<button class="ib hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i>${l}</button>`).join("")}<button class="ib" id="t-fph"><span>♥</span>Select a phrase${FAV.some(f=>f.id===id)?` (${FAV.filter(f=>f.id===id).length})`:""}</button></div>
     <div class="iconrow"><button class="ib" id="t-focus"><span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}</button><button class="ib" id="t-follow"><span>◐</span>${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))}</button><button class="ib" id="t-copy"><span>⧉</span>Copy</button><button class="ib" id="t-img"><span>▣</span>Image</button></div>
     <h3 class="lbl">Tag themes</h3><div class="tchips">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" data-tth="${k}" aria-pressed="${(m.th||[]).includes(k)}">${esc(v[0])}</button>`).join("")}</div>
     <div style="height:12px"></div><div class="modern">${pairHTML(sp,q)}</div>
@@ -431,7 +420,7 @@ function wireTools(id,pi){
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
   document.querySelectorAll(".tool [data-tth]").forEach(b=>b.onclick=()=>{const k=b.dataset.tth,th=((marks[id]||{}).th||[]).slice(),i=th.indexOf(k);if(i<0)th.push(k);else th.splice(i,1);saveMark(id,{th});b.setAttribute("aria-pressed",i<0);toast(i<0?"Tagged: "+QUOTES.themes[k][0]:"Tag removed")});
   $("t-img").onclick=()=>{const kq=(QBY[id]||[])[0];openImage(kq?[kq.text]:sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")),title(sp.who),sName(sceneOf(id))+", lines "+(sp.start+q[0])+"–"+(sp.start+q[1]))};
-  $("t-fph").onclick=()=>openPhrase(id,pi);
+  $("t-fph").onclick=()=>{const w=[q[0],0];closeSheet();closePanel();showPartPage(id,pi);startSel({id,w},false);toast("Tap a word to extend the phrase")};
   $("t-copy").onclick=()=>copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
 }
 /* tap an underlined word: small pop-up with its meaning (wins over the part tap) */
@@ -479,33 +468,6 @@ function openPart(id,pi,all){
   if($("qn-save"))$("qn-save").onclick=()=>{const v=$("qn").value;saveMark(id,{note:v});markPart();toast(v.trim()?"Note saved":"Note removed")};
   addRecent(id,pi);
 }
-/* favourite a phrase: tap the first word, then the last (one speech, original text) */
-function phraseHTML(id,pi){const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0],mine=FAV.filter(f=>f.id===id);
-  const saved=(l,w)=>mine.some(f=>(l>f.a[0]||l===f.a[0]&&w>=f.a[1])&&(l<f.b[0]||l===f.b[0]&&w<=f.b[1]));
-  return `<div class="tool"><div class="ref">${sName(sceneOf(id))} · lines ${sp.start}–${sp.start+sp.lines.length-1}</div>
-    <h3 class="lbl">Favourite a phrase</h3><p class="muted fp-help" id="fp-help">Tap the first word, then the last word.</p>
-    <div class="fpick" id="fp-pick">${sp.lines.map((l,li)=>`<div class="fl${li>=q[0]&&li<=q[1]?" inpt":""}" data-fl="${li}">${lineWords(l).map((w,wi)=>`<button type="button" class="fw${saved(li,wi)?" sv":""}" data-fw="${li}:${wi}">${esc(w)}</button>`).join(" ")}</div>`).join("")}</div>
-    <div class="fp-sel" id="fp-sel" hidden></div>
-    <div class="fs-sw fp-sw" role="group" aria-label="Highlight colour" style="margin-top:10px">${FC.map(([k,l])=>`<button type="button" class="sw fc-${k}" data-pfc="${k}" aria-label="${l}" aria-pressed="false"></button>`).join("")}</div>
-    <label for="fp-note" class="lbl" style="display:block;margin:14px 0 8px">Note (optional)</label><textarea id="fp-note" placeholder="Why this phrase?"></textarea>
-    <div class="acts"><button class="btn sm primary" id="fp-save" disabled>Save favourite</button><button class="btn sm" id="fp-back">‹ Back to speech tools</button></div>
-    ${mine.length?`<h3 class="lbl">Saved from this speech</h3>`+mine.map(f=>`<div class="snote fp-item"><i class="hlk fc-${fcOk(f.c)}"></i><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}<button class="link" data-fpx="${esc(f.t)}">Remove</button></div>`).join(""):""}
-  </div>`}
-function openPhrase(id,pi){const sp=speech[id],h=phraseHTML(id,pi);
-  if(wide()&&$("panel").classList.contains("open")){$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=h;$("panel-body").scrollTop=0}else openSheet(title(sp.who),h);
-  const box=$("fp-pick"),first=box.querySelector(".fl.inpt");if(first&&pi)first.scrollIntoView({block:"nearest"});
-  let a=null,b=null,pc=fcOk(LS.get(PFX+"fc"));const pcs=()=>document.querySelectorAll(".tool [data-pfc]").forEach(x=>{const on=x.dataset.pfc===pc;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)});pcs();
-  document.querySelectorAll(".tool [data-pfc]").forEach(x=>x.onclick=()=>{pc=x.dataset.pfc;pcs()});
-  const pos=el=>el.dataset.fw.split(":").map(Number),lt=(x,y)=>x[0]<y[0]||x[0]===y[0]&&x[1]<y[1];
-  const paint=()=>{box.querySelectorAll(".fw").forEach(el=>{const p=pos(el),on=a&&!lt(p,a)&&!lt(b||a,p);el.classList.toggle("on",!!on);el.classList.toggle("end",!!a&&!b&&p[0]===a[0]&&p[1]===a[1])});
-    const sel=$("fp-sel");if(a){sel.hidden=false;sel.textContent="“"+favText(id,a,b||a)+"”"}else sel.hidden=true;
-    $("fp-help").textContent=!a?"Tap the first word, then the last word.":!b?"Now tap the last word (or save just this word).":"Save it, or tap a word to start again.";$("fp-save").disabled=!a};
-  box.onclick=e=>{const w=e.target.closest(".fw");if(!w)return;const p=pos(w);if(!a||b){a=p;b=null}else{b=p;if(lt(b,a))[a,b]=[b,a]}paint()};
-  $("fp-save").onclick=()=>{if(!a)return;const e=b||a;if(FAV.some(f=>f.id===id&&f.a+""===a+""&&f.b+""===e+"")){toast("Already saved");return}
-    FAV.push({id,a,b:e,txt:favText(id,a,e),note:$("fp-note").value.trim(),c:pc,t:Date.now()});LS.set(PFX+"fc",pc);favSort();saveFav();refreshMarks();markPart();toast("Phrase saved. Find it in My notes.");openPhrase(id,pi)};
-  $("fp-back").onclick=()=>openTools(id,pi);
-  document.querySelectorAll(".tool [data-fpx]").forEach(x=>x.onclick=()=>{FAV=FAV.filter(f=>String(f.t)!==x.dataset.fpx);saveFav();refreshMarks();markPart();toast("Phrase removed");openPhrase(id,pi)});
-}
 function openTools(id,pi){
   pi=pi||0;toolsId=id;partSel={id,pi};const sp=speech[id];
   pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
@@ -538,7 +500,7 @@ function studyQuotes(){
   const whos=[...new Set(QUOTES.quotes.map(q=>speech[q.id].who))];
   const list=QUOTES.quotes.filter(q=>(!qf.who||speech[q.id].who===qf.who)&&(!qf.th||q.themes.includes(qf.th)));
   $("sbody").innerHTML=`<p class="intro">The play's most quoted lines, in order. Filter by character or theme.</p>
-   <div class="qsel"><label><span>Character</span><select data-qf="who"><option value="">All characters</option>${whos.map(w=>`<option value="${w}"${qf.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></label>
+   <div class="qsel"><label><span>Character</span><select data-qf="who"><option value="">All characters</option>${whos.map(w=>`<option value="${esc(w)}"${qf.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></label>
    <label><span>Theme</span><select data-qf="th"><option value="">All themes</option>${Object.entries(QUOTES.themes).map(([k,v])=>`<option value="${k}"${qf.th===k?" selected":""}>${esc(v[0])}</option>`).join("")}</select></label></div>
    <p class="muted" style="font-size:.875rem">${list.length} quote${list.length===1?"":"s"}</p>${list.map(quoteHTML).join("")}`;
 }
@@ -783,29 +745,28 @@ function revisionText(){
   t+=`\nQUOTES LEARNT (${kn.length})\n`+(kn.map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")||"  None yet")+"\n";
   const fv=FAV.filter(f=>speech[f.id]);t+=`\nFAVOURITE PHRASES (${fv.length})\n`+(fv.map(f=>`  "${f.txt}" (${title(speech[f.id].who)}, ${sName(sceneOf(f.id))})${f.note?`\n    My note: ${f.note.replace(/\n/g," ")}`:""}`).join("\n")||"  None yet")+"\n";
   return t}
-function download(name,text,type){if(window.claude){copyText(text);setTimeout(()=>toast("Files can’t be saved here, so it was copied instead. The home-screen app can save files."),1300);return}try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
+function download(name,text,type){try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
   toast("Downloading. If nothing appears, use Copy instead.")}
-const backup=()=>JSON.stringify({app:CFG.app,v:2,saved:new Date().toISOString(),marks,prog,bm:BM,fav:FAV,plan:PLAN,prof:PROF,log:LOG});
 function restore(txt){if(!String(txt||"").trim()){toast("Paste a backup first, or choose the file");return false}let d;try{d=JSON.parse(String(txt).trim())}catch(e){toast("That isn't a valid backup");return false}
   if(!d||d.app!==CFG.app){toast(`That isn't ${CFG.an} ${CFG.short} backup`);return false}
-  Object.entries(d.marks||{}).forEach(([k,v])=>{if(!marks[k]||(v.t||0)>(marks[k].t||0)){marks[k]=v;if(store)store.doc(String(k)).set(v).catch(()=>{})}});LS.set(PFX+"marks",JSON.stringify(marks));
+  Object.entries(d.marks||{}).forEach(([k,v])=>{if(!v||typeof v!=="object")return;if(!marks[k]||(v.t||0)>(marks[k].t||0)){marks[k]=v}});LS.set(PFX+"marks",JSON.stringify(marks));
   const p=d.prog||{};Object.assign(prog.done,p.done||{});Object.assign(prog.cards,p.cards||{});Object.assign(prog.srs,p.srs||{});Object.assign(prog.conf,p.conf||{});if(p.exam)prog.exam=p.exam;
   Object.entries(p.quiz||{}).forEach(([k,v])=>{if(!prog.quiz[k]||v[0]>prog.quiz[k][0])prog.quiz[k]=v});saveProg();
-  (d.bm||[]).forEach(b=>{if(!BM.some(x=>x.s===b.s&&x.key===b.key))BM.push(b)});saveBM();
+  (Array.isArray(d.bm)?d.bm:[]).forEach(b=>{if(b&&sIdx(b.s)>=0&&!BM.some(x=>x.s===b.s&&x.key===b.key))BM.push(b)});saveBM();
   (Array.isArray(d.fav)?d.fav:[]).forEach(f=>{if(!f||!speech[f.id]||!Array.isArray(f.a)||!Array.isArray(f.b))return;const a=f.a.map(Number),b=f.b.map(Number);if(a.some(isNaN)||b.some(isNaN))return;
     if(!FAV.some(x=>x.id===+f.id&&x.a+""===a+""&&x.b+""===b+""))FAV.push({id:+f.id,a,b,txt:String(f.txt||favText(+f.id,a,b)),note:String(f.note||""),c:fcOk(f.c),t:+f.t||Date.now()})});favSort();saveFav();refreshMarks();
   Object.entries(d.plan||{}).forEach(([k,v])=>{if(!(k in PLAN))PLAN[k]=v});savePlan();
   Object.entries(d.prof||{}).forEach(([k,v])=>{if(!(k in PROF))PROF[k]=v});LS.set(PFX+"prof",JSON.stringify(PROF));
   Object.entries(d.log||{}).forEach(([k,v])=>{if(!LOG[k]||v.s>LOG[k].s)LOG[k]=v});LS.set(PFX+"log",JSON.stringify(LOG));
   toast(`Imported ${Object.keys(d.marks||{}).length} notes and your progress`);return true}
-function backupHTML(){return `<div class="box"><h3>Move to another device</h3><p class="intro">Notes, highlights and progress are saved on this device. To move them, export here and import on the other device. Importing adds to what is already there.</p>
-  <div class="row"><button class="btn" id="bk-copy">Copy backup</button><button class="btn" id="bk-dl">Download backup file</button></div>
-  <label for="bk-in" class="lbl" style="display:block;margin-top:12px">Import: paste a backup, or choose the file</label><textarea id="bk-in" placeholder='Paste the backup here. It starts with {"app":"${CFG.app}"'></textarea>
-  <div class="row"><button class="btn primary" id="bk-go">Import pasted backup</button><label class="btn" for="bk-file" style="cursor:pointer">Choose backup file</label><input type="file" id="bk-file" accept=".json,application/json,text/plain" hidden></div></div>`}
+/* backups: one Folio backup on the shelf covers every play; old single-play backup files can still be imported here */
+const FOLIO_BK="../?shelf#you";
+function backupHTML(){return `<div class="box"><h3>Backup</h3><p class="intro">Notes, highlights, bookmarks and progress are saved on this device. One Folio backup saves them for every play.</p>
+  <div class="row"><a class="btn primary" href="${FOLIO_BK}">Open Folio backup</a></div>
+  <details class="about"><summary>Import an older ${esc(CFG.short)} backup</summary>
+  <label for="bk-in" class="lbl" style="display:block;margin-top:12px">Paste the backup, or choose the file. Importing adds to what is already there.</label><textarea id="bk-in" placeholder='It starts with {"app":"${CFG.app}"'></textarea>
+  <div class="row"><button class="btn primary" id="bk-go">Import pasted backup</button><label class="btn" for="bk-file" style="cursor:pointer">Choose backup file</label><input type="file" id="bk-file" accept=".json,application/json,text/plain" hidden></div></details></div>`}
 function wireBackup(after){
-  const mk=()=>LS.set(PFX+"lastbk",String(Date.now()));
-  $("bk-copy").onclick=()=>{copyText(backup());mk()};
-  $("bk-dl").onclick=()=>{download(CFG.file+"-backup.json",backup(),"application/json");mk()};
   $("bk-go").onclick=()=>{if(restore($("bk-in").value)){$("bk-in").value="";after&&after()}};
   $("bk-file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{if(restore(r.result))after&&after()};r.readAsText(f)};
 }
@@ -854,7 +815,7 @@ function openSearch(q){openSheet("Search",`<label for="sq" class="sr">Search</la
   const sq=$("sq"),run=()=>{$("sres").innerHTML=searchResults(sq.value)};let t;sq.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});run();setTimeout(()=>sq.focus(),30)}
 setInterval(()=>{if(/timed$/.test(S.theme))applySettings()},600000);
 /* bookmarks: whole pages, this device (and in backups) */
-let BM=[];try{BM=JSON.parse(LS.get(PFX+"bm")||"[]")}catch(e){}
+let BM=[];try{BM=JSON.parse(LS.get(PFX+"bm")||"[]")}catch(e){}if(!Array.isArray(BM))BM=[];BM=BM.filter(b=>b&&sIdx(b.s)>=0);
 const saveBM=()=>LS.set(PFX+"bm",JSON.stringify(BM));
 const bmHere=()=>pos?BM.findIndex(b=>b.s===pos.s&&b.key===pos.key):-1;
 function bmState(){const b=$("b-bm");if(!b)return;const on=bmHere()>=0;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.setAttribute("aria-label",on?"Remove bookmark":"Bookmark this page")}
@@ -872,11 +833,11 @@ function notesList(){const ids=notesIds();let h=`<p class="muted">${ids.length} 
   ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k),hl=hlOf(m);
     if(p.act!==la){h+=`<div class="eyebrow" style="margin:14px 0 0">${LAT[p.act]}</div>`;la=p.act}
     const o=sp.lines.join(" ").replace(/~/g,"");
-    h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${hl?`<i class="hlk ${hl}"></i> `:""}${esc(where(sp))}${(m.th||[]).length?" · "+m.th.map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><span style="font-family:var(--f-old)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote">${esc(m.note)}</div>`:""}</div>`});
+    h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${hl?`<i class="hlk ${hl}"></i> `:""}${esc(where(sp))}${thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><span style="font-family:var(--f-old)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote">${esc(m.note)}</div>`:""}</div>`});
   return h}
 function openNotes(){
   const all=Object.keys(marks).filter(k=>speech[k]),whos=[...new Set(all.map(k=>speech[k].who))].sort();
-  let h=`<p class="muted">${store?"Saved to your account.":"Saved on this device."} Tap one to go to it.</p>`;
+  let h=`<p class="muted">Saved on this device. Tap one to go to it.</p>`;
   if(BM.length)h+=`<div class="eyebrow" style="margin:10px 0 0">Bookmarks</div>`+BM.map((b,i)=>`<div class="item" data-bm="${i}" tabindex="0"><small>${esc(sName(scenes[sIdx(b.s)]))} · <button class="link" data-bmdel="${i}">Remove</button></small><span style="font-family:var(--f-old)">${esc(b.txt||"")}</span></div>`).join("");
   const fv=FAV.filter(f=>speech[f.id]);if(fv.length)h+=`<div class="eyebrow" style="margin:14px 0 0">Favourite phrases</div>`+fv.map(f=>`<div class="item" data-fph="${esc(f.t)}" tabindex="0"><small><i class="hlk fc-${fcOk(f.c)}"></i> ${esc(where(speech[f.id]))} · <button class="link" data-fpdel="${esc(f.t)}">Remove</button></small><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}</div>`).join("");
   if(!all.length)h+=`<p>No notes yet. While reading, press and hold a word to save a favourite phrase, or open Speech tools from that bar to highlight a speech, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
@@ -890,7 +851,7 @@ function openNotes(){
   ["c","th","who"].forEach(f=>$("nf-"+f).onchange=e=>{nf[f]=e.target.value;$("nlist").innerHTML=notesList()});
   const txt=()=>notesIds().map(k=>{const sp=speech[k],m=marks[k];return `${where(sp)}\n${sp.lines.map(l=>l.replace(/^~/,"")).join("\n")}${m.note?`\nNote: ${m.note}`:""}`}).join("\n\n");
   $("nf-copy").onclick=()=>copyText("MY "+CFG.short.toUpperCase()+" NOTES\n\n"+txt());
-  $("nf-print").onclick=()=>printArea("My "+CFG.short+" notes",notesIds().map(k=>{const sp=speech[k],m=marks[k];return `<div class="pi"><small>${esc(where(sp))}${(m.th||[]).length?" · "+m.th.map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><div>${sp.lines.map(l=>esc(l.replace(/^~/,""))).join("<br>")}</div>${m.note?`<i>${esc(m.note)}</i>`:""}</div>`}).join(""));
+  $("nf-print").onclick=()=>printArea("My "+CFG.short+" notes",notesIds().map(k=>{const sp=speech[k],m=marks[k];return `<div class="pi"><small>${esc(where(sp))}${thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><div>${sp.lines.map(l=>esc(l.replace(/^~/,""))).join("<br>")}</div>${m.note?`<i>${esc(m.note)}</i>`:""}</div>`}).join(""));
   $("nf-share").onclick=()=>shareIds(notesIds());
 }
 function printArea(tl,html){let pa=$("printarea");if(!pa){pa=document.createElement("div");pa.id="printarea";document.body.appendChild(pa)}
@@ -967,4 +928,3 @@ function hint(){if(LS.get(PFX+"hint3")||view!=="reader")return;const d=document.
 /* ---------- start ---------- */
 applySettings();
 route();
-initStore();

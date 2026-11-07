@@ -39,6 +39,11 @@ function constJSON(html, name, file) {
 
 const index = rd("index.html");
 const PLAYS = constJSON(index, "PLAYS", "index.html");
+/* The launch redirect in <head> keeps its own id list (it runs before PLAYS exists): it must match. */
+{ const m = index.match(/ok=(\[[^\]]*\])\.indexOf\(last\)/);
+  if (!m) throw new Error("index.html: launch redirect ok=[...] not found");
+  const ok = JSON.parse(m[1]), ids = PLAYS.map(p => p.id);
+  if (ok.join() !== ids.join()) throw new Error(`index.html: launch redirect ok=${JSON.stringify(ok)} != PLAYS ids ${JSON.stringify(ids)}`); }
 
 /* 1. Play pages. */
 const SHELL = rd("tools/play.html");

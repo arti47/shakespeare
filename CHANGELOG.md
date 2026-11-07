@@ -4,6 +4,23 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-11-07
+
+### Changed
+- Speech tools: *Select a phrase* now starts the on-page selection at that part (tap a word to extend), replacing the separate word picker (#29).
+- Play Settings, Revision sheet and the backup reminder point to the single Folio backup; each play keeps *Import an older backup* so old single-play files still restore (#29).
+- Small labels (stage, on stage, tags, Story so far, shelf week days, counts) never drop below 14px at any text size (#29).
+- Larger tap areas for text links, *‹ Folio*, *Story so far* and the page slider (#29).
+- The phone status-bar colour follows the chosen theme on the shelf and in every play (#29).
+
+### Fixed
+- Reading log no longer counts a page when the screen is re-laid out (resize, fonts loading, reopening), only on real page turns (#29).
+- Damaged or hand-edited saved data and imported backups can no longer inject markup via highlight values or break My notes with unknown themes, bookmarks or phrases (#29).
+
+### Removed
+- Unused `ALIGN` data from every play (about 360 KB less to download and cache) (#29).
+- Inactive account-sync code from the reader (#29).
+
 ## [1.2.0] — 2026-11-07
 
 ### Added
