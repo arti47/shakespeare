@@ -13,4 +13,8 @@ Live site: https://arti47.github.io/shakespeare/
 - `much-ado/` — Much Ado About Nothing (prefix `ado-`).
 - `tempest/` — The Tempest (prefix `tem-`).
 
-Conventions for play folders: per-play localStorage prefix (`oth-`); shared settings under `folio-`; play writes `folio-last` and `folio-stat-<id>`; play links `../manifest.webmanifest`, registers `../sw.js`, and has a `‹ Folio` link to `../?shelf`. Add the play to `PLAYS` in the Folio build script and rebuild `index.html`/`sw.js`.
+Conventions for play folders: per-play localStorage prefix (`oth-`); shared settings under `folio-`; play writes `folio-last` and `folio-stat-<id>`; play links `../manifest.webmanifest`, registers `../sw.js`, and has a `‹ Folio` link to `../?shelf`. Add the play to `PLAYS` in `index.html`, then run `node tools/build.js`.
+
+## Build
+
+`node tools/build.js` regenerates `search/<id>.json` (from each play's inline `DATA`), `sw.js` (precache list, cache name) and `version.json`. The build hash is a content hash of every cached file, so it only changes when something does. Run it after any edit; CI runs `node tools/build.js --check` and fails if outputs are stale. Local preview: `python3 -m http.server` in the repo root.
