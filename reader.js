@@ -36,6 +36,13 @@ const pageWords=p=>p.items.reduce((n,it)=>n+(it.t==="sp"?it.lines.join(" ").spli
 /* ---------- saved state: marks + progress (account db, browser fallback) ---------- */
 let marks={},prog={done:{},quiz:{},cards:{}},store=null,progDoc=null;
 try{marks=JSON.parse(LS.get(PFX+"marks")||"{}")}catch(e){}
+/* favourite phrases: a run of words in one speech's original lines, this device (and in backups).
+   {id, a:[line,word], b:[line,word], txt, note, t}; line = index into the speech's lines, word = index of a non-space run */
+let FAV=[];try{FAV=JSON.parse(LS.get(PFX+"fav")||"[]")}catch(e){}if(!Array.isArray(FAV))FAV=[];
+const saveFav=()=>LS.set(PFX+"fav",JSON.stringify(FAV));
+const favSort=()=>FAV.sort((x,y)=>x.id-y.id||x.a[0]-y.a[0]||x.a[1]-y.a[1]||x.b[0]-y.b[0]||x.b[1]-y.b[1]);
+const lineWords=l=>String(l).replace(/^~/,"").split(/\s+/).filter(Boolean);
+function favText(id,a,b){const sp=speech[id];if(!sp)return "";const out=[];for(let l=a[0];l<=b[0];l++){const w=lineWords(sp.lines[l]||"");out.push(w.slice(l===a[0]?a[1]:0,l===b[0]?b[1]+1:w.length).join(" "))}return out.filter(Boolean).join(" / ")}
 try{prog=Object.assign(prog,JSON.parse(LS.get(PFX+"prog")||"{}"));prog.cards=prog.cards||{}}catch(e){}
 prog.srs=prog.srs||{};prog.miss=prog.miss||{q:[],c:{}};prog.conf=prog.conf||{};prog.exam=prog.exam||"";
 async function initStore(){
@@ -106,7 +113,7 @@ function goStudy(tab){if(tab){S.stab=tab;LS.set(PFX+"stab",tab)}setHash("study",
 function goHome(){setHash("home",true);show("home");renderHome();scrollTo(0,0)}
 
 /* ---------- home ---------- */
-function bkRemHTML(){const n=Object.keys(marks).length+BM.length;if(!n)return "";let f=+LS.get(PFX+"first")||0;if(!f){f=Date.now();LS.set(PFX+"first",String(f))}
+function bkRemHTML(){const n=Object.keys(marks).length+BM.length+FAV.length;if(!n)return "";let f=+LS.get(PFX+"first")||0;if(!f){f=Date.now();LS.set(PFX+"first",String(f))}
   const lb=Math.max(+LS.get(PFX+"lastbk")||0,+LS.get("folio-lastbk")||0),since=Math.floor((Date.now()-Math.max(lb,f))/864e5);if(since<7)return "";
   return `<div class="examc">${lb?`It's been ${Math.floor((Date.now()-lb)/864e5)} days since you last backed up`:"You haven't backed up yet"}. Your ${n} note${n===1?"":"s"} and bookmarks live only on this device. <button class="link" id="bk-rem">Back up now</button></div>`}
 function examHTML(){if(!prog.exam)return `<button class="link" id="ex-set" style="margin-top:6px">Set your exam date for a daily reading plan</button>`;
@@ -164,9 +171,14 @@ function sceneBlocks(p){
 }
 /* breathing space: long speeches get a small gap after each full sentence; modern English is split into short paragraphs */
 const endsSentence=l=>/[.?!]["'’”)\]]*\s*$/.test(l.replace(/\s*\[[^\]]*\]\s*$/,""));
-function lineHTML(l,num,cpl){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}${cpl?" cpl":""}"${num%5===0?` data-n="${num}"`:""}>${gloss(t)}</span>`}
+function lineHTML(l,num,cpl,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}${cpl?" cpl":""}"${num%5===0?` data-n="${num}"`:""}>${favLine(t,id,j)}</span>`}
+/* saved favourite phrases are wrapped in <mark class="fph"> (glossing each piece separately) */
+function favLine(t,id,j){if(id==null||!FAV.length)return gloss(t);const ws=[];t.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});const rs=[];
+  FAV.forEach(f=>{if(f.id!==id||j<f.a[0]||j>f.b[0]||!ws.length)return;const s=j===f.a[0]?f.a[1]:0,e=Math.min(ws.length-1,j===f.b[0]?f.b[1]:ws.length-1);if(s>=ws.length||e<s)return;rs.push([ws[s][0],ws[e][1],f.t])});
+  if(!rs.length)return gloss(t);rs.sort((x,y)=>x[0]-y[0]);let h="",p=0;
+  rs.forEach(([s,e,k])=>{if(e<=p)return;s=Math.max(s,p);h+=gloss(t.slice(p,s))+`<mark class="fph" data-fp="${k}">${gloss(t.slice(s,e))}</mark>`;p=e});return h+gloss(t.slice(p))}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
-function linesHTML(it,a,b){let h="";const cp=CPL[it.id];partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,cp!=null&&j>=cp);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
+function linesHTML(it,a,b){let h="";const cp=CPL[it.id];partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,cp!=null&&j>=cp,it.id,j);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
   return out.map(p=>`<p>${esc(p)}</p>`).join("")}
@@ -307,6 +319,7 @@ function endPress(e,cancel){if(!press||pinch)return;clearTimeout(press.timer);cl
   const pp=P.tgt.closest&&P.tgt.closest("[data-pop]");if(pp){showPop(pp,pp.dataset.pop,pp.dataset.text);return}
   const rc=P.tgt.closest&&P.tgt.closest("[data-recap]");if(rc){openSheet("Story so far",recapHTML(rc.dataset.recap));return}
   const pr=P.tgt.closest&&P.tgt.closest("[data-pred]");if(pr){const [s,i]=pr.dataset.pred.split(":");PRED[s]=+i;LS.set(PFX+"pred",JSON.stringify(PRED));refreshMarks();toast("Guess saved. Turn the page to find out.");return}
+  const fp=P.tgt.closest&&!P.tgt.closest("abbr.g")&&P.tgt.closest("mark.fph");if(fp){const f=FAV.find(x=>String(x.t)===fp.dataset.fp);if(f){showPop(fp,"♥ Favourite phrase"+(f.note?"":" · in My notes"),f.note||f.txt);return}}
   const gw=nearGloss(P.tgt,P.x,P.y);if(gw){showGloss(gw);return}
   if(P.sp){const pt=P.tgt.closest(".pt")||(P.tgt.closest(".chunk")||P.sp).querySelector(".pt");
     if(pt){const id=+P.sp.dataset.id,pi=+pt.dataset.p;if(partSel&&partSel.id===id&&partSel.pi===pi&&toolsId!=null){closePanel();return}openPart(id,pi,false);return}}
@@ -355,7 +368,7 @@ function toolsHTML(id,pi){
   const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[];
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
-    <div class="iconrow">${HLC.map(([k,l])=>`<button class="ib hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i>${l}</button>`).join("")}</div>
+    <div class="iconrow">${HLC.map(([k,l])=>`<button class="ib hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i>${l}</button>`).join("")}<button class="ib" id="t-fph"><span>♥</span>Favourite a phrase${FAV.some(f=>f.id===id)?` (${FAV.filter(f=>f.id===id).length})`:""}</button></div>
     <div class="iconrow"><button class="ib" id="t-focus"><span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}</button><button class="ib" id="t-follow"><span>◐</span>${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))}</button><button class="ib" id="t-copy"><span>⧉</span>Copy</button><button class="ib" id="t-img"><span>▣</span>Image</button></div>
     <h3 class="lbl">Tag themes</h3><div class="tchips">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" data-tth="${k}" aria-pressed="${(m.th||[]).includes(k)}">${esc(v[0])}</button>`).join("")}</div>
     <div style="height:12px"></div><div class="modern">${pairHTML(sp,q)}</div>
@@ -377,6 +390,7 @@ function wireTools(id,pi){
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
   document.querySelectorAll(".tool [data-tth]").forEach(b=>b.onclick=()=>{const k=b.dataset.tth,th=((marks[id]||{}).th||[]).slice(),i=th.indexOf(k);if(i<0)th.push(k);else th.splice(i,1);saveMark(id,{th});b.setAttribute("aria-pressed",i<0);toast(i<0?"Tagged: "+QUOTES.themes[k][0]:"Tag removed")});
   $("t-img").onclick=()=>{const kq=(QBY[id]||[])[0];openImage(kq?[kq.text]:sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")),title(sp.who),sName(sceneOf(id))+", lines "+(sp.start+q[0])+"–"+(sp.start+q[1]))};
+  $("t-fph").onclick=()=>openPhrase(id,pi);
   $("t-copy").onclick=()=>copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
 }
 /* tap an underlined word: small pop-up with its meaning (wins over the part tap) */
@@ -423,6 +437,30 @@ function openPart(id,pi,all){
   if($("pt-prev"))$("pt-prev").onclick=()=>go(-1);if($("pt-next"))$("pt-next").onclick=()=>go(1);
   if($("qn-save"))$("qn-save").onclick=()=>{const v=$("qn").value;saveMark(id,{note:v});markPart();toast(v.trim()?"Note saved":"Note removed")};
   addRecent(id,pi);
+}
+/* favourite a phrase: tap the first word, then the last (one speech, original text) */
+function phraseHTML(id,pi){const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0],mine=FAV.filter(f=>f.id===id);
+  const saved=(l,w)=>mine.some(f=>(l>f.a[0]||l===f.a[0]&&w>=f.a[1])&&(l<f.b[0]||l===f.b[0]&&w<=f.b[1]));
+  return `<div class="tool"><div class="ref">${sName(sceneOf(id))} · lines ${sp.start}–${sp.start+sp.lines.length-1}</div>
+    <h3 class="lbl">Favourite a phrase</h3><p class="muted fp-help" id="fp-help">Tap the first word, then the last word.</p>
+    <div class="fpick" id="fp-pick">${sp.lines.map((l,li)=>`<div class="fl${li>=q[0]&&li<=q[1]?" inpt":""}" data-fl="${li}">${lineWords(l).map((w,wi)=>`<button type="button" class="fw${saved(li,wi)?" sv":""}" data-fw="${li}:${wi}">${esc(w)}</button>`).join(" ")}</div>`).join("")}</div>
+    <div class="fp-sel" id="fp-sel" hidden></div>
+    <label for="fp-note" class="lbl" style="display:block;margin:14px 0 8px">Note (optional)</label><textarea id="fp-note" placeholder="Why this phrase?"></textarea>
+    <div class="acts"><button class="btn sm primary" id="fp-save" disabled>Save favourite</button><button class="btn sm" id="fp-back">‹ Back to speech tools</button></div>
+    ${mine.length?`<h3 class="lbl">Saved from this speech</h3>`+mine.map(f=>`<div class="snote fp-item"><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}<button class="link" data-fpx="${esc(f.t)}">Remove</button></div>`).join(""):""}
+  </div>`}
+function openPhrase(id,pi){const sp=speech[id],h=phraseHTML(id,pi);
+  if(wide()&&$("panel").classList.contains("open")){$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=h;$("panel-body").scrollTop=0}else openSheet(title(sp.who),h);
+  const box=$("fp-pick"),first=box.querySelector(".fl.inpt");if(first&&pi)first.scrollIntoView({block:"nearest"});
+  let a=null,b=null;const pos=el=>el.dataset.fw.split(":").map(Number),lt=(x,y)=>x[0]<y[0]||x[0]===y[0]&&x[1]<y[1];
+  const paint=()=>{box.querySelectorAll(".fw").forEach(el=>{const p=pos(el),on=a&&!lt(p,a)&&!lt(b||a,p);el.classList.toggle("on",!!on);el.classList.toggle("end",!!a&&!b&&p[0]===a[0]&&p[1]===a[1])});
+    const sel=$("fp-sel");if(a){sel.hidden=false;sel.textContent="“"+favText(id,a,b||a)+"”"}else sel.hidden=true;
+    $("fp-help").textContent=!a?"Tap the first word, then the last word.":!b?"Now tap the last word (or save just this word).":"Save it, or tap a word to start again.";$("fp-save").disabled=!a};
+  box.onclick=e=>{const w=e.target.closest(".fw");if(!w)return;const p=pos(w);if(!a||b){a=p;b=null}else{b=p;if(lt(b,a))[a,b]=[b,a]}paint()};
+  $("fp-save").onclick=()=>{if(!a)return;const e=b||a;if(FAV.some(f=>f.id===id&&f.a+""===a+""&&f.b+""===e+"")){toast("Already saved");return}
+    FAV.push({id,a,b:e,txt:favText(id,a,e),note:$("fp-note").value.trim(),t:Date.now()});favSort();saveFav();refreshMarks();markPart();toast("Phrase saved. Find it in My notes.");openPhrase(id,pi)};
+  $("fp-back").onclick=()=>openTools(id,pi);
+  document.querySelectorAll(".tool [data-fpx]").forEach(x=>x.onclick=()=>{FAV=FAV.filter(f=>String(f.t)!==x.dataset.fpx);saveFav();refreshMarks();markPart();toast("Phrase removed");openPhrase(id,pi)});
 }
 function openTools(id,pi){
   pi=pi||0;toolsId=id;partSel={id,pi};const sp=speech[id];
@@ -699,16 +737,19 @@ function revisionText(){
   const kn=QUOTES.quotes.filter(q=>prog.cards[q.i]),un=QUOTES.quotes.filter(q=>!prog.cards[q.i]);
   t+=`\nQUOTES STILL TO LEARN (${un.length})\n`+un.map(q=>`  "${q.text}" (${title(speech[q.id].who)}, ${sName(sceneOf(q.id))})`).join("\n")+"\n";
   t+=`\nQUOTES LEARNT (${kn.length})\n`+(kn.map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")||"  None yet")+"\n";
+  const fv=FAV.filter(f=>speech[f.id]);t+=`\nFAVOURITE PHRASES (${fv.length})\n`+(fv.map(f=>`  "${f.txt}" (${title(speech[f.id].who)}, ${sName(sceneOf(f.id))})${f.note?`\n    My note: ${f.note.replace(/\n/g," ")}`:""}`).join("\n")||"  None yet")+"\n";
   return t}
 function download(name,text,type){if(window.claude){copyText(text);setTimeout(()=>toast("Files can’t be saved here, so it was copied instead. The home-screen app can save files."),1300);return}try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
   toast("Downloading. If nothing appears, use Copy instead.")}
-const backup=()=>JSON.stringify({app:CFG.app,v:2,saved:new Date().toISOString(),marks,prog,bm:BM,plan:PLAN,prof:PROF,log:LOG});
+const backup=()=>JSON.stringify({app:CFG.app,v:2,saved:new Date().toISOString(),marks,prog,bm:BM,fav:FAV,plan:PLAN,prof:PROF,log:LOG});
 function restore(txt){if(!String(txt||"").trim()){toast("Paste a backup first, or choose the file");return false}let d;try{d=JSON.parse(String(txt).trim())}catch(e){toast("That isn't a valid backup");return false}
   if(!d||d.app!==CFG.app){toast(`That isn't ${CFG.an} ${CFG.short} backup`);return false}
   Object.entries(d.marks||{}).forEach(([k,v])=>{if(!marks[k]||(v.t||0)>(marks[k].t||0)){marks[k]=v;if(store)store.doc(String(k)).set(v).catch(()=>{})}});LS.set(PFX+"marks",JSON.stringify(marks));
   const p=d.prog||{};Object.assign(prog.done,p.done||{});Object.assign(prog.cards,p.cards||{});Object.assign(prog.srs,p.srs||{});Object.assign(prog.conf,p.conf||{});if(p.exam)prog.exam=p.exam;
   Object.entries(p.quiz||{}).forEach(([k,v])=>{if(!prog.quiz[k]||v[0]>prog.quiz[k][0])prog.quiz[k]=v});saveProg();
   (d.bm||[]).forEach(b=>{if(!BM.some(x=>x.s===b.s&&x.key===b.key))BM.push(b)});saveBM();
+  (Array.isArray(d.fav)?d.fav:[]).forEach(f=>{if(!f||!speech[f.id]||!Array.isArray(f.a)||!Array.isArray(f.b))return;const a=f.a.map(Number),b=f.b.map(Number);if(a.some(isNaN)||b.some(isNaN))return;
+    if(!FAV.some(x=>x.id===+f.id&&x.a+""===a+""&&x.b+""===b+""))FAV.push({id:+f.id,a,b,txt:String(f.txt||favText(+f.id,a,b)),note:String(f.note||""),t:+f.t||Date.now()})});favSort();saveFav();refreshMarks();
   Object.entries(d.plan||{}).forEach(([k,v])=>{if(!(k in PLAN))PLAN[k]=v});savePlan();
   Object.entries(d.prof||{}).forEach(([k,v])=>{if(!(k in PROF))PROF[k]=v});LS.set(PFX+"prof",JSON.stringify(PROF));
   Object.entries(d.log||{}).forEach(([k,v])=>{if(!LOG[k]||v.s>LOG[k].s)LOG[k]=v});LS.set(PFX+"log",JSON.stringify(LOG));
@@ -750,11 +791,13 @@ function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(!wide())closeP
 $("sheet-close").onclick=closeSheet;
 sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
   const bd=e.target.closest("[data-bmdel]");if(bd){BM.splice(+bd.dataset.bmdel,1);saveBM();bmState();openNotes();return}
+  const fd=e.target.closest("[data-fpdel]");if(fd){FAV=FAV.filter(f=>String(f.t)!==fd.dataset.fpdel);saveFav();refreshMarks();openNotes();toast("Phrase removed");return}
+  const fh=e.target.closest("[data-fph]");if(fh){const f=FAV.find(x=>String(x.t)===fh.dataset.fph);if(f)goSpeech(f.id);return}
   const bk=e.target.closest("[data-bm]");if(bk){const b=BM[+bk.dataset.bm];closeSheet();setHash(b.s);show("reader");openScene(sIdx(b.s),{key:b.key});return}
   const rc=e.target.closest("[data-recent]");if(rc){const [id,pi]=rc.dataset.recent.split(":").map(Number);goSpeech(id);setTimeout(()=>{showPartPage(id,pi);openPart(id,pi,false)},250);return}
   const g=e.target.closest("[data-speech]");if(g){goSpeech(g.dataset.speech);return}
   const p=e.target.closest("[data-go]");if(p){closeSheet();goScene(sIdx(p.dataset.go))}});
-sheet.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-speech],[data-go],[data-bm]");if(g)g.click()}});
+sheet.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-speech],[data-go],[data-bm],[data-fph]");if(g&&!e.target.closest("button"))g.click()}});
 const where=sp=>`${sName(sceneOf(sp.id))} · ${title(sp.who)}`;
 function snippet(t,q){const i=t.toLowerCase().indexOf(q.toLowerCase()),a=Math.max(0,i-50),b=Math.min(t.length,i+q.length+80);
   return (a>0?"…":"")+esc(t.slice(a,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length,b))+(b<t.length?"…":"")}
@@ -791,7 +834,8 @@ function openNotes(){
   const all=Object.keys(marks).filter(k=>speech[k]),whos=[...new Set(all.map(k=>speech[k].who))].sort();
   let h=`<p class="muted">${store?"Saved to your account.":"Saved on this device."} Tap one to go to it.</p>`;
   if(BM.length)h+=`<div class="eyebrow" style="margin:10px 0 0">Bookmarks</div>`+BM.map((b,i)=>`<div class="item" data-bm="${i}" tabindex="0"><small>${esc(sName(scenes[sIdx(b.s)]))} · <button class="link" data-bmdel="${i}">Remove</button></small><span style="font-family:var(--f-old)">${esc(b.txt||"")}</span></div>`).join("");
-  if(!all.length)h+=`<p>No notes yet. While reading, press and hold a speech to highlight it, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
+  const fv=FAV.filter(f=>speech[f.id]);if(fv.length)h+=`<div class="eyebrow" style="margin:14px 0 0">Favourite phrases</div>`+fv.map(f=>`<div class="item" data-fph="${esc(f.t)}" tabindex="0"><small>${esc(where(speech[f.id]))} · <button class="link" data-fpdel="${esc(f.t)}">Remove</button></small><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}</div>`).join("");
+  if(!all.length)h+=`<p>No notes yet. While reading, press and hold a speech to highlight it, favourite a phrase, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
   else h+=`<div class="eyebrow" style="margin:14px 0 0">Notes and highlights</div><div class="nfilt"><label class="sr" for="nf-q">Search notes</label><input type="search" id="nf-q" placeholder="Search your notes and lines…" value="${esc(nf.q)}">
     <label class="sr" for="nf-c">Colour</label><select id="nf-c"><option value="">Any colour</option>${HLC.map(([k,l])=>`<option value="${k}"${nf.c===k?" selected":""}>${l}</option>`).join("")}<option value="note"${nf.c==="note"?" selected":""}>With a written note</option></select>
     <label class="sr" for="nf-th">Theme</label><select id="nf-th"><option value="">Any theme</option>${Object.entries(QUOTES.themes).map(([k,v])=>`<option value="${k}"${nf.th===k?" selected":""}>${esc(v[0])}</option>`).join("")}</select>
