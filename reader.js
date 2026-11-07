@@ -41,6 +41,8 @@ try{marks=JSON.parse(LS.get(PFX+"marks")||"{}")}catch(e){}
 let FAV=[];try{FAV=JSON.parse(LS.get(PFX+"fav")||"[]")}catch(e){}if(!Array.isArray(FAV))FAV=[];
 const saveFav=()=>LS.set(PFX+"fav",JSON.stringify(FAV));
 const favSort=()=>FAV.sort((x,y)=>x.id-y.id||x.a[0]-y.a[0]||x.a[1]-y.a[1]||x.b[0]-y.b[0]||x.b[1]-y.b[1]);
+const FC=[["r","Rose"],["y","Yellow"],["g","Green"],["b","Blue"],["v","Violet"]],fcOk=c=>FC.some(x=>x[0]===c)?c:"r";
+let SEL=null;/* phrase being selected on the page: {id,a,b,anc,drag,edit,c,note} */
 const lineWords=l=>String(l).replace(/^~/,"").split(/\s+/).filter(Boolean);
 function favText(id,a,b){const sp=speech[id];if(!sp)return "";const out=[];for(let l=a[0];l<=b[0];l++){const w=lineWords(sp.lines[l]||"");out.push(w.slice(l===a[0]?a[1]:0,l===b[0]?b[1]+1:w.length).join(" "))}return out.filter(Boolean).join(" / ")}
 try{prog=Object.assign(prog,JSON.parse(LS.get(PFX+"prog")||"{}"));prog.cards=prog.cards||{}}catch(e){}
@@ -171,12 +173,14 @@ function sceneBlocks(p){
 }
 /* breathing space: long speeches get a small gap after each full sentence; modern English is split into short paragraphs */
 const endsSentence=l=>/[.?!]["'’”)\]]*\s*$/.test(l.replace(/\s*\[[^\]]*\]\s*$/,""));
-function lineHTML(l,num,cpl,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}${cpl?" cpl":""}"${num%5===0?` data-n="${num}"`:""}>${favLine(t,id,j)}</span>`}
-/* saved favourite phrases are wrapped in <mark class="fph"> (glossing each piece separately) */
-function favLine(t,id,j){if(id==null||!FAV.length)return gloss(t);const ws=[];t.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});const rs=[];
-  FAV.forEach(f=>{if(f.id!==id||j<f.a[0]||j>f.b[0]||!ws.length)return;const s=j===f.a[0]?f.a[1]:0,e=Math.min(ws.length-1,j===f.b[0]?f.b[1]:ws.length-1);if(s>=ws.length||e<s)return;rs.push([ws[s][0],ws[e][1],f.t])});
-  if(!rs.length)return gloss(t);rs.sort((x,y)=>x[0]-y[0]);let h="",p=0;
-  rs.forEach(([s,e,k])=>{if(e<=p)return;s=Math.max(s,p);h+=gloss(t.slice(p,s))+`<mark class="fph" data-fp="${k}">${gloss(t.slice(s,e))}</mark>`;p=e});return h+gloss(t.slice(p))}
+function lineHTML(l,num,cpl,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}${cpl?" cpl":""}"${num%5===0?` data-n="${num}"`:""}${id!=null?` data-j="${j}"`:""}>${favLine(t,id,j)}</span>`}
+/* saved phrases (and the one being selected, drawn last so it wins) are wrapped in <mark class="fph fc-…"> */
+function favLine(t,id,j){if(id==null||!FAV.length&&!SEL)return gloss(t);const ws=[];t.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return gloss(t);const cov=[];
+  const add=(a,b,k,c,sel)=>{if(j<a[0]||j>b[0])return;const s=j===a[0]?a[1]:0,e=Math.min(ws.length-1,j===b[0]?b[1]:ws.length-1);if(s>=ws.length||e<s)return;cov.push({s:ws[s][0],e:ws[e][1],k,c:fcOk(c),sel})};
+  FAV.forEach(f=>{if(f.id===id&&!(SEL&&SEL.edit===f.t))add(f.a,f.b,f.t,f.c,false)});if(SEL&&SEL.id===id)add(SEL.a,SEL.b,SEL.edit||"",SEL.c,true);
+  if(!cov.length)return gloss(t);const P=[...new Set([0,t.length,...cov.flatMap(c=>[c.s,c.e])])].sort((a,b)=>a-b);let h="",g=null,buf="";
+  const flush=()=>{if(!buf)return;h+=g?`<mark class="fph fc-${g.c}${g.sel?" fsel":""}"${g.k!==""?` data-fp="${g.k}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
+  for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];let top=null;cov.forEach(c=>{if(c.s<=a&&c.e>=b)top=c});if(top!==g){flush();g=top}buf+=t.slice(a,b)}flush();return h}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
 function linesHTML(it,a,b){let h="";const cp=CPL[it.id];partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,cp!=null&&j>=cp,it.id,j);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
@@ -273,7 +277,7 @@ function findKey(key){
   let best=-1;for(let i=0;i<cur.pages.length;i++)for(const b of cur.pages[i])if(b.t==="sp"&&String(b.it.id)===sid&&b.units[b.u0][0]<= +ln)best=i;
   return best;
 }
-function renderPage(i,dir,keep){
+function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidden=true}
   const p=scenes[cur.k];cur.i=i;
   const html=cur.pages[i].map(b=>blockHTML(b,p)).join("");
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches||/^paper/.test(document.documentElement.dataset.theme||"");
@@ -305,8 +309,8 @@ let press=null,swallow=false;
 vp.addEventListener("pointerdown",e=>{if(e.button)return;
   const sp=e.target.closest(".sp");press={x:e.clientX,y:e.clientY,t:Date.now(),sp,tgt:e.target,timer:null,moved:false};
   if(sp){press.pt=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved)sp.classList.add("pressing")},160);
-    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}openTools(+sp.dataset.id,partAt(press.tgt,sp))}},480)}});
-vp.addEventListener("pointermove",e=>{if(!press)return;if(Math.abs(e.clientX-press.x)>10||Math.abs(e.clientY-press.y)>10){press.moved=true;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing")}});
+    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}const h=wordAt(press.x,press.y);if(h&&h.id===+sp.dataset.id)startSel(h);else openTools(+sp.dataset.id,partAt(press.tgt,sp))}},480)}});
+vp.addEventListener("pointermove",e=>{if(SEL&&SEL.drag){const h=wordAt(e.clientX,e.clientY);if(h&&h.id===SEL.id){const an=SEL.anc,[a,b]=wlt(h.w,an)?[h.w,an]:[an,h.w];if(a+""!==SEL.a+""||b+""!==SEL.b+""){SEL.a=a;SEL.b=b;selPaint()}}return}if(!press)return;if(Math.abs(e.clientX-press.x)>10||Math.abs(e.clientY-press.y)>10){press.moved=true;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing")}});
 function endPress(e,cancel){if(!press||pinch)return;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");
   const P=press;press=null;if(cancel)return;
   if(swallow){swallow=false;return}
@@ -319,14 +323,16 @@ function endPress(e,cancel){if(!press||pinch)return;clearTimeout(press.timer);cl
   const pp=P.tgt.closest&&P.tgt.closest("[data-pop]");if(pp){showPop(pp,pp.dataset.pop,pp.dataset.text);return}
   const rc=P.tgt.closest&&P.tgt.closest("[data-recap]");if(rc){openSheet("Story so far",recapHTML(rc.dataset.recap));return}
   const pr=P.tgt.closest&&P.tgt.closest("[data-pred]");if(pr){const [s,i]=pr.dataset.pred.split(":");PRED[s]=+i;LS.set(PFX+"pred",JSON.stringify(PRED));refreshMarks();toast("Guess saved. Turn the page to find out.");return}
-  const fp=P.tgt.closest&&!P.tgt.closest("abbr.g")&&P.tgt.closest("mark.fph");if(fp){const f=FAV.find(x=>String(x.t)===fp.dataset.fp);if(f){showPop(fp,"♥ Favourite phrase"+(f.note?"":" · in My notes"),f.note||f.txt);return}}
+  if(SEL){const h=wordAt(P.x,P.y);if(h&&h.id===SEL.id)selMove(h.w);else clearSel();return}
+  const fp=P.tgt.closest&&P.tgt.closest("mark.fph[data-fp]");if(fp){const f=FAV.find(x=>String(x.t)===fp.dataset.fp);if(f){editSel(f);const ga=P.tgt.closest("abbr.g");if(ga)showGloss(ga);return}}
   const gw=nearGloss(P.tgt,P.x,P.y);if(gw){showGloss(gw);return}
   if(P.sp){const pt=P.tgt.closest(".pt")||(P.tgt.closest(".chunk")||P.sp).querySelector(".pt");
     if(pt){const id=+P.sp.dataset.id,pi=+pt.dataset.p;if(partSel&&partSel.id===id&&partSel.pi===pi&&toolsId!=null){closePanel();return}openPart(id,pi,false);return}}
   if(toolsId!=null&&wide()){closePanel();return}
   toggleChrome()}
-vp.addEventListener("pointerup",e=>endPress(e,false));
-vp.addEventListener("pointercancel",e=>endPress(e,true));
+vp.addEventListener("pointerup",e=>{if(SEL)SEL.drag=false;endPress(e,false)});
+vp.addEventListener("pointercancel",e=>{if(SEL)SEL.drag=false;endPress(e,true)});
+vp.addEventListener("touchmove",e=>{if(SEL&&SEL.drag)e.preventDefault()},{passive:false});
 vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}openTools(+sp.dataset.id,partAt(e.target,sp))});
 vp.addEventListener("wheel",e=>{const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(d)<25)return;const now=Date.now();if(now-(vp.lw||0)<450)return;vp.lw=now;turn(d>0?1:-1)},{passive:true});
 /* a tap within a few pixels of an underlined word counts as tapping it */
@@ -351,11 +357,46 @@ $("p-range").addEventListener("input",e=>{const i=+e.target.value-1;let d=docume
   d.innerHTML=`<b>Page ${i+1} of ${cur.pages.length}</b><span>${pagePreview(i)}</span>`});
 $("p-range").addEventListener("change",e=>{const d=document.querySelector(".scrub");if(d)d.remove();renderPage(+e.target.value-1,0)});
 document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&SEL&&!e.target.closest("#fsbar textarea")){clearSel();return}
   if(e.key==="Escape"&&gpop){hideGloss();return}
   if(e.key==="Escape"){if(!$("sheet").hidden)closeSheet();else if(toolsId!=null)closePanel();else toggleChrome(false);return}
   if(view!=="reader"||!$("sheet").hidden||e.target.closest("input,textarea,select"))return;
   if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();turn(1)}
   if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();turn(-1)}});
+
+/* ---------- select a phrase on the page: long-press a word, drag to extend, tap a word to move the nearer end ---------- */
+const wlt=(x,y)=>x[0]<y[0]||x[0]===y[0]&&x[1]<y[1];
+const wlin=(id,w)=>{const sp=speech[id];let n=0;for(let l=0;l<w[0];l++)n+=lineWords(sp.lines[l]).length;return n+w[1]};
+function wordAt(x,y){const el=document.elementFromPoint(x,y),l=el&&el.closest&&el.closest(".o .l[data-j]");if(!l)return null;const sp=l.closest(".sp[data-id]");if(!sp)return null;
+  let node=null,off=0;if(document.caretPositionFromPoint){const c=document.caretPositionFromPoint(x,y);if(c){node=c.offsetNode;off=c.offset}}else if(document.caretRangeFromPoint){const r=document.caretRangeFromPoint(x,y);if(r){node=r.startContainer;off=r.startOffset}}
+  if(!node||!l.contains(node))return null;const r=document.createRange();r.setStart(l,0);r.setEnd(node,off);const n=r.toString().length;
+  const ws=[];l.textContent.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return null;let i=ws.findIndex(w=>n<w[1]);if(i<0)i=ws.length-1;
+  return {id:+sp.dataset.id,w:[+l.dataset.j,i]}}
+function startSel(h){if(toolsId!=null)closePanel();hideGloss();SEL={id:h.id,a:h.w,b:h.w,anc:h.w,drag:true,edit:0,c:fcOk(LS.get(PFX+"fc")),note:""};selPaint(true)}
+function editSel(f){hideGloss();if(toolsId!=null)closePanel();SEL={id:f.id,a:f.a.slice(),b:f.b.slice(),anc:f.a.slice(),drag:false,edit:f.t,c:fcOk(f.c),note:f.note||""};selPaint(true)}
+function selMove(w){if(wlt(w,SEL.a))SEL.a=w;else if(wlt(SEL.b,w))SEL.b=w;else if(wlin(SEL.id,w)-wlin(SEL.id,SEL.a)<=wlin(SEL.id,SEL.b)-wlin(SEL.id,w))SEL.a=w;else SEL.b=w;SEL.anc=SEL.a;selPaint()}
+function clearSel(){if(!SEL)return;SEL=null;const d=$("fsbar");if(d)d.hidden=true;refreshMarks()}
+function selPaint(build){refreshMarks();let d=$("fsbar");
+  if(build||!d||d.hidden){if(!d){d=document.createElement("div");d.id="fsbar";d.className="fsbar";d.setAttribute("role","dialog");d.setAttribute("aria-label","Favourite phrase");$("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.addEventListener("pointerdown",e=>e.stopPropagation())}
+    d.innerHTML=`<div class="fs-txt" id="fs-txt"></div>
+      <div class="fs-row"><span class="fs-sw" role="group" aria-label="Highlight colour">${FC.map(([k,l])=>`<button class="sw fc-${k}${SEL.c===k?" on":""}" data-fc="${k}" aria-label="${l}" aria-pressed="${SEL.c===k}"></button>`).join("")}</span><button class="btn sm" id="fs-nt" aria-expanded="${!!SEL.note}">Note</button></div>
+      <div id="fs-nw"${SEL.note?"":" hidden"}><label class="sr" for="fs-note">Note</label><textarea id="fs-note" rows="2" placeholder="Why this phrase? (optional)">${esc(SEL.note)}</textarea></div>
+      <div class="fs-row"><button class="btn sm primary" id="fs-save">${SEL.edit?"Save":"Save favourite"}</button>${SEL.edit?`<button class="btn sm" id="fs-del">Remove</button>`:""}<button class="btn sm" id="fs-tools">Speech tools</button><button class="btn sm" id="fs-x" aria-label="Cancel">✕</button></div>`;
+    d.hidden=false;
+    d.querySelectorAll("[data-fc]").forEach(b=>b.onclick=()=>{SEL.c=b.dataset.fc;d.querySelectorAll("[data-fc]").forEach(x=>{const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)});refreshMarks()});
+    $("fs-nt").onclick=()=>{const w=$("fs-nw");w.hidden=!w.hidden;$("fs-nt").setAttribute("aria-expanded",!w.hidden);if(!w.hidden)$("fs-note").focus()};
+    $("fs-note").oninput=e=>SEL.note=e.target.value;
+    $("fs-save").onclick=saveSel;$("fs-x").onclick=clearSel;
+    if($("fs-del"))$("fs-del").onclick=()=>{const t=SEL.edit;FAV=FAV.filter(f=>f.t!==t);saveFav();clearSel();toast("Phrase removed")};
+    $("fs-tools").onclick=()=>{const id=SEL.id,sp=speech[id],ps=partsOf(sp),l=SEL.a[0],pi=Math.max(0,ps.findIndex(q=>l>=q[0]&&l<=q[1]));clearSel();openTools(id,pi)}}
+  $("fs-txt").textContent="“"+favText(SEL.id,SEL.a,SEL.b)+"”";
+  /* keep the bar off the selected words: move it to the top when they sit low on the screen */
+  const mk=pg.querySelectorAll("mark.fsel");if(mk.length){const t=mk[0].getBoundingClientRect().top,b=mk[mk.length-1].getBoundingClientRect().bottom,bh=d.offsetHeight+28,low=b>innerHeight-bh,high=t<bh;
+    if(d.classList.contains("top")){if(high&&!low)d.classList.remove("top")}else if(low&&!high)d.classList.add("top")}}
+function saveSel(){if(!SEL)return;const {id,a,b,c}=SEL,note=(SEL.note||"").trim(),txt=favText(id,a,b);
+  let f=SEL.edit?FAV.find(x=>x.t===SEL.edit):FAV.find(x=>x.id===id&&x.a+""===a+""&&x.b+""===b+"");
+  if(f)Object.assign(f,{a,b,txt,note,c});else FAV.push({id,a,b,txt,note,c,t:Date.now()});
+  LS.set(PFX+"fc",c);favSort();saveFav();const ed=SEL.edit;clearSel();toast(ed?"Phrase updated":"Phrase saved. Find it in My notes.")}
 
 /* ---------- speech tools: side panel (wide) or sheet (phone) ---------- */
 let toolsId=null;
@@ -445,20 +486,23 @@ function phraseHTML(id,pi){const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0],mi
     <h3 class="lbl">Favourite a phrase</h3><p class="muted fp-help" id="fp-help">Tap the first word, then the last word.</p>
     <div class="fpick" id="fp-pick">${sp.lines.map((l,li)=>`<div class="fl${li>=q[0]&&li<=q[1]?" inpt":""}" data-fl="${li}">${lineWords(l).map((w,wi)=>`<button type="button" class="fw${saved(li,wi)?" sv":""}" data-fw="${li}:${wi}">${esc(w)}</button>`).join(" ")}</div>`).join("")}</div>
     <div class="fp-sel" id="fp-sel" hidden></div>
+    <div class="fs-sw fp-sw" role="group" aria-label="Highlight colour" style="margin-top:10px">${FC.map(([k,l])=>`<button type="button" class="sw fc-${k}" data-pfc="${k}" aria-label="${l}" aria-pressed="false"></button>`).join("")}</div>
     <label for="fp-note" class="lbl" style="display:block;margin:14px 0 8px">Note (optional)</label><textarea id="fp-note" placeholder="Why this phrase?"></textarea>
     <div class="acts"><button class="btn sm primary" id="fp-save" disabled>Save favourite</button><button class="btn sm" id="fp-back">‹ Back to speech tools</button></div>
-    ${mine.length?`<h3 class="lbl">Saved from this speech</h3>`+mine.map(f=>`<div class="snote fp-item"><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}<button class="link" data-fpx="${esc(f.t)}">Remove</button></div>`).join(""):""}
+    ${mine.length?`<h3 class="lbl">Saved from this speech</h3>`+mine.map(f=>`<div class="snote fp-item"><i class="hlk fc-${fcOk(f.c)}"></i><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}<button class="link" data-fpx="${esc(f.t)}">Remove</button></div>`).join(""):""}
   </div>`}
 function openPhrase(id,pi){const sp=speech[id],h=phraseHTML(id,pi);
   if(wide()&&$("panel").classList.contains("open")){$("panel-title").textContent=title(sp.who);$("panel-body").innerHTML=h;$("panel-body").scrollTop=0}else openSheet(title(sp.who),h);
   const box=$("fp-pick"),first=box.querySelector(".fl.inpt");if(first&&pi)first.scrollIntoView({block:"nearest"});
-  let a=null,b=null;const pos=el=>el.dataset.fw.split(":").map(Number),lt=(x,y)=>x[0]<y[0]||x[0]===y[0]&&x[1]<y[1];
+  let a=null,b=null,pc=fcOk(LS.get(PFX+"fc"));const pcs=()=>document.querySelectorAll(".tool [data-pfc]").forEach(x=>{const on=x.dataset.pfc===pc;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)});pcs();
+  document.querySelectorAll(".tool [data-pfc]").forEach(x=>x.onclick=()=>{pc=x.dataset.pfc;pcs()});
+  const pos=el=>el.dataset.fw.split(":").map(Number),lt=(x,y)=>x[0]<y[0]||x[0]===y[0]&&x[1]<y[1];
   const paint=()=>{box.querySelectorAll(".fw").forEach(el=>{const p=pos(el),on=a&&!lt(p,a)&&!lt(b||a,p);el.classList.toggle("on",!!on);el.classList.toggle("end",!!a&&!b&&p[0]===a[0]&&p[1]===a[1])});
     const sel=$("fp-sel");if(a){sel.hidden=false;sel.textContent="“"+favText(id,a,b||a)+"”"}else sel.hidden=true;
     $("fp-help").textContent=!a?"Tap the first word, then the last word.":!b?"Now tap the last word (or save just this word).":"Save it, or tap a word to start again.";$("fp-save").disabled=!a};
   box.onclick=e=>{const w=e.target.closest(".fw");if(!w)return;const p=pos(w);if(!a||b){a=p;b=null}else{b=p;if(lt(b,a))[a,b]=[b,a]}paint()};
   $("fp-save").onclick=()=>{if(!a)return;const e=b||a;if(FAV.some(f=>f.id===id&&f.a+""===a+""&&f.b+""===e+"")){toast("Already saved");return}
-    FAV.push({id,a,b:e,txt:favText(id,a,e),note:$("fp-note").value.trim(),t:Date.now()});favSort();saveFav();refreshMarks();markPart();toast("Phrase saved. Find it in My notes.");openPhrase(id,pi)};
+    FAV.push({id,a,b:e,txt:favText(id,a,e),note:$("fp-note").value.trim(),c:pc,t:Date.now()});LS.set(PFX+"fc",pc);favSort();saveFav();refreshMarks();markPart();toast("Phrase saved. Find it in My notes.");openPhrase(id,pi)};
   $("fp-back").onclick=()=>openTools(id,pi);
   document.querySelectorAll(".tool [data-fpx]").forEach(x=>x.onclick=()=>{FAV=FAV.filter(f=>String(f.t)!==x.dataset.fpx);saveFav();refreshMarks();markPart();toast("Phrase removed");openPhrase(id,pi)});
 }
@@ -749,7 +793,7 @@ function restore(txt){if(!String(txt||"").trim()){toast("Paste a backup first, o
   Object.entries(p.quiz||{}).forEach(([k,v])=>{if(!prog.quiz[k]||v[0]>prog.quiz[k][0])prog.quiz[k]=v});saveProg();
   (d.bm||[]).forEach(b=>{if(!BM.some(x=>x.s===b.s&&x.key===b.key))BM.push(b)});saveBM();
   (Array.isArray(d.fav)?d.fav:[]).forEach(f=>{if(!f||!speech[f.id]||!Array.isArray(f.a)||!Array.isArray(f.b))return;const a=f.a.map(Number),b=f.b.map(Number);if(a.some(isNaN)||b.some(isNaN))return;
-    if(!FAV.some(x=>x.id===+f.id&&x.a+""===a+""&&x.b+""===b+""))FAV.push({id:+f.id,a,b,txt:String(f.txt||favText(+f.id,a,b)),note:String(f.note||""),t:+f.t||Date.now()})});favSort();saveFav();refreshMarks();
+    if(!FAV.some(x=>x.id===+f.id&&x.a+""===a+""&&x.b+""===b+""))FAV.push({id:+f.id,a,b,txt:String(f.txt||favText(+f.id,a,b)),note:String(f.note||""),c:fcOk(f.c),t:+f.t||Date.now()})});favSort();saveFav();refreshMarks();
   Object.entries(d.plan||{}).forEach(([k,v])=>{if(!(k in PLAN))PLAN[k]=v});savePlan();
   Object.entries(d.prof||{}).forEach(([k,v])=>{if(!(k in PROF))PROF[k]=v});LS.set(PFX+"prof",JSON.stringify(PROF));
   Object.entries(d.log||{}).forEach(([k,v])=>{if(!LOG[k]||v.s>LOG[k].s)LOG[k]=v});LS.set(PFX+"log",JSON.stringify(LOG));
@@ -834,8 +878,8 @@ function openNotes(){
   const all=Object.keys(marks).filter(k=>speech[k]),whos=[...new Set(all.map(k=>speech[k].who))].sort();
   let h=`<p class="muted">${store?"Saved to your account.":"Saved on this device."} Tap one to go to it.</p>`;
   if(BM.length)h+=`<div class="eyebrow" style="margin:10px 0 0">Bookmarks</div>`+BM.map((b,i)=>`<div class="item" data-bm="${i}" tabindex="0"><small>${esc(sName(scenes[sIdx(b.s)]))} · <button class="link" data-bmdel="${i}">Remove</button></small><span style="font-family:var(--f-old)">${esc(b.txt||"")}</span></div>`).join("");
-  const fv=FAV.filter(f=>speech[f.id]);if(fv.length)h+=`<div class="eyebrow" style="margin:14px 0 0">Favourite phrases</div>`+fv.map(f=>`<div class="item" data-fph="${esc(f.t)}" tabindex="0"><small>${esc(where(speech[f.id]))} · <button class="link" data-fpdel="${esc(f.t)}">Remove</button></small><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}</div>`).join("");
-  if(!all.length)h+=`<p>No notes yet. While reading, press and hold a speech to highlight it, favourite a phrase, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
+  const fv=FAV.filter(f=>speech[f.id]);if(fv.length)h+=`<div class="eyebrow" style="margin:14px 0 0">Favourite phrases</div>`+fv.map(f=>`<div class="item" data-fph="${esc(f.t)}" tabindex="0"><small><i class="hlk fc-${fcOk(f.c)}"></i> ${esc(where(speech[f.id]))} · <button class="link" data-fpdel="${esc(f.t)}">Remove</button></small><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}</div>`).join("");
+  if(!all.length)h+=`<p>No notes yet. While reading, press and hold a word to save a favourite phrase, or open Speech tools from that bar to highlight a speech, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
   else h+=`<div class="eyebrow" style="margin:14px 0 0">Notes and highlights</div><div class="nfilt"><label class="sr" for="nf-q">Search notes</label><input type="search" id="nf-q" placeholder="Search your notes and lines…" value="${esc(nf.q)}">
     <label class="sr" for="nf-c">Colour</label><select id="nf-c"><option value="">Any colour</option>${HLC.map(([k,l])=>`<option value="${k}"${nf.c===k?" selected":""}>${l}</option>`).join("")}<option value="note"${nf.c==="note"?" selected":""}>With a written note</option></select>
     <label class="sr" for="nf-th">Theme</label><select id="nf-th"><option value="">Any theme</option>${Object.entries(QUOTES.themes).map(([k,v])=>`<option value="${k}"${nf.th===k?" selected":""}>${esc(v[0])}</option>`).join("")}</select>
@@ -904,7 +948,7 @@ function openSettings(){
     <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
     <div class="opt"><div class="lbl">Scene summary on the first page</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
     <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
-    <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Swipe left or right to turn pages (arrow keys or the scroll wheel on a computer). Tap an underlined word for its meaning. Tap any other part of the lines for their modern English; long speeches are split into parts, and you can expand to the whole speech. Tap empty space to show or hide the menus. Press and hold a speech (right-click on a computer) for word meanings, notes and highlights. Pinch with two fingers to change the text size. Drag the page slider in the bottom menu to preview pages.</small></div>
+    <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Swipe left or right to turn pages (arrow keys or the scroll wheel on a computer). Tap an underlined word for its meaning. Tap any other part of the lines for their modern English; long speeches are split into parts, and you can expand to the whole speech. Tap empty space to show or hide the menus. Press and hold a word to select a phrase; drag to extend it, tap another word to move the nearer end, then pick a colour and save it as a favourite. The bar that appears also has Speech tools (word meanings, notes and highlights); on a computer, right-click a speech for them. Pinch with two fingers to change the text size. Drag the page slider in the bottom menu to preview pages.</small></div>
     ${backupHTML()}
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;
@@ -917,7 +961,7 @@ function openSettings(){
 $("b-home").onclick=goHome;$("b-where").onclick=openPicker;$("b-search").onclick=()=>openSearch("");$("b-study").onclick=()=>goStudy();$("b-set").onclick=openSettings;$("b-bm").onclick=toggleBM;
 
 /* ---------- first-run hint ---------- */
-function hint(){if(LS.get(PFX+"hint3")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.innerHTML=`<b>How to read</b><ul><li>Swipe left or right to turn the page.</li><li>Tap an underlined word for its meaning.</li><li>Tap any other part of the lines to see them in modern English. Long speeches come in parts; expand to read the whole speech.</li><li>Tap empty space to show the menus.</li><li>Press and hold a speech for word meanings and notes.</li></ul><button>Got it</button>`;
+function hint(){if(LS.get(PFX+"hint3")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.innerHTML=`<b>How to read</b><ul><li>Swipe left or right to turn the page.</li><li>Tap an underlined word for its meaning.</li><li>Tap any other part of the lines to see them in modern English. Long speeches come in parts; expand to read the whole speech.</li><li>Tap empty space to show the menus.</li><li>Press and hold a word to select a phrase and save it as a favourite. Speech tools (meanings, notes) are in the bar that appears.</li></ul><button>Got it</button>`;
   $("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.querySelector("button").onclick=()=>{d.remove();LS.set(PFX+"hint3","1")}}
 
 /* ---------- start ---------- */
