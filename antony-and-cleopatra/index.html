@@ -19,24 +19,16 @@
 <body>
 <link rel="stylesheet" href="../reader.css"><style>.tp h1 .h1b{display:block;font-size:.5em;letter-spacing:.08em;margin-top:.18em}</style>
 
-<!-- HOME -->
-<section id="home" class="gut" hidden>
-  <a class="tofolio" id="tofolio" href="../?shelf" hidden>‹ Folio</a>
+<!-- YOU: this play's reading, notes and settings -->
+<section id="you" class="gut" hidden>
+  <div class="sbar"><span class="sp-l"></span><h1>You</h1><button class="icon" id="y-search" aria-label="Search"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button></div>
   <div class="tp">
     <div class="pre">The Tragedy of</div>
     <h1>Antony<span class="h1b">and Cleopatra</span></h1>
     <div class="post">Rome and Egypt</div>
-    <div class="cont" id="contcard"></div>
   </div>
-  <form class="homesearch" id="hsearch"><label for="hq" class="sr">Search the play</label><input id="hq" type="search" placeholder="Search the play, e.g. infinite variety" autocomplete="off"><button class="btn" type="submit">Search</button></form>
-  <div class="tstrip-h"><b>The story in 17 moments</b><small>Tap to jump there</small></div><div class="tstrip" id="tstrip"></div>
-  <div class="htabs" role="tablist"><button role="tab" data-htab="contents">Contents</button><button role="tab" data-htab="cast">Cast</button></div>
-  <div class="hpane" id="hp-contents"><div class="acts-map" id="actsmap"></div></div>
-  <div class="hpane" id="hp-cast" hidden><p class="hcap">The Names of the Actors, as the 1623 Folio lists them</p><div class="cast" id="cast"></div></div>
-  <div class="homefoot">
-    <button class="btn" id="h-notes">My notes &amp; highlights</button>
-    <button class="btn" id="h-set">Settings</button>
-  </div>
+  <div class="cont" id="contcard"></div>
+  <div class="ylist" id="ylist"></div>
 </section>
 
 <!-- READER -->
@@ -44,12 +36,10 @@
   <div class="viewport gut" id="vp"><div class="pg" id="pg"></div></div>
   <div class="pgfoot" id="pgfoot"></div><div class="pgbar"><i id="pgbar"></i></div>
   <header class="bar" id="bar"><div class="in gut">
-    <a class="icon tofolio-b" id="b-folio" href="../?shelf" aria-label="Back to the Folio" title="Folio" hidden><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg></a>
-    <button class="icon" id="b-home" aria-label="Contents">☰</button>
+    <button class="icon" id="b-home" aria-label="Contents, cast and story">☰</button>
     <button class="where" id="b-where" aria-label="Choose scene"><b id="w-title"></b><small id="w-sub"></small></button>
     <button class="icon" id="b-search" aria-label="Search"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
     <button class="icon bm" id="b-bm" aria-label="Bookmark this page" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
-    <button class="icon txt" id="b-study">Study</button>
     <button class="icon" id="b-set" aria-label="Settings">Aa</button>
   </div></header>
   <footer class="bbar" id="bbar"><div class="in gut">
@@ -63,11 +53,18 @@
 
 <!-- STUDY -->
 <section id="study" class="gut" hidden>
-  <div class="sbar"><button class="icon txt" id="s-back">‹ Read</button><h1>Study</h1><button class="icon" id="s-home" aria-label="Contents">☰</button></div>
+  <div class="sbar"><span class="sp-l"></span><h1>Study</h1><button class="icon" id="s-search" aria-label="Search"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button></div>
+  <div class="sgroups" role="tablist" id="sgroups"></div>
   <div class="tabs" role="tablist" id="stabs"></div>
   <div id="sbody"></div>
 </section>
 
+<nav class="fnav" id="fnav" aria-label="Sections"><div class="in">
+  <a href="../?shelf" data-nav="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg>Library</a>
+  <button data-nav="reader"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 6.5C10 5 7.2 4.5 3.5 4.8v13.4c3.7-.3 6.5.2 8.5 1.8 2-1.6 4.8-2.1 8.5-1.8V4.8C16.8 4.5 14 5 12 6.5zM12 6.5V20"/></svg>Read</button>
+  <button data-nav="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11M21.5 9v5"/></svg>Study</button>
+  <button data-nav="you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>You</button>
+</div></nav>
 <aside class="panel" id="panel" aria-label="Speech tools"><div class="phead"><h2 id="panel-title"></h2><button class="btn sm" id="panel-close">Close</button></div><div class="pbody" id="panel-body"></div></aside>
 <div class="sheet" id="sheet" hidden><div class="sbox" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
   <div class="grab"></div>

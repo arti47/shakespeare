@@ -130,7 +130,20 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .gt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;margin:0;line-height:1.1}
 .soon{text-align:center;color:var(--muted);font-size:max(14px,.62rem);font-style:italic;margin:26px 0 0}
 
-/* today */
+/* today (top of the Library since 2.0) */
+.mast .mb{display:flex;gap:2px}
+.greet.nudge{color:var(--accent);transition:color .2s}
+.today{margin:0 0 22px}
+.today .date{margin:0 0 8px;font-size:.95rem}
+.trail{display:grid;grid-auto-flow:column;grid-auto-columns:86%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px))}
+.trail::-webkit-scrollbar{display:none}
+.trail .card{scroll-snap-align:center;margin:0}
+.today .card.lotd{padding:22px 16px 18px}
+.today .lotd blockquote{font-size:1.25rem}
+.today .word b{font-size:1.4rem}
+.today .card.week{margin:12px 0 0;padding:14px 16px}
+.today .week .eyebrow{margin-bottom:4px}
+@media (min-width:760px){.trail{grid-auto-flow:row;grid-template-columns:1.5fr 1fr;margin:0;padding:0;overflow:visible}}
 .date{font:italic 400 1.05rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0}
 .card{border:1.5px solid var(--ink);border-radius:4px;padding:22px 18px;margin-bottom:18px;position:relative}
 .card.lotd{text-align:center;padding:30px 18px 24px}
@@ -220,8 +233,14 @@ footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,se
 
 <!-- LIBRARY -->
 <main class="view" id="v-library">
-  <div class="mast"><span class="wm">The <b>Folio</b></span><button class="ib" id="themeb" title="Theme"></button></div>
+  <div class="mast"><span class="wm">The <b>Folio</b></span><span class="mb"><button class="ib" id="searchb" type="button" aria-label="Search every play" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button><button class="ib" id="themeb" title="Theme"></button></span></div>
   <p class="greet" id="greet"></p>
+  <div id="cont"></div>
+  <section class="today" id="today" aria-label="Today">
+    <p class="date" id="tdate"></p>
+    <div class="trail"><div class="card lotd" id="lotd"></div><div class="card word" id="word"></div></div>
+    <div class="card week" id="week"></div>
+  </section>
   <div id="genres"></div>
   <div id="gview" hidden>
     <div class="ghead"><button class="back" id="gback" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>All genres</button><h2 class="gt" id="gtitle"></h2></div>
@@ -232,17 +251,9 @@ footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,se
   <p class="soon">More plays join the Folio as they are finished.</p>
 </main>
 
-<!-- TODAY -->
-<main class="view" id="v-today" hidden>
-  <p class="date" id="tdate"></p>
-  <h2 class="vt">Today</h2>
-  <div class="card lotd" id="lotd"></div>
-  <div class="card word" id="word"></div>
-  <div class="card" id="week"></div>
-</main>
-
 <!-- SEARCH -->
 <main class="view" id="v-search" hidden>
+  <button class="back" id="sback" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Library</button>
   <h2 class="vt">Search the Folio</h2>
   <div class="sbox">
     <div style="position:relative"><svg class="mg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
@@ -282,8 +293,8 @@ footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,se
 
 <nav class="tabs" aria-label="Sections"><div class="in">
   <button data-tab="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg>Library</button>
-  <button data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>Today</button>
-  <button data-tab="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Search</button>
+  <button data-tab="read"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 6.5C10 5 7.2 4.5 3.5 4.8v13.4c3.7-.3 6.5.2 8.5 1.8 2-1.6 4.8-2.1 8.5-1.8V4.8C16.8 4.5 14 5 12 6.5zM12 6.5V20"/></svg>Read</button>
+  <button data-tab="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11M21.5 9v5"/></svg>Study</button>
   <button data-tab="you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>You</button>
 </div></nav>
 
@@ -305,15 +316,20 @@ function readDays(){const days={};for(const p of PLAYS){const L=J(p.log)||{};for
 function streak(days){let s=0;const now=new Date();for(let i=0;i<400;i++){const d=new Date(now);d.setDate(now.getDate()-i);if(days[dkey(d)]!=null)s++;else if(i>0)break}return s}
 
 /* ---------- tabs ---------- */
-const TABS=["library","today","search","you"];
-function go(tab,push){if(!TABS.includes(tab))tab="library";
+/* one app shell: Library / Read / Study / You, the same nav as inside every play. Read and Study open the last play. */
+const TABS=["library","search","you"];
+function go(tab,push){let q=null;if(/^search=/.test(tab||"")){try{q=decodeURIComponent(tab.slice(7))}catch(e){q=tab.slice(7)}tab="search"}
+  if(!TABS.includes(tab))tab="library";
   TABS.forEach(t=>$("v-"+t).hidden=t!==tab);
   document.querySelectorAll(".tabs button").forEach(b=>{if(b.dataset.tab===tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   LS.set("folio-tab",tab);try{history.replaceState(null,"",location.pathname+location.search+(tab==="library"?"":"#"+tab))}catch(e){}
   scrollTo(0,0);
-  if(tab==="library")renderLibrary();if(tab==="today")renderToday();if(tab==="you")renderYou();if(tab==="search")initSearch();
+  if(tab==="library")renderLibrary();if(tab==="you")renderYou();if(tab==="search"){if(q!=null)$("q").value=q;initSearch();if(q)runSearch()}
 }
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>go(b.dataset.tab));
+function lastPlay(path){const p=byId[LS.get("folio-last")];if(p){openPlay(p.id,p.id+"/"+path);return}
+  go("library");if(genre)setGenre(null);$("greet").textContent="Choose a play to begin. Read and Study then open it where you left off.";$("greet").classList.add("nudge");setTimeout(()=>$("greet").classList.remove("nudge"),1600)}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(t==="read")lastPlay("");else if(t==="study")lastPlay("#study");else go(t)});
+$("searchb").onclick=()=>go("search");$("sback").onclick=()=>go("library");
 addEventListener("hashchange",()=>go(location.hash.slice(1)));
 
 /* ---------- library ---------- */
@@ -330,7 +346,8 @@ $("gback").onclick=()=>{if(history.state&&history.state.g)history.back();else se
 function renderGenres(){
   const last=byId[LS.get("folio-last")],ls=last&&J("folio-stat-"+last.id);
   const cont=ls?`<a class="contl" href="${last.id}/" data-play="${last.id}"><span class="tx"><small>Continue reading</small><b>${esc(last.title)}</b><span>${Math.round(ls.pct)}% · ${esc(ls.where)}</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></a>`:"";
-  $("genres").innerHTML=cont+GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=PLAYS.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
+  $("cont").innerHTML=cont;
+  $("genres").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=PLAYS.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
     return `<button class="gtile" type="button" data-g="${g}"><span class="spines" aria-hidden="true">${ps.slice(0,5).map(p=>`<span class="spine" style="--c:${p.c}"><b>${esc(p.mono||p.title[0])}</b></span>`).join("")}</span>
       <span class="gx"><h3>${g}</h3><p>${esc(d)}</p><span class="gn">${ps.length} play${ps.length===1?"":"s"}${begun?` · ${begun} begun`:""}</span></span>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></button>`}).join("");
@@ -340,8 +357,8 @@ function renderLibrary(){
   const h=new Date().getHours(),last=byId[LS.get("folio-last")];
   $("greet").textContent=(h<5?"Late at night":h<12?"Good morrow":h<18?"Good afternoon":"Good even")+(last?". Your place is kept.":". Choose a play to begin.");
   const inG=genre&&PLAYS.some(p=>p.group===genre);
-  $("genres").hidden=!!inG;$("gview").hidden=!inG;
-  if(!inG){genre=null;renderGenres();return}
+  $("genres").hidden=$("cont").hidden=$("today").hidden=!!inG;$("gview").hidden=!inG;
+  if(!inG){genre=null;renderGenres();renderToday();return}
   $("gtitle").textContent=genre;
   const ps=orderPlays().filter(p=>p.group===genre);
   $("rail").innerHTML=ps.map(p=>{const st=J("folio-stat-"+p.id);return `<a class="cover" role="listitem" href="${p.id}/" data-play="${p.id}" style="--c:${p.c}" aria-label="${esc(p.title)}">
@@ -357,7 +374,7 @@ function select(id,scroll){sel=id;const p=byId[id];if(!p)return;
   const st=J("folio-stat-"+p.id);
   $("det").innerHTML=`<h3>${esc(p.title)}</h3><div class="meta">${esc(p.kind)} · ${esc(p.year)}</div>
     <p>${esc(p.blurb)}</p>${st?`<div class="pg"><span class="tr" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(st.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,st.pct)}%"></i></span><span>${Math.round(st.pct)}% · ${esc(st.where)}</span></div>`:`<div class="pg"><span class="tr"></span><span>Not yet begun</span></div>`}
-    <div class="acts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#home" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>`;
+    <div class="acts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#contents" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>`;
 }
 let rt=0;$("rail").addEventListener("scroll",()=>{cancelAnimationFrame(rt);rt=requestAnimationFrame(()=>{if(innerWidth>=900)return;const r=$("rail"),mid=r.scrollLeft+r.clientWidth/2;let best=null,bd=1e9;
   for(const c of r.children){const d=Math.abs(c.offsetLeft+c.clientWidth/2-mid);if(d<bd){bd=d;best=c}}if(best&&best.dataset.play!==sel)select(best.dataset.play)})},{passive:true});

@@ -18,7 +18,7 @@ Layout of a play folder `<id>/`:
 - `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
 - `index.html`: generated from `tools/play.html`. It loads `play.js`, then the shared `../reader.js`.
 
-Shared by every play: `reader.js` (all reader and study code), `reader.css`, `update.js`. Each play has its own localStorage prefix (`oth-`); shared settings live under `folio-`; the reader writes `folio-last` and `folio-stat-<id>`.
+Navigation (2.0): one bottom nav, Library / Read / Study / You, on the shelf and in every play. Shared by every play: `reader.js` (all reader and study code), `reader.css`, `update.js`. Each play has its own localStorage prefix (`oth-`); shared settings live under `folio-`; the reader writes `folio-last` and `folio-stat-<id>`.
 
 Adding a play: create `<id>/play.js` (copy one and replace the content), add the play to `PLAYS` in `index.html`, then run `node tools/build.js`.
 

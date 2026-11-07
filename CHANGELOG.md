@@ -4,6 +4,19 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.0.0] — 2026-11-07
+
+### Changed
+- One app shell: the same bottom nav (Library / Read / Study / You) on the shelf and inside every play. Read and Study on the shelf open the last play where you left off (#30).
+- Opening a play goes straight to your page; the play's title screen is gone. Its Contents, Cast and the story in moments now live in the reader's Contents sheet (☰ or tap the scene name) (#30).
+- In the reader the nav shows with the menus (tap empty space) and hides for full-page reading; the page slider sits above it (#30).
+- Study is grouped into four: Learn (Explore, Act summaries, Profiles, Themes, Key quotes), Practise (Flashcards, Practise, Quizzes), Write (Essay planner) and Revise (Revision sheet) (#30).
+- Each play has a You page: progress, streak, exam plan, My notes, reading settings and a link to Folio settings and backup (#30).
+- Today's line, word and week are at the top of the Library; Search is an icon in the Library masthead and in every play's top bar, and a play's search links to searching every play (#30).
+
+### Removed
+- Today and Search tabs on the shelf, the play home screen, and the Study and Folio buttons in the reader's top bar (all moved, see above) (#30).
+
 ## [1.3.0] — 2026-11-07
 
 ### Changed
