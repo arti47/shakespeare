@@ -9,6 +9,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ### Changed
 - `CLAUDE.md` updated for the shared reader (#23).
+- `CLAUDE.md`: always ask relevant questions one at a time before each task.
 
 ## [1.0.0] — 2026-11-07
 

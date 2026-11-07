@@ -90,7 +90,8 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 ## Working with TY
 
 - Terse, technical output. No narration; report on completion with result + PR link.
-- Questions: one at a time, as multiple-choice decision cards with a recommended option.
+- **Every task, before starting work: ask as many relevant questions as needed, one at a time** (wait for each answer before the next). Cover scope, versioning impact, UI/behaviour choices, content sources, and anything ambiguous. Skip only questions this file or the request already answers.
+- Each question: a multiple-choice decision card with a recommended option. If TY asks to go back, re-ask the previous question.
 
 ## Pending (update when done)
 
