@@ -11,5 +11,6 @@ Live site: https://arti47.github.io/shakespeare/
 - `king-lear/` — King Lear (prefix `lear-`).
 - `twelfth-night/` — Twelfth Night (prefix `tn-`).
 - `much-ado/` — Much Ado About Nothing (prefix `ado-`).
+- `tempest/` — The Tempest (prefix `tem-`).
 
 Conventions for play folders: per-play localStorage prefix (`oth-`); shared settings under `folio-`; play writes `folio-last` and `folio-stat-<id>`; play links `../manifest.webmanifest`, registers `../sw.js`, and has a `‹ Folio` link to `../?shelf`. Add the play to `PLAYS` in the Folio build script and rebuild `index.html`/`sw.js`.
