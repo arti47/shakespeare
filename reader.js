@@ -547,7 +547,8 @@ function relSVG(act){const E=EX.rel[act],N=[...new Set(E.flatMap(e=>[e[0],e[1]])
 let mapAct=1;
 function arcSVG(){const W=360,H=200,L=30,T=12,B=30,n=scenes.length,x=i=>L+i*(W-L-10)/(n-1),y=v=>T+(10-v)*(H-T-B)/10,cols=["var(--accent)","var(--bad)"];
   const ls=Object.entries(EX.arc).map(([k,v],j)=>`<polyline points="${v.map((a,i)=>x(i)+","+y(a)).join(" ")}" fill="none" stroke="${cols[j]}" stroke-width="2.4"/>`+v.map((a,i)=>`<circle cx="${x(i)}" cy="${y(a)}" r="2.6" fill="${cols[j]}"/>`).join("")).join("");
-  const ax=scenes.map((p,i)=>p.sc===1?`<line x1="${x(i)}" y1="${T}" x2="${x(i)}" y2="${H-B}" stroke="var(--rule)"/><text x="${x(i)}" y="${H-B+16}" text-anchor="middle">Act ${R[p.act]}</text>`:"").join("");
+  const st=scenes.map((p,i)=>p.sc===1?i:-1).filter(i=>i>=0),near=(a,b)=>b!=null&&a!=null&&x(b)-x(a)<40;
+  const ax=st.map((i,k)=>{const an=near(i,st[k+1])?"end":near(st[k-1],i)?"start":"middle";return `<line x1="${x(i)}" y1="${T}" x2="${x(i)}" y2="${H-B}" stroke="var(--rule)"/><text x="${x(i)+(an==="end"?3:an==="start"?-3:0)}" y="${H-B+16}" text-anchor="${an}">Act ${R[scenes[i].act]}</text>`}).join("");
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${CFG.chartLabel}">${ax}<text x="4" y="${y(10)+4}">10</text><text x="4" y="${y(0)+4}">0</text>${ls}</svg>
    <div class="legend">${Object.keys(EX.arc).map((k,j)=>`<span><i style="background:${cols[j]}"></i>${esc(k)}</span>`).join("")}</div><p class="intro">${esc(EX.arcnote)}</p>`}
 let GLOSSUSE=null;
