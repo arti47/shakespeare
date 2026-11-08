@@ -4,6 +4,9 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+### Added
+- `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
+
 ## [2.2.4] — 2026-11-08
 
 ### Fixed
