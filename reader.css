@@ -500,4 +500,7 @@ body.v-reader.chrome .toast,body.v-study .toast,body.v-you .toast{bottom:calc(va
 #curl .cback{position:absolute;inset:0;transform-origin:0 0;background:var(--page);overflow:hidden}
 #curl .cghost{opacity:.1}
 #curl .cshade{background:linear-gradient(to right,rgba(0,0,0,.24),rgba(0,0,0,.06) 10%,rgba(255,255,255,.1) 38%,rgba(255,255,255,0) 70%,rgba(0,0,0,.08))}
+<<<<<<< HEAD
 :root[data-theme^="paper"] #curl .cpage,:root[data-theme^="paper"] #curl .cback{background-image:var(--grain)}
+=======
+>>>>>>> origin/claude/project-thread-vcf04j
