@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.2.4] — 2026-11-08
+
+### Fixed
+- Practise → Memory ladder: the quote picker no longer shows the quote's words while you drill it; quotes are listed by number, speaker and scene (#37).
+- Practise → Fill the gap: only hides words that appear once in the quote, so the answer isn't printed elsewhere in the line (#37).
+- Practise → Who said it?: skips quotes where the speaker names themself, and draws wrong answers from every quoted character so a minor character is no longer the obvious odd one out (#37).
+- Quizzes: answer order is shuffled each time; the right answer was usually the second option (#37).
+
 ## [2.2.3] — 2026-11-08
 
 ### Removed

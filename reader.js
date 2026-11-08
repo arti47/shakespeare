@@ -652,12 +652,13 @@ function studyDrill(){
   const back=`<div class="exh"><button class="btn sm" data-drill="">‹ All drills</button><h2>${dr.k?DRILLS.find(d=>d[0]===dr.k)[1]:""}</h2></div>`;
   if(!dr.k){$("sbody").innerHTML=`<p class="intro">Short exercises for remembering quotes and understanding the language.</p><div class="drills">${DRILLS.map(([k,a,b])=>`<button data-drill="${k}"><b>${a}</b><span>${b}</span></button>`).join("")}</div>`;return}
   let h="";
-  if(dr.k==="gap"){if(!dr.q){const q=rnd(QUOTES.quotes),ws=q.text.split(/\s+/),cand=ws.map((w,i)=>[w.replace(/[^A-Za-z']/g,""),i]).filter(x=>x[0].length>3);const pick=shuf(cand).slice(0,Math.min(2,cand.length)).map(x=>x[1]);dr.q={q,ws,pick,res:null}}
+  if(dr.k==="gap"){if(!dr.q){const gc=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
+    const gq=QUOTES.quotes.filter(x=>gc(x).length),q=rnd(gq.length?gq:QUOTES.quotes),ws=q.text.split(/\s+/),cand=gc(q);const pick=shuf(cand).slice(0,Math.min(2,cand.length)).map(x=>x[1]);dr.q={q,ws,pick,res:null}}
     const {q,ws,pick,res}=dr.q;h=`<div class="qz"><div class="gapq">“${ws.map((w,i)=>pick.includes(i)?(res?`<b style="color:${res[i]?"var(--ok)":"var(--bad)"}">${esc(w)}</b>`:`<input data-gap="${i}" aria-label="Missing word" autocomplete="off" autocapitalize="off">`)+esc(w.replace(/[A-Za-z']+/,"").slice(0)):esc(w)).join(" ")}”</div>
       <p class="muted">${esc(title(speech[q.id].who))} · ${sName(sceneOf(q.id))}</p><div class="row">${res?`<button class="btn primary" id="dr-next">Next quote</button>`:`<button class="btn primary" id="dr-check">Check</button><button class="link" id="dr-show">Show answer</button>`}</div></div>`}
   if(dr.k==="ladder"){if(dr.i==null)dr.i=0;if(dr.l==null)dr.l=0;const q=QUOTES.quotes[dr.i],ws=q.text.split(/\s+/);
     const view=dr.l===0?esc(q.text):dr.l===1?ws.map((w,i)=>i%2?w.replace(/[A-Za-z]/g,"_"):w).map(esc).join(" "):dr.l===2?ws.map(w=>w.replace(/([A-Za-z])[A-Za-z']*/,"$1")).map(esc).join(" "):"";
-    h=`<label class="lbl" for="ld-q">Quote</label><select class="sinput" id="ld-q">${QUOTES.quotes.map((x,i)=>`<option value="${i}"${i===dr.i?" selected":""}>${esc(x.text.slice(0,60))}</option>`).join("")}</select>
+    h=`<label class="lbl" for="ld-q">Quote</label><select class="sinput" id="ld-q">${QUOTES.quotes.map((x,i)=>`<option value="${i}"${i===dr.i?" selected":""}>${i+1}. ${esc(title(speech[x.id].who))} · ${sName(sceneOf(x.id))}</option>`).join("")}</select>
      <div class="qz" style="margin-top:10px"><div class="qn">Step ${dr.l+1} of 4: ${["Read it","Every other word hidden","First letters only","From memory"][dr.l]}</div><div class="ladder">${dr.l<3?view:`<textarea class="sinput" id="ld-a" placeholder="Type the whole quote from memory"></textarea>`}</div>
      <div class="row">${dr.l>0?`<button class="btn" id="ld-prev">‹ Easier</button>`:""}${dr.l<3?`<button class="btn primary" id="ld-next">Harder ›</button>`:`<button class="btn primary" id="ld-chk">Check</button>`}</div><div id="ld-res"></div></div>`}
   if(dr.k==="explain"){if(!dr.p){const ids=Object.keys(PARTS);const id=rnd(ids),ps=PARTS[id],pi=Math.floor(Math.random()*ps.length);dr.p={id,pi,show:false}}
@@ -665,8 +666,8 @@ function studyDrill(){
      <label class="lbl" for="ex-a" style="display:block;margin-top:12px">In your own words</label><textarea class="sinput" id="ex-a" style="min-height:90px" placeholder="What is being said here?">${esc(dr.p.mine||"")}</textarea>
      ${dr.p.show?`<div class="tool"><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div><p class="muted">Did you catch the main point? Compare word choices too.</p>`:""}
      <div class="row">${dr.p.show?`<button class="btn primary" id="ex-next">Another passage</button>`:`<button class="btn primary" id="ex-show">Compare</button>`}</div></div>`}
-  if(dr.k==="who"){if(!dr.w){const qs=shuf(QUOTES.quotes).slice(0,8);dr.w={qs,i:0,ok:0,ans:null}}const W=dr.w;
-    if(W.i<W.qs.length){const q=W.qs[W.i],who=speech[q.id].who,opts=shuf([who,...shuf(CFG.drillCast.filter(x=>x!==who)).slice(0,3)]);
+  if(dr.k==="who"){if(!dr.w){const qs=shuf(QUOTES.quotes.filter(q=>!q.text.toLowerCase().includes(speech[q.id].who.toLowerCase()))).slice(0,8);dr.w={qs,i:0,ok:0,ans:null}}const W=dr.w;
+    if(W.i<W.qs.length){const q=W.qs[W.i],who=speech[q.id].who,pool=[...new Set([...CFG.drillCast,...QUOTES.quotes.map(x=>speech[x.id].who)])],opts=shuf([who,...shuf(pool.filter(x=>x!==who)).slice(0,3)]);
       h=`<div class="qz"><div class="qn">Quote ${W.i+1} of ${W.qs.length} · score ${W.ok}</div><h3 style="font:400 1.35rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts">${opts.map(o=>`<button data-who="${o}"${W.ans?" disabled":""} class="${W.ans?(o===who?"right":o===W.ans?"wrong":""):""}">${esc(title(o))}</button>`).join("")}</div>
        ${W.ans?`<p class="muted">${sName(sceneOf(q.id))}. ${esc(q.note)}</p><div class="row"><button class="btn primary" id="who-next">Next</button></div>`:""}</div>`}
     else h=`<div class="qz" style="text-align:center"><div class="big">${W.ok} of ${W.qs.length}</div><button class="btn primary" id="who-again">Play again</button></div>`}
@@ -794,6 +795,7 @@ function startQuiz(kind){
   if(kind==="all"){scenes.forEach(p=>((STUDY.scenes[p.id]||{}).quiz||[]).forEach(q=>qs.push(Object.assign({s:p.id},q))));qs=qs.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]).slice(0,20)}
   else if(kind==="miss")qs=prog.miss.q.map(q=>Object.assign({},q));
   else qs=((STUDY.scenes[kind]||{}).quiz||[]).map(q=>Object.assign({s:kind},q));
+  qs=qs.map(q=>{const ix=shuf(q.o.map((_,i)=>i));return Object.assign({},q,{o:ix.map(i=>q.o[i]),a:ix.indexOf(q.a)})});
   qz={kind,qs,i:0,ok:0,ans:null};studyQuiz();scrollTo(0,0);
 }
 function studyQuiz(){
