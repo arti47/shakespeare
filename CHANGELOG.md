@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.2.3] — 2026-11-08
+
+### Removed
+- The small arc (⁀) after rhyming couplet lines in the reader, across all plays (#36).
+
 ## [2.2.2] — 2026-11-08
 
 ### Fixed

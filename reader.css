@@ -110,7 +110,6 @@ body.focusing .sp:not(.fwho){opacity:.36}
 .sp.solo .o{border-left:3px solid var(--accent);padding-left:.55em}
 .sp.prose .o{border-left:2px dotted var(--muted);padding-left:.55em}
 .tag.pr{color:var(--muted)}
-.o .l.cpl::after{content:" \2040";color:var(--accent);font-size:.8em}
 body.clean .o .l[data-n]::before,body.clean .flag,body.clean .tag{display:none}
 body.clean abbr.g{text-decoration:none}
 body.clean .nm{color:var(--soft)}
