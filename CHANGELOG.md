@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.2.2] — 2026-11-08
+
+### Fixed
+- Settings → Line spacing now changes the reader text (original and modern); a leftover style had pinned it at Normal (#35).
+
 ## [2.2.1] — 2026-11-08
 
 ### Fixed
