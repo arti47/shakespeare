@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.0.1] — 2026-11-08
 
 ### Changed
-- New app icon: a gold open folio with a quill on charcoal, sized to sit inside Android's round icon mask (#PR).
+- New app icon: a gold open folio with a quill on charcoal, sized to sit inside Android's round icon mask (#31).
 
 ## [2.0.0] — 2026-11-07
 
