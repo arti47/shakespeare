@@ -4,7 +4,6 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
-<<<<<<< HEAD
 ## [2.2.1] — 2026-11-08
 
 ### Fixed
@@ -12,8 +11,6 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 - Dragging a page on iPhone: the reader claims the touch before Safari can take it as a scroll, so the curl follows your finger (#34).
 - Speech and other sheets close by pulling them down from the grab bar or header, as well as with Done (#34).
 
-=======
->>>>>>> origin/claude/project-thread-vcf04j
 ## [2.2.0] — 2026-11-08
 
 ### Added
