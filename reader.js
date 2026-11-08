@@ -55,7 +55,7 @@ function saveMark(id,patch){
 const saveProg=()=>LS.set(PFX+"prog",JSON.stringify(prog));
 
 /* ---------- settings ---------- */
-const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",turn:LS.get(PFX+"turn")==="slide"?"slide":"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
+const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
@@ -298,7 +298,8 @@ function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidde
   $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
   const r=$("p-range");r.max=n;r.value=i+1;bmState();
 }
-function noMotion(){return matchMedia("(prefers-reduced-motion: reduce)").matches||/^paper/.test(document.documentElement.dataset.theme||"")}
+const reducedMotion=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+function noMotion(){return reducedMotion()||S.turn==="instant"||/^paper/.test(document.documentElement.dataset.theme||"")}
 function turn(d,fromBar){
   if(document.body.classList.contains("chrome")){if(fromBar)armChrome();else toggleChrome(false)}
   hideGloss();if(toolsId!=null)closePanel();
@@ -311,7 +312,7 @@ function doTurn(d){
 /* ---------- page curl: the sheet folds along the perpendicular bisector of its corner and the finger ----------
    layers in #curl: under (the page being revealed), cast shadow, sheet front (clipped), sheet back (reflected, faint show-through) */
 let CU=null,noSlide=false;
-function curlOn(){return S.turn!=="slide"&&!noMotion()}
+function curlOn(){return S.turn==="curl"&&!reducedMotion()}
 function peekPage(d){
   if(d>0){if(cur.i<cur.pages.length-1)return {k:cur.k,pages:cur.pages,i:cur.i+1};if(cur.k<scenes.length-1)return {k:cur.k+1,pages:paginate(scenes[cur.k+1]),i:0};return null}
   if(cur.i>0)return {k:cur.k,pages:cur.pages,i:cur.i-1};if(cur.k>0){const ps=paginate(scenes[cur.k-1]);return {k:cur.k-1,pages:ps,i:ps.length-1}}return null}
@@ -400,7 +401,8 @@ function endPress(e,cancel){if(CU&&CU.drag){curlRelease(cancel);return}if(!press
   toggleChrome()}
 vp.addEventListener("pointerup",e=>{if(SEL)SEL.drag=false;endPress(e,false)});
 vp.addEventListener("pointercancel",e=>{if(SEL)SEL.drag=false;endPress(e,true)});
-vp.addEventListener("touchmove",e=>{if(SEL&&SEL.drag)e.preventDefault()},{passive:false});
+/* iOS: claim the touch for a page drag before Safari takes it as a pan (which would fire pointercancel) */
+vp.addEventListener("touchmove",e=>{if(SEL&&SEL.drag||CU&&CU.drag||press&&press.edge&&e.touches.length===1&&curlOn()&&pg.scrollHeight<=pg.clientHeight+2)e.preventDefault()},{passive:false});
 vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}openTools(+sp.dataset.id,partAt(e.target,sp))});
 vp.addEventListener("wheel",e=>{const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(d)<25)return;const now=Date.now();if(now-(vp.lw||0)<450)return;vp.lw=now;turn(d>0?1:-1)},{passive:true});
 /* a tap within a few pixels of an underlined word counts as tapping it */
@@ -882,6 +884,14 @@ const sheet=$("sheet");let lastFocus=null;
 function openSheet(t,html){if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;const b=sheet.querySelector(".sbox");b.scrollTop=0;b.focus({preventScroll:true})}
 function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
+/* pull the sheet down (from the grab bar, the header, or anywhere once scrolled to the top) to close it */
+{const sb=sheet.querySelector(".sbox");let sd=null;
+  sb.addEventListener("touchstart",e=>{if(e.touches.length!==1||e.target.closest("input,textarea,select"))return;const head=e.target.closest(".grab,.head");if(!head&&sb.scrollTop>0)return;sd={y:e.touches[0].clientY,t:Date.now(),dy:0,on:false}},{passive:true});
+  sb.addEventListener("touchmove",e=>{if(!sd)return;const dy=e.touches[0].clientY-sd.y;if(!sd.on){if(dy<-4){sd=null;return}if(dy<8)return;sd.on=true;sb.style.transition="none"}
+    e.preventDefault();sd.dy=Math.max(0,dy);sb.style.transform=`translateY(${sd.dy}px)`},{passive:false});
+  const end=()=>{if(!sd)return;const d=sd;sd=null;if(!d.on)return;sb.style.transition="transform .2s ease";
+    if(d.dy>110||d.dy>40&&d.dy/(Date.now()-d.t)>.5){sb.style.transform="translateY(100%)";setTimeout(()=>{closeSheet();sb.style.transition=sb.style.transform=""},180)}else{sb.style.transform="";setTimeout(()=>{sb.style.transition=""},220)}};
+  sb.addEventListener("touchend",end);sb.addEventListener("touchcancel",end)}
 sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
   const ct=e.target.closest("[data-ctab]");if(ct){openContents(ct.dataset.ctab);return}
   const fw=e.target.closest("[data-follow]");if(fw){follow(fw.dataset.follow);return}
@@ -986,11 +996,11 @@ function openSettings(){
   openSheet("Settings",`
     <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, tap any line to see its modern English.</small></div>
     <div class="opt"><div class="lbl">Text size</div>${segs("scale",[["1.15","Small"],["1.3","Normal"],["1.5","Large"],["1.75","Extra large"]],S.scale)}</div>
-    <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["paper","Paper"],["papernight","Paper night"],["papertimed","Paper, night after 8pm"]],S.theme)}${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"],["night","Night"],["timed","Night after 8pm"]],S.theme)}<small>Paper looks like an e-reader: a matte, warm page with crisp black text, and pages that change without sliding. Night is a warm, dim scheme for reading in bed. The "after 8pm" options switch to the night version until 7am.</small></div>
+    <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["paper","Paper"],["papernight","Paper night"],["papertimed","Paper, night after 8pm"]],S.theme)}${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"],["night","Night"],["timed","Night after 8pm"]],S.theme)}<small>Paper looks like an e-reader: a matte, warm page with crisp black text. Night is a warm, dim scheme for reading in bed. The "after 8pm" options switch to the night version until 7am.</small></div>
     <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
     <div class="opt"><div class="lbl">Clean page</div>${segs("clean",[["false","Off"],["true","On"]],S.clean)}<small>Hides line numbers, tags and underlines for pure reading. Tapping still works.</small></div>
     <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
-    <div class="opt"><div class="lbl">Page turn</div>${segs("turn",[["curl","Curl"],["slide","Slide"]],S.turn)}<small>Curl: hold the page near its outer edge or a corner and drag; it bends and turns like paper. Taps and swipes curl too. Paper themes always change pages instantly.</small></div>
+    <div class="opt"><div class="lbl">Page turn</div>${segs("turn",[["curl","Curl"],["slide","Slide"],["instant","Instant"]],S.turn)}<small>Curl: hold the page near its outer edge or a corner and drag; it bends and turns like paper. Taps and swipes curl too. Instant changes pages with no motion, like an e-reader (Slide is also instant in Paper themes).</small></div>
     <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
     <div class="opt"><div class="lbl">Scene summary on the first page</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
     <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
