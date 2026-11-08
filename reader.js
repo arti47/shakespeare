@@ -7,7 +7,7 @@ const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","A
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 const $=id=>document.getElementById(id);
-const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon"].forEach(k=>FSH[PFX+k]=1);
+const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon","turn"].forEach(k=>FSH[PFX+k]=1);
 const LS={key(k){return FSH[k]?"folio-"+k.slice(4):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
 LS.set("folio-last",PLAY);
 const wide=()=>innerWidth>=760;
@@ -55,7 +55,7 @@ function saveMark(id,patch){
 const saveProg=()=>LS.set(PFX+"prog",JSON.stringify(prog));
 
 /* ---------- settings ---------- */
-const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",who:"",stab:LS.get(PFX+"stab")||"quotes"};
+const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",turn:LS.get(PFX+"turn")==="slide"?"slide":"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
@@ -65,7 +65,7 @@ function applySettings(){
   document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.c)m.dataset.c=m.content;m.content=pc||m.dataset.c});
   document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
   LS.set(PFX+"lh",S.lh);LS.set(PFX+"focus",S.focus);LS.set(PFX+"clean",S.clean?"1":"0");LS.set(PFX+"onehand",S.onehand?"1":"0");
-  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");
+  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"turn",S.turn);
 }
 
 /* reading log: minutes and pages per day (this device) */
@@ -285,7 +285,7 @@ function findKey(key){
 function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidden=true}
   const p=scenes[cur.k];cur.i=i;
   const html=cur.pages[i].map(b=>blockHTML(b,p)).join("");
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches||/^paper/.test(document.documentElement.dataset.theme||"");
+  const reduce=noMotion()||noSlide;
   const put=()=>{pg.innerHTML=html;pg.scrollTop=0;pg.style.overflowY=pg.scrollHeight>pg.clientHeight+2?"auto":"hidden"};
   if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
   const first=cur.pages[i].find(b=>b.t==="sp")||cur.pages[i][0];
@@ -298,14 +298,73 @@ function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidde
   $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
   const r=$("p-range");r.max=n;r.value=i+1;bmState();
 }
+function noMotion(){return matchMedia("(prefers-reduced-motion: reduce)").matches||/^paper/.test(document.documentElement.dataset.theme||"")}
 function turn(d,fromBar){
   if(document.body.classList.contains("chrome")){if(fromBar)armChrome();else toggleChrome(false)}
   hideGloss();if(toolsId!=null)closePanel();
+  if(curlOn()){curlAuto(d);return}
+  doTurn(d)}
+function doTurn(d){
   if(d>0){if(cur.i<cur.pages.length-1)renderPage(cur.i+1,1);else if(cur.k<scenes.length-1){setHash(scenes[cur.k+1].id,false);openScene(cur.k+1,{page:0})}else toast("The end of the play")}
   else{if(cur.i>0)renderPage(cur.i-1,-1);else if(cur.k>0){setHash(scenes[cur.k-1].id,false);openScene(cur.k-1,{page:"last"})}}
 }
+/* ---------- page curl: the sheet folds along the perpendicular bisector of its corner and the finger ----------
+   layers in #curl: under (the page being revealed), cast shadow, sheet front (clipped), sheet back (reflected, faint show-through) */
+let CU=null,noSlide=false;
+function curlOn(){return S.turn!=="slide"&&!noMotion()}
+function peekPage(d){
+  if(d>0){if(cur.i<cur.pages.length-1)return {k:cur.k,pages:cur.pages,i:cur.i+1};if(cur.k<scenes.length-1)return {k:cur.k+1,pages:paginate(scenes[cur.k+1]),i:0};return null}
+  if(cur.i>0)return {k:cur.k,pages:cur.pages,i:cur.i-1};if(cur.k>0){const ps=paginate(scenes[cur.k-1]);return {k:cur.k-1,pages:ps,i:ps.length-1}}return null}
+function curlPage(html,foot,cls){const w=document.createElement("div");w.className="cpage "+(cls||"");
+  const v=document.createElement("div");v.className=vp.className;const g=document.createElement("div");g.className="pg";g.innerHTML=html;v.appendChild(g);w.appendChild(v);
+  const f=document.createElement("div");f.className="pgfoot";f.textContent=foot;w.appendChild(f);return w}
+function curlBegin(d,cy){if(CU)curlEnd(true);const pk=peekPage(d);if(!pk)return null;
+  const box=$("curl"),W=vp.clientWidth,H=vp.clientHeight;
+  const nowH=pg.innerHTML,nowF=$("pgfoot").textContent,pkH=pk.pages[pk.i].map(b=>blockHTML(b,scenes[pk.k])).join(""),pkF=`${sName(scenes[pk.k])} · ${pk.i+1} / ${pk.pages.length}`;
+  const [sh,sf,uh,uf]=d>0?[nowH,nowF,pkH,pkF]:[pkH,pkF,nowH,nowF];
+  const under=curlPage(uh,uf),cast=document.createElement("i"),front=curlPage(sh,sf),bw=document.createElement("div"),back=document.createElement("div"),shade=document.createElement("i");
+  cast.className="ccast";bw.className="cbw";back.className="cback";shade.className="cshade";
+  const ghost=curlPage(sh,"","cghost");back.append(ghost,shade);bw.appendChild(back);
+  box.replaceChildren(under,cast,front,bw);box.hidden=false;
+  CU={d,W,H,cy:cy==null?H:Math.max(0,Math.min(H,cy)),cast,front,back,shade,raf:0,F:null,done:false};
+  CU.F=d>0?{x:W,y:CU.cy}:{x:-W,y:CU.cy};curlDraw();return CU}
+/* keep the sheet attached at its spine edge: corner stays within one page width of the spine */
+function curlClamp(F){const {W,H,cy}=CU;let dx=F.x,dy=F.y-cy,r=Math.hypot(dx,dy);if(r>W){F={x:dx/r*W,y:cy+dy/r*W}}
+  const oy=cy>=H-1?0:cy<=1?H:null;if(oy!=null){const D=Math.hypot(W,H);dx=F.x;dy=F.y-oy;r=Math.hypot(dx,dy);if(r>D)F={x:dx/r*D,y:oy+dy/r*D}}return F}
+function clipPoly(P,M,n,side){const out=[],f=p=>((p[0]-M[0])*n[0]+(p[1]-M[1])*n[1])*side;
+  for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length],fa=f(a),fb=f(b);if(fa<=0)out.push(a);if(fa<=0!==fb<=0){const t=fa/(fa-fb);out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])}}return out}
+const polyCSS=P=>P.length<3?"polygon(0 0,0 0,0 0)":"polygon("+P.map(p=>p[0].toFixed(1)+"px "+p[1].toFixed(1)+"px").join(",")+")";
+function curlDraw(){const c=CU,{W,H}=c,F=c.F=curlClamp(c.F),C=[W,c.cy],vx=C[0]-F.x,vy=C[1]-F.y,L=Math.hypot(vx,vy);
+  if(L<.5){c.front.style.clipPath="none";c.back.style.visibility=c.cast.style.visibility="hidden";return}
+  c.back.style.visibility=c.cast.style.visibility="";
+  const n=[vx/L,vy/L],M=[(C[0]+F.x)/2,(C[1]+F.y)/2],R=[[0,0],[W,0],[W,H],[0,H]];
+  c.front.style.clipPath=polyCSS(clipPoly(R,M,n,1));c.back.style.clipPath=polyCSS(clipPoly(R,M,n,-1));
+  const ux=-n[1],uy=n[0],a=ux*ux-uy*uy,b=2*ux*uy,e=M[0]-(a*M[0]+b*M[1]),f=M[1]-(b*M[0]-a*M[1]);
+  c.back.style.transform=`matrix(${a},${b},${b},${-a},${e},${f})`;
+  const ang=Math.atan2(n[1],n[0])*180/Math.PI,D=Math.hypot(W,H),half=L/2,pr=Math.min(1,L/(2*W));
+  const strip=(el,w)=>{el.style.width=w+"px";el.style.height=2*D+"px";el.style.transform=`translate(${M[0]}px,${M[1]-D}px) rotate(${ang}deg)`};
+  strip(c.shade,Math.max(2,half));strip(c.cast,Math.min(90,12+half*.35));c.cast.style.opacity=Math.min(1,L/60)*(1-pr*.5)}
+function curlAnim(to,ms,done){const c=CU,from={...c.F},t0=performance.now(),ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,arc=c.arc||0;
+  cancelAnimationFrame(c.raf);const step=now=>{if(CU!==c)return;const t=Math.min(1,(now-t0)/ms),k=ez(t);
+    c.F={x:from.x+(to.x-from.x)*k,y:from.y+(to.y-from.y)*k-arc*Math.sin(Math.PI*k)};curlDraw();if(t<1)c.raf=requestAnimationFrame(step);else done()};c.raf=requestAnimationFrame(step)}
+function curlEnd(){if(!CU)return;cancelAnimationFrame(CU.raf);CU=null;const box=$("curl");box.hidden=true;box.replaceChildren()}
+function curlCommit(d){noSlide=true;try{doTurn(d)}finally{noSlide=false}try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}}
+/* tap, swipe, key or wheel: play the whole turn from the bottom corner with a slight lift */
+function curlAuto(d){const c=curlBegin(d);if(!c){doTurn(d);return}curlCommit(d);c.arc=c.H*.1;
+  curlAnim(d>0?{x:-c.W,y:c.cy}:{x:c.W,y:c.cy},Math.round(380+c.W*.12),curlEnd)}
+/* drag from the outer edge strip: corner follows the finger, release finishes or springs back */
+function curlGrab(d,x,y){const r=vp.getBoundingClientRect(),H=r.height,ly=y-r.top,cy=ly>H*.8?H:ly<H*.2?0:ly;if(!curlBegin(d,cy))return false;
+  Object.assign(CU,{drag:true,ox:x-r.left,oy:ly,lx:x,lt:performance.now(),v:0});return true}
+function curlMove(x,y){const c=CU,r=vp.getBoundingClientRect(),lx=x-r.left,ly=y-r.top,now=performance.now(),dt=now-c.lt;
+  if(dt>0)c.v=c.v*.6+((x-c.lx)/dt)*.4;c.lx=x;c.lt=now;
+  c.F=c.d>0?{x:c.W+(lx-c.ox),y:c.cy+(ly-c.oy)}:{x:-c.W+2*(lx-c.ox),y:c.cy+(ly-c.oy)};curlDraw()}
+function curlRelease(cancel){const c=CU;c.drag=false;const p=(c.W-c.F.x)/(2*c.W);
+  const go=!cancel&&(c.d>0?(c.v<-.35||p>.3&&c.v<.3):(c.v>.35||p<.7&&c.v>-.3));
+  const left={x:-c.W,y:c.cy},right={x:c.W,y:c.cy},to=(c.d>0)===go?left:right,ms=Math.round(160+Math.abs(to.x-c.F.x)/(2*c.W)*260);
+  if(go){if(document.body.classList.contains("chrome"))toggleChrome(false);hideGloss();if(toolsId!=null)closePanel();curlCommit(c.d)}
+  curlAnim(to,ms,curlEnd)}
 function repaginate(){if(view!=="reader"||cur.k<0)return;const key=pos&&pos.key;cur.sig="";openScene(cur.k,{key,keep:true})}
-let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(repaginate,180)});
+let rz;addEventListener("resize",()=>{curlEnd();clearTimeout(rz);rz=setTimeout(repaginate,180)});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>repaginate());
 function refreshMarks(){if(view==="reader"&&cur.k>=0){pg.innerHTML=cur.pages[cur.i].map(b=>blockHTML(b,scenes[cur.k])).join("");if(partSel)markPart();else if(toolsId!=null)pg.querySelectorAll(`.sp[data-id="${toolsId}"]`).forEach(x=>x.classList.add("active"))}}
 
@@ -313,10 +372,14 @@ function refreshMarks(){if(view==="reader"&&cur.k>=0){pg.innerHTML=cur.pages[cur
 let press=null,swallow=false;
 vp.addEventListener("pointerdown",e=>{if(e.button)return;
   const sp=e.target.closest(".sp");press={x:e.clientX,y:e.clientY,t:Date.now(),sp,tgt:e.target,timer:null,moved:false};
+  {const r=vp.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width;press.edge=fx>.82?1:fx<.18?-1:0}
   if(sp){press.pt=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved)sp.classList.add("pressing")},160);
     press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}const h=wordAt(press.x,press.y);if(h&&h.id===+sp.dataset.id)startSel(h);else openTools(+sp.dataset.id,partAt(press.tgt,sp))}},480)}});
-vp.addEventListener("pointermove",e=>{if(SEL&&SEL.drag){const h=wordAt(e.clientX,e.clientY);if(h&&h.id===SEL.id){const an=SEL.anc,[a,b]=wlt(h.w,an)?[h.w,an]:[an,h.w];if(a+""!==SEL.a+""||b+""!==SEL.b+""){SEL.a=a;SEL.b=b;selPaint()}}return}if(!press)return;if(Math.abs(e.clientX-press.x)>10||Math.abs(e.clientY-press.y)>10){press.moved=true;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing")}});
-function endPress(e,cancel){if(!press||pinch)return;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");
+vp.addEventListener("pointermove",e=>{if(CU&&CU.drag){curlMove(e.clientX,e.clientY);return}
+  if(press&&press.edge&&!SEL&&!pinch){const dx=e.clientX-press.x,dy=e.clientY-press.y;if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2&&Math.sign(dx)===-press.edge&&curlOn()&&curlGrab(press.edge,press.x,press.y)){
+    clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");press=null;try{vp.setPointerCapture(e.pointerId)}catch(_){}curlMove(e.clientX,e.clientY);return}}
+  if(SEL&&SEL.drag){const h=wordAt(e.clientX,e.clientY);if(h&&h.id===SEL.id){const an=SEL.anc,[a,b]=wlt(h.w,an)?[h.w,an]:[an,h.w];if(a+""!==SEL.a+""||b+""!==SEL.b+""){SEL.a=a;SEL.b=b;selPaint()}}return}if(!press)return;if(Math.abs(e.clientX-press.x)>10||Math.abs(e.clientY-press.y)>10){press.moved=true;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing")}});
+function endPress(e,cancel){if(CU&&CU.drag){curlRelease(cancel);return}if(!press||pinch)return;clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");
   const P=press;press=null;if(cancel)return;
   if(swallow){swallow=false;return}
   const dx=e.clientX-P.x,dy=e.clientY-P.y;
@@ -345,7 +408,7 @@ function nearGloss(tgt,x,y){const d=tgt&&tgt.closest&&tgt.closest("abbr.g");if(d
   for(const [dx,dy] of [[0,-9],[0,9],[-12,0],[12,0],[-9,-7],[9,-7],[-9,7],[9,7],[0,-15],[0,15]]){const el=document.elementFromPoint(x+dx,y+dy);const g=el&&el.closest&&el.closest("abbr.g");if(g)return g}return null}
 /* pinch with two fingers to change the text size */
 let pinch=null;const SIZES=[1.15,1.3,1.5,1.75];
-vp.addEventListener("touchstart",e=>{if(e.touches.length===2){const [a,b]=e.touches;pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),r:1};press=null}},{passive:true});
+vp.addEventListener("touchstart",e=>{if(e.touches.length===2){if(CU&&CU.drag)curlRelease(true);const [a,b]=e.touches;pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),r:1};press=null}},{passive:true});
 vp.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const [a,b]=e.touches;pinch.r=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pinch.d}},{passive:true});
 vp.addEventListener("touchend",e=>{if(!pinch||e.touches.length)return;const r=pinch.r;pinch=null;swallow=false;press=null;
   let i=SIZES.indexOf(S.scale);if(i<0)i=1;const ni=r>1.15?Math.min(SIZES.length-1,i+1):r<.87?Math.max(0,i-1):i;
@@ -927,6 +990,7 @@ function openSettings(){
     <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
     <div class="opt"><div class="lbl">Clean page</div>${segs("clean",[["false","Off"],["true","On"]],S.clean)}<small>Hides line numbers, tags and underlines for pure reading. Tapping still works.</small></div>
     <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
+    <div class="opt"><div class="lbl">Page turn</div>${segs("turn",[["curl","Curl"],["slide","Slide"]],S.turn)}<small>Curl: hold the page near its outer edge or a corner and drag; it bends and turns like paper. Taps and swipes curl too. Paper themes always change pages instantly.</small></div>
     <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
     <div class="opt"><div class="lbl">Scene summary on the first page</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
     <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
