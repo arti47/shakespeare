@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-11-08
+
+### Added
+- King Richard II, the first play on the new Histories shelf: the Craig (Oxford) text from Project Gutenberg with modern English for every speech, notes, a 215-word glossary and the full Study set: act summaries and quizzes, cast profiles, 69 key quotes in 9 themes, Bolingbroke's rise, power chart, character map, context, critics, imagery and essay plans (#32).
+
+### Fixed
+- Power chart: act labels no longer overlap when an act has only one scene (#32).
+
 ## [2.0.1] — 2026-11-08
 
 ### Changed
