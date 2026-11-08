@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.2.0] — 2026-11-08
+
+### Added
+- Realistic page curl: hold a page near its outer edge or a corner and drag; it bends along your finger with a shaded fold, faint show-through on its back and a shadow on the page beneath, then finishes the turn or springs back when you let go. Taps, swipes, keys and the scroll wheel curl too. Settings → Page turn switches back to Slide; Paper themes and reduced motion stay instant (#PR).
+
 ## [2.1.0] — 2026-11-08
 
 ### Added
