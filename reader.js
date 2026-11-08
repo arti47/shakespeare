@@ -178,7 +178,7 @@ function sceneBlocks(p){
 }
 /* breathing space: long speeches get a small gap after each full sentence; modern English is split into short paragraphs */
 const endsSentence=l=>/[.?!]["'’”)\]]*\s*$/.test(l.replace(/\s*\[[^\]]*\]\s*$/,""));
-function lineHTML(l,num,cpl,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}${cpl?" cpl":""}"${num%5===0?` data-n="${num}"`:""}${id!=null?` data-j="${j}"`:""}>${favLine(t,id,j)}</span>`}
+function lineHTML(l,num,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}${id!=null?` data-j="${j}"`:""}>${favLine(t,id,j)}</span>`}
 /* saved phrases (and the one being selected, drawn last so it wins) are wrapped in <mark class="fph fc-…"> */
 function favLine(t,id,j){if(id==null||!FAV.length&&!SEL)return gloss(t);const ws=[];t.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return gloss(t);const cov=[];
   const add=(a,b,k,c,sel)=>{if(j<a[0]||j>b[0])return;const s=j===a[0]?a[1]:0,e=Math.min(ws.length-1,j===b[0]?b[1]:ws.length-1);if(s>=ws.length||e<s)return;cov.push({s:ws[s][0],e:ws[e][1],k,c:fcOk(c),sel})};
@@ -187,7 +187,7 @@ function favLine(t,id,j){if(id==null||!FAV.length&&!SEL)return gloss(t);const ws
   const flush=()=>{if(!buf)return;h+=g?`<mark class="fph fc-${g.c}${g.sel?" fsel":""}"${g.k!==""?` data-fp="${esc(g.k)}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
   for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];let top=null;cov.forEach(c=>{if(c.s<=a&&c.e>=b)top=c});if(top!==g){flush();g=top}buf+=t.slice(a,b)}flush();return h}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
-function linesHTML(it,a,b){let h="";const cp=CPL[it.id];partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,cp!=null&&j>=cp,it.id,j);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
+function linesHTML(it,a,b){let h="";partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,it.id,j);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
   return out.map(p=>`<p>${esc(p)}</p>`).join("")}
@@ -205,13 +205,9 @@ function endAct(v){const [a,s,k]=v.split(":");
   if(a==="conf"){prog.conf[s]=prog.conf[s]===k?"":k;saveProg();refreshMarks();toast("Saved")}}
 function onStage(p){const ws=[];p.items.forEach(i=>{if(i.t==="sp"&&i.who&&!ws.includes(i.who))ws.push(i.who)});
   return `<div class="onstage">On stage: ${ws.map(w=>`<span style="--c:${COLORS[w]||"var(--ink)"}">${esc(title(w))}</span>`).join(" · ")}</div>`}
-/* verse or prose; rhyming couplets */
+/* verse or prose */
 const PROSE={};for(const id in speech){const L=speech[id].lines.map(l=>l.replace(/^~/,"").replace(/\[[^\]]*\]\s*/g,""));if(L.length<2)continue;
   const low=L.slice(1).filter(l=>/^[a-z]/.test(l)).length,long=L.filter(l=>l.length>62).length;PROSE[id]=low/(L.length-1)>=.5||long>=Math.max(1,L.length/3)}
-const lastWord=l=>(l.replace(/^~/,"").replace(/\[[^\]]*\]/g,"").toLowerCase().match(/([a-z']+)[^a-z']*$/)||[])[1]||"";
-function rhymes(a,b){a=lastWord(a);b=lastWord(b);if(!a||!b||a===b||a.length<2||b.length<2)return false;const e=w=>w.replace(/'/g,"").slice(-3);
-  if(e(a)===e(b))return true;const v=w=>(w.match(/[aeiouy]+[^aeiouy]*$/)||[""])[0];return v(a).length>=2&&v(a)===v(b)}
-const CPL={};for(const id in speech){const L=speech[id].lines;if(L.length>=2&&!PROSE[id]&&rhymes(L[L.length-2],L[L.length-1]))CPL[id]=L.length-2}
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
     return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${stagePic(p)}${onStage(p)}<button class="recapb" data-recap="${p.id}">Story so far</button>${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
