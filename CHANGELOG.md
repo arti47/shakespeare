@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.12.0] — 2026-11-09
 
 ### Added
-- A Midsummer Night's Dream, the fourth Comedy: full text (Project Gutenberg) with modern English for every speech, story beats, notes, glossary, 68 key quotes, scene quizzes and the full Study set (Explore, exam writing, drills) (#PR).
+- A Midsummer Night's Dream, the fourth Comedy: full text (Project Gutenberg) with modern English for every speech, story beats, notes, glossary, 68 key quotes, scene quizzes and the full Study set (Explore, exam writing, drills) (#51).
 
 ## [2.11.2] — 2026-11-09
 
