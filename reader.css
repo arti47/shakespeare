@@ -521,3 +521,11 @@ body.v-reader.chrome .toast,body.v-study .toast,body.v-you .toast{bottom:calc(va
 .ptmean p{margin:4px 0 0;font-size:1rem;line-height:1.55}
 .ptsw{display:flex;gap:8px;align-items:center;margin:14px 0 0;font-size:.95rem}.ptsw small{font-size:.875rem}
 .card .ptxt{text-align:left}
+/* recall prompts, scene pre-question, today's plan */
+.recall{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}.recall .muted{font-size:.875rem;flex:1 1 200px}.recall .box{flex:1 1 100%;margin:0}
+#sbody.recalling>:not(.recall){filter:blur(7px);pointer-events:none;user-select:none;-webkit-user-select:none}
+.preq{margin:14px auto 0;max-width:34em;font-size:.95rem;line-height:1.45;color:var(--soft);border:1px dashed var(--rule);border-radius:8px;padding:8px 12px}
+.preq b{display:block;font-size:.875rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.plan3{margin:0 0 6px;padding-left:20px}.plan3 li{margin:4px 0}
+.refl .sinput{margin-bottom:8px}
+@media print{#sbody.recalling>*{filter:none}}

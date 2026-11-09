@@ -198,7 +198,7 @@ function recapHTML(id){const k=sIdx(id);if(k===0)return `<ul>${EX.intro.map(x=>`
   const pv=scenes[k-1],s=STUDY.scenes[pv.id]||{};return `<p class="muted" style="margin-top:0">At the end of ${sName(pv)}:</p><ul>${(s.key||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p class="muted">${esc(s.sum||"")}</p>`}
 let PRED={};try{PRED=JSON.parse(LS.get(PFX+"pred")||"{}")}catch(e){}
 function endExtras(p){const c=prog.conf[p.id];
-  return `<div class="endbtns"><button data-endact="quiz:${p.id}">Quick quiz on this scene</button><button data-endact="quotes:${p.id}">Key quotes from this scene</button></div>
+  return `<div class="endbtns"><button data-endact="quiz:${p.id}">${preQ(p)?"Did you find out? Quick quiz":"Quick quiz on this scene"}</button><button data-endact="quotes:${p.id}">Key quotes from this scene</button></div>
    <div class="conf">How well do you know this scene? ${[["r","Shaky"],["a","OK"],["g","Confident"]].map(([k,l])=>`<button data-endact="conf:${p.id}:${k}" aria-pressed="${c===k}"><i class="dot ${k}"></i>${l}</button>`).join("")}</div>`}
 function endAct(v){const [a,s,k]=v.split(":");
   if(a==="quiz"){goStudy("quiz");startQuiz(s);return}
@@ -211,7 +211,7 @@ const PROSE={};for(const id in speech){const L=speech[id].lines.map(l=>l.replace
   const low=L.slice(1).filter(l=>/^[a-z]/.test(l)).length,long=L.filter(l=>l.length>62).length;PROSE[id]=low/(L.length-1)>=.5||long>=Math.max(1,L.length/3)}
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
-    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${stagePic(p)}${onStage(p)}<button class="recapb" data-recap="${p.id}">Story so far</button>${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
+    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${stagePic(p)}${onStage(p)}<button class="recapb" data-recap="${p.id}">Story so far</button>${preQ(p)?`<div class="preq"><b>Read to find out</b>${esc(preQ(p))}</div>`:""}${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
   if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
     const po=EX.predict[p.id],g=PRED[p.id];
@@ -867,7 +867,7 @@ function startReview(){const P=reviewPool(),items=[...P.due.slice(0,15),...P.fre
 function studyReview(){
   if(!rv||rv.done&&!rv.show){const P=reviewPool(),n=Math.min(15,P.due.length)+Math.min(P.fresh.length,Math.max(3,15-P.due.length),5),cal=REV.cal.slice(-5);
     $("sbody").innerHTML=`<p class="intro">A few minutes a day beats one long session. Review mixes everything that is due: who said it, finishing quotes, themes, acts and quiz questions from scenes you have read, plus a few new items.</p>
-     <div class="box"><h3>Today</h3><p><b>${P.due.length}</b> due${P.fresh.length?` · ${Math.min(P.fresh.length,5)} new`:""}</p>${n?`<button class="btn primary" id="rv-go">Start review · ${n} item${n===1?"":"s"}</button>`:`<p class="muted">Nothing to review yet. Learn some flashcards or finish a scene first.</p>`}</div>
+     ${planHTML(n)}<div class="box"><h3>Today</h3><p><b>${P.due.length}</b> due${P.fresh.length?` · ${Math.min(P.fresh.length,5)} new`:""}</p>${n?`<button class="btn primary" id="rv-go">Start review · ${n} item${n===1?"":"s"}</button>`:`<p class="muted">Nothing to review yet. Learn some flashcards or finish a scene first.</p>`}</div>
      ${cal.length?`<div class="box"><h3>How well you predict your score</h3><p class="intro">Students often think they know more than they do. Predicting first, then checking, makes you a better judge of what to revise.</p><ul class="cal">${cal.map(([p,g,t,n])=>`<li>${esc(new Date(t).toLocaleDateString())}: predicted ${esc(p)}, got ${esc(g)}${n?` of ${esc(n)}`:""}</li>`).join("")}</ul></div>`:""}
      ${examLeft()>2?`<p class="muted">Your exam is in ${examLeft()} days, so items come back sooner.</p>`:""}`;
     if($("rv-go"))$("rv-go").onclick=()=>{startReview();studyReview();scrollTo(0,0)};return}
@@ -884,14 +884,46 @@ function studyReview(){
   const n=rv.items.length,d=rv.pred>=0?rv.ok-rv.pred:null;
   $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">Review finished</div><div class="big">${rv.ok} of ${n}</div>
    ${d!=null?`<p>${d===0?"You predicted exactly right.":d>0?`You did ${d} better than you predicted.`:`You predicted ${-d} more than you got. Worth a second look at the ones you missed.`}</p>`:""}
-   <p class="muted">Items you missed come back later today; the rest come back in a few days.</p><div class="row" style="justify-content:center"><button class="btn primary" id="rv-home">Done</button></div></div>`;
-  $("rv-home").onclick=()=>{rv=null;studyReview()};
+   <p class="muted">Items you missed come back later today; the rest come back in a few days.</p>${reflHTML()}<div class="row" style="justify-content:center"><button class="btn primary" id="rv-home">Done</button></div></div>`;
+  wireRefl();$("rv-home").onclick=()=>{rv=null;studyReview()};
 }
 function reviewAct(a,v){const it=rv&&rv.items[rv.i];if(!it)return;
   if(a==="pick"){if(it.stage!=="ask")return;it.pick=v;const ok=pickOk(it,v);it.stage="shown";if(ok)rv.ok++;grade(it.k,ok,false);studyReview();return}
   if(a==="sure"||a==="unsure"){it.sure=a==="sure";it.stage="shown";studyReview();return}
   if(a==="yes"||a==="no"){if(a==="yes")rv.ok++;grade(it.k,a==="yes",it.sure);rv.i++;studyReview();scrollTo(0,0);return}
   if(a==="next"){rv.i++;studyReview();scrollTo(0,0)}}
+/* ---------- recall prompts: test yourself on a Learn page before rereading it ----------
+   Retrieval beats rereading: the page blurs, you write what you remember, then compare. Answers kept per page (REV.rc). */
+REV.rc=REV.rc&&typeof REV.rc==="object"&&!Array.isArray(REV.rc)?REV.rc:{};
+REV.refl=REV.refl&&typeof REV.refl==="object"&&!Array.isArray(REV.refl)?REV.refl:{};
+let rcOn="";
+function addRecall(key,prompt){const sb=$("sbody");if(!sb||sb.querySelector(".recall"))return;const on=rcOn===key;
+  const d=document.createElement("div");d.className="recall noprint";
+  d.innerHTML=on?`<div class="box"><h3>From memory</h3><p class="intro">${esc(prompt)}</p><textarea class="sinput" id="rc-a" placeholder="Write what you remember, then compare">${esc(REV.rc[key]||"")}</textarea><div class="row"><button class="btn primary" id="rc-chk">Compare with the page</button></div></div>`
+    :`<button class="btn sm" id="rc-go">Test yourself first</button><span class="muted">Hide this page and write what you remember. It works better than rereading.</span>`;
+  sb.prepend(d);sb.classList.toggle("recalling",on);
+  if(on){$("rc-a").oninput=e=>{REV.rc[key]=e.target.value.slice(0,4000);saveRev()};$("rc-chk").onclick=()=>{rcOn="";sb.classList.remove("recalling");d.innerHTML=`<div class="box"><h3>Your answer</h3><div class="mynote">${esc(REV.rc[key]||"(nothing written)")}</div><p class="muted">Check it against the page below. Anything you missed is worth a flashcard or a note.</p></div>`}}
+  else $("rc-go").onclick=()=>{rcOn=key;sb.classList.remove("recalling");d.remove();addRecall(key,prompt);scrollTo(0,0)}}
+{const T=studyThemes,P=studyProf,A=studyActs,E=studyExplore;
+  studyThemes=function(){T();const n=QUOTES.themes[thSel][0];addRecall("th:"+thSel,`How does ${n.toLowerCase()} develop at the beginning, the turning point and the end? Give a quote for each if you can.`)};
+  studyProf=function(){P();addRecall("prof:"+profSel,`Three things about ${title(profSel)}, each with a quote, and how they change in the play.`)};
+  studyActs=function(){A();addRecall("acts","Pick an act and write what happens in it, in order. Then the key quote from each scene you can remember.")};
+  studyExplore=function(){E();if(["facts","analysis","motifs","context","critics","bigq","timeline","devices","contrast"].includes(exSel))addRecall("ex:"+exSel+(exSel==="analysis"?":"+anSel:""),"Write down the most important points on this page, from memory.")}}
+/* scene pre-question: one quiz question shown at the top of a scene, to read for; answered by the end-of-scene quiz */
+const preQ=p=>{const qs=(STUDY.scenes[p.id]||{}).quiz||[];return qs.length?qs[(p.act*7+p.sc)%qs.length].q:""};
+/* today's plan on the Review page: due items, the next scenes for the exam plan, one shaky scene; reflection after a session */
+function planHTML(n){const L=examLeft(),un=scenes.filter(p=>!prog.done[p.id]),per=L>2?Math.ceil(un.length/Math.max(1,L-2)):0,
+  shaky=scenes.filter(p=>prog.conf[p.id]==="r"),weak=shaky.length?shaky[0]:scenes.filter(p=>prog.done[p.id]&&!prog.quiz[p.id])[0],last=Object.keys(REV.refl).sort().pop();
+  const steps=[];if(n)steps.push(`Daily review: ${n} item${n===1?"":"s"} (about ${Math.max(2,Math.round(n*.5))} minutes)`);
+  if(per&&un.length)steps.push(`Read ${per} scene${per===1?"":"s"}: next is ${sName(un[0])} <button class="link" data-go2="${un[0].id}">Read</button>`);
+  if(weak)steps.push(`${prog.conf[weak.id]==="r"?"You marked this scene shaky":"Not quizzed yet"}: ${sName(weak)} <button class="link" data-quiz2="${weak.id}">Quiz</button>`);
+  if(!steps.length)return "";
+  return `<div class="box"><h3>Today's plan</h3><ol class="plan3">${steps.map(s=>`<li>${s}</li>`).join("")}</ol>${last&&REV.refl[last].fix?`<p class="muted">Last time (${esc(new Date(last+"T12:00").toLocaleDateString())}) you said you'd work on: <b>${esc(REV.refl[last].fix)}</b></p>`:""}</div>`}
+function reflHTML(){const t=today(),r=REV.refl[t]||{};return `<div class="box refl" style="text-align:left"><h3>Look back</h3><label class="lbl" for="rf-w">What went well?</label><input class="sinput" id="rf-w" value="${esc(r.well||"")}" maxlength="200">
+  <label class="lbl" for="rf-f">One thing to work on next time</label><input class="sinput" id="rf-f" value="${esc(r.fix||"")}" maxlength="200"></div>`}
+function wireRefl(){const t=today(),sv=()=>{const w=$("rf-w").value.trim(),f=$("rf-f").value.trim();if(w||f)REV.refl[t]={well:w,fix:f};else delete REV.refl[t];const ks=Object.keys(REV.refl).sort();while(ks.length>30)delete REV.refl[ks.shift()];saveRev()};
+  if($("rf-w")){$("rf-w").oninput=sv;$("rf-f").oninput=sv}}
+
 /* essay helper: a theme traced from beginning to end */
 let thSel=Object.keys(QUOTES.themes)[0];
 function themePlan(k){
@@ -930,9 +962,12 @@ function startQuiz(kind){
   else if(kind==="miss")qs=prog.miss.q.map(q=>Object.assign({},q));
   else qs=((STUDY.scenes[kind]||{}).quiz||[]).map(q=>Object.assign({s:kind},q));
   qs=qs.map(q=>{const ix=shuf(q.o.map((_,i)=>i));return Object.assign({},q,{o:ix.map(i=>q.o[i]),a:ix.indexOf(q.a)})});
-  qz={kind,qs,i:0,ok:0,ans:null};studyQuiz();scrollTo(0,0);
+  qz={kind,qs,i:0,ok:0,ans:null,pred:kind==="miss"||qs.length<3?-1:null};studyQuiz();scrollTo(0,0);
 }
 function studyQuiz(){
+  if(qz&&qz.pred==null){const n=qz.qs.length,v=Math.round(n*.7);
+    $("sbody").innerHTML=`<div class="qz"><div class="qn">Before you start</div><h3>How many of these ${n} questions do you think you'll get right?</h3><input type="range" id="qp" min="0" max="${n}" value="${v}" class="srange" aria-label="Predicted score"><p class="big" id="qpv">${v}</p><div class="row"><button class="btn primary" id="qp-go">Start</button><button class="link" id="qp-skip">Skip</button></div></div>`;
+    $("qp").oninput=e=>$("qpv").textContent=e.target.value;$("qp-go").onclick=()=>{qz.pred=+$("qp").value;studyQuiz()};$("qp-skip").onclick=()=>{qz.pred=-1;studyQuiz()};return}
   if(qz&&qz.i<qz.qs.length){const q=qz.qs[qz.i],p=scenes[sIdx(q.s)];
     $("sbody").innerHTML=`<div class="qz"><div class="qn">${qz.kind==="all"?"Whole play":qz.kind==="miss"?"Mistakes review":sName(p)} · question ${qz.i+1} of ${qz.qs.length}</div><h3>${esc(q.q)}</h3>
       <div class="opts">${q.o.map((o,i)=>`<button data-i="${i}"${qz.ans!=null?" disabled":""} class="${qz.ans!=null?(i===q.a?"right":i===qz.ans?"wrong":""):""}">${esc(o)}</button>`).join("")}</div>
@@ -941,8 +976,8 @@ function studyQuiz(){
       if(qz.ans===q.a){qz.ok++;if(ix>=0)M.splice(ix,1)}else if(ix<0)M.push({q:q.q,o:q.o,a:q.a,s:q.s});saveProg();studyQuiz()});
     if($("qz-next"))$("qz-next").onclick=()=>{qz.i++;qz.ans=null;studyQuiz()};
     $("qz-quit").onclick=()=>{qz=null;studyQuiz()};return}
-  if(qz){const k=qz.kind,old=prog.quiz[k];if(k!=="miss"&&(k==="all"||!old||qz.ok>=old[0])){prog.quiz[k]=[qz.ok,qz.qs.length];saveProg()}
-    $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">${k==="all"?"Whole play":k==="miss"?"Mistakes review":sName(scenes[sIdx(k)])}</div><div class="big">${qz.ok} of ${qz.qs.length}</div><p class="muted">${qz.ok===qz.qs.length?"Perfect score.":"The right answers were shown as you went."}</p><div class="row" style="justify-content:center"><button class="btn primary" id="qz-again">Try again</button><button class="btn" id="qz-list">All quizzes</button></div></div>`;
+  if(qz){const k=qz.kind,old=prog.quiz[k];if(qz.pred>=0&&!qz.logged){qz.logged=1;REV.cal.push([qz.pred,qz.ok,Date.now(),qz.qs.length]);REV.cal=REV.cal.slice(-20);saveRev()}if(k!=="miss"&&(k==="all"||!old||qz.ok>=old[0])){prog.quiz[k]=[qz.ok,qz.qs.length];saveProg()}
+    $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">${k==="all"?"Whole play":k==="miss"?"Mistakes review":sName(scenes[sIdx(k)])}</div><div class="big">${qz.ok} of ${qz.qs.length}</div>${qz.pred>=0?`<p>${qz.ok===qz.pred?"You predicted exactly right.":qz.ok>qz.pred?`${qz.ok-qz.pred} better than you predicted.`:`You predicted ${qz.pred-qz.ok} more than you got.`}</p>`:""}<p class="muted">${qz.ok===qz.qs.length?"Perfect score.":"The right answers were shown as you went."}</p><div class="row" style="justify-content:center"><button class="btn primary" id="qz-again">Try again</button><button class="btn" id="qz-list">All quizzes</button></div></div>`;
     $("qz-again").onclick=()=>startQuiz(k);$("qz-list").onclick=()=>{qz=null;studyQuiz()};return}
   const all=prog.quiz.all;
   $("sbody").innerHTML=`<p class="intro">Test yourself scene by scene, or take 20 random questions from the whole play.</p>
@@ -1003,6 +1038,8 @@ function studyRevise(){
 $("sbody").addEventListener("click",e=>{
   const ib=e.target.closest("[data-it]");if(ib){if(S.stab==="review")reviewAct(ib.dataset.it);else cardAct(ib.dataset.it);return}
   const pk=e.target.closest("[data-pick]");if(pk&&!pk.disabled){reviewAct("pick",pk.dataset.pick);return}
+  const g2=e.target.closest("[data-go2]");if(g2){goScene(sIdx(g2.dataset.go2),{page:0});return}
+  const q2=e.target.closest("[data-quiz2]");if(q2){S.stab="quiz";renderStudy();startQuiz(q2.dataset.quiz2);return}
   const pa=e.target.closest("[data-pt]");if(pa){partAct(pa.dataset.pt);return}
   const pw=e.target.closest("[data-ptwho]");if(pw){pt.who=pw.dataset.ptwho;pt.sid="";pt.run=null;studyPart();scrollTo(0,0);return}
   const ps=e.target.closest("[data-ptsid]");if(ps){pt.sid=ps.dataset.ptsid;pt.run=null;studyPart();scrollTo(0,0);return}
