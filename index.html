@@ -141,7 +141,8 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .today .card.lotd{padding:22px 16px 18px}
 .today .lotd blockquote{font-size:1.25rem}
 .today .word b{font-size:1.4rem}
-.today .card.week{margin:12px 0 0;padding:14px 16px}
+.today .card.week,.today .card.due{margin:12px 0 0;padding:14px 16px}
+.duel{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .today .week .eyebrow{margin-bottom:4px}
 @media (min-width:760px){.trail{grid-auto-flow:row;grid-template-columns:1.5fr 1fr;margin:0;padding:0;overflow:visible}}
 .date{font:italic 400 1.05rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0}
@@ -240,6 +241,7 @@ footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,se
     <p class="date" id="tdate"></p>
     <div class="trail"><div class="card lotd" id="lotd"></div><div class="card word" id="word"></div></div>
     <div class="card week" id="week"></div>
+    <div class="card due" id="due" hidden></div>
   </section>
   <div id="genres"></div>
   <div id="gview" hidden>
@@ -398,7 +400,15 @@ function renderToday(){
   $("week").innerHTML=`<p class="eyebrow">This week</p><div class="wk"><div class="wdots">${wk.map((d,i)=>`<span class="wd${days[dkey(d)]!=null?" on":""}${i===6?" today":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div>
     <div class="big-n">${s}<small>day${s===1?"":"s"} in a row${mins?` · ${mins} min this week`:""}</small></div></div>${days[dkey(now)]==null?`<div class="acts" style="justify-content:flex-start;margin-top:14px"><button class="btn pri" id="readnow">Read a page today</button></div>`:""}`;
   const rn=$("readnow");if(rn)rn.onclick=()=>{const p=byId[LS.get("folio-last")]||PLAYS[0];openPlay(p.id,p.id+"/")};
+  renderDue();
 }
+/* Daily review: items due in each play (flashcards in <prefix>prog.srs, other review items in <prefix>rev.it) */
+function renderDue(){const now=Date.now(),rows=[];let any=false,next=Infinity;
+  for(const p of PLAYS){const pr=J(p.prefix+"prog")||{},rv=J(p.prefix+"rev")||{},all=[...Object.values(pr.srs||{}),...Object.values((rv&&rv.it)||{})].filter(s=>s&&isFinite(s.d));
+    if(all.length)any=true;const n=all.filter(s=>s.d<=now).length;all.forEach(s=>{if(s.d>now)next=Math.min(next,s.d)});if(n)rows.push([p,n])}
+  const el=$("due");if(!any){el.hidden=true;return}el.hidden=false;const tot=rows.reduce((a,r)=>a+r[1],0);
+  el.innerHTML=`<p class="eyebrow">Daily review</p>${tot?`<div class="big-n">${tot}<small>item${tot===1?"":"s"} due${rows.length>1?` across ${rows.length} plays`:""}</small></div><div class="duel">${rows.map(([p,n])=>`<a class="btn ghost" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</div>`
+    :`<p>Nothing due today.${isFinite(next)?` Next review ${esc(new Date(next).toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"}))}.`:""}</p>`}`}
 
 /* ---------- search ---------- */
 const IDX={};let scope="all",loading=null;
