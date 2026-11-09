@@ -487,6 +487,7 @@ function toolsHTML(id,pi){
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}${EX.why[q.i]?`<br><b>Why it matters:</b> ${esc(EX.why[q.i])}`:""}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
     ${EX.irony[id]?`<h3 class="lbl">Dramatic irony</h3><div class="snote">${esc(EX.irony[id])}</div>`:""}
     ${(EX.dev[id]||[]).map(([k,n])=>`<h3 class="lbl">${esc(EX.devices[k])}</h3><div class="snote">${esc(n)}</div>`).join("")}
+    <details class="about vlabd"><summary>Verse lab: beats, shared lines, punctuation</summary>${verseLabHTML(sp,q[0],q[1])}</details>
     <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
     <div class="acts"><button class="btn sm" id="t-save">Save note</button></div>
     ${c?`<details class="about"><summary>About ${esc(title(sp.who))}</summary><p>${esc(c.desc)}</p></details>`:""}
@@ -623,6 +624,7 @@ function studyExplore(){
   if(exSel==="map")h=`<div class="chips" style="margin-bottom:6px">${[1,2,3,4,5].map(a=>`<button class="chip" data-mapact="${a}" aria-pressed="${mapAct===a}">Act ${R[a]}</button>`).join("")}</div>${relSVG(mapAct)}`;
   if(exSel==="iago")h=`<p class="intro">Steps are ticked once you've read past that scene.</p>`+EX.iago.map(([s,st],i)=>{const k=sIdx(s),done=prog.done[s]||k<hereK;return `<div class="exitem"><span class="tick">${done?"✓":"○"}</span> <small>${sName(scenes[k])}</small><p style="margin-top:2px;color:var(--ink)">${i+1}. ${esc(st)}</p></div>`}).join("");
   if(exSel==="arcs")h=arcSVG();
+  if(exSel==="verse")h=verseExplore();
   if(exSel==="context")h=EX.context.map(([a,b])=>`<div class="exitem"><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join("");
   if(exSel==="critics")h=`<p class="intro">Use one of these in an essay to show you know other readings. "Paraphrased" means it is a summary, not their exact words.</p>`+Object.entries(EX.critics).map(([k,v])=>`<div class="stage3"><h3>${esc(QUOTES.themes[k][0])}</h3></div>`+v.map(([w,x])=>`<div class="exitem"><small>${esc(w)}</small><p>${esc(x)}</p></div>`).join("")).join("");
   if(exSel==="devices")h=Object.entries(EX.devices).map(([k,nm])=>{const its=Object.entries(EX.dev).flatMap(([id,arr])=>arr.filter(a=>a[0]===k).map(a=>[id,a]));return its.length?`<div class="stage3"><h3>${esc(nm)}</h3><small>${its.length}</small></div>`+its.map(([id,a])=>`<div class="exitem"><p style="color:var(--ink)">“${esc(a[2])}”: ${esc(a[1])}</p><small>${esc(where(speech[id]))} · <button class="link" data-speech="${id}">Read in context</button></small></div>`).join(""):""}).join("");
@@ -647,11 +649,100 @@ function studyExplore(){
 }
 /* practise: gap fill, memory ladder, explain a line, who said it, order events */
 let dr={k:""};
-const DRILLS=[["gap","Fill the gap","Type the missing words in a key quote"],["ladder","Memory ladder","Learn a quote: full, then half hidden, then first letters, then from memory"],["explain","Explain this line","Put a passage in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["order","Put it in order","Sort 6 plot events into the right sequence"]];
+/* ---------- language and verse: verse lab, word detective, untangle, pun hunt, tone and stress ---------- */
+function sylW(w){w=w.toLowerCase().replace(/[’]/g,"'").replace(/[^a-z'èé]/g,"");if(!w)return 0;
+  w=w.replace(/[èé]/g,"e").replace(/'(d|st|s|ll|t)$/,"").replace(/^'|'$/g,"").replace(/'/g,"");
+  if(!w)return 0;if(/^(isle|aisle|isles)$/.test(w))return 1;if(w.length<=3)return 1;
+  const sib=/(s|z|x|ch|sh|ce|ge)es$/.test(w),cle=/[^aeiouy]les?$/.test(w);let x=cle?w.replace(/les?$/,""):sib?w:w.replace(/(?:[^laeiouy]es|[^laeiouy]ed|[^laeiouy]e)$/,"");x=x.replace(/^y/,"").replace(/([gq])ue$/,"$1").replace(/ieu|eau/g,"u");
+  let n=(x.match(/[aeiouy]{1,2}/g)||[]).length;
+  if(cle)n++;
+  if(/(ted|ded)$/.test(w))n=Math.max(n,(w.replace(/ed$/,"").match(/[aeiouy]{1,2}/g)||[]).length+1);
+  return Math.max(1,n)}
+const lineOf=l=>l.replace(/^~/,"");
+const sylL=l=>lineOf(l).split(/[\s—–-]+/).reduce((a,w)=>a+sylW(w),0);
+function isProse(sp){if(sp.id in PROSE)return PROSE[sp.id];const L=sp.lines.map(lineOf);let p=null;
+  if(L.length>1)p=L.slice(1).some(l=>/^[a-z]/.test(l))||L.every(l=>sylL(l)>=14);
+  else if(sylL(L[0])>=15)p=true;
+  else{const its=sceneOf(sp.id).items.filter(it=>it.t==="sp"),k=its.indexOf(sp),nb=[its[k-1],its[k+1]].filter(x=>x&&x.lines.length>1);p=nb.length>0&&nb.every(x=>{const M=x.lines.map(lineOf);return M.slice(1).some(l=>/^[a-z]/.test(l))||M.every(l=>sylL(l)>=14)})}
+  return PROSE[sp.id]=p}
+const endW=l=>(lineOf(l).toLowerCase().match(/([a-z']+)[^a-z']*$/)||[])[1]||"";
+const rhymes=(a,b)=>{a=endW(a).replace(/'/g,"");b=endW(b).replace(/'/g,"");if(!a||!b||a===b)return false;const t=w=>(w.match(/[aeiouy]+[^aeiouy]*e?$/)||[w])[0];return t(a)===t(b)&&t(a).length>=2};
+function sharedWith(sp){const its=sceneOf(sp.id).items.filter(it=>it.t==="sp"),k=its.indexOf(sp),out=[];
+  const pv=its[k-1],nx=its[k+1],f=sylL(sp.lines[0]),l=sylL(sp.lines[sp.lines.length-1]);
+  if(pv&&!isProse(pv)&&!isProse(sp)){const s=sylL(pv.lines[pv.lines.length-1]);if(f<=7&&s<=7&&f+s>=9&&f+s<=12)out.push(["before",pv])}
+  if(nx&&!isProse(nx)&&!isProse(sp)){const s=sylL(nx.lines[0]);if(l<=7&&s<=7&&l+s>=9&&l+s<=12)out.push(["after",nx])}
+  return out}
+function vlNote(n){return n>=12?"long: some words probably run together (elision)":n===11?"one extra beat, often a soft (feminine) ending":n>=9?"a regular line, about ten beats":n<=7?"short: a pause, a shared line or a sudden break":"slightly short"}
+function verseLabHTML(sp,a,z){a=a||0;z=z==null?sp.lines.length-1:z;const L=sp.lines.slice(a,z+1).map(lineOf);
+  if(isProse(sp))return `<p><b>Prose.</b> This speech is not in verse: no regular beat, and the lines run on like ordinary sentences. Shakespeare often uses prose for comedy, servants, letters, madness and private talk; when a verse speaker switches to prose (or back), ask why.</p>`+punctWalk(L);
+  const n=L.map(sylL),reg=n.filter(x=>x>=9&&x<=11).length,sh=sharedWith(sp),cp=L.length>1&&rhymes(L[L.length-2],L[L.length-1]);
+  return `<p><b>Verse.</b> ${reg} of ${L.length} line${L.length===1?"":"s"} have about ten syllables: blank verse (iambic pentameter), five beats of <i>da DUM</i>. The counts are a guide: say the line aloud to check.</p>
+   <ol class="vlab">${L.map((l,i)=>`<li><span class="vn${n[i]>=9&&n[i]<=11?"":" off"}" title="${esc(vlNote(n[i]))}">${n[i]}</span><span>${esc(l)}${n[i]<9||n[i]>11?`<small>${esc(vlNote(n[i]))}</small>`:""}</span></li>`).join("")}</ol>
+   ${sh.map(([w,o])=>`<p class="muted">Shares a line with ${esc(title(o.who))} ${w==="before"?"before it":"after it"}: the speakers complete each other's beat, so the cue is picked up fast.</p>`).join("")}
+   ${cp?`<p class="muted">Ends with a rhyming couplet: a sense of closing, often at the end of a scene or a decision.</p>`:""}`+punctWalk(L)}
+function punctWalk(L){const t=L.join(" ").replace(/\s+/g," "),segs=t.split(/(?<=[,;:.!?—])\s+/).filter(Boolean);
+  return `<details class="pwalk"><summary>Punctuation walk (${segs.length} step${segs.length===1?"":"s"})</summary><p class="muted">Read aloud and change direction at every mark, as actors do. Many short steps suggest a troubled or racing mind; long ones, control.</p><ol>${segs.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></details>`}
+/* Explore: verse and prose */
+let vlSel=null;
+function verseExplore(){const all=Object.values(speech),lines=sp=>sp.lines.length;let V=0,P=0;const by={};
+  all.forEach(sp=>{const p=isProse(sp);if(p)P+=lines(sp);else V+=lines(sp);const b=by[sp.who]=by[sp.who]||[0,0];b[p?1:0]+=lines(sp)});
+  const top=Object.entries(by).sort((a,b)=>b[1][0]+b[1][1]-a[1][0]-a[1][1]).slice(0,8);
+  const sw=[];scenes.forEach(s=>{const w={};s.items.filter(it=>it.t==="sp"&&it.lines.length>1).forEach(sp=>{const x=w[sp.who]=w[sp.who]||[null,null];x[isProse(sp)?1:0]=x[isProse(sp)?1:0]||sp});Object.entries(w).forEach(([who,[v,p]])=>{if(v&&p)sw.push([s,who,p])})});
+  const shared=all.filter(sp=>sharedWith(sp).some(x=>x[0]==="after")),cps=scenes.map(s=>{const sps=s.items.filter(it=>it.t==="sp"),l=sps[sps.length-1];return l&&!isProse(l)&&l.lines.length>1&&rhymes(l.lines[l.lines.length-2],l.lines[l.lines.length-1])?l:null}).filter(Boolean);
+  const kq=[...new Set(QUOTES.quotes.map(q=>q.id))];if(vlSel==null||!speech[vlSel])vlSel=kq[0];
+  const pct=(a,b)=>Math.round(a/Math.max(1,a+b)*100);
+  return `<p class="intro">Shakespeare mostly writes in blank verse: unrhymed lines of about ten syllables with five beats. Prose, rhyme, short lines and shared lines are choices. Counts here are automatic estimates.</p>
+   <div class="box"><h3>The whole play</h3><p><b>${pct(V,P)}%</b> verse, <b>${100-pct(V,P)}%</b> prose by lines.</p>${top.map(([w,[v,p]])=>`<div class="vbar"><span>${esc(title(w))}</span><i><b style="width:${pct(v,p)}%"></b></i><small>${pct(v,p)}% verse</small></div>`).join("")}</div>
+   <div class="box"><h3>Try the verse lab</h3><label class="lbl" for="vl-s">Key speech</label><select class="sinput" id="vl-s">${kq.map(id=>`<option value="${id}"${+id===+vlSel?" selected":""}>${esc(title(speech[id].who))} · ${esc(lineOf(speech[id].lines[0]).slice(0,48))}</option>`).join("")}</select>${verseLabHTML(speech[vlSel])}<p class="muted">In the reader, every speech's tools have this lab too.</p></div>
+   ${sw.length?`<div class="box"><h3>Switching between verse and prose</h3><p class="intro">These characters speak both in the same scene. A switch often marks a change of mood, company or control.</p>${sw.slice(0,12).map(([s,who,p])=>`<div class="exitem"><small>${sName(s)}</small><p style="color:var(--ink)">${esc(title(who))} <button class="link" data-speech="${p.id}">See the prose</button></p></div>`).join("")}</div>`:""}
+   ${shared.length?`<div class="box"><h3>Shared lines (${shared.length})</h3><p class="intro">One speaker ends a line and the next finishes it: a fast, close exchange.</p>${shared.slice(0,8).map(sp=>{const nx=sharedWith(sp).find(x=>x[0]==="after")[1];return `<div class="exitem"><p style="color:var(--ink)">${esc(title(sp.who))}: “${esc(lineOf(sp.lines[sp.lines.length-1]))}” / ${esc(title(nx.who))}: “${esc(lineOf(nx.lines[0]))}”</p><small>${sName(sceneOf(sp.id))} · <button class="link" data-speech="${sp.id}">Read in context</button></small></div>`}).join("")}</div>`:""}
+   ${cps.length?`<div class="box"><h3>Scenes that end in a rhyme (${cps.length})</h3>${cps.slice(0,8).map(sp=>`<div class="exitem"><p style="color:var(--ink)">“${esc(lineOf(sp.lines[sp.lines.length-2]))} / ${esc(lineOf(sp.lines[sp.lines.length-1]))}”</p><small>${esc(where(sp))} · <button class="link" data-speech="${sp.id}">Read in context</button></small></div>`).join("")}</div>`:""}`}
+/* language drills */
+const LANG=EX.lang||{un:[],pun:[],st:[]};
+const wtok=l=>l.split(/\s+/).filter(Boolean);
+const clean=w=>w.toLowerCase().replace(/[’]/g,"'").replace(/[^a-z']/g,"").replace(/^'+|'+$/g,"");
+function langDrill(back){let h="";
+  if(dr.k==="word"){if(!dr.g){const use=glossUse(),ks=Object.keys(use).filter(k=>speech[use[k]]&&G[k].length<90),k=rnd(ks),others=shuf(ks.filter(x=>x!==k&&G[x]!==G[k])).slice(0,3);dr.g={k,id:use[k],o:shuf([k,...others]),ans:null,n:(dr.g0||0)+1,ok:dr.gok||0}}
+    const g=dr.g,sp=speech[g.id],ln=sp.lines.map(lineOf).find(l=>new RegExp("(^|[^A-Za-z'])"+g.k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![A-Za-z])","i").test(l))||lineOf(sp.lines[0]);
+    const hl=esc(ln).replace(new RegExp("(^|[^A-Za-z'])("+esc(g.k).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?![A-Za-z])","i"),"$1<mark>$2</mark>");
+    h=`<div class="qz"><div class="qn">Word ${g.n} · ${g.ok} right · ${esc(where(sp))}</div><p class="intro">Use the rest of the line to guess what the marked word means here.</p><h3 style="font:400 1.3rem/1.45 var(--f-old)">${hl}</h3>
+     <div class="opts">${g.o.map(o=>`<button data-wd="${esc(o)}"${g.ans?" disabled":""} class="${g.ans?(o===g.k?"right":o===g.ans?"wrong":""):""}">${esc(G[o])}</button>`).join("")}</div>
+     ${g.ans?`<p class="muted"><b>${esc(g.k)}</b>: ${esc(G[g.k])}</p><div class="row"><button class="btn primary" id="wd-next">Next word</button><button class="btn" data-speech="${g.id}">Read in context</button></div>`:""}</div>`}
+  if(dr.k==="untangle"){const U=LANG.un;if(dr.u==null||!U[dr.u.i])dr.u={i:0,pk:[],res:null};const u=dr.u,[id,orig,mod]=U[u.i],ws=wtok(mod),ord=u.ord||(u.ord=shuf(ws.map((_,i)=>i)));
+    const built=u.pk.map(i=>ws[i]).join(" "),done=u.pk.length===ws.length,ok=done&&u.pk.map(i=>clean(ws[i])).join(" ")===ws.map(clean).join(" ");
+    h=`<div class="qz"><div class="qn">Line ${u.i+1} of ${U.length} · ${esc(where(speech[id]))}</div><p class="intro">Shakespeare often moves words around to fit the beat or to stress a word. Tap the words to put the line into everyday order.</p>
+     <h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(orig)}”</h3><div class="ord words">${ord.map(i=>`<button data-uw="${i}"${u.pk.includes(i)?" disabled":""}>${esc(ws[i].replace(/[,.;:!?]+$/,""))}</button>`).join("")}</div>
+     <p class="ubuilt" style="color:${done?(ok?"var(--ok)":"var(--bad)"):"var(--ink)"}">${esc(built.replace(/[,.;:!?](?=\s|$)/g,""))||"<span class='muted'>Your order appears here</span>"}</p>
+     ${done?`<p>${ok?"<b>Right.</b>":"<b>Not quite.</b> One everyday order:"} ${esc(mod)}</p><p class="muted">Which word did Shakespeare's order push to the front or the end? That is usually the word he wants stressed.</p>`:""}
+     <div class="row">${u.pk.length&&!done?`<button class="link" id="un-undo">Undo</button>`:""}${done?`<button class="btn primary" id="un-next">${u.i+1<U.length?"Next line":"Start again"}</button>`:""}<button class="btn" data-speech="${id}">Read in context</button></div></div>`}
+  if(dr.k==="pun"){const Pn=LANG.pun;if(dr.pn==null||!Pn[dr.pn.i])dr.pn={i:0,pick:null};const pn=dr.pn,[id,line,word,kind,ex]=Pn[pn.i],tw=wtok(word).map(clean),ws=wtok(line);
+    const lab={pun:"Pun: one word, two meanings",shift:"Functional shift: a word used as a different part of speech",malapropism:"Malapropism: the wrong word that sounds like the right one",wordplay:"Wordplay"}[kind]||"Wordplay";
+    h=`<div class="qz"><div class="qn">${pn.i+1} of ${Pn.length} · ${esc(where(speech[id]))}</div><p class="intro">${kind==="shift"?"Which word is doing a job it doesn't usually do?":kind==="malapropism"?"Which word is the wrong one?":"Which word is doing double duty?"} Tap it.</p>
+     <div class="punl">${ws.map((w,i)=>{const hit=tw.includes(clean(w));return `<button data-pw="${i}"${pn.pick!=null?" disabled":""} class="${pn.pick!=null?(hit?"right":+pn.pick===i?"wrong":""):""}">${esc(w)}</button>`}).join(" ")}</div>
+     ${pn.pick!=null?`<div class="snote"><b>${esc(lab)}</b><br>${esc(ex)}</div><div class="row"><button class="btn primary" id="pn-next">${pn.i+1<Pn.length?"Next":"Start again"}</button><button class="btn" data-speech="${id}">Read in context</button></div>`:""}</div>`}
+  if(dr.k==="stress"){const St=LANG.st;if(dr.st==null||!St[dr.st.i])dr.st={i:0,seen:[]};const s=dr.st,[id,line,opts]=St[s.i],ws=wtok(line);
+    const on=s.seen[s.seen.length-1];
+    h=`<div class="qz"><div class="qn">${s.i+1} of ${St.length} · ${esc(where(speech[id]))}</div><p class="intro">Say the line aloud three times, leaning on a different word each time. Tap the word you'd stress to see what it does.</p>
+     <h3 class="stl">${(used=>ws.map(w=>{const k=opts.findIndex(o=>clean(o[0])===clean(w));if(k>=0&&used.has(k))return esc(w);used.add(k);return k<0?esc(w):`<button class="stw${s.seen.includes(k)?" seen":""}${on===k?" on":""}" data-sw="${k}">${esc(w)}</button>`}).join(" "))(new Set())}</h3>
+     ${s.seen.map(k=>`<div class="snote"><b>Stress “${esc(opts[k][0])}”</b><br>${esc(opts[k][1])}</div>`).join("")}
+     ${s.seen.length>=opts.length?`<p class="muted">No single right answer: actors choose. Which reading fits your view of the character? Use it in an essay as "an actor might stress…".</p>`:""}
+     <div class="row"><button class="btn primary" id="st-next">${s.i+1<St.length?"Next line":"Start again"}</button><button class="btn" data-speech="${id}">Read in context</button></div></div>`}
+  $("sbody").innerHTML=back+h;const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
+  $("sbody").querySelectorAll("[data-wd]").forEach(b=>b.onclick=()=>{const g=dr.g;g.ans=b.dataset.wd;if(g.ans===g.k)g.ok++;dr.gok=g.ok;studyDrill()});
+  on("wd-next",()=>{dr.g0=dr.g.n;dr.g=null;studyDrill()});
+  $("sbody").querySelectorAll("[data-uw]").forEach(b=>b.onclick=()=>{dr.u.pk.push(+b.dataset.uw);studyDrill()});
+  on("un-undo",()=>{dr.u.pk.pop();studyDrill()});on("un-next",()=>{dr.u={i:(dr.u.i+1)%LANG.un.length,pk:[]};studyDrill()});
+  $("sbody").querySelectorAll("[data-pw]").forEach(b=>b.onclick=()=>{dr.pn.pick=b.dataset.pw;studyDrill()});
+  on("pn-next",()=>{dr.pn={i:(dr.pn.i+1)%LANG.pun.length,pick:null};studyDrill()});
+  $("sbody").querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{const k=+b.dataset.sw,S2=dr.st.seen,i=S2.indexOf(k);if(i>=0)S2.splice(i,1);S2.push(k);studyDrill()});
+  on("st-next",()=>{dr.st={i:(dr.st.i+1)%LANG.st.length,seen:[]};studyDrill()});
+}
+const DRILLS=[["gap","Fill the gap","Type the missing words in a key quote"],["ladder","Memory ladder","Learn a quote: full, then half hidden, then first letters, then from memory"],["explain","Explain this line","Put a passage in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["order","Put it in order","Sort 6 plot events into the right sequence"],["word","Word detective","Guess what an old word means from the line around it"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[])];
 const rnd=a=>a[Math.floor(Math.random()*a.length)],shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 function studyDrill(){
   const back=`<div class="exh"><button class="btn sm" data-drill="">‹ All drills</button><h2>${dr.k?DRILLS.find(d=>d[0]===dr.k)[1]:""}</h2></div>`;
   if(!dr.k){$("sbody").innerHTML=`<p class="intro">Short exercises for remembering quotes and understanding the language.</p><div class="drills">${DRILLS.map(([k,a,b])=>`<button data-drill="${k}"><b>${a}</b><span>${b}</span></button>`).join("")}</div>`;return}
+  if(["word","untangle","pun","stress"].includes(dr.k))return langDrill(back);
   let h="";
   if(dr.k==="gap"){if(!dr.q){const gc=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
     const gq=QUOTES.quotes.filter(x=>gc(x).length),q=rnd(gq.length?gq:QUOTES.quotes),ws=q.text.split(/\s+/),cand=gc(q);const pick=shuf(cand).slice(0,Math.min(2,cand.length)).map(x=>x[1]);dr.q={q,ws,pick,res:null}}
@@ -1159,7 +1250,7 @@ $("sbody").addEventListener("click",e=>{
   const s=e.target.closest("[data-speech]");if(s){goSpeech(s.dataset.speech);return}
   const c=e.target.closest(".chips .chip");if(c){const f=c.parentNode.dataset.f,v=c.dataset.v;
     if(f==="who")qf.who=v;else if(f==="th")qf.th=v;else if(f==="theme")thSel=v;renderStudy()}});
-$("sbody").addEventListener("change",e=>{const c=e.target.closest("[data-cmp]");if(c){cmp[+c.dataset.cmp]=+c.value;studyExplore();return}const s=e.target.closest("[data-qf]");if(s){qf[s.dataset.qf]=s.value;renderStudy()}});
+$("sbody").addEventListener("change",e=>{if(e.target.id==="vl-s"){vlSel=+e.target.value;studyExplore();return}const c=e.target.closest("[data-cmp]");if(c){cmp[+c.dataset.cmp]=+c.value;studyExplore();return}const s=e.target.closest("[data-qf]");if(s){qf[s.dataset.qf]=s.value;renderStudy()}});
 
 /* ---------- sheets ---------- */
 const sheet=$("sheet");let lastFocus=null;

@@ -550,3 +550,22 @@ body.v-reader.chrome .toast,body.v-study .toast,body.v-you .toast{bottom:calc(va
 .aoh b{font:600 .95rem var(--f-ui)}.aoh span{flex:1;color:var(--muted);font-size:.875rem}.aoh em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:600}
 .aoband{display:flex;flex-direction:column;gap:4px;margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);color:var(--ink);font-size:.95rem}
 .aoband b{font-size:1.2rem;font-variant-numeric:tabular-nums}
+/* language and verse */
+.vlab{list-style:none;padding:0;margin:8px 0}
+.vlab li{display:flex;gap:10px;align-items:flex-start;padding:4px 0;border-bottom:1px solid var(--rule);font:400 1rem/1.4 var(--f-old);color:var(--ink)}
+.vlab li>span:last-child{flex:1}.vlab small{display:block;font:400 .875rem var(--f-ui);color:var(--muted)}
+.vn{flex:none;min-width:30px;text-align:center;font:600 .875rem/1.6 var(--f-ui);border-radius:6px;background:var(--accent-soft);color:var(--ink);font-variant-numeric:tabular-nums}
+.vn.off{background:var(--accent);color:var(--accent-ink)}
+.pwalk{margin-top:8px}.pwalk summary{cursor:pointer;font-weight:600;font-size:.95rem}.pwalk ol{padding-left:24px;margin:6px 0}.pwalk li{font:400 1rem/1.4 var(--f-old);padding:3px 0;color:var(--ink)}
+.vlabd .vlab,.vlabd p{font-size:.95rem}
+.vbar{display:grid;grid-template-columns:minmax(80px,30%) 1fr auto;gap:8px;align-items:center;margin:6px 0;font-size:.95rem}
+.vbar i{height:10px;border-radius:5px;background:var(--rule);overflow:hidden;display:block}.vbar i b{display:block;height:100%;background:var(--accent)}
+.vbar small{color:var(--muted);font-size:.875rem;font-variant-numeric:tabular-nums}
+.ord.words{display:flex;flex-wrap:wrap;gap:6px}.ord.words button{width:auto;margin:0;color:var(--ink)}
+.ubuilt{font:400 1.15rem/1.45 var(--f-old);min-height:1.6em;margin:10px 0}
+.punl{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.punl button,.stw{border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 10px;font:400 1.1rem var(--f-old)}
+.punl button.right{background:var(--ok);color:#fff;border-color:var(--ok)}.punl button.wrong{border-color:var(--bad);color:var(--bad)}
+.stl{font:400 1.3rem/2 var(--f-old)}.stw{font-size:1.2rem;padding:2px 8px;border-style:dashed}
+.stw.seen{border-style:solid;border-color:var(--accent)}.stw.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+mark{background:var(--hl,#f7eaa6);color:inherit;padding:0 2px;border-radius:3px}
