@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.11.0] — 2026-11-09
 
 ### Removed
-- Settings: Fit verse lines. The Shakespeare text no longer shrinks to fit verse lines; every speech is shown at your chosen text size (#PR).
+- Settings: Fit verse lines. The Shakespeare text no longer shrinks to fit verse lines; every speech is shown at your chosen text size (#48).
 
 ## [2.10.1] — 2026-11-09
 
