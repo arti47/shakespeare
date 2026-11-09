@@ -7,6 +7,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Added
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
+## [2.8.0] — 2026-11-09
+
+### Added
+- Learn → Explore → Director's choices: six key moments per play, each with three ways to stage it and what each does to the audience. Your choice and reason are saved, and the speech tools show the choice too (#44).
+- Speech tools: a thought track. Write what the character is really thinking and add it to your note (#44).
+- Practise drills: Cut the scene (keep half the lines, then see which key quotes or plot points you lost) and Two-line scene (sum up a scene as one line for each main character, then compare) (#44).
+
 ## [2.7.0] — 2026-11-09
 
 ### Added

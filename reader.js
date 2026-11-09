@@ -487,6 +487,7 @@ function toolsHTML(id,pi){
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}${EX.why[q.i]?`<br><b>Why it matters:</b> ${esc(EX.why[q.i])}`:""}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
     ${EX.irony[id]?`<h3 class="lbl">Dramatic irony</h3><div class="snote">${esc(EX.irony[id])}</div>`:""}
     ${(EX.dev[id]||[]).map(([k,n])=>`<h3 class="lbl">${esc(EX.devices[k])}</h3><div class="snote">${esc(n)}</div>`).join("")}
+    ${dirTools(id)}${thoughtHTML(sp)}
     <details class="about vlabd"><summary>Verse lab: beats, shared lines, punctuation</summary>${verseLabHTML(sp,q[0],q[1])}</details>
     <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
     <div class="acts"><button class="btn sm" id="t-save">Save note</button></div>
@@ -494,6 +495,7 @@ function toolsHTML(id,pi){
   </div>`}
 function wireTools(id,pi){
   const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0];
+  wirePerf(id);
   $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
   document.querySelectorAll(".tool [data-hl]").forEach(b=>b.onclick=()=>{const k=b.dataset.hl,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});
     document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
@@ -625,6 +627,7 @@ function studyExplore(){
   if(exSel==="iago")h=`<p class="intro">Steps are ticked once you've read past that scene.</p>`+EX.iago.map(([s,st],i)=>{const k=sIdx(s),done=prog.done[s]||k<hereK;return `<div class="exitem"><span class="tick">${done?"✓":"○"}</span> <small>${sName(scenes[k])}</small><p style="margin-top:2px;color:var(--ink)">${i+1}. ${esc(st)}</p></div>`}).join("");
   if(exSel==="arcs")h=arcSVG();
   if(exSel==="verse")h=verseExplore();
+  if(exSel==="director")h=dirExplore();
   if(exSel==="context")h=EX.context.map(([a,b])=>`<div class="exitem"><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join("");
   if(exSel==="critics")h=`<p class="intro">Use one of these in an essay to show you know other readings. "Paraphrased" means it is a summary, not their exact words.</p>`+Object.entries(EX.critics).map(([k,v])=>`<div class="stage3"><h3>${esc(QUOTES.themes[k][0])}</h3></div>`+v.map(([w,x])=>`<div class="exitem"><small>${esc(w)}</small><p>${esc(x)}</p></div>`).join("")).join("");
   if(exSel==="devices")h=Object.entries(EX.devices).map(([k,nm])=>{const its=Object.entries(EX.dev).flatMap(([id,arr])=>arr.filter(a=>a[0]===k).map(a=>[id,a]));return its.length?`<div class="stage3"><h3>${esc(nm)}</h3><small>${its.length}</small></div>`+its.map(([id,a])=>`<div class="exitem"><p style="color:var(--ink)">“${esc(a[2])}”: ${esc(a[1])}</p><small>${esc(where(speech[id]))} · <button class="link" data-speech="${id}">Read in context</button></small></div>`).join(""):""}).join("");
@@ -737,12 +740,56 @@ function langDrill(back){let h="";
   $("sbody").querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{const k=+b.dataset.sw,S2=dr.st.seen,i=S2.indexOf(k);if(i>=0)S2.splice(i,1);S2.push(k);studyDrill()});
   on("st-next",()=>{dr.st={i:(dr.st.i+1)%LANG.st.length,seen:[]};studyDrill()});
 }
-const DRILLS=[["gap","Fill the gap","Type the missing words in a key quote"],["ladder","Memory ladder","Learn a quote: full, then half hidden, then first letters, then from memory"],["explain","Explain this line","Put a passage in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["order","Put it in order","Sort 6 plot events into the right sequence"],["word","Word detective","Guess what an old word means from the line around it"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[])];
+/* ---------- performance: director's choices, thought track, cut the scene, two-line scenes ---------- */
+let DIRC={};try{DIRC=JSON.parse(LS.get(PFX+"dir")||"{}")}catch(e){}
+const saveDir=()=>LS.set(PFX+"dir",JSON.stringify(DIRC));
+const DIRS=EX.dir||[];
+function dirCard(i){const [id,line,q,opts]=DIRS[i],sp=speech[id],c=DIRC[i]||{},ch=c.c;
+  return `<div class="exitem dirc"><small>${esc(where(sp))}</small><h3>${esc(q)}</h3><p class="dline">“${esc(line)}”</p>
+   <div class="opts">${opts.map((o,j)=>`<button data-dc="${i}:${j}" class="${ch===j?"right":""}" aria-pressed="${ch===j}"><b>${esc(o[0])}</b>${ch!=null?`<span>${esc(o[1])}</span>`:""}</button>`).join("")}</div>
+   ${ch!=null?`<label class="lbl" for="dw-${i}">Why this choice? Say what the audience should feel.</label><textarea class="sinput" id="dw-${i}" data-dw="${i}" placeholder="I would stage it this way because…">${esc(c.w||"")}</textarea>`:`<p class="muted">Pick how you would stage it. Every option is defensible: the effects appear once you choose.</p>`}
+   <div class="row"><button class="link" data-speech="${id}">Read in context</button></div></div>`}
+function dirExplore(){const n=Object.values(DIRC).filter(x=>x&&x.c!=null).length;
+  return `<p class="intro">You are the director. Each moment can be staged more than one way, and each choice changes what the audience feel. Examiners reward "an actor might…" or "a director could…" when you explain the effect. ${n} of ${DIRS.length} decided.</p>`+DIRS.map((_,i)=>dirCard(i)).join("")}
+function dirTools(id){const ix=DIRS.map((d,i)=>[d,i]).filter(([d])=>+d[0]===+id);if(!ix.length)return "";
+  return ix.map(([d,i])=>`<details class="about"><summary>Director's choice: ${esc(d[2])}</summary><ul>${d[3].map((o,j)=>`<li><b>${esc(o[0])}</b>: ${esc(o[1])}${(DIRC[i]||{}).c===j?" <small>(your choice)</small>":""}</li>`).join("")}</ul><button class="btn sm" data-dirgo="1">Decide in Study</button></details>`).join("")}
+function thoughtHTML(sp){return `<details class="about tthink"><summary>Thought track: what is ${esc(title(sp.who))} really thinking?</summary><p class="muted">Actors play the thought under the words. Write it in the first person, then add it to your note.</p><label for="tt" class="sr">Thought track</label><textarea id="tt" placeholder="I…"></textarea><div class="acts"><button class="btn sm" id="tt-add">Add to my note</button></div></details>`}
+function wirePerf(id){const tt=$("tt-add");if(tt)tt.onclick=()=>{const v=$("tt").value.trim();if(!v){toast("Write the thought first");return}const cur=(marks[id]||{}).note||"",n=(cur.trim()?cur.trim()+"\n":"")+"Thought track: "+v;saveMark(id,{note:n});if($("tn"))$("tn").value=n;$("tt").value="";toast("Added to your note")};
+  document.querySelectorAll(".tool [data-dirgo]").forEach(b=>b.onclick=()=>{closeSheet();closePanel();exSel="director";goStudy("explore")})}
+/* drills */
+function perfDrill(back){let h="";
+  if(dr.k==="cut"){if(!dr.c){const ok=scenes.map((s,i)=>[s,i]).filter(([s])=>s.items.filter(it=>it.t==="sp").length>=10),here=pos&&sIdx(pos.s)>=0&&ok.find(x=>x[1]===sIdx(pos.s));dr.c={k:(here||rnd(ok))[1],cut:{},chk:false}}
+    const C=dr.c,s=scenes[C.k],sps=s.items.filter(it=>it.t==="sp"),tot=sps.reduce((a,x)=>a+x.lines.length,0),kept=sps.filter(x=>!C.cut[x.id]).reduce((a,x)=>a+x.lines.length,0),pc=Math.round(kept/tot*100);
+    const lost=C.chk?sps.filter(x=>C.cut[x.id]&&(QBY[x.id]||EX.irony[x.id]||STUDY.notes[x.id])):[];
+    h=`<p class="intro">Directors often cut Shakespeare. Cut this scene to half its lines or less, and keep the story clear. Tap a speech to cut it; tap again to keep it.</p>
+     <label class="lbl" for="cut-s">Scene</label><select class="sinput" id="cut-s">${scenes.map((x,i)=>x.items.filter(it=>it.t==="sp").length>=10?`<option value="${i}"${i===C.k?" selected":""}>${sName(x)} · ${esc(shortLoc(x))}</option>`:"").join("")}</select>
+     <div class="cutbar"><b>${kept}</b> of ${tot} lines kept (${pc}%)<i><b style="width:${pc}%;background:${pc<=50?"var(--ok)":"var(--accent)"}"></b></i></div>
+     <div class="cuts">${sps.map(x=>`<button data-cut="${x.id}" class="${C.cut[x.id]?"cut":""}" aria-pressed="${!!C.cut[x.id]}"><small>${esc(title(x.who))} · ${x.lines.length} line${x.lines.length===1?"":"s"}${QBY[x.id]&&C.chk?" · key quote":""}</small><span>${esc(lineOf(x.lines[0]).slice(0,90))}${x.lines.length>1||lineOf(x.lines[0]).length>90?"…":""}</span></button>`).join("")}</div>
+     <div class="row"><button class="btn primary" id="cut-chk">${C.chk?"Check again":"Check my cut"}</button><button class="btn" id="cut-reset">Start again</button></div>
+     ${C.chk?`<div class="box"><h3>${pc<=50?"Within the target.":"Still over half: keep cutting."}</h3>${lost.length?`<p>You cut ${lost.length} speech${lost.length===1?"":"es"} the notes flag as important:</p><ul>${lost.map(x=>`<li>${esc(title(x.who))}: “${esc(lineOf(x.lines[0]).slice(0,70))}…”${QBY[x.id]?" (key quote)":EX.irony[x.id]?" (dramatic irony)":" (study note)"}</li>`).join("")}</ul>`:`<p>You kept every speech the notes flag as important.</p>`}
+      ${(STUDY.scenes[s.id]||{}).key?`<p class="muted">Does your cut still tell these points?</p><ul>${STUDY.scenes[s.id].key.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}<p class="muted">There is no single right cut. What did you lose: plot, character, or atmosphere?</p></div>`:""}`}
+  if(dr.k==="two"){if(!dr.t){const ok=scenes.map((s,i)=>[s,i]).filter(([s])=>new Set(s.items.filter(it=>it.t==="sp").map(x=>x.who)).size>=2);dr.t={k:rnd(ok)[1],a:"",b:"",show:false}}
+    const T=dr.t,s=scenes[T.k],by={};s.items.filter(it=>it.t==="sp").forEach(x=>by[x.who]=(by[x.who]||0)+x.lines.length);const [w1,w2]=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(x=>x[0]),st=STUDY.scenes[s.id]||{},kq=QUOTES.quotes.filter(q=>speech[q.id].page===s.id)[0];
+    h=`<p class="intro">Shrink a whole scene into two lines: one for each main character, in your own words. It forces you to find what the scene is really about.</p>
+     <div class="qz"><div class="qn">${sName(s)} · ${esc(shortLoc(s))}</div>
+     <label class="lbl" for="two-a">${esc(title(w1))}</label><input class="sinput" id="two-a" value="${esc(T.a)}" placeholder="What ${esc(title(w1))} wants or says, in one line">
+     <label class="lbl" for="two-b" style="margin-top:8px">${esc(title(w2))}</label><input class="sinput" id="two-b" value="${esc(T.b)}" placeholder="How ${esc(title(w2))} answers">
+     <div class="row"><button class="btn primary" id="two-show">${T.show?"Hide":"Compare"}</button><button class="btn" id="two-next">Another scene</button><button class="btn" data-go2="${s.id}">Read the scene</button></div>
+     ${T.show?`<div class="box">${st.sum?`<p><b>The scene:</b> ${esc(st.sum)}</p>`:""}${kq?quoteHTML(kq):""}<p class="muted">Did your two lines catch the conflict? Act them out loud with a friend.</p></div>`:""}</div>`}
+  $("sbody").innerHTML=back+h;const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
+  if($("cut-s"))$("cut-s").onchange=e=>{dr.c={k:+e.target.value,cut:{},chk:false};studyDrill()};
+  $("sbody").querySelectorAll("[data-cut]").forEach(b=>b.onclick=()=>{const i=b.dataset.cut;if(dr.c.cut[i])delete dr.c.cut[i];else dr.c.cut[i]=1;const y=scrollY;studyDrill();scrollTo(0,y)});
+  on("cut-chk",()=>{dr.c.chk=true;studyDrill()});on("cut-reset",()=>{dr.c={k:dr.c.k,cut:{},chk:false};studyDrill()});
+  if($("two-a")){$("two-a").oninput=e=>dr.t.a=e.target.value;$("two-b").oninput=e=>dr.t.b=e.target.value}
+  on("two-show",()=>{dr.t.show=!dr.t.show;studyDrill()});on("two-next",()=>{dr.t=null;studyDrill()});
+}
+const DRILLS=[["gap","Fill the gap","Type the missing words in a key quote"],["ladder","Memory ladder","Learn a quote: full, then half hidden, then first letters, then from memory"],["explain","Explain this line","Put a passage in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["order","Put it in order","Sort 6 plot events into the right sequence"],["word","Word detective","Guess what an old word means from the line around it"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[]),["cut","Cut the scene","Keep half the lines and still tell the story"],["two","Two-line scene","Sum up a scene as one line for each of two characters"]];
 const rnd=a=>a[Math.floor(Math.random()*a.length)],shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 function studyDrill(){
   const back=`<div class="exh"><button class="btn sm" data-drill="">‹ All drills</button><h2>${dr.k?DRILLS.find(d=>d[0]===dr.k)[1]:""}</h2></div>`;
   if(!dr.k){$("sbody").innerHTML=`<p class="intro">Short exercises for remembering quotes and understanding the language.</p><div class="drills">${DRILLS.map(([k,a,b])=>`<button data-drill="${k}"><b>${a}</b><span>${b}</span></button>`).join("")}</div>`;return}
   if(["word","untangle","pun","stress"].includes(dr.k))return langDrill(back);
+  if(["cut","two"].includes(dr.k))return perfDrill(back);
   let h="";
   if(dr.k==="gap"){if(!dr.q){const gc=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
     const gq=QUOTES.quotes.filter(x=>gc(x).length),q=rnd(gq.length?gq:QUOTES.quotes),ws=q.text.split(/\s+/),cand=gc(q);const pick=shuf(cand).slice(0,Math.min(2,cand.length)).map(x=>x[1]);dr.q={q,ws,pick,res:null}}
@@ -1232,6 +1279,7 @@ function studyRevise(){
   wireBackup(studyRevise);
 }
 $("sbody").addEventListener("click",e=>{
+  const dc=e.target.closest("[data-dc]");if(dc){const [i,j]=dc.dataset.dc.split(":").map(Number);DIRC[i]=Object.assign({},DIRC[i],{c:j});saveDir();const y=scrollY;studyExplore();scrollTo(0,y);return}
   const ib=e.target.closest("[data-it]");if(ib){if(S.stab==="review")reviewAct(ib.dataset.it);else cardAct(ib.dataset.it);return}
   const pk=e.target.closest("[data-pick]");if(pk&&!pk.disabled){reviewAct("pick",pk.dataset.pick);return}
   const g2=e.target.closest("[data-go2]");if(g2){goScene(sIdx(g2.dataset.go2),{page:0});return}
@@ -1250,6 +1298,7 @@ $("sbody").addEventListener("click",e=>{
   const s=e.target.closest("[data-speech]");if(s){goSpeech(s.dataset.speech);return}
   const c=e.target.closest(".chips .chip");if(c){const f=c.parentNode.dataset.f,v=c.dataset.v;
     if(f==="who")qf.who=v;else if(f==="th")qf.th=v;else if(f==="theme")thSel=v;renderStudy()}});
+$("sbody").addEventListener("input",e=>{const t=e.target.closest("[data-dw]");if(t){const i=t.dataset.dw;DIRC[i]=Object.assign({},DIRC[i],{w:t.value.slice(0,4000)});saveDir()}});
 $("sbody").addEventListener("change",e=>{if(e.target.id==="vl-s"){vlSel=+e.target.value;studyExplore();return}const c=e.target.closest("[data-cmp]");if(c){cmp[+c.dataset.cmp]=+c.value;studyExplore();return}const s=e.target.closest("[data-qf]");if(s){qf[s.dataset.qf]=s.value;renderStudy()}});
 
 /* ---------- sheets ---------- */

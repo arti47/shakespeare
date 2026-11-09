@@ -569,3 +569,13 @@ body.v-reader.chrome .toast,body.v-study .toast,body.v-you .toast{bottom:calc(va
 .stl{font:400 1.3rem/2 var(--f-old)}.stw{font-size:1.2rem;padding:2px 8px;border-style:dashed}
 .stw.seen{border-style:solid;border-color:var(--accent)}.stw.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
 mark{background:var(--hl,#f7eaa6);color:inherit;padding:0 2px;border-radius:3px}
+/* performance */
+.dirc h3{margin:4px 0;font:400 1.2rem var(--f-old)}.dline{font:italic 400 1.05rem/1.4 var(--f-old);color:var(--ink);margin:4px 0 8px}
+.dirc .opts button{display:flex;flex-direction:column;gap:3px;color:var(--ink)}.dirc .opts button span{font-weight:400;color:var(--muted);font-size:.9rem}
+.dirc .opts button.right span{color:var(--ink)}.dirc textarea{min-height:64px;margin-top:4px}
+.cutbar{margin:10px 0;font-size:.95rem;position:sticky;top:0;z-index:3;background:var(--page);padding:6px 0}.cutbar i{display:block;height:10px;border-radius:5px;background:var(--rule);overflow:hidden;margin-top:4px}.cutbar i b{display:block;height:100%}
+.cuts{display:flex;flex-direction:column;gap:6px}
+.cuts button{text-align:left;border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.cuts button small{color:var(--muted);font-size:.875rem}.cuts button span{font:400 1rem/1.35 var(--f-old)}
+.cuts button.cut{opacity:.6;border-style:dashed}.cuts button.cut span{text-decoration:line-through}
+.tthink textarea{width:100%;min-height:64px;margin-top:6px}
