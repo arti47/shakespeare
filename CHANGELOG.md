@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.11.1] — 2026-11-09
+
+### Fixed
+- Reader: prose speeches now run on as a paragraph instead of keeping the printed edition's line breaks, so no more hanging indents or single words stranded on their own line (#49).
+
 ## [2.11.0] — 2026-11-09
 
 ### Removed

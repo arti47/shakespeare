@@ -633,3 +633,7 @@ body.clean .beat{display:none}
 ol.beats{list-style:none;margin:0;padding:0}
 ol.beats button{display:block;width:100%;text-align:left;border:0;border-left:2px solid var(--rule);background:transparent;color:var(--ink);font:400 max(14px,.95rem)/1.4 var(--f-ui);padding:7px 6px 7px 12px;cursor:pointer}
 ol.beats button:hover,ol.beats button:focus-visible{border-left-color:var(--accent);background:var(--accent-soft)}
+/* prose runs on as one paragraph: the edition's line breaks are not Shakespeare's, so no hanging indent per printed line (songs keep their lines) */
+.sp:not(.vs) .o .l:not(.song){display:inline;padding-left:0;text-indent:0}
+.sp:not(.vs) .o .l:not(.song)::after{content:" "}
+.sp:not(.vs) .o .l[data-n]:not(.song)::before{display:none}
