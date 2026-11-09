@@ -7,6 +7,17 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Added
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
+## [2.3.0] — 2026-11-09
+
+### Added
+- Practise → Review: a daily mixed session of everything due (who said it, finish the quote, which theme, which act, and quiz questions from scenes you have read) plus a few new items; predict your score first and see how close you were (#39).
+- Library: a Daily review card with the number of items due in each play, linking straight to that play's Review (#39).
+- Flashcards: a second card type, Finish the quote; decide whether you're sure before turning a card (#39).
+- Quizzes → Mistakes review: "Sure but wrong" lists confident mistakes first (#39).
+
+### Changed
+- Flashcards: a quote counts as learnt once you know it on 3 different days; review gaps shorten as your exam date gets close (#39).
+
 ## [2.2.4] — 2026-11-08
 
 ### Fixed

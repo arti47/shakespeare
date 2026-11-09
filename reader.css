@@ -396,6 +396,14 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .qlist button span{font-size:.875rem;color:var(--muted)}
 .qlist button.done span{color:var(--ok)}
 .big{font:400 2.2rem var(--f-old);text-align:center;margin:8px 0}
+/* spaced practice: card types, Daily review */
+.cdir{justify-content:center;margin:0 0 12px}
+.card .qn{margin:0;font-size:.875rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.card .fin{color:var(--accent)}
+.opts.acts5{flex-direction:row;flex-wrap:wrap}.opts.acts5 button{flex:1 1 60px;text-align:center}
+.rvn{font-size:.875rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px}
+.srange{width:100%;margin:14px 0 0;accent-color:var(--accent)}
+.cal{margin:0;padding-left:18px;font-size:.92rem}.cal li{margin:2px 0}
 .rev{border:1px solid var(--rule);border-radius:10px;padding:16px;max-height:52vh;overflow:auto;background:var(--card);font-size:.88rem;white-space:pre-wrap;font-family:var(--f-ui)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
 .box{border-top:1px solid var(--rule);padding-top:16px;margin-top:26px}
