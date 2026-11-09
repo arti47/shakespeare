@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.11.2] — 2026-11-09
+
+### Changed
+- The whole app (shelf and every play) no longer zooms on pinch or double-tap, so a stray gesture can't knock the page out of place. Aa still sets the text size, and pinching in the reader still steps it (#PR).
+
 ## [2.11.1] — 2026-11-09
 
 ### Fixed

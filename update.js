@@ -2,6 +2,11 @@
    Checks for a new build on load, when the app comes back to the foreground and every 30 min;
    when a new build takes over it reloads (if the page is hidden) or offers "Updated - tap to reload". */
 (function(){
+  /* no browser zoom anywhere in the Folio (Aa sets the text size; the reader's own pinch still changes it).
+     iOS ignores user-scalable=no, so cancel its pinch gestures here; double-tap zoom is off via touch-action:manipulation. */
+  var no=function(e){e.preventDefault()};
+  ["gesturestart","gesturechange","gestureend"].forEach(function(t){document.addEventListener(t,no,{passive:false})});
+  document.addEventListener("touchmove",function(e){if(e.touches.length>1||(e.scale&&e.scale!==1))e.preventDefault()},{passive:false});
   if(!("serviceWorker" in navigator))return;
   var me=document.currentScript&&document.currentScript.src||"",root=new URL("./",me||location.href).href;
   var sw=navigator.serviceWorker,had=!!sw.controller,reloading=false,reg=null;

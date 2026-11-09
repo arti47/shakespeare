@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Shakespeare Folio</title>
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#18191d" media="(prefers-color-scheme: dark)">
@@ -37,7 +37,7 @@ folioTheme();
 :root[data-theme="paper"]{--page:#f3efe6;--ink:#141414;--soft:#262626;--muted:#4d4b47;--rule:#d2cdc2;--accent:#3d3a35;--accent-ink:#f3efe6;--accent-soft:#e4ded2;--hover:#ebe6db;--track:#ddd7ca;--bar:rgba(243,239,230,.96);--hl:#e6dcc0}
 :root[data-theme="papernight"]{--page:#141414;--ink:#e9e6df;--soft:#d8d4cc;--muted:#a29e96;--rule:#2e2e2e;--accent:#d9d4ca;--accent-ink:#141414;--accent-soft:#262523;--hover:#1f1f1f;--track:#2e2e2e;--bar:rgba(20,20,20,.96);--hl:#3a372f;color-scheme:dark}
 *{box-sizing:border-box}
-html{font-size:calc(18.5px * var(--scale));-webkit-text-size-adjust:100%}
+html{touch-action:manipulation;font-size:calc(18.5px * var(--scale));-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--page);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;line-height:1.45;overflow-x:hidden}
 button{font:inherit;color:inherit}
 .fell{font-family:"IM Fell English",Georgia,serif}

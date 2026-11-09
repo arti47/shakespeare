@@ -43,7 +43,7 @@
 :root[data-theme^="paper"] *{box-shadow:none!important}
 :root[data-theme^="paper"] .pg.turnL,:root[data-theme^="paper"] .pg.turnR{opacity:1;transform:none}
 *{box-sizing:border-box}
-html{background:var(--page)}
+html{touch-action:manipulation;background:var(--page)}
 body{background:var(--page);color:var(--ink);font-family:var(--f-ui);font-size:1rem;line-height:1.55;-webkit-tap-highlight-color:transparent;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--page)}
 [hidden]{display:none!important}
