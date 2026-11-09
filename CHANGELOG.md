@@ -7,6 +7,24 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Added
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
+## [2.9.0] — 2026-11-09
+
+### Added
+- Reader: tap any part of a speech and its modern English unfolds right under the lines; tap again to fold it. "Whole speech" and "Meanings & notes" sit in the unfolded note (#PR).
+- Reader: Fit verse lines (Settings, on by default). The Shakespeare text shrinks just enough that most verse lines fit on one line, never below 14px; prose is unchanged (#PR).
+- Reader: the first time a character speaks, a one-line note under their name says who they are. Tap any speaker's name for more (#PR).
+- Reader: "Before you read" sheet with the setting, the story so far and The Argument (folded) (#PR).
+
+### Changed
+- Reader: slim scene opener. Title, place, who's on stage and the read-to-find-out question sit above the first lines, so the play starts on page 1 (#PR).
+- Reader: on tablets, Both shows Shakespeare and modern English side by side, each part level with its lines (#PR).
+- Speech tools: meaning first (modern English, word meanings, notes), then one compact row of mark and share buttons; themes, verse lab, director's choices and thought track fold away (#PR).
+- Settings: The Argument now appears at the end of each scene instead of before it, so it no longer gives away the read-to-find-out answer (#PR).
+
+### Fixed
+- King Lear and Twelfth Night saved shared settings (theme, text size, page turn…) under the wrong key, so they didn't follow the other plays. They are moved over once (#PR).
+- Tablet: opening the speech side panel no longer hides the top bar, page slider and bottom nav behind it (#PR).
+
 ## [2.8.0] — 2026-11-09
 
 ### Added

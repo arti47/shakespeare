@@ -441,15 +441,16 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .toast{position:fixed;left:50%;bottom:calc(60px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--page);padding:8px 16px;border-radius:6px;font-size:.875rem;z-index:40;max-width:90vw;text-align:center}
 
 @media (max-width:759px){.panel{display:none}}
-@media (max-width:899px){
-  .o .l[data-n]::before{display:none}
+@media (max-width:899px){.o .l[data-n]::before{display:none}}
+@media (min-width:760px) and (max-width:899px){body.mode-both .sp .body{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:0 1.4em}}
+@media (max-width:759px){
   body.mode-both .sp .body{display:block}
   body.mode-both .m{border-left:2px solid var(--accent);padding-left:.8em;margin-top:.3em}
   body.mode-both .chunk+.chunk>*{border-top:0}
 }
 @media (min-width:900px){.viewport{padding-left:56px;padding-right:56px}.pg{padding-left:2.2em;max-width:740px}}
 @media (min-width:1100px){body.tools .pg{transform:translateX(-210px)}}
-@media (min-width:760px) and (max-width:1099px){body.tight .viewport{padding-right:calc(min(420px,42vw) + 16px)}body.tight .pgfoot{right:min(420px,42vw)}}
+@media (min-width:760px) and (max-width:1099px){body.tight .viewport{padding-right:calc(min(420px,42vw) + 16px)}body.tight .pgfoot,body.tight .bar,body.tight .bbar,body.tight .fnav{right:min(420px,42vw)}}
 @media (prefers-reduced-motion:reduce){.pg,.bar,.bbar,.panel{transition:none}}
 
 /* ---------- one app shell (2.0): Folio bottom nav, Study groups, You, Contents sheet ---------- */
@@ -579,3 +580,45 @@ mark{background:var(--hl,#f7eaa6);color:inherit;padding:0 2px;border-radius:3px}
 .cuts button small{color:var(--muted);font-size:.875rem}.cuts button span{font:400 1rem/1.35 var(--f-old)}
 .cuts button.cut{opacity:.6;border-style:dashed}.cuts button.cut span{text-decoration:line-through}
 .tthink textarea{width:100%;min-height:64px;margin-top:6px}
+
+/* ---------- layered reader (2.9) ---------- */
+/* fit verse lines: --fit is set by reader.js (fitVerse) so most verse lines fit the column */
+.sp.vs .o{font-size:max(14px,calc(1em * var(--fit,1)))}
+/* slim scene opener: the play text starts on the same page */
+.shead{padding:.4em 0 .9em;margin-bottom:.6em;border-bottom:1px solid var(--rule)}
+.shead .eyebrow{font-size:max(14px,.62em)}
+.shead h1{font-size:1.75em}
+.shead .loc{display:flex;align-items:center;justify-content:center;gap:.4em;margin-top:.15em;font-size:.9em}
+.shead .loc svg{width:1.5em;height:1.5em;flex:none;stroke:var(--accent);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.shead .onstage{margin-top:.35em}
+.sopen{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:8px;margin-top:.7em}
+.sopen .preq{margin:0;flex:1 1 15em;max-width:30em;text-align:left;font-size:max(14px,.66em)}
+.sopen .recapb{margin:0;align-self:center}
+.recapb span{color:var(--accent)}
+.sheet .stagepic{justify-content:flex-start;margin:0}
+.endsum{max-width:34em;margin:1em auto 0;text-align:left;font-size:max(14px,.66em);line-height:1.55;color:var(--soft);border-top:1px solid var(--rule);padding-top:.7em}
+.endsum b{display:block;font:400 1.05em var(--f-sc);letter-spacing:.06em;color:var(--accent);text-align:center;margin-bottom:.2em}
+/* who is this? one line under a character's first speech; tap any name for more */
+.nm[data-who]{cursor:pointer}
+.who1{font:italic 400 max(14px,.64em)/1.4 var(--f-ui);color:var(--muted);margin:.05em 0 .3em;max-width:36em}
+body.clean .who1{display:none}
+/* tap a part: its modern English unfolds in place */
+.pt{cursor:pointer}
+.pt.open{background:color-mix(in srgb,var(--accent-soft) 40%,transparent);box-shadow:0 0 0 .3em color-mix(in srgb,var(--accent-soft) 40%,transparent)}
+.mx{font:400 max(14px,.74em)/1.55 var(--f-ui);color:var(--ink);border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent-soft) 45%,var(--page));border-radius:0 6px 6px 0;padding:.55em .8em .5em;margin:.5em 0 .7em;animation:mxin .22s ease-out}
+.mx .mxt p{margin:0 0 .45em}.mx .mxt p:last-child{margin:0}
+.mxa{display:flex;flex-wrap:wrap;gap:6px;margin-top:.5em}
+.mxa button{border:1px solid var(--rule);background:var(--page);color:var(--soft);border-radius:999px;padding:4px 11px;min-height:34px;font:500 max(14px,.6em) var(--f-ui)}
+.mxa small{color:var(--muted);font-size:1em}
+@keyframes mxin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.mx{animation:none}}
+/* speech tools: meaning first, then one compact row of actions */
+.tool .modern{margin-top:10px}
+.trow{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 4px;padding:10px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.hlset{display:flex;gap:6px}
+.tb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:54px;min-height:52px;padding:6px 8px;border:1px solid var(--rule);background:var(--page);color:var(--ink);border-radius:10px;cursor:pointer}
+.tb span{font-size:1.1rem;line-height:1;color:var(--accent)}
+.tb .hlk{width:1.05rem;height:1.05rem;margin:0}
+.tb small{font:500 .875rem var(--f-ui);color:var(--soft);white-space:nowrap;max-width:9em;overflow:hidden;text-overflow:ellipsis}
+.tb.on,.tb[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.tool .about .tchips{margin-top:10px}

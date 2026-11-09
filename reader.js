@@ -7,9 +7,11 @@ const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","A
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 const $=id=>document.getElementById(id);
-const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon","turn"].forEach(k=>FSH[PFX+k]=1);
-const LS={key(k){return FSH[k]?"folio-"+k.slice(4):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
+const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon","turn","fit"].forEach(k=>FSH[PFX+k]=1);
+const LS={key(k){return FSH[k]?"folio-"+k.slice(PFX.length):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
 LS.set("folio-last",PLAY);
+/* before 2.9.0 shared settings from plays whose prefix isn't 4 characters (lear-, tn-) were saved under a wrong key ("folio--theme", "folio-heme"): move them over once */
+if(PFX.length!==4)try{for(const k in FSH){const bad="folio-"+k.slice(4),good=LS.key(k),v=localStorage.getItem(bad);if(v!==null&&bad!==good){if(localStorage.getItem(good)===null)localStorage.setItem(good,v);localStorage.removeItem(bad)}}}catch(e){}
 const wide=()=>innerWidth>=760;
 function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
 
@@ -55,7 +57,7 @@ function saveMark(id,patch){
 const saveProg=()=>LS.set(PFX+"prog",JSON.stringify(prog));
 
 /* ---------- settings ---------- */
-const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
+const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",fit:LS.get(PFX+"fit")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
@@ -65,7 +67,7 @@ function applySettings(){
   document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.c)m.dataset.c=m.content;m.content=pc||m.dataset.c});
   document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
   LS.set(PFX+"lh",S.lh);LS.set(PFX+"focus",S.focus);LS.set(PFX+"clean",S.clean?"1":"0");LS.set(PFX+"onehand",S.onehand?"1":"0");
-  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"turn",S.turn);
+  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"fit",S.fit?"1":"0");LS.set(PFX+"turn",S.turn);
 }
 
 /* reading log: minutes and pages per day (this device) */
@@ -165,13 +167,16 @@ function follow(who){S.who=who;closeSheet();const k=scenes.findIndex(p=>p.items.
 /* ---------- reader: blocks ---------- */
 const pg=$("pg"),measure=$("measure"),vp=$("vp");
 // a scene is a list of blocks; long speeches split into units (single lines, or aligned chunks when modern text shows)
+/* parts unfolded in place (Shakespeare only): an unfolded part stays whole on one page with its modern English under it */
+let OPEN=new Set(),OPENV=0;
+const lineUnits=c=>Array.from({length:c[1]-c[0]+1},(_,k)=>[c[0]+k,c[0]+k,null]);
 function sceneBlocks(p){
   const b=[];
   if(!S.who)b.push({t:"head",key:"h"});
   p.items.forEach((it,ix)=>{
     if(it.t==="sd"){if(!S.who)b.push({t:"sd",it,key:"d"+ix})}
     else if(!S.who||it.who===S.who){
-      const ps=partsOf(it),units=S.mode==="orig"?it.lines.map((l,i)=>[i,i,null]):ps.map(c=>[c[0],c[1],c[2]]);
+      const ps=partsOf(it),units=S.mode==="orig"?ps.flatMap((c,i)=>OPEN.has(it.id+":"+i)?[[c[0],c[1],c[2]]]:lineUnits(c)):ps.map(c=>[c[0],c[1],c[2]]);
       b.push({t:"sp",it,units,starts:new Set(ps.map(c=>c[0])),u0:0,u1:units.length,key:it.id+":0"});
     }});
   b.push({t:"end",key:"e"});
@@ -188,7 +193,13 @@ function favLine(t,id,j){if(id==null||!FAV.length&&!SEL)return gloss(t);const ws
   const flush=()=>{if(!buf)return;h+=g?`<mark class="fph fc-${g.c}${g.sel?" fsel":""}"${g.k!==""?` data-fp="${esc(g.k)}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
   for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];let top=null;cov.forEach(c=>{if(c.s<=a&&c.e>=b)top=c});if(top!==g){flush();g=top}buf+=t.slice(a,b)}flush();return h}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
-function linesHTML(it,a,b){let h="";partsOf(it).forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,it.id,j);h+=`<div class="pt" data-p="${i}">${x}</div>`});return h}
+function linesHTML(it,a,b){let h="";const ps=partsOf(it);ps.forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,it.id,j);
+  const op=S.mode==="orig"&&OPEN.has(it.id+":"+i)&&e===p[1];h+=`<div class="pt${op?" open":""}" data-p="${i}">${x}</div>`;
+  if(op)h+=`<div class="mx" data-mx="${it.id}:${i}"><div class="mxt">${paras(p[2])}</div><div class="mxa">${ps.length>1?`<button data-mxa="whole:${it.id}:${i}">Whole speech <small>${i+1}/${ps.length}</small></button>`:""}<button data-mxa="tools:${it.id}:${i}">Meanings &amp; notes</button></div></div>`});return h}
+function unfold(id,pi){const k=id+":"+pi,sp=speech[id],on=!OPEN.has(k);if(on)OPEN.add(k);else OPEN.delete(k);OPENV++;hideGloss();
+  const top=cur.pages[cur.i].find(b=>b.t==="sp"),before=cur.i;
+  openScene(cur.k,{key:on?id+":"+partsOf(sp)[pi][0]:top?top.key:pos&&pos.key,keep:true});
+  if(on){addRecent(id,pi);if(cur.i!==before)toast("Turned to the next page so the part fits")}}
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
   return out.map(p=>`<p>${esc(p)}</p>`).join("")}
@@ -196,6 +207,10 @@ function stageType(p){const l=p.loc.toLowerCase();const r=EX.stagerules.find(([r
 function stagePic(p){const k=stageType(p);return `<div class="stagepic"><svg viewBox="0 0 40 40" aria-hidden="true">${PICS[k]}</svg>${EX.place[p.id]?esc(EX.place[p.id])+" · ":""}${EX.stage[k]}</div>`}
 function recapHTML(id){const k=sIdx(id);if(k===0)return `<ul>${EX.intro.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
   const pv=scenes[k-1],s=STUDY.scenes[pv.id]||{};return `<p class="muted" style="margin-top:0">At the end of ${sName(pv)}:</p><ul>${(s.key||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p class="muted">${esc(s.sum||"")}</p>`}
+/* "Before you read": the setting, the story so far and (folded, as it gives the scene away) The Argument */
+function openBefore(id){const p=scenes[sIdx(id)],s=STUDY.scenes[id]||{};
+  openSheet("Before you read",`<h3 class="lbl">Setting</h3>${stagePic(p)}<h3 class="lbl">Story so far</h3>${recapHTML(id)}${s.sum?`<details class="about"><summary>The Argument: what happens in this scene</summary><p>${esc(s.sum)}</p></details>`:""}`)}
+const FIRSTSP={};scenes.forEach(p=>p.items.forEach(it=>{if(it.t==="sp"&&CH[it.who]&&!FIRSTSP[it.who])FIRSTSP[it.who]=it.id}));
 let PRED={};try{PRED=JSON.parse(LS.get(PFX+"pred")||"{}")}catch(e){}
 function endExtras(p){const c=prog.conf[p.id];
   return `<div class="endbtns"><button data-endact="quiz:${p.id}">${preQ(p)?"Did you find out? Quick quiz":"Quick quiz on this scene"}</button><button data-endact="quotes:${p.id}">Key quotes from this scene</button></div>
@@ -211,11 +226,11 @@ const PROSE={};for(const id in speech){const L=speech[id].lines.map(l=>l.replace
   const low=L.slice(1).filter(l=>/^[a-z]/.test(l)).length,long=L.filter(l=>l.length>62).length;PROSE[id]=low/(L.length-1)>=.5||long>=Math.max(1,L.length/3)}
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
-    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc">${esc(p.loc)}</div>${stagePic(p)}${onStage(p)}<button class="recapb" data-recap="${p.id}">Story so far</button>${preQ(p)?`<div class="preq"><b>Read to find out</b>${esc(preQ(p))}</div>`:""}${S.sum&&s.sum?`<div class="sum"><b>The Argument</b>${esc(s.sum)}</div>`:""}</div>`}
+    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc"><svg viewBox="0 0 40 40" aria-hidden="true">${PICS[stageType(p)]}</svg>${esc(p.loc)}</div>${onStage(p)}<div class="sopen">${preQ(p)?`<div class="preq"><b>Read to find out</b>${esc(preQ(p))}</div>`:""}<button class="recapb" data-recap="${p.id}">Before you read<span aria-hidden="true"> ›</span></button></div></div>`}
   if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
     const po=EX.predict[p.id],g=PRED[p.id];
-    return `<div class="blk endblk"><div class="orn">❧</div><b>End of ${sName(p)}</b>${n?`<span>Turn the page for ${sName(n)} · ${esc(shortLoc(n))}</span>`:`<span>Finis</span>`}
+    return `<div class="blk endblk"><div class="orn">❧</div><b>End of ${sName(p)}</b>${n?`<span>Turn the page for ${sName(n)} · ${esc(shortLoc(n))}</span>`:`<span>Finis</span>`}${S.sum&&(STUDY.scenes[p.id]||{}).sum?`<div class="sum endsum"><b>The Argument</b>${esc(STUDY.scenes[p.id].sum)}</div>`:""}
       ${po?`<div class="pred"><p>${g!=null?`Your guess: ${esc(po[g])}. Turn the page to find out.`:"What do you think happens next?"}</p><div class="chips">${po.map((o,i)=>`<button class="chip" data-pred="${p.id}:${i}" aria-pressed="${g===i}">${esc(o)}</button>`).join("")}</div></div>`:""}${endExtras(p)}</div>`}
   const it=bk.it,c=COLORS[it.who],cont=bk.u0>0||it.cont,aside=it.lines.some(l=>/\[Aside/.test(l)),solo=SOLO[it.id];
   let prevSp=null;for(const x of p.items){if(x===it)break;if(x.t==="sp"&&x.who===it.who)prevSp=x}
@@ -228,13 +243,24 @@ function blockHTML(bk,p){
   else if(whole&&partsOf(it).length<2)body=`<div class="o">${linesHTML(it,0,it.lines.length-1)}</div><div class="m">${paras(it.m)}</div>`;
   else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2])}</div></div>`).join("");
   const hl=hlOf(m),hc=hl?" hl hl-"+hl:"";
-  return `<article class="blk sp${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}"><div class="hd"><span class="nm${cont?" cont":""}" style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div><div class="body">${body}</div></article>`;
+  const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1">${esc(firstSentence(ch.desc))}</div>`:"";
+  return `<article class="blk sp${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${PROSE[it.id]?"":" vs"}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}"><div class="hd"><span class="nm${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div>${intro}<div class="body">${body}</div></article>`;
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ---------- */
 let cur={k:-1,pages:[],i:0,words:0,sig:""};
+/* fit verse lines: shrink the Shakespeare text just enough that 9 in 10 of the play's verse lines fit the column unbroken (never below 14px) */
+const VERSE=[];for(const id in speech)if(!PROSE[speech[id].id])speech[id].lines.forEach(l=>{if(!l.startsWith("~"))VERSE.push(l)});
+let FITC={};
+function fitVerse(){const R=document.documentElement.style;R.setProperty("--fit","1");if(!S.fit||S.mode==="mod")return 1;
+  measure.innerHTML=`<article class="blk sp vs"><div class="body"><div class="o"><div class="pt"><span class="l">M</span></div></div><div class="m"><p>M</p></div></div></article>`;
+  const l=measure.querySelector(".l"),A=l.clientWidth,cs=getComputedStyle(l),px=parseFloat(cs.fontSize),fam=cs.fontFamily,font=`${cs.fontStyle} ${cs.fontWeight} ${px}px ${fam}`,key=[A,px,fam].join("|");measure.innerHTML="";
+  if(!(key in FITC)){const ctx=(fitVerse.c=fitVerse.c||document.createElement("canvas")).getContext("2d");ctx.font=font;
+    const w=VERSE.map(t=>ctx.measureText(t).width).sort((a,b)=>a-b),w90=w[Math.floor(w.length*.9)]||0;
+    FITC[key]=w90?Math.max(14/px,Math.min(1,A/(w90*1.03))):1}
+  const f=FITC[key];R.setProperty("--fit",f.toFixed(3));return f}
 function paginate(p){
   const blocks=sceneBlocks(p);
-  measure.className="pg";measure.style.width=pg.clientWidth+"px";measure.style.maxWidth="none";
+  measure.className="pg";measure.style.width=pg.clientWidth+"px";measure.style.maxWidth="none";fitVerse();
   const H=pg.clientHeight-2,pages=[];let page=[];measure.innerHTML="";
   const fits=()=>measure.scrollHeight<=H;
   const flush=()=>{if(page.length)pages.push(page);page=[];measure.innerHTML=""};
@@ -259,9 +285,9 @@ function paginate(p){
   flush();measure.innerHTML="";
   return pages.length?pages:[[]];
 }
-const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,pg.clientWidth,pg.clientHeight].join("|");
+const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.fit,OPENV,pg.clientWidth,pg.clientHeight].join("|");
 function openScene(k,opts){
-  opts=opts||{};const p=scenes[k];
+  opts=opts||{};const p=scenes[k];if(cur.k!==k&&OPEN.size){OPEN.clear();OPENV++}
   if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
   let i=0;
   if(opts.page==="last")i=cur.pages.length-1;
@@ -363,7 +389,7 @@ function curlRelease(cancel){const c=CU;c.drag=false;const p=(c.W-c.F.x)/(2*c.W)
   curlAnim(to,ms,curlEnd)}
 function repaginate(){if(view!=="reader"||cur.k<0)return;const key=pos&&pos.key;cur.sig="";openScene(cur.k,{key,keep:true})}
 let rz;addEventListener("resize",()=>{curlEnd();clearTimeout(rz);rz=setTimeout(repaginate,180)});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>repaginate());
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{FITC={};repaginate()});
 function refreshMarks(){if(view==="reader"&&cur.k>=0){pg.innerHTML=cur.pages[cur.i].map(b=>blockHTML(b,scenes[cur.k])).join("");if(partSel)markPart();else if(toolsId!=null)pg.querySelectorAll(`.sp[data-id="${toolsId}"]`).forEach(x=>x.classList.add("active"))}}
 
 /* ---------- reader: gestures (tap edges / swipe to turn, tap middle for menus, long-press for tools) ---------- */
@@ -387,11 +413,15 @@ function endPress(e,cancel){if(CU&&CU.drag){curlRelease(cancel);return}if(!press
   if(S.onehand&&P.y>innerHeight*.78&&(P.x<innerWidth*.3||P.x>innerWidth*.7)){turn(P.x<innerWidth*.3?-1:1);return}
   const ea=P.tgt.closest&&P.tgt.closest("[data-endact]");if(ea){endAct(ea.dataset.endact);return}
   const pp=P.tgt.closest&&P.tgt.closest("[data-pop]");if(pp){showPop(pp,pp.dataset.pop,pp.dataset.text);return}
-  const rc=P.tgt.closest&&P.tgt.closest("[data-recap]");if(rc){openSheet("Story so far",recapHTML(rc.dataset.recap));return}
+  const rc=P.tgt.closest&&P.tgt.closest("[data-recap]");if(rc){openBefore(rc.dataset.recap);return}
   const pr=P.tgt.closest&&P.tgt.closest("[data-pred]");if(pr){const [s,i]=pr.dataset.pred.split(":");PRED[s]=+i;LS.set(PFX+"pred",JSON.stringify(PRED));refreshMarks();toast("Guess saved. Turn the page to find out.");return}
   if(SEL){const h=wordAt(P.x,P.y);if(h&&h.id===SEL.id)selMove(h.w);else clearSel();return}
   const fp=P.tgt.closest&&P.tgt.closest("mark.fph[data-fp]");if(fp){const f=FAV.find(x=>String(x.t)===fp.dataset.fp);if(f){editSel(f);const ga=P.tgt.closest("abbr.g");if(ga)showGloss(ga);return}}
   const gw=nearGloss(P.tgt,P.x,P.y);if(gw){showGloss(gw);return}
+  const ma=P.tgt.closest&&P.tgt.closest("[data-mxa]");if(ma){const [a,id,pi]=ma.dataset.mxa.split(":");if(a==="tools")openTools(+id,+pi);else openPart(+id,+pi,true);return}
+  const mx=P.tgt.closest&&P.tgt.closest("[data-mx]");if(mx){const [id,pi]=mx.dataset.mx.split(":");unfold(+id,+pi);return}
+  const nm=P.tgt.closest&&P.tgt.closest(".nm[data-who]");if(nm){const c=CH[nm.dataset.who];if(c){showPop(nm,title(nm.dataset.who),c.desc);return}}
+  if(P.sp&&S.mode==="orig"){const pt=P.tgt.closest(".pt");if(pt){if(toolsId!=null)closePanel();unfold(+P.sp.dataset.id,+pt.dataset.p);return}}
   if(P.sp){const pt=P.tgt.closest(".pt")||(P.tgt.closest(".chunk")||P.sp).querySelector(".pt");
     if(pt){const id=+P.sp.dataset.id,pi=+pt.dataset.p;if(partSel&&partSel.id===id&&partSel.pi===pi&&toolsId!=null){closePanel();return}openPart(id,pi,false);return}}
   if(toolsId!=null&&wide()){closePanel();return}
@@ -475,23 +505,29 @@ function pairHTML(sp,q,cur){const og=sp.lines.slice(q[0],q[1]+1).map(l=>`<span>$
   return `<div class="pair${cur?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`}
 const partAt=(el,sp)=>{const pt=el&&el.closest&&(el.closest(".pt")||(el.closest(".chunk")||sp).querySelector(".pt"));return pt?+pt.dataset.p:0};
 function toolsHTML(id,pi){
-  const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[];
+  const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[],nf=FAV.filter(f=>f.id===id).length,th=thOf(m);
   return `<div class="tool">
     <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
-    <div class="iconrow">${HLC.map(([k,l])=>`<button class="ib hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i>${l}</button>`).join("")}<button class="ib" id="t-fph"><span>♥</span>Select a phrase${FAV.some(f=>f.id===id)?` (${FAV.filter(f=>f.id===id).length})`:""}</button></div>
-    <div class="iconrow"><button class="ib" id="t-focus"><span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}</button><button class="ib" id="t-follow"><span>◐</span>${S.who===sp.who?"Show everyone":"Only "+esc(title(sp.who))}</button><button class="ib" id="t-copy"><span>⧉</span>Copy</button><button class="ib" id="t-img"><span>▣</span>Image</button></div>
-    <h3 class="lbl">Tag themes</h3><div class="tchips">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" data-tth="${k}" aria-pressed="${(m.th||[]).includes(k)}">${esc(v[0])}</button>`).join("")}</div>
-    <div style="height:12px"></div><div class="modern">${pairHTML(sp,q)}</div>
+    <div class="modern">${pairHTML(sp,q)}</div>
     ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
     ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}${EX.why[q.i]?`<br><b>Why it matters:</b> ${esc(EX.why[q.i])}`:""}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
     ${EX.irony[id]?`<h3 class="lbl">Dramatic irony</h3><div class="snote">${esc(EX.irony[id])}</div>`:""}
     ${(EX.dev[id]||[]).map(([k,n])=>`<h3 class="lbl">${esc(EX.devices[k])}</h3><div class="snote">${esc(n)}</div>`).join("")}
-    ${dirTools(id)}${thoughtHTML(sp)}
-    <details class="about vlabd"><summary>Verse lab: beats, shared lines, punctuation</summary>${verseLabHTML(sp,q[0],q[1])}</details>
+    <div class="trow" role="group" aria-label="Mark and share">
+      <div class="hlset" role="group" aria-label="Highlight">${HLC.map(([k,l])=>`<button class="tb hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i><small>${l}</small></button>`).join("")}</div>
+      <button class="tb" id="t-fph"><span>♥</span><small>Phrase${nf?` (${nf})`:""}</small></button>
+      <button class="tb" id="t-focus" aria-pressed="${S.focus===sp.who}"><span>◎</span><small>${S.focus===sp.who?"Undim":"Dim others"}</small></button>
+      <button class="tb" id="t-follow" aria-pressed="${S.who===sp.who}"><span>◐</span><small>${S.who===sp.who?"Everyone":"Only "+esc(title(sp.who))}</small></button>
+      <button class="tb" id="t-copy"><span>⧉</span><small>Copy</small></button>
+      <button class="tb" id="t-img"><span>▣</span><small>Image</small></button>
+    </div>
     <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
     <div class="acts"><button class="btn sm" id="t-save">Save note</button></div>
     ${c?`<details class="about"><summary>About ${esc(title(sp.who))}</summary><p>${esc(c.desc)}</p></details>`:""}
+    <details class="about"><summary>Tag themes${th.length?` (${th.length})`:""}</summary><div class="tchips">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" data-tth="${k}" aria-pressed="${th.includes(k)}">${esc(v[0])}</button>`).join("")}</div></details>
+    <details class="about vlabd"><summary>Verse lab: beats, shared lines, punctuation</summary>${verseLabHTML(sp,q[0],q[1])}</details>
+    ${dirTools(id)}${thoughtHTML(sp)}
   </div>`}
 function wireTools(id,pi){
   const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0];
@@ -499,7 +535,7 @@ function wireTools(id,pi){
   $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
   document.querySelectorAll(".tool [data-hl]").forEach(b=>b.onclick=()=>{const k=b.dataset.hl,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});
     document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
-  $("t-focus").onclick=()=>{S.focus=S.focus===sp.who?"":sp.who;applySettings();refreshMarks();markPart();$("t-focus").innerHTML=`<span>◎</span>${S.focus===sp.who?"Stop dimming":"Dim all but "+esc(title(sp.who))}`;toast(S.focus?"Dimming everyone except "+title(S.focus):"Showing everyone normally")};
+  $("t-focus").onclick=()=>{S.focus=S.focus===sp.who?"":sp.who;applySettings();refreshMarks();markPart();$("t-focus").innerHTML=`<span>◎</span><small>${S.focus===sp.who?"Undim":"Dim others"}</small>`;$("t-focus").setAttribute("aria-pressed",S.focus===sp.who);toast(S.focus?"Dimming everyone except "+title(S.focus):"Showing everyone normally")};
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
   document.querySelectorAll(".tool [data-tth]").forEach(b=>b.onclick=()=>{const k=b.dataset.tth,th=((marks[id]||{}).th||[]).slice(),i=th.indexOf(k);if(i<0)th.push(k);else th.splice(i,1);saveMark(id,{th});b.setAttribute("aria-pressed",i<0);toast(i<0?"Tagged: "+QUOTES.themes[k][0]:"Tag removed")});
   $("t-img").onclick=()=>{const kq=(QBY[id]||[])[0];openImage(kq?[kq.text]:sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")),title(sp.who),sName(sceneOf(id))+", lines "+(sp.start+q[0])+"–"+(sp.start+q[1]))};
@@ -1416,7 +1452,7 @@ function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
   openSheet("Settings",`
-    <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, tap any line to see its modern English.</small></div>
+    <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, tap any line and its modern English opens underneath. On a tablet, Both puts the two side by side.</small></div>
     <div class="opt"><div class="lbl">Text size</div>${segs("scale",[["1.15","Small"],["1.3","Normal"],["1.5","Large"],["1.75","Extra large"]],S.scale)}</div>
     <div class="opt"><div class="lbl">Theme</div>${segs("theme",[["paper","Paper"],["papernight","Paper night"],["papertimed","Paper, night after 8pm"]],S.theme)}${segs("theme",[["auto","Auto"],["light","Light"],["dark","Dark"],["night","Night"],["timed","Night after 8pm"]],S.theme)}<small>Paper looks like an e-reader: a matte, warm page with crisp black text. Night is a warm, dim scheme for reading in bed. The "after 8pm" options switch to the night version until 7am.</small></div>
     <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
@@ -1425,13 +1461,14 @@ function openSettings(){
     <div class="opt"><div class="lbl">Page turn</div>${segs("turn",[["curl","Curl"],["slide","Slide"],["instant","Instant"]],S.turn)}<small>Curl: hold the page near its outer edge or a corner and drag; it bends and turns like paper. Taps and swipes curl too. Instant changes pages with no motion, like an e-reader (Slide is also instant in Paper themes).</small></div>
     <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
     <div class="opt"><div class="lbl">Exam level</div>${segs("level",[["g","GCSE"],["a","A-level"]],aoLevel())}<small>Sets the assessment objectives used to mark your writing in Study. A-level adds connections (AO4) and interpretations (AO5). Applies to every play.</small></div>
-    <div class="opt"><div class="lbl">Scene summary on the first page</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
+    <div class="opt"><div class="lbl">Fit verse lines</div>${segs("fit",[["true","On"],["false","Off"]],S.fit)}<small>Makes the Shakespeare text just small enough that most verse lines fit on one line (never below 14px), so the rhythm stays visible. Prose is unchanged.</small></div>
+    <div class="opt"><div class="lbl">The Argument at the end of each scene</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
     <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
-    <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Swipe left or right to turn pages (arrow keys or the scroll wheel on a computer). Tap an underlined word for its meaning. Tap any other part of the lines for their modern English; long speeches are split into parts, and you can expand to the whole speech. Tap empty space to show or hide the menus. Press and hold a word to select a phrase; drag to extend it, tap another word to move the nearer end, then pick a colour and save it as a favourite. The bar that appears also has Speech tools (word meanings, notes and highlights); on a computer, right-click a speech for them. Pinch with two fingers to change the text size. Drag the page slider in the bottom menu to preview pages.</small></div>
+    <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Swipe left or right to turn pages (arrow keys or the scroll wheel on a computer). Tap an underlined word for its meaning. Tap any other part of the lines and their modern English opens underneath (tap again to fold it); long speeches are split into parts, and "Whole speech" shows the rest. Tap a character’s name for who they are. Tap empty space to show or hide the menus. Press and hold a word to select a phrase; drag to extend it, tap another word to move the nearer end, then pick a colour and save it as a favourite. The bar that appears also has Speech tools (word meanings, notes and highlights); on a computer, right-click a speech for them. Pinch with two fingers to change the text size. Drag the page slider in the bottom menu to preview pages.</small></div>
     ${backupHTML()}
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
-    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="fit")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   $("whosel").onchange=e=>{S.who=e.target.value;repaginate()};
   $("focsel").onchange=e=>{S.focus=e.target.value;applySettings();refreshMarks()};
   wireBackup(()=>{if(view==="you")renderYou();refreshMarks()});
@@ -1440,8 +1477,8 @@ function openSettings(){
 $("b-home").onclick=()=>openContents();$("b-where").onclick=()=>openContents("scenes");$("b-search").onclick=()=>openSearch("");$("b-set").onclick=openSettings;$("b-bm").onclick=toggleBM;
 
 /* ---------- first-run hint ---------- */
-function hint(){if(LS.get(PFX+"hint3")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.innerHTML=`<b>How to read</b><ul><li>Swipe left or right to turn the page.</li><li>Tap an underlined word for its meaning.</li><li>Tap any other part of the lines to see them in modern English. Long speeches come in parts; expand to read the whole speech.</li><li>Tap empty space to show the menus.</li><li>Press and hold a word to select a phrase and save it as a favourite. Speech tools (meanings, notes) are in the bar that appears.</li></ul><button>Got it</button>`;
-  $("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.querySelector("button").onclick=()=>{d.remove();LS.set(PFX+"hint3","1")}}
+function hint(){if(LS.get(PFX+"hint4")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.innerHTML=`<b>How to read</b><ul><li>Swipe left or right to turn the page.</li><li>Tap an underlined word for its meaning.</li><li>Tap any other part of the lines: the modern English opens right under them. Tap again to fold it away.</li><li>Tap a character’s name to find out who they are.</li><li>Tap empty space to show the menus.</li><li>Press and hold a word to select a phrase and save it as a favourite. Speech tools (meanings, notes) are in the bar that appears.</li></ul><button>Got it</button>`;
+  $("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.querySelector("button").onclick=()=>{d.remove();LS.set(PFX+"hint4","1")}}
 
 /* ---------- start ---------- */
 applySettings();
