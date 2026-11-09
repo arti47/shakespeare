@@ -7,6 +7,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Added
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
+## [2.5.0] — 2026-11-09
+
+### Added
+- Reader: each scene opens with one question to read for, and the end-of-scene quiz asks whether you found out (#41).
+- Learn: Themes, Profiles, Act summaries and the main Explore pages have "Test yourself first": the page blurs while you write what you remember, then you compare (#41).
+- Practise → Review: a Today's plan (items due, scenes to read for your exam date, one shaky or unquizzed scene) and a short "look back" after each session; next time it reminds you what you said you'd work on (#41).
+- Quizzes: predict your score before you start and see how close you were (#41).
+
 ## [2.4.0] — 2026-11-09
 
 ### Added
