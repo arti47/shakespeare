@@ -7,13 +7,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.10.0] — 2026-11-09
 
 ### Added
-- Reader: story beats for all 7 plays. A thin rule with a one-line note sits before the speech where the action turns, so you always know what is happening (#PR).
-- Contents › Beats: every beat of the play, act by act; tap one to read from there (#PR).
-- Settings: Story beats on/off (shared across plays; hidden on a clean page) (#PR).
+- Reader: story beats for all 7 plays. A thin rule with a one-line note sits before the speech where the action turns, so you always know what is happening (#46).
+- Contents › Beats: every beat of the play, act by act; tap one to read from there (#46).
+- Settings: Story beats on/off (shared across plays; hidden on a clean page) (#46).
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
 ### Changed
-- Build: `tools/build.js` checks every play's beats (each scene covered, each beat anchored to a speech in that scene, in order) (#PR).
+- Build: `tools/build.js` checks every play's beats (each scene covered, each beat anchored to a speech in that scene, in order) (#46).
 
 ## [2.9.0] — 2026-11-09
 
