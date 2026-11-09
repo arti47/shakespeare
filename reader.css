@@ -507,3 +507,17 @@ body.v-reader.chrome .toast,body.v-study .toast,body.v-you .toast{bottom:calc(va
 #curl .cghost{opacity:.1}
 #curl .cshade{background:linear-gradient(to right,rgba(0,0,0,.24),rgba(0,0,0,.06) 10%,rgba(255,255,255,.1) 38%,rgba(255,255,255,0) 70%,rgba(0,0,0,.08))}
 :root[data-theme^="paper"] #curl .cpage,:root[data-theme^="paper"] #curl .cback{background-image:var(--grain)}
+/* Learn a part: cue scripts */
+.cueline{border-left:3px solid var(--rule);padding:4px 0 4px 12px;margin:12px 0 16px}
+.cueline small{display:block;font-size:.875rem;color:var(--muted)}
+.cueline b{font:italic 400 1.25rem/1.4 var(--f-old)}
+.ptme{border:1px solid var(--rule);border-left:4px solid var(--c);border-radius:8px;padding:12px 14px;background:var(--card)}
+.ptwho{font:400 1.1rem var(--f-sc);letter-spacing:.05em;color:color-mix(in srgb,var(--c,var(--ink)) var(--nmw),var(--nmix));margin-bottom:8px}
+.ptwho small{font:400 .875rem var(--f-ui);letter-spacing:0;color:var(--muted)}
+.ptxt span{display:block;font:400 1.05rem/1.5 var(--f-old)}
+.ptxt.fl span{letter-spacing:.12em}
+.ptblank i{display:block;height:1.1rem;margin:.55rem 0;border-bottom:1px dashed var(--rule)}
+.ptmean .ptag{font-size:.875rem;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
+.ptmean p{margin:4px 0 0;font-size:1rem;line-height:1.55}
+.ptsw{display:flex;gap:8px;align-items:center;margin:14px 0 0;font-size:.95rem}.ptsw small{font-size:.875rem}
+.card .ptxt{text-align:left}
