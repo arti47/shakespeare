@@ -56,6 +56,7 @@ for (const p of PLAYS) {
 }
 
 /* 2. Search index: [id, speaker, "act.scene", original lines " / "-joined, modern]. */
+const roman = r => { const v = { I: 1, V: 5, X: 10 }; let n = 0; for (let i = 0; i < r.length; i++) { const a = v[r[i]], b = v[r[i + 1]] || 0; n += a < b ? -a : a; } return n; };
 const titleCase = s => s.toLowerCase().replace(/(^|[\s-])([a-z])/g, (m, a, c) => a + c.toUpperCase());
 for (const p of PLAYS) {
   const f = p.id + "/play.js", DATA = constJSON(rd(f), "DATA", f);
@@ -66,6 +67,22 @@ for (const p of PLAYS) {
     else if (b.t === "sp") rows.push([b.id, titleCase(b.who), sc, b.lines.map(l => l.replace(/^~/, "")).join(" / "), b.m]);
   }
   out("search/" + p.id + ".json", JSON.stringify(rows));
+  /* Story beats: every scene has beats, each anchored to a speech in that scene, in order. */
+  const BEATS = constJSON(rd(f), "BEATS", f), inScene = {};
+  let cur = null;
+  for (const b of DATA) {
+    if (b.t === "scene") { cur = "a" + b.act + "s" + roman(b.scene); inScene[cur] = new Set(); }
+    else if (b.t === "sp" && cur) inScene[cur].add(b.id);
+  }
+  for (const s in inScene) if (!BEATS[s] || !BEATS[s].length) throw new Error(`${f}: BEATS missing scene ${s}`);
+  for (const s in BEATS) {
+    if (!inScene[s]) throw new Error(`${f}: BEATS has unknown scene ${s}`);
+    let last = -1;
+    for (const [id, t] of BEATS[s]) {
+      if (!inScene[s].has(id) || id <= last || typeof t !== "string" || !t) throw new Error(`${f}: bad beat ${s} ${id}`);
+      last = id;
+    }
+  }
 }
 
 /* 3. Precache list. */
