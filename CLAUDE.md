@@ -28,7 +28,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `CHANGELOG.md` | Release history. | Every PR |
 | `.github/workflows/build-check.yml` | CI: `node tools/build.js --check`. | Rarely |
 
-Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`.
+Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`.
 
 ## Build / release
 
@@ -60,7 +60,7 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 - **Service worker**: one SW at repo root, scope `./`, registered only by `update.js` (`../update.js` from plays). Plays must not register their own SW. Any new top-level asset a page needs offline must be added to the precache list in `tools/build.js`.
 - Play page shell (`tools/play.html`) links `../manifest.webmanifest`, `../reader.css`, `../fonts.css`, `play.js`, `../reader.js`, `../update.js`.
 - **App shell (2.0)**: shelf and plays share one bottom nav, Library / Read / Study / You (shelf `.tabs`, plays `#fnav`; keep both in step). Play views: `reader`, `study`, `you` (no play home; `#home`/`#contents` open the reader with the Contents sheet). Study tabs are grouped by `SGROUPS` in `reader.js`. Shelf search accepts `#search=<q>`.
-- **Shared reader**: reader behaviour lives only in `reader.js`; play differences go in `CFG`/content in `play.js`, never in forks or per-play `id` checks where a `CFG` field would do. A reader change affects all 6 plays: smoke-test each.
+- **Shared reader**: reader behaviour lives only in `reader.js`; play differences go in `CFG`/content in `play.js`, never in forks or per-play `id` checks where a `CFG` field would do. A reader change affects every play: smoke-test each.
 - **Escaping**: stored, synced or imported user data (localStorage, backups) rendered as HTML must go through `esc()` in `reader.js`. Never interpolate raw user data into `innerHTML`.
 - No external CDNs, trackers or network calls; everything must work offline.
 - Text floor 14px; keep theme parity (light/dark/sepia) between shelf and plays; test tablet portrait beside the side panel.
@@ -71,7 +71,8 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 
 - Modern English and Study content (key facts, character analysis, motifs, questions) are written fresh from the play text. Counts/facts are derived from the text itself.
 - Published study guides may be consulted only to fact-check. Never copy or paraphrase them.
-- Original text follows the edition already used in `play.js`; don't silently modernise spelling.
+- Original text follows the edition already used in `play.js`; don't silently modernise spelling. New plays: Project Gutenberg text (www.gutenberg.org), with curly quotes made straight, speaker names in capitals, stage directions without brackets, and sung or chanted lines marked with a leading `~` (shown as songs).
+- Commercial study guides (SparkNotes, No Fear, CliffsNotes) are never used as sources, even if uploaded.
 
 ## Testing before merge (all required)
 
