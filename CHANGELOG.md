@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.13.0] — 2026-11-09
+
+### Added
+- Hamlet, on the Tragedies shelf: the Project Gutenberg text with modern English for every speech, story beats, notes, a 326-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 84 key quotes in 9 themes, Hamlet's path to revenge (every chance he takes or misses), a resolve-and-action chart, character map, context, critics, imagery and essay plans (#52).
+
 ## [2.12.0] — 2026-11-09
 
 ### Added

@@ -28,7 +28,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `CHANGELOG.md` | Release history. | Every PR |
 | `.github/workflows/build-check.yml` | CI: `node tools/build.js --check`. | Rarely |
 
-Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`.
+Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`.
 
 ## Build / release
 
@@ -40,7 +40,7 @@ Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `
 
 Local preview: `python3 -m http.server` in repo root → `http://localhost:8000/`.
 
-Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays.
+Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays. Also append the play's `QUOTES` to `LINES` and its gloss to `WORDS` (same line as `PLAYS` in `index.html`) so the shelf's Line and Word of the day cover it. Original text comes from Project Gutenberg (www.gutenberg.org is allowed in the project's network settings).
 
 ## Versioning
 
