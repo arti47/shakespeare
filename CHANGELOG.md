@@ -7,6 +7,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Added
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
+## [2.4.0] — 2026-11-09
+
+### Added
+- Practise → Learn a part: learn a character's lines from a cue script, the way Shakespeare's actors did. See only the last words before each of your lines, say your part aloud, then check; hints go from the meaning to first letters. Best score per scene is kept, and parts you miss join Daily review (#40).
+
 ## [2.3.0] — 2026-11-09
 
 ### Added

@@ -563,9 +563,9 @@ $("panel-close").onclick=closePanel;
 async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Copied":"Copy didn’t work here. Select the text and copy it yourself.")}}
 
 /* ---------- study ---------- */
-const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["plan","Essay planner"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
+const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["part","Learn a part"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["plan","Essay planner"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
 /* Study in four groups; the last tool used in each group is kept for this visit */
-const SGROUPS=[["learn","Learn",["explore","acts","prof","themes","quotes"]],["practise","Practise",["review","cards","drill","quiz"]],["write","Write",["plan"]],["revise","Revise",["revise"]]];
+const SGROUPS=[["learn","Learn",["explore","acts","prof","themes","quotes"]],["practise","Practise",["review","cards","part","drill","quiz"]],["write","Write",["plan"]],["revise","Revise",["revise"]]];
 const sgOf=k=>SGROUPS.find(g=>g[2].includes(k))||SGROUPS[0],sgLast={};
 function renderStudy(){
   if(!TABS.some(t=>t[0]===S.stab))S.stab="quotes";
@@ -573,7 +573,7 @@ function renderStudy(){
   $("sgroups").innerHTML=SGROUPS.map(([k,l])=>`<button role="tab" aria-selected="${g[0]===k}" data-sg="${k}">${l}</button>`).join("");
   $("stabs").hidden=g[2].length<2;
   $("stabs").innerHTML=g[2].map(k=>`<button role="tab" aria-selected="${S.stab===k}" data-tab="${k}">${TABS.find(t=>t[0]===k)[1]}</button>`).join("");
-  ({review:studyReview,drill:studyDrill,plan:studyPlan,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
+  ({part:studyPart,review:studyReview,drill:studyDrill,plan:studyPlan,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
 }
 $("stabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){S.stab=b.dataset.tab;LS.set(PFX+"stab",S.stab);renderStudy()}});
 $("sgroups").addEventListener("click",e=>{const b=e.target.closest("[data-sg]");if(!b)return;const g=SGROUPS.find(x=>x[0]===b.dataset.sg);S.stab=sgLast[g[0]]||g[2][0];LS.set(PFX+"stab",S.stab);renderStudy()});
@@ -763,7 +763,8 @@ function grade(k,ok,sure){const s=Object.assign({b:0,d:0,k:0},getS(k)||{}),t=tod
   saveProg();saveRev()}
 function kQuiz(k){const [,sid,n]=k.split(":");const q=((STUDY.scenes[sid]||{}).quiz||[])[+n];return q?Object.assign({s:sid},q):null}
 const isDue=k=>{const s=getS(k);return s&&s.d<=Date.now()};
-const allScheduled=()=>[...Object.keys(prog.srs).filter(i=>QUOTES.quotes[i]).map(i=>"who:"+i),...Object.keys(REV.it).filter(k=>k.startsWith("qz:")?kQuiz(k):kq(k))];
+const validKey=k=>k.startsWith("qz:")?!!kQuiz(k):k.startsWith("pt:")?!!(speech[k.split(":")[1]]&&partsOf(speech[k.split(":")[1]])[+k.split(":")[2]]):!!kq(k);
+const allScheduled=()=>[...Object.keys(prog.srs).filter(i=>QUOTES.quotes[i]).map(i=>"who:"+i),...Object.keys(REV.it).filter(validKey)];
 const dueKeys=()=>allScheduled().filter(isDue);
 const dueList=()=>QUOTES.quotes.map(q=>q.i).filter(i=>{const s=prog.srs[i];return !s||s.d<=Date.now()});
 const firstWords=t=>{const w=t.split(/\s+/),n=Math.max(2,Math.min(5,Math.ceil(w.length/3)));return {a:w.slice(0,n).join(" "),b:w.slice(n).join(" ")}};
@@ -772,6 +773,8 @@ const firstWords=t=>{const w=t.split(/\s+/),n=Math.max(2,Math.min(5,Math.ceil(w.
 function itemHTML(it){const k=it.k,ty=k.split(":")[0];
   if(ty==="qz"){const q=it.q||(it.q=(()=>{const x=kQuiz(k),ix=shuf(x.o.map((_,i)=>i));return Object.assign({},x,{o:ix.map(i=>x.o[i]),a:ix.indexOf(x.a)})})());
     return `<div class="qz"><div class="qn">Quiz · ${sName(scenes[sIdx(q.s)])}</div><h3>${esc(q.q)}</h3><div class="opts">${q.o.map((o,i)=>`<button data-pick="${i}"${it.stage==="shown"?" disabled":""} class="${it.stage==="shown"?(i===q.a?"right":i===it.pick?"wrong":""):""}">${esc(o)}</button>`).join("")}</div></div>`}
+  if(ty==="pt"){const [,id,pi]=k.split(":"),sp=speech[id],ps=partsOf(sp),q=ps[+pi],p=sceneOf(id),cue=+pi>0?{txt:partLines(sp,ps[pi-1]).join(" ").split(/\s+/).slice(-3).join(" ")}:cueOf(p,+id);
+    return `<div class="card" style="--c:${COLORS[sp.who]||"var(--ink)"}"><p class="qn">Learn a part · ${esc(title(sp.who))} · ${sName(p)}</p><p class="muted">${cue?`Cue: <b>… ${esc(cue.txt)}</b>`:"You speak first"}</p>${it.stage==="shown"?`<div class="ptxt">${partLines(sp,q).map(l=>`<span>${esc(l)}</span>`).join("")}</div>`:`<p>Say your line aloud.</p>`}</div>`}
   const q=kq(k),sp=speech[q.id],p=sceneOf(q.id),c=COLORS[sp.who]||"var(--ink)";
   const ans=`<div class="ans"><b>${esc(title(sp.who))}</b><span>${sName(p)} · ${esc(shortLoc(p))}</span><p>${esc(q.note)}</p></div>`;
   if(ty==="who")return `<div class="card" style="--c:${c}"><p class="qn">Who said it, and when?</p><blockquote>“${esc(q.text)}”</blockquote>${it.stage==="shown"?ans:""}</div>`;
@@ -781,10 +784,10 @@ function itemHTML(it){const k=it.k,ty=k.split(":")[0];
   if(ty==="act"){const a=p.act;return `<div class="qz"><div class="qn">Which act is this from?</div><h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts acts5">${[1,2,3,4,5].map(n=>`<button data-pick="${n}"${it.stage==="shown"?" disabled":""} class="${it.stage==="shown"?(n===a?"right":n===+it.pick?"wrong":""):""}">Act ${R[n]}</button>`).join("")}</div>${it.stage==="shown"?`<p class="muted">${esc(title(sp.who))}, ${sName(p)}.</p>`:""}</div>`}
   return ""}
 /* self-graded items (who, fin) ask for confidence first; picked items grade themselves */
-const selfGraded=k=>/^(who|fin):/.test(k);
+const selfGraded=k=>/^(who|fin|pt):/.test(k);
 function itemButtons(it){if(!selfGraded(it.k))return it.stage==="shown"?`<button class="btn primary" data-it="next">Next</button>`:"";
   if(it.stage==="ask")return `<button class="btn primary" data-it="sure">I'm sure · turn</button><button class="btn" data-it="unsure">Not sure · turn</button>`;
-  return `<button class="btn" data-it="no">Not yet</button><button class="btn primary" data-it="yes">I knew it</button>${it.k.startsWith("qz:")?"":`<button class="link" data-speech="${kq(it.k).id}">Read in context</button>`}`}
+  return `<button class="btn" data-it="no">Not yet</button><button class="btn primary" data-it="yes">I knew it</button>${it.k.startsWith("qz:")?"":`<button class="link" data-speech="${it.k.startsWith("pt:")?it.k.split(":")[1]:kq(it.k).id}">Read in context</button>`}`}
 function pickOk(it,v){const ty=it.k.split(":")[0];if(ty==="qz")return +v===it.q.a;const q=kq(it.k);if(ty==="th")return q.themes.includes(v);if(ty==="act")return +v===sceneOf(q.id).act;return false}
 
 /* flashcards: two directions, quotes not yet learnt come first, shuffled */
@@ -809,6 +812,49 @@ function studyCards(){
 function cardAct(a){const it=cardIt;if(!it)return;
   if(a==="sure"||a==="unsure"){it.sure=a==="sure";it.stage="shown";studyCards();return}
   if(a==="yes"||a==="no"){grade(it.k,a==="yes",it.sure);if(a==="yes")deck.shift();else deck.push(deck.shift());cardIt=null;if(!deck.length)toast("Round finished");studyCards()}}
+
+/* ---------- Learn a part: cue scripts ----------
+   Shakespeare's actors learned from a "part": only their own lines, each with a cue of the last few words
+   spoken before it. Here you see the cue, say your lines aloud, then check, one whole-thought part at a time.
+   Hints go from meaning (modern English) to first letters to the full text. Parts you miss join Daily review. */
+const cueOf=(p,id)=>{const its=p.items,i=its.findIndex(x=>x.id===id);for(let j=i-1;j>=0;j--)if(its[j].t==="sp"){const w=its[j].lines.join(" ").replace(/~/g,"").replace(/\[[^\]]*\]/g,"").trim().split(/\s+/);return {who:its[j].who,txt:w.slice(-3).join(" ")}}return null};
+const partLines=(sp,q)=>sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,""));
+const firstLet=l=>l.split(/\s+/).map(w=>w.replace(/([A-Za-z])[A-Za-z']*/,"$1")).join(" ");
+REV.pp=REV.pp&&typeof REV.pp==="object"&&!Array.isArray(REV.pp)?REV.pp:{};
+let pt={who:"",sid:"",showWho:LS.get(PFX+"ptwho")==="1"};
+function partScenes(who){return scenes.filter(p=>p.items.some(x=>x.t==="sp"&&x.who===who))}
+function studyPart(){
+  if(!pt.who){const cast=MAINS.filter(w=>partScenes(w).length);
+    $("sbody").innerHTML=`<p class="intro">Learn lines the way Shakespeare's actors did. A cue script shows only your character's lines and the last few words before each one. You hear the cue, say your lines aloud, then check. Saying lines aloud, and thinking about what you want, helps them stick.</p>
+     <div class="lbl">Choose a part</div><div class="drills">${cast.map(w=>{const n=Object.values(speech).filter(s=>s.who===w).length;return `<button data-ptwho="${esc(w)}"><b>${esc(title(w))}</b><span>${n} speeches in ${partScenes(w).length} scenes</span></button>`}).join("")}</div>`;return}
+  const back=`<div class="exh"><button class="btn sm" data-ptback="${pt.sid?"scene":"who"}">‹ ${pt.sid?"Scenes":"All parts"}</button><h2>${esc(title(pt.who))}</h2></div>`;
+  if(!pt.sid){const sc=partScenes(pt.who);
+    $("sbody").innerHTML=back+`<p class="intro">Pick a scene. Your best score for each is kept.</p><div class="qlist">${sc.map(p=>{const n=p.items.filter(x=>x.t==="sp"&&x.who===pt.who).length,b=REV.pp[pt.who+"|"+p.id];return `<button class="${b&&b[0]===b[1]?"done":""}" data-ptsid="${p.id}"><b>${sName(p)}</b><span>${n} speech${n===1?"":"es"}${b?` · best ${esc(b[0])} of ${esc(b[1])}`:""}</span></button>`}).join("")}</div>
+     <label class="ptsw"><input type="checkbox" id="pt-sw"${pt.showWho?" checked":""}> Show who gives each cue <small class="muted">(original cue scripts didn't)</small></label>`;
+    $("pt-sw").onchange=e=>{pt.showWho=e.target.checked;LS.set(PFX+"ptwho",pt.showWho?"1":"0")};return}
+  const p=scenes[sIdx(pt.sid)];
+  if(!pt.run){const steps=[];p.items.forEach(x=>{if(x.t==="sp"&&x.who===pt.who)partsOf(x).forEach((q,pi)=>steps.push({id:x.id,pi}))});pt.run={steps,i:0,h:0,shown:false,ok:0,miss:[]}}
+  const R0=pt.run;
+  if(R0.i>=R0.steps.length){const k=pt.who+"|"+pt.sid,b=REV.pp[k];if(!R0.saved){R0.saved=1;if(!b||R0.ok>=b[0])REV.pp[k]=[R0.ok,R0.steps.length,Date.now()];saveRev()}
+    $("sbody").innerHTML=back+`<div class="qz" style="text-align:center"><div class="qn">${sName(p)}</div><div class="big">${R0.ok} of ${R0.steps.length}</div><p>${R0.ok===R0.steps.length?"Every line, word for word. Try it again tomorrow to make it stick.":`${R0.miss.length} part${R0.miss.length===1?"":"s"} to work on. They're added to Daily review.`}</p>
+     <div class="row" style="justify-content:center"><button class="btn primary" id="pt-again">Run the scene again</button><button class="btn" data-ptback="scene">Other scenes</button></div></div>`;
+    $("pt-again").onclick=()=>{pt.run=null;studyPart()};return}
+  const st=R0.steps[R0.i],sp=speech[st.id],ps=partsOf(sp),q=ps[st.pi],L=partLines(sp,q);
+  const cue=st.pi>0?{who:sp.who,txt:partLines(sp,ps[st.pi-1]).join(" ").split(/\s+/).slice(-3).join(" "),self:1}:cueOf(p,st.id);
+  const hint=R0.shown?`<div class="ptxt">${L.map(l=>`<span>${esc(l)}</span>`).join("")}</div>`:R0.h===2?`<div class="ptxt fl">${L.map(l=>`<span>${esc(firstLet(l))}</span>`).join("")}</div>`:R0.h===1?`<div class="ptmean"><div class="ptag">What you want to say</div><p>${esc(q[2])}</p></div>`:`<div class="ptblank">${L.map(()=>`<i></i>`).join("")}</div>`;
+  $("sbody").innerHTML=back+`<div class="qz cue"><div class="qn">${sName(p)} · part ${R0.i+1} of ${R0.steps.length} · ${R0.ok} right</div>
+   <div class="cueline"><small>${cue?(cue.self?"Your previous line ends":(pt.showWho?esc(title(cue.who))+" ends":"Cue")):"Start of the scene"}</small>${cue?`<b>… ${esc(cue.txt)}</b>`:"<b>You speak first</b>"}</div>
+   <div class="ptme" style="--c:${COLORS[pt.who]||"var(--ink)"}"><div class="ptwho">${esc(title(pt.who))}${ps.length>1?` <small>(${st.pi+1} of ${ps.length} in this speech)</small>`:""}</div>${hint}</div>
+   <div class="cardbtns">${R0.shown?`<button class="btn" data-pt="miss">Missed</button><button class="btn" data-pt="near">Nearly</button><button class="btn primary" data-pt="got">Word perfect</button>`
+     :`${R0.h<2?`<button class="btn" data-pt="hint">${R0.h===0?"Hint: the meaning":"Hint: first letters"}</button>`:""}<button class="btn primary" data-pt="show">I've said it · check</button>`}</div>
+   <p class="muted" style="text-align:center;font-size:.875rem">${R0.shown?"Be strict: word perfect means every word.":"Say the lines out loud before you check."}</p></div>`;
+}
+function partAct(a){const R0=pt.run;if(!R0)return;const st=R0.steps[R0.i];
+  if(a==="hint"){R0.h++;studyPart();return}
+  if(a==="show"){R0.shown=true;studyPart();return}
+  const k=`pt:${st.id}:${st.pi}`,ok=a==="got"&&R0.h===0;if(ok)R0.ok++;else R0.miss.push(st);
+  if(ok&&!getS(k)){}else grade(k,ok,false);
+  R0.i++;R0.h=0;R0.shown=false;studyPart();scrollTo(0,0)}
 
 /* Daily review: everything due, mixed across kinds (interleaved), plus a few new items; predict your score first */
 let rv=null;
@@ -866,7 +912,7 @@ function studyThemes(){
 }
 /* mistakes: missed quiz questions, quotes you didn't know, lines you marked confusing */
 function missHTML(){const nq=prog.miss.q.length,cs=Object.keys(prog.miss.c||{}).filter(i=>prog.miss.c[i]>0),cf=Object.keys(marks).filter(k=>marks[k].hl==="cf"&&speech[k]),
-  sm=Object.keys(prog.miss.s).filter(k=>k.startsWith("qz:")?kQuiz(k):kq(k));
+  sm=Object.keys(prog.miss.s).filter(k=>!k.startsWith("pt:")&&validKey(k));
   if(!nq&&!cs.length&&!cf.length&&!sm.length)return "";
   const smHTML=sm.length?`<details style="margin-top:8px" open><summary>Sure but wrong (${sm.length}): fix these first</summary><p class="muted" style="font-size:.875rem">Mistakes you were confident about are the ones most worth correcting: they stick once you see the right answer.</p>${sm.map(k=>k.startsWith("qz:")?`<div class="exitem"><b>${esc(kQuiz(k).q)}</b><p>${esc(kQuiz(k).o[kQuiz(k).a])}</p></div>`:quoteHTML(kq(k))).join("")}</details>`:"";
   return `<div class="box" style="margin:0 0 16px;border:0;padding:0"><h3>Mistakes review</h3><p class="intro">${nq} missed question${nq===1?"":"s"} · ${cs.length} quote${cs.length===1?"":"s"} you didn't know · ${cf.length} line${cf.length===1?"":"s"} marked confusing</p>
@@ -957,6 +1003,10 @@ function studyRevise(){
 $("sbody").addEventListener("click",e=>{
   const ib=e.target.closest("[data-it]");if(ib){if(S.stab==="review")reviewAct(ib.dataset.it);else cardAct(ib.dataset.it);return}
   const pk=e.target.closest("[data-pick]");if(pk&&!pk.disabled){reviewAct("pick",pk.dataset.pick);return}
+  const pa=e.target.closest("[data-pt]");if(pa){partAct(pa.dataset.pt);return}
+  const pw=e.target.closest("[data-ptwho]");if(pw){pt.who=pw.dataset.ptwho;pt.sid="";pt.run=null;studyPart();scrollTo(0,0);return}
+  const ps=e.target.closest("[data-ptsid]");if(ps){pt.sid=ps.dataset.ptsid;pt.run=null;studyPart();scrollTo(0,0);return}
+  const pb=e.target.closest("[data-ptback]");if(pb){if(pb.dataset.ptback==="scene"){pt.sid="";pt.run=null}else pt.who="";studyPart();scrollTo(0,0);return}
   const cd=e.target.closest("[data-cdir]");if(cd){cdir=cd.dataset.cdir;LS.set(PFX+"cdir",cdir);newDeck();studyCards();return}
   const dk=e.target.closest("[data-drill]");if(dk){dr={k:dk.dataset.drill};studyDrill();scrollTo(0,0);return}
   const ex=e.target.closest("[data-ex]");if(ex){exSel=ex.dataset.ex;studyExplore();scrollTo(0,0);return}
