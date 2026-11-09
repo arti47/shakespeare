@@ -7,6 +7,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Added
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
+## [2.7.0] — 2026-11-09
+
+### Added
+- Verse lab in every speech's tools: verse or prose, a beat count for each line with notes on short, long and shared lines, rhyming couplets, and a punctuation walk (#43).
+- Learn → Explore → Verse and prose: how much of the play (and each main character) is in verse, characters who switch between verse and prose in a scene, shared lines, and scenes that end in a rhyme, plus the verse lab on any key speech (#43).
+- Practise drills: Word detective (guess an old word's meaning from its line), Untangle (put inverted word order into everyday order), Pun hunt (puns, words used as a different part of speech, malapropisms) and Tone and stress (lean on different words and see how the meaning changes). The puzzles are written for all 7 plays (#43).
+
 ## [2.6.0] — 2026-11-09
 
 ### Added
