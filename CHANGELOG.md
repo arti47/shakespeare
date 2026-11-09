@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.10.1] — 2026-11-09
+
+### Fixed
+- Reader: with Fit verse lines on, prose speeches are now the same size as verse instead of larger (#47).
+
 ## [2.10.0] — 2026-11-09
 
 ### Added

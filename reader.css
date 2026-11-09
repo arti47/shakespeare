@@ -583,7 +583,7 @@ mark{background:var(--hl,#f7eaa6);color:inherit;padding:0 2px;border-radius:3px}
 
 /* ---------- layered reader (2.9) ---------- */
 /* fit verse lines: --fit is set by reader.js (fitVerse) so most verse lines fit the column */
-.sp.vs .o{font-size:max(14px,calc(1em * var(--fit,1)))}
+.sp .o{font-size:max(14px,calc(1em * var(--fit,1)))}
 /* slim scene opener: the play text starts on the same page */
 .shead{padding:.4em 0 .9em;margin-bottom:.6em;border-bottom:1px solid var(--rule)}
 .shead .eyebrow{font-size:max(14px,.62em)}
