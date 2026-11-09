@@ -563,9 +563,9 @@ $("panel-close").onclick=closePanel;
 async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Copied":"Copy didn’t work here. Select the text and copy it yourself.")}}
 
 /* ---------- study ---------- */
-const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["part","Learn a part"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["plan","Essay planner"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
+const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["part","Learn a part"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["plan","Essay planner"],["extract","Extract"],["para","Paragraphs"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
 /* Study in four groups; the last tool used in each group is kept for this visit */
-const SGROUPS=[["learn","Learn",["explore","acts","prof","themes","quotes"]],["practise","Practise",["review","cards","part","drill","quiz"]],["write","Write",["plan"]],["revise","Revise",["revise"]]];
+const SGROUPS=[["learn","Learn",["explore","acts","prof","themes","quotes"]],["practise","Practise",["review","cards","part","drill","quiz"]],["write","Write",["plan","extract","para"]],["revise","Revise",["revise"]]];
 const sgOf=k=>SGROUPS.find(g=>g[2].includes(k))||SGROUPS[0],sgLast={};
 function renderStudy(){
   if(!TABS.some(t=>t[0]===S.stab))S.stab="quotes";
@@ -573,7 +573,7 @@ function renderStudy(){
   $("sgroups").innerHTML=SGROUPS.map(([k,l])=>`<button role="tab" aria-selected="${g[0]===k}" data-sg="${k}">${l}</button>`).join("");
   $("stabs").hidden=g[2].length<2;
   $("stabs").innerHTML=g[2].map(k=>`<button role="tab" aria-selected="${S.stab===k}" data-tab="${k}">${TABS.find(t=>t[0]===k)[1]}</button>`).join("");
-  ({part:studyPart,review:studyReview,drill:studyDrill,plan:studyPlan,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
+  ({part:studyPart,review:studyReview,drill:studyDrill,plan:studyPlan,extract:studyExtract,para:studyPara,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
 }
 $("stabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){S.stab=b.dataset.tab;LS.set(PFX+"stab",S.stab);renderStudy()}});
 $("sgroups").addEventListener("click",e=>{const b=e.target.closest("[data-sg]");if(!b)return;const g=SGROUPS.find(x=>x[0]===b.dataset.sg);S.stab=sgLast[g[0]]||g[2][0];LS.set(PFX+"stab",S.stab);renderStudy()});
@@ -704,7 +704,8 @@ function studyPlan(){
      <label>Evidence</label><select data-pp="${i}:q">${qopt(pt.q)}</select><label>Analysis</label><textarea data-pp="${i}:a" placeholder="Zoom in on a word or image. Link to context or another moment.">${esc(pt.a||"")}</textarea></div>`).join("")}
    <div class="row noprint"><button class="btn primary" id="pl-copy">Copy outline</button><button class="btn" id="pl-dl">Download outline</button><button class="btn" id="pl-print">Print</button>${run?"":`<button class="btn" id="tm-go">Start 45-minute timed essay</button>`}</div>
    <div class="box"><h3>Quote bank for this question</h3>${sug.map(j=>quoteHTML(QUOTES.quotes[j])).join("")}</div>
-   <div class="box chk"><h3>Self-marking checklist</h3><p class="intro">After writing, tick what your answer does.</p>${EX.check.map((c,i)=>`<label><input type="checkbox" data-ck="${i}"${P.chk[i]?" checked":""}> ${esc(c)}</label>`).join("")}<p class="muted" id="ck-n">${Object.values(P.chk).filter(Boolean).length} of ${EX.check.length}</p></div></div>`;
+   <div class="box chk"><h3>Self-marking checklist</h3><p class="intro">After writing, tick what your answer does.</p>${EX.check.map((c,i)=>`<label><input type="checkbox" data-ck="${i}"${P.chk[i]?" checked":""}> ${esc(c)}</label>`).join("")}<p class="muted" id="ck-n">${Object.values(P.chk).filter(Boolean).length} of ${EX.check.length}</p></div><div class="box chk ao" id="aobox"></div></div>`;
+  aoMount(P,savePlan);
   $("pl-q").onchange=e=>{PLAN.cur=+e.target.value;savePlan();studyPlan()};
   $("sbody").querySelectorAll("[data-pf]").forEach(el=>el.oninput=()=>{P.th=el.value;savePlan()});
   $("sbody").querySelectorAll("[data-pp]").forEach(el=>{const [i,f]=el.dataset.pp.split(":");const h=()=>{P.pts[i][f]=el.value;savePlan()};el.oninput=h;el.onchange=h});
@@ -715,6 +716,110 @@ function studyPlan(){
   if($("tm-stop"))$("tm-stop").onclick=()=>{PLAN.t0=0;savePlan();clearInterval(tmr);studyPlan()};
   clearInterval(tmr);if(run){const tick=()=>{const left=45*6e4-(Date.now()-PLAN.t0),el=$("tm");if(!el){clearInterval(tmr);return}if(left<=0){clearInterval(tmr);el.textContent="Time!";toast("45 minutes are up");return}
     el.textContent=String(Math.floor(left/6e4)).padStart(2,"0")+":"+String(Math.floor(left%6e4/1e3)).padStart(2,"0")};tick();tmr=setInterval(tick,1000)}
+}
+/* ---------- exam writing: extract practice, paragraph builder, AO marking ---------- */
+const AOSETS={g:[["AO1","Argument and evidence",12,["Answered the question in a clear opening sentence","Kept one argument going through the answer","Backed each point with a short, embedded quote","Ranged across the whole play, not just one scene"]],
+  ["AO2","Language, form and structure",12,["Named a method: a word, image, device or structure","Zoomed in on a single word or image","Explained the effect on the audience","Used terms precisely and explored more than one meaning"]],
+  ["AO3","Context",6,["Mentioned a relevant context","Tied the context to the point you were making","Considered an audience then and now"]],
+  ["AO4","Accuracy",4,["Spelled names and terms correctly","Punctuated and paragraphed accurately","Used varied, precise vocabulary"]]],
+ a:[["AO1","Argument and expression",7,["Answered the question with a clear thesis","Built a coherent argument across the answer","Wrote accurately in a critical style","Used literary terms precisely"]],
+  ["AO2","Methods",6,["Analysed language closely","Analysed form or structure: verse, prose, scene order","Explored the effect on an audience"]],
+  ["AO3","Contexts",6,["Brought in a relevant context","Explained how the context shapes meaning","Considered performance or how audiences have received the play"]],
+  ["AO4","Connections",3,["Linked to another moment in the play","Compared with another text or with the genre"]],
+  ["AO5","Interpretations",3,["Mentioned another reading or critic","Weighed the readings and gave your own view"]]]};
+const AOLV={g:["Simple","Supported","Clear","Thoughtful","Thoughtful and developed","Convincing and critical"],a:["Basic","Straightforward","Relevant and clear","Coherent and developed","Perceptive and assured"]};
+const AODRILL={AO1:["Plan an argument in the Essay planner","plan"],AO2:["Spot methods in Explore: Language devices","explore:devices"],AO3:["Read Explore: Context","explore:context"],AO4g:["Practise names and quotes with Flashcards","cards"],AO4a:["Compare moments in Explore: Contrasts","explore:contrast"],AO5:["Read other views in Explore: Critics","explore:critics"]};
+const aoLevel=()=>LS.get("folio-level")==="a"?"a":"g";
+function aoInner(o){const L=aoLevel(),set=AOSETS[L];if(!o.ao||o.ao.L!==L)o.ao={L};const a=o.ao;let tot=0,max=0,worst=null,wv=2,any=false;
+  const rows=set.map(([k,n,w,cr])=>{const t=a[k]=a[k]||[],got=cr.filter((_,i)=>t[i]).length,sc=Math.round(got/cr.length*w);if(got)any=true;tot+=sc;max+=w;if(got/cr.length<wv){wv=got/cr.length;worst=k}
+    return `<div class="aorow"><div class="aoh"><b>${k}</b><span>${n}</span><em>${sc} / ${w}</em></div>${cr.map((c,i)=>`<label><input type="checkbox" data-ao="${k}:${i}"${t[i]?" checked":""}> ${esc(c)}</label>`).join("")}</div>`}).join("");
+  const lv=AOLV[L],band=Math.max(1,Math.ceil(tot/max*lv.length)),dk=worst==="AO4"?"AO4"+L:worst,dr=AODRILL[dk],[dt,dx]=dr||[],ok=dr&&(!dx.includes(":")||exHas(dx.split(":")[1]));
+  return `<h3>Mark it: ${L==="a"?"A-level":"GCSE"} assessment objectives</h3><p class="intro">Tick only what your answer really does. Weights are a typical split; check your own exam board.${L==="g"?" Studying A-level? Switch in Settings.":""}</p>${rows}
+   <div class="aoband">${any?`<b>${tot} / ${max}</b><span>Roughly ${L==="a"?"band":"level"} ${band} of ${lv.length}: ${lv[band-1]}</span>${wv<1&&ok?`<span>Weakest: ${worst}. Next: <button class="link" data-gotab="${dx}">${dt}</button></span>`:""}`:`<span>Tick what your answer does to see an estimate.</span>`}</div>`}
+function aoMount(o,save){const el=$("aobox");if(!el)return;el.innerHTML=aoInner(o);el.querySelectorAll("[data-ao]").forEach(c=>c.onchange=()=>{const [k,i]=c.dataset.ao.split(":");o.ao[k][+i]=c.checked;save();aoMount(o,save)})}
+const lc1=s=>s.charAt(0).toLowerCase()+s.slice(1);
+const qAsk=q=>`“${esc(q.text)}” <small class="muted">${esc(title(speech[q.id].who))}, ${sName(sceneOf(q.id))}</small>`;
+
+/* extract practice */
+let XT={};try{XT=JSON.parse(LS.get(PFX+"xt")||"{}")}catch(e){}
+const saveXT=()=>LS.set(PFX+"xt",JSON.stringify(XT));
+let xsel="",xhint=false,xtmr=null;
+const XTAGS=["Metaphor","Simile","Imagery","Personification","Repetition","Contrast","Question","Exclamation","Command","Pun","Irony","Short line","Rhyme","Prose"];
+function xtBuild(qi){const Q=EX.examq[qi],M=(EX.models||[])[qi],q=QUOTES.quotes[M?M[0]:Q[1][0]],sp=speech[q.id],sps=sceneOf(q.id).items.filter(it=>it.t==="sp"),k=sps.indexOf(sp);
+  const nm=t=>t.toLowerCase().replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim(),w=nm(q.text).split(" ").slice(0,3).join(" ");
+  let ql=sp.lines.findIndex(l=>nm(l).includes(w));if(ql<0)ql=0;
+  const segs=[sp.lines.length>22?[sp,Math.max(0,ql-8),Math.min(sp.lines.length,Math.max(0,ql-8)+22)]:[sp,0,sp.lines.length]];
+  let n=segs[0][2]-segs[0][1],b=k-1,f=k+1;
+  while(n<16&&(b>=0||f<sps.length)){
+    if(b>=0){if(n+sps[b].lines.length<=24){segs.unshift([sps[b],0,sps[b].lines.length]);n+=sps[b].lines.length;b--}else b=-1}
+    if(n<16&&f<sps.length){if(n+sps[f].lines.length<=24){segs.push([sps[f],0,sps[f].lines.length]);n+=sps[f].lines.length;f++}else f=sps.length}}
+  return {q,segs,ql,n}}
+function studyExtract(){
+  const qi=Math.min(XT.cur||0,EX.examq.length-1),Q=EX.examq[qi],X=xtBuild(qi),A=(XT.a=XT.a||{})[qi]=XT.a[qi]||{},W=XT.w=XT.w||{},Mk=(XT.m=XT.m||{})[qi]=XT.m[qi]||{};
+  const ids=X.segs.map(s=>s[0].id),run=XT.t0&&Date.now()-XT.t0<15*6e4,tags=[...XTAGS,...Object.values(EX.devices||{})];
+  const xbar=`<div class="xtbar"><small>Tag this line</small><div class="chips">${tags.map(t=>`<button class="chip" data-xtag="${esc(t)}" aria-pressed="${(A[xsel]||[]).includes(t)}">${esc(t)}</button>`).join("")}</div></div>`;
+  const nt=Object.values(A).reduce((s,v)=>s+v.length,0);
+  const lines=X.segs.map(([sp,a,z])=>`<div class="xsp"><div class="xwho" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</div>${sp.lines.slice(a,z).map((l,j0)=>{const j=a+j0,key=sp.id+":"+j,tg=A[key]||[];
+    return `<button class="xl${xsel===key?" on":""}${sp.id===X.q.id&&j===X.ql?" key":""}" data-xl="${key}"><span>${esc(l)}</span>${tg.length?`<small>${tg.map(esc).join(" · ")}</small>`:""}</button>`+(xsel===key?xbar:"")}).join("")}</div>`).join("");
+  const hints=ids.flatMap(id=>(EX.dev[id]||[]).map(d=>`<li><b>${esc((EX.devices||{})[d[0]]||d[0])}</b>: “${esc(d[2])}”. ${esc(d[1])}</li>`));
+  const qk=QBY[X.q.id]||[],other=Q[1].map(i=>QUOTES.quotes[i]).filter(q=>!ids.includes(q.id));
+  $("sbody").innerHTML=`${run?`<div class="timer"><span>Extract answer</span><b id="xtm">15:00</b><button class="btn sm" id="xt-stop" style="color:var(--page);border-color:var(--page)">Stop</button></div>`:""}
+   <div class="plan"><p class="intro">Practise the extract question: read the passage, tag the methods you notice, then write about the extract and the play as a whole.</p>
+   <label for="xt-q">Question</label><select id="xt-q">${EX.examq.map((x,i)=>`<option value="${i}"${i===qi?" selected":""}>${esc(x[0])}</option>`).join("")}</select>
+   <div class="box xq"><p><b>Starting with this extract, ${esc(lc1(Q[0]))}</b></p><p>Write about:</p><ul><li>how Shakespeare presents this in the extract</li><li>how Shakespeare presents this in the play as a whole.</li></ul><small class="muted">${sName(sceneOf(X.q.id))} · ${X.n} lines · the key line is marked</small></div>
+   <div class="xt">${lines}</div>
+   <p class="muted" style="font-size:.875rem">${xsel?"Tap a tag under the line, or tap the line again to close.":"Tap a line to tag a method in it."} ${nt} tag${nt===1?"":"s"} so far.</p>
+   <div class="row noprint">${hints.length?`<button class="btn" id="xt-hint">${xhint?"Hide":"Check against"} the app's notes</button>`:""}<button class="btn" id="xt-clear">Clear tags</button>${run?"":`<button class="btn" id="xt-go">Start 15-minute timer</button>`}</div>
+   ${xhint&&hints.length?`<div class="box"><h3>Methods the notes point out</h3><ul>${hints.join("")}</ul></div>`:""}
+   ${qk.length?`<div class="box"><h3>The key line</h3>${qk.map(quoteHTML).join("")}</div>`:""}
+   ${other.length?`<div class="box"><h3>Elsewhere in the play</h3><p class="intro">For the "play as a whole" half, link the extract to one or two of these.</p>${other.map(quoteHTML).join("")}</div>`:""}
+   <label for="xt-w">Your answer</label><textarea id="xt-w" style="min-height:180px" placeholder="In this extract Shakespeare presents … as …">${esc(W[qi]||"")}</textarea>
+   <div class="row noprint"><button class="btn" id="xt-copy">Copy answer</button></div>
+   <div class="box chk ao" id="aobox"></div></div>`;
+  $("xt-q").onchange=e=>{XT.cur=+e.target.value;xsel="";xhint=false;saveXT();studyExtract()};
+  $("sbody").querySelectorAll("[data-xl]").forEach(b=>b.onclick=()=>{xsel=xsel===b.dataset.xl?"":b.dataset.xl;const y=scrollY;studyExtract();scrollTo(0,y)});
+  $("sbody").querySelectorAll("[data-xtag]").forEach(b=>b.onclick=()=>{const t=b.dataset.xtag,c=(A[xsel]||[]).slice(),i=c.indexOf(t);if(i<0)c.push(t);else c.splice(i,1);if(c.length)A[xsel]=c;else delete A[xsel];saveXT();const y=scrollY;studyExtract();scrollTo(0,y)});
+  if($("xt-hint"))$("xt-hint").onclick=()=>{xhint=!xhint;const y=scrollY;studyExtract();scrollTo(0,y)};
+  $("xt-clear").onclick=()=>{XT.a[qi]={};xsel="";saveXT();studyExtract()};
+  $("xt-w").oninput=e=>{W[qi]=e.target.value;saveXT()};
+  $("xt-copy").onclick=()=>copyText(`EXTRACT QUESTION\nStarting with this extract, ${lc1(Q[0])}\n\n${W[qi]||""}`);
+  if($("xt-go"))$("xt-go").onclick=()=>{XT.t0=Date.now();saveXT();studyExtract()};
+  if($("xt-stop"))$("xt-stop").onclick=()=>{XT.t0=0;saveXT();clearInterval(xtmr);studyExtract()};
+  aoMount(Mk,saveXT);
+  clearInterval(xtmr);if(run){const tick=()=>{const left=15*6e4-(Date.now()-XT.t0),el=$("xtm");if(!el){clearInterval(xtmr);return}if(left<=0){clearInterval(xtmr);el.textContent="Time!";toast("15 minutes are up");return}
+    el.textContent=String(Math.floor(left/6e4)).padStart(2,"0")+":"+String(Math.floor(left%6e4/1e3)).padStart(2,"0")};tick();xtmr=setInterval(tick,1000)}
+}
+
+/* paragraph builder: model, faded, your own */
+let PA={};try{PA=JSON.parse(LS.get(PFX+"para")||"{}")}catch(e){}
+const savePA=()=>LS.set(PFX+"para",JSON.stringify(PA));
+const PSTEPS=[["p","Point","Answer the question in one sentence."],["e","Evidence","A short quote, built into your sentence."],["m","Method","Name the technique and the key word."],["f","Effect","What it makes the audience think or feel."],["c","Context","Why it mattered then, or matters now."],["a","Other reading","How else could it be read?"]];
+function paraModel(M,q,hide){const v={p:M[1],m:M[2],f:M[3],c:M[4],a:M[5]};
+  return PSTEPS.map(([k,l])=>`<div class="pl pl-${k}"><b>${l}</b>${k==="e"?`<p>${qAsk(q)}</p>`:hide&&hide.includes(k)?`<textarea data-paf="${k}" placeholder="Your ${l.toLowerCase()}…"></textarea>`:`<p>${esc(v[k])}</p>`}</div>`).join("")}
+function studyPara(){
+  const ms=EX.models||[];if(!ms.length){$("sbody").innerHTML=`<p class="intro">Model paragraphs are not available for this play yet.</p>`;return}
+  const qi=Math.min(PA.cur||0,ms.length-1),Q=EX.examq[qi],M=ms[qi],step=PA.step||0,fi=(qi+1)%ms.length,FM=ms[fi],F=((PA.f=PA.f||{})[qi]=PA.f[qi]||{}),O=((PA.o=PA.o||{})[qi]=PA.o[qi]||{}),Mk=((PA.m=PA.m||{})[qi]=PA.m[qi]||{});
+  const own=Q[1].filter(i=>i!==M[0]);if(O.q==null||!Q[1].includes(+O.q))O.q=own.length?own[0]:M[0];
+  const stepT=["1. Read a model","2. Finish one","3. Write your own"];
+  let body="";
+  if(step===0)body=`<p class="intro">A strong analytical paragraph does six jobs. Read how this one does each, then try it yourself.</p>${paraModel(M,QUOTES.quotes[M[0]])}<div class="row"><button class="btn primary" data-pstep="1">Next: finish one</button></div>`;
+  if(step===1)body=`<p class="intro">This paragraph answers <b>${esc(EX.examq[fi][0])}</b> Write the method and the effect, then compare.</p>${paraModel(FM,QUOTES.quotes[FM[0]],["m","f"])}
+    <div class="row"><button class="btn" id="pa-cmp">${PA.cmp?"Hide":"Compare with"} the model</button><button class="btn primary" data-pstep="2">Next: write your own</button></div>
+    ${PA.cmp?`<div class="box"><h3>Model method and effect</h3><p><b>Method:</b> ${esc(FM[2])}</p><p><b>Effect:</b> ${esc(FM[3])}</p><p class="muted">Yours doesn't need to match. Did you name a technique and say what it does to the audience?</p></div>`:""}`;
+  if(step===2)body=`<p class="intro">Now write a paragraph of your own on the same question, using a different quote.</p>
+    <label for="pa-oq">Your quote</label><select id="pa-oq">${Q[1].map(i=>`<option value="${i}"${+O.q===i?" selected":""}>${i===M[0]?"(model's) ":""}${esc(QUOTES.quotes[i].text.slice(0,60))}</option>`).join("")}</select>
+    ${PSTEPS.map(([k,l,h])=>`<div class="pl pl-${k}"><b>${l}</b>${k==="e"?`<p>${qAsk(QUOTES.quotes[+O.q])}</p>`:`<textarea data-pao="${k}" placeholder="${h}">${esc(O[k]||"")}</textarea>`}</div>`).join("")}
+    <div class="row noprint"><button class="btn" id="pa-copy">Copy paragraph</button></div><div class="box chk ao" id="aobox"></div>`;
+  $("sbody").innerHTML=`<div class="plan"><label for="pa-q">Question</label><select id="pa-q">${EX.examq.map((x,i)=>`<option value="${i}"${i===qi?" selected":""}>${esc(x[0])}</option>`).join("")}</select>
+    <div class="chips psteps" role="tablist">${stepT.map((t,i)=>`<button class="chip" data-pstep="${i}" aria-pressed="${i===step}">${t}</button>`).join("")}</div>${body}</div>`;
+  $("pa-q").onchange=e=>{PA.cur=+e.target.value;PA.cmp=false;savePA();studyPara()};
+  $("sbody").querySelectorAll("[data-pstep]").forEach(b=>b.onclick=()=>{PA.step=+b.dataset.pstep;PA.cmp=false;savePA();studyPara();scrollTo(0,0)});
+  $("sbody").querySelectorAll("[data-paf]").forEach(t=>{const k=t.dataset.paf;t.value=F[k]||"";t.oninput=()=>{F[k]=t.value;savePA()}});
+  if($("pa-cmp"))$("pa-cmp").onclick=()=>{PA.cmp=!PA.cmp;savePA();const y=scrollY;studyPara();scrollTo(0,y)};
+  if($("pa-oq"))$("pa-oq").onchange=e=>{O.q=+e.target.value;savePA();studyPara()};
+  $("sbody").querySelectorAll("[data-pao]").forEach(t=>t.oninput=()=>{O[t.dataset.pao]=t.value;savePA()});
+  if($("pa-copy"))$("pa-copy").onclick=()=>{const q=QUOTES.quotes[+O.q];copyText(`${Q[0]}\n\n`+[O.p,`"${q.text}"`,O.m,O.f,O.c,O.a].filter(Boolean).join(" "))};
+  if(step===2)aoMount(Mk,savePA);
 }
 /* character profiles */
 let PROF={};try{PROF=JSON.parse(LS.get(PFX+"prof")||"{}")}catch(e){}
@@ -1039,6 +1144,7 @@ $("sbody").addEventListener("click",e=>{
   const ib=e.target.closest("[data-it]");if(ib){if(S.stab==="review")reviewAct(ib.dataset.it);else cardAct(ib.dataset.it);return}
   const pk=e.target.closest("[data-pick]");if(pk&&!pk.disabled){reviewAct("pick",pk.dataset.pick);return}
   const g2=e.target.closest("[data-go2]");if(g2){goScene(sIdx(g2.dataset.go2),{page:0});return}
+  const gt=e.target.closest("[data-gotab]");if(gt){const [t,x]=gt.dataset.gotab.split(":");if(t==="explore")exSel=x||"";S.stab=t;LS.set(PFX+"stab",t);renderStudy();scrollTo(0,0);return}
   const q2=e.target.closest("[data-quiz2]");if(q2){S.stab="quiz";renderStudy();startQuiz(q2.dataset.quiz2);return}
   const pa=e.target.closest("[data-pt]");if(pa){partAct(pa.dataset.pt);return}
   const pw=e.target.closest("[data-ptwho]");if(pw){pt.who=pw.dataset.ptwho;pt.sid="";pt.run=null;studyPart();scrollTo(0,0);return}
@@ -1178,12 +1284,13 @@ function openSettings(){
     <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
     <div class="opt"><div class="lbl">Page turn</div>${segs("turn",[["curl","Curl"],["slide","Slide"],["instant","Instant"]],S.turn)}<small>Curl: hold the page near its outer edge or a corner and drag; it bends and turns like paper. Taps and swipes curl too. Instant changes pages with no motion, like an e-reader (Slide is also instant in Paper themes).</small></div>
     <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
+    <div class="opt"><div class="lbl">Exam level</div>${segs("level",[["g","GCSE"],["a","A-level"]],aoLevel())}<small>Sets the assessment objectives used to mark your writing in Study. A-level adds connections (AO4) and interpretations (AO5). Applies to every play.</small></div>
     <div class="opt"><div class="lbl">Scene summary on the first page</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
     <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
     <div class="opt"><div class="lbl">How to read</div><small style="margin:0">Swipe left or right to turn pages (arrow keys or the scroll wheel on a computer). Tap an underlined word for its meaning. Tap any other part of the lines for their modern English; long speeches are split into parts, and you can expand to the whole speech. Tap empty space to show or hide the menus. Press and hold a word to select a phrase; drag to extend it, tap another word to move the nearer end, then pick a colour and save it as a favourite. The bar that appears also has Speech tools (word meanings, notes and highlights); on a computer, right-click a speech for them. Pinch with two fingers to change the text size. Drag the page slider in the bottom menu to preview pages.</small></div>
     ${backupHTML()}
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
-  $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;
+  $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
     if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   $("whosel").onchange=e=>{S.who=e.target.value;repaginate()};
   $("focsel").onchange=e=>{S.focus=e.target.value;applySettings();refreshMarks()};
