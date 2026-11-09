@@ -7,7 +7,7 @@ const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","A
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 const $=id=>document.getElementById(id);
-const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon","turn","fit","beats"].forEach(k=>FSH[PFX+k]=1);
+const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon","turn","beats"].forEach(k=>FSH[PFX+k]=1);
 const LS={key(k){return FSH[k]?"folio-"+k.slice(PFX.length):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
 LS.set("folio-last",PLAY);
 /* before 2.9.0 shared settings from plays whose prefix isn't 4 characters (lear-, tn-) were saved under a wrong key ("folio--theme", "folio-heme"): move them over once */
@@ -57,7 +57,7 @@ function saveMark(id,patch){
 const saveProg=()=>LS.set(PFX+"prog",JSON.stringify(prog));
 
 /* ---------- settings ---------- */
-const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",fit:LS.get(PFX+"fit")!=="0",beats:LS.get(PFX+"beats")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
+const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:LS.get(PFX+"theme")||"auto",sum:LS.get(PFX+"sumon")!=="0",beats:LS.get(PFX+"beats")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
@@ -67,7 +67,7 @@ function applySettings(){
   document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.c)m.dataset.c=m.content;m.content=pc||m.dataset.c});
   document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
   LS.set(PFX+"lh",S.lh);LS.set(PFX+"focus",S.focus);LS.set(PFX+"clean",S.clean?"1":"0");LS.set(PFX+"onehand",S.onehand?"1":"0");
-  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"fit",S.fit?"1":"0");LS.set(PFX+"beats",S.beats?"1":"0");LS.set(PFX+"turn",S.turn);
+  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"beats",S.beats?"1":"0");LS.set(PFX+"turn",S.turn);
 }
 
 /* reading log: minutes and pages per day (this device) */
@@ -255,19 +255,9 @@ function blockHTML(bk,p){
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ---------- */
 let cur={k:-1,pages:[],i:0,words:0,sig:""};
-/* fit verse lines: shrink the Shakespeare text just enough that 9 in 10 of the play's verse lines fit the column unbroken (never below 14px) */
-const VERSE=[];for(const id in speech)if(!PROSE[speech[id].id])speech[id].lines.forEach(l=>{if(!l.startsWith("~"))VERSE.push(l)});
-let FITC={};
-function fitVerse(){const R=document.documentElement.style;R.setProperty("--fit","1");if(!S.fit||S.mode==="mod")return 1;
-  measure.innerHTML=`<article class="blk sp vs"><div class="body"><div class="o"><div class="pt"><span class="l">M</span></div></div><div class="m"><p>M</p></div></div></article>`;
-  const l=measure.querySelector(".l"),A=l.clientWidth,cs=getComputedStyle(l),px=parseFloat(cs.fontSize),fam=cs.fontFamily,font=`${cs.fontStyle} ${cs.fontWeight} ${px}px ${fam}`,key=[A,px,fam].join("|");measure.innerHTML="";
-  if(!(key in FITC)){const ctx=(fitVerse.c=fitVerse.c||document.createElement("canvas")).getContext("2d");ctx.font=font;
-    const w=VERSE.map(t=>ctx.measureText(t).width).sort((a,b)=>a-b),w90=w[Math.floor(w.length*.9)]||0;
-    FITC[key]=w90?Math.max(14/px,Math.min(1,A/(w90*1.03))):1}
-  const f=FITC[key];R.setProperty("--fit",f.toFixed(3));return f}
 function paginate(p){
   const blocks=sceneBlocks(p);
-  measure.className="pg";measure.style.width=pg.clientWidth+"px";measure.style.maxWidth="none";fitVerse();
+  measure.className="pg";measure.style.width=pg.clientWidth+"px";measure.style.maxWidth="none";
   const H=pg.clientHeight-2,pages=[];let page=[];measure.innerHTML="";
   const fits=()=>measure.scrollHeight<=H;
   const flush=()=>{if(page.length)pages.push(page);page=[];measure.innerHTML=""};
@@ -292,7 +282,7 @@ function paginate(p){
   flush();measure.innerHTML="";
   return pages.length?pages:[[]];
 }
-const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.fit,S.beats,OPENV,pg.clientWidth,pg.clientHeight].join("|");
+const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,OPENV,pg.clientWidth,pg.clientHeight].join("|");
 function openScene(k,opts){
   opts=opts||{};const p=scenes[k];if(cur.k!==k&&OPEN.size){OPEN.clear();OPENV++}
   if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
@@ -396,7 +386,7 @@ function curlRelease(cancel){const c=CU;c.drag=false;const p=(c.W-c.F.x)/(2*c.W)
   curlAnim(to,ms,curlEnd)}
 function repaginate(){if(view!=="reader"||cur.k<0)return;const key=pos&&pos.key;cur.sig="";openScene(cur.k,{key,keep:true})}
 let rz;addEventListener("resize",()=>{curlEnd();clearTimeout(rz);rz=setTimeout(repaginate,180)});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{FITC={};repaginate()});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>repaginate());
 function refreshMarks(){if(view==="reader"&&cur.k>=0){pg.innerHTML=cur.pages[cur.i].map(b=>blockHTML(b,scenes[cur.k])).join("");if(partSel)markPart();else if(toolsId!=null)pg.querySelectorAll(`.sp[data-id="${toolsId}"]`).forEach(x=>x.classList.add("active"))}}
 
 /* ---------- reader: gestures (tap edges / swipe to turn, tap middle for menus, long-press for tools) ---------- */
@@ -1468,7 +1458,6 @@ function openSettings(){
     <div class="opt"><div class="lbl">Page turn</div>${segs("turn",[["curl","Curl"],["slide","Slide"],["instant","Instant"]],S.turn)}<small>Curl: hold the page near its outer edge or a corner and drag; it bends and turns like paper. Taps and swipes curl too. Instant changes pages with no motion, like an e-reader (Slide is also instant in Paper themes).</small></div>
     <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
     <div class="opt"><div class="lbl">Exam level</div>${segs("level",[["g","GCSE"],["a","A-level"]],aoLevel())}<small>Sets the assessment objectives used to mark your writing in Study. A-level adds connections (AO4) and interpretations (AO5). Applies to every play.</small></div>
-    <div class="opt"><div class="lbl">Fit verse lines</div>${segs("fit",[["true","On"],["false","Off"]],S.fit)}<small>Makes the Shakespeare text just small enough that most verse lines fit on one line (never below 14px), so the rhythm stays visible. Prose is set at the same size.</small></div>
     <div class="opt"><div class="lbl">Story beats</div>${segs("beats",[["true","On"],["false","Off"]],S.beats)}<small>A thin rule with a one-line note where the action turns, so you always know what is happening. Also listed under Contents › Beats. Hidden on a clean page.</small></div>
     <div class="opt"><div class="lbl">The Argument at the end of each scene</div>${segs("sum",[["true","Show"],["false","Hide"]],S.sum)}</div>
     <div class="opt"><label for="whosel" class="lbl">Follow one character</label><select id="whosel"><option value="">Everyone</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
@@ -1476,7 +1465,7 @@ function openSettings(){
     ${backupHTML()}
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
-    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="fit"||k==="beats")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="beats")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   $("whosel").onchange=e=>{S.who=e.target.value;repaginate()};
   $("focsel").onchange=e=>{S.focus=e.target.value;applySettings();refreshMarks()};
   wireBackup(()=>{if(view==="you")renderYou();refreshMarks()});
