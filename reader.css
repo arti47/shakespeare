@@ -188,6 +188,7 @@ abbr.g{padding:.2em 0;margin:-.2em 0}
 .timer{position:sticky;top:0;z-index:5;background:var(--ink);color:var(--page);border-radius:8px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-variant-numeric:tabular-nums}
 .timer b{font-size:1.4rem}
 .chk label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--rule);font-size:.95rem;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:400;margin:0}
+.plan .chk input[type=checkbox]{width:auto;flex:none;margin-top:3px}
 .cov{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) auto;gap:6px 10px;align-items:center;font-size:.875rem;margin:8px 0 18px}
 .cov .bar{height:8px;background:var(--rule);border-radius:4px;overflow:hidden}.cov .bar i{display:block;height:100%;background:var(--accent)}
 .ord button{display:block;width:100%;text-align:left;border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:10px 12px;margin:6px 0;font:400 1.05rem var(--f-old)}
@@ -529,3 +530,23 @@ body.v-reader.chrome .toast,body.v-study .toast,body.v-you .toast{bottom:calc(va
 .plan3{margin:0 0 6px;padding-left:20px}.plan3 li{margin:4px 0}
 .refl .sinput{margin-bottom:8px}
 @media print{#sbody.recalling>*{filter:none}}
+/* exam writing: extract, paragraphs, AO marking */
+.xq p{margin:0 0 6px}.xq ul{margin:0 0 6px;padding-left:20px}
+.xt{border:1px solid var(--rule);border-radius:10px;background:var(--card);padding:8px 6px;margin:10px 0}
+.xsp{margin:4px 0 8px}.xwho{font:600 .875rem var(--f-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--c);padding:0 8px}
+.xl{display:block;width:100%;text-align:left;border:0;background:none;color:var(--ink);font:400 1rem/1.45 var(--f-old);padding:3px 8px;border-radius:6px;border-left:3px solid transparent}
+.xl.key{border-left-color:var(--accent);background:var(--accent-soft)}
+.xl.on{outline:2px solid var(--accent);outline-offset:-2px}
+.xl small{display:block;font:600 .875rem var(--f-ui);color:var(--accent);margin-top:1px}
+.xtbar{background:var(--page);border:1px solid var(--rule);border-radius:10px;padding:8px;margin:4px 8px 8px}
+.xtbar>small{display:block;color:var(--muted);margin-bottom:6px;font-size:.875rem}
+.psteps{margin:10px 0}
+.pl{border:1px solid var(--rule);border-left:4px solid var(--pc,var(--accent));border-radius:8px;padding:8px 12px;margin:8px 0;background:var(--card)}
+.pl>b{display:block;font:600 .875rem var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--pc,var(--accent))}
+.pl p{margin:4px 0 0;color:var(--ink)}.pl textarea{margin-top:6px}
+.pl-p{--pc:var(--fci-b)}.pl-e{--pc:var(--accent)}.pl-m{--pc:var(--fci-g)}.pl-f{--pc:var(--fci-v)}.pl-c{--pc:var(--fci-r)}.pl-a{--pc:var(--muted)}
+.ao h3{margin-top:0}.aorow{margin:10px 0}
+.aoh{display:flex;gap:8px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:4px}
+.aoh b{font:600 .95rem var(--f-ui)}.aoh span{flex:1;color:var(--muted);font-size:.875rem}.aoh em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:600}
+.aoband{display:flex;flex-direction:column;gap:4px;margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);color:var(--ink);font-size:.95rem}
+.aoband b{font-size:1.2rem;font-variant-numeric:tabular-nums}

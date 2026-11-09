@@ -7,6 +7,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Added
 - `docs/study-research.md`: research on effective ways to learn Shakespeare, mapped to prioritised Study features (docs only).
 
+## [2.6.0] — 2026-11-09
+
+### Added
+- Study → Write → Extract: an exam-style extract question built around a key line. Tap lines to tag methods, check them against the app's notes, use the "Elsewhere in the play" quotes, and write against a 15-minute timer (#42).
+- Study → Write → Paragraphs: a labelled model paragraph for every exam question in all 7 plays, a faded one to finish, then your own (#42).
+- Mark your writing against the assessment objectives in the Essay planner, Extract and Paragraphs, with a level estimate and a suggested next step. GCSE AO1–AO4 by default; A-level AO1–AO5 in Settings → Exam level (#42).
+
 ## [2.5.0] — 2026-11-09
 
 ### Added
