@@ -3,7 +3,7 @@
 const partsOf=it=>PARTS[it.id]||[[0,it.lines.length-1,it.m]];
 const SOLO=EX.solo;
 const roman={I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7,VIII:8,IX:9,X:10,XI:11,XII:12,XIII:13,XIV:14,XV:15}, R=["","I","II","III","IV","V"];
-const LAT=["","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","Actus Quintus"],SL={I:"Scena Prima",II:"Scena Secunda",III:"Scena Tertia",IV:"Scena Quarta",V:"Scena Quinta",VI:"Scena Sexta",VII:"Scena Septima",VIII:"Scena Octava",IX:"Scena Nona",X:"Scena Decima",XI:"Scena Undecima",XII:"Scena Duodecima",XIII:"Scena Tertia Decima",XIV:"Scena Quarta Decima",XV:"Scena Quinta Decima"};
+const LAT=["Inductio","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","Actus Quintus"],SL={I:"Scena Prima",II:"Scena Secunda",III:"Scena Tertia",IV:"Scena Quarta",V:"Scena Quinta",VI:"Scena Sexta",VII:"Scena Septima",VIII:"Scena Octava",IX:"Scena Nona",X:"Scena Decima",XI:"Scena Undecima",XII:"Scena Duodecima",XIII:"Scena Tertia Decima",XIV:"Scena Quarta Decima",XV:"Scena Quinta Decima"};
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
 const $=id=>document.getElementById(id);
@@ -23,7 +23,9 @@ for(const it of DATA){
   else{if(it.t==="sp"){it.page=cur.id;it.start=n+1;n+=it.lines.length;speech[it.id]=it;if(it.who)whoSet.add(it.who);}cur.items.push(it);}
 }}
 const sIdx=id=>scenes.findIndex(p=>p.id===id);
-const sName=p=>`Act ${R[p.act]}, Scene ${p.scene.toLowerCase()}`;
+/* act 0 = an Induction before Act 1 (The Taming of the Shrew); ACTS lists the acts a play has, in order */
+const AN=a=>a?"Act "+R[a]:"Induction", ACTS=[...new Set(scenes.map(p=>p.act))].sort((a,b)=>a-b);
+const sName=p=>`${AN(p.act)}, Scene ${p.scene.toLowerCase()}`;
 const shortLoc=p=>p.loc.split(/[.;]/)[0];
 const firstSentence=t=>(t||"").split(/(?<=\.)\s/)[0];
 const G=STUDY.gloss, gkeys=Object.keys(G).sort((a,b)=>b.length-a.length), gmap={};gkeys.forEach(k=>gmap[k.toLowerCase()]=k);
@@ -153,14 +155,14 @@ function contentsHTML(){
     const rc=RECENT.filter(r=>speech[r.id]);if(rc.length)h+=`<div class="eyebrow" style="margin:6px 0 2px">Recently viewed</div>`+rc.slice(0,3).map(r=>{const sp=speech[r.id],q=partsOf(sp)[r.pi]||partsOf(sp)[0];
       return `<div class="item" data-recent="${esc(r.id)}:${esc(r.pi)}" tabindex="0"><small>${esc(where(sp))}</small><span style="font-family:var(--f-old)">${esc(sp.lines[q[0]].replace(/^~/,""))}…</span></div>`}).join("");
     h+=`<div class="acts-map">`;
-    for(let a=1;a<=5;a++){const ps=scenes.filter(p=>p.act===a);if(!ps.length)continue;const ad=ps.filter(p=>prog.done[p.id]).length;
-      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>Act ${R[a]} · ${ad}/${ps.length} read</small></summary><div class="srows">`+
+    for(const a of ACTS){const ps=scenes.filter(p=>p.act===a);if(!ps.length)continue;const ad=ps.filter(p=>prog.done[p.id]).length;
+      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>${AN(a)} · ${ad}/${ps.length} read</small></summary><div class="srows">`+
         ps.map(p=>{const q=prog.quiz[p.id];const s=STUDY.scenes[p.id]||{};
           return `<button class="srow${prog.done[p.id]?" done":""}${here>=0&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="n">${prog.conf[p.id]?`<i class="dot ${esc(prog.conf[p.id])}"></i>`:""}${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${esc(q[0])}/${esc(q[1])}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></details>`}
     h+=`</div>`}
   else if(ctab==="beats"){h+=`<p class="hcap">What happens, beat by beat. Tap one to read from there.</p><div class="acts-map">`;
-    for(let a=1;a<=5;a++){const ps=scenes.filter(p=>p.act===a&&BEATS[p.id]);if(!ps.length)continue;
-      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>Act ${R[a]}</small></summary>`+ps.map(p=>`<div class="bscene${here>=0&&p.id===pos.s?" here":""}"><div class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</div><ol class="beats">${BEATS[p.id].map(([id,t])=>`<li><button data-speech="${id}">${beatTxt(t)}</button></li>`).join("")}</ol></div>`).join("")+`</details>`}
+    for(const a of ACTS){const ps=scenes.filter(p=>p.act===a&&BEATS[p.id]);if(!ps.length)continue;
+      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>${AN(a)}</small></summary>`+ps.map(p=>`<div class="bscene${here>=0&&p.id===pos.s?" here":""}"><div class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</div><ol class="beats">${BEATS[p.id].map(([id,t])=>`<li><button data-speech="${id}">${beatTxt(t)}</button></li>`).join("")}</ol></div>`).join("")+`</details>`}
     h+=`</div>`}
   else if(ctab==="cast"){h+=`<p class="hcap">The Names of the Actors, as the 1623 Folio lists them</p><div class="cast">`+STUDY.chars.map(c=>{const key=c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","");const has=whoSet.has(key);
       return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p></div>`}).join("")+`</div>`}
@@ -639,14 +641,14 @@ function relSVG(act){const E=EX.rel[act],N=[...new Set(E.flatMap(e=>[e[0],e[1]])
     return `<line x1="${x1+dx*.18+nx}" y1="${y1+dy*.18+ny}" x2="${x2-dx*.18+nx}" y2="${y2-dy*.18+ny}" stroke="${C[k]}" stroke-width="2.4" stroke-dasharray="${D[k]}" marker-end="url(#ar-${k})"/>`}).join("");
   const mk=Object.keys(C).map(k=>`<marker id="ar-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="${C[k]}"/></marker>`).join("");
   const nd=N.map(n=>`<circle cx="${P[n][0]}" cy="${P[n][1]}" r="5" fill="${COLORS[n]||"var(--muted)"}"/><text x="${P[n][0]}" y="${P[n][1]+(P[n][1]<cy?-10:18)}" text-anchor="middle" style="font:600 12px var(--f-ui);fill:var(--ink)">${esc(title(n))}</text>`).join("");
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Character map for Act ${R[act]}"><defs>${mk}</defs>${ed}${nd}</svg>
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Character map for ${AN(+act)}"><defs>${mk}</defs>${ed}${nd}</svg>
    <div class="legend">${Object.entries({love:"Loves",trust:"Trusts",hate:"Hates / harms",deceive:"Deceives"}).map(([k,l])=>`<span><i style="background:${C[k]}"></i>${l}</span>`).join("")}</div>
    <p class="muted" style="font-size:.875rem">Arrows point from the character who feels it to the one it is aimed at.</p>`}
 let mapAct=1;
 function arcSVG(){const W=360,H=200,L=30,T=12,B=30,n=scenes.length,x=i=>L+i*(W-L-10)/(n-1),y=v=>T+(10-v)*(H-T-B)/10,cols=["var(--accent)","var(--bad)"];
   const ls=Object.entries(EX.arc).map(([k,v],j)=>`<polyline points="${v.map((a,i)=>x(i)+","+y(a)).join(" ")}" fill="none" stroke="${cols[j]}" stroke-width="2.4"/>`+v.map((a,i)=>`<circle cx="${x(i)}" cy="${y(a)}" r="2.6" fill="${cols[j]}"/>`).join("")).join("");
   const st=scenes.map((p,i)=>p.sc===1?i:-1).filter(i=>i>=0),near=(a,b)=>b!=null&&a!=null&&x(b)-x(a)<40;
-  const ax=st.map((i,k)=>{const an=near(i,st[k+1])?"end":near(st[k-1],i)?"start":"middle";return `<line x1="${x(i)}" y1="${T}" x2="${x(i)}" y2="${H-B}" stroke="var(--rule)"/><text x="${x(i)+(an==="end"?3:an==="start"?-3:0)}" y="${H-B+16}" text-anchor="${an}">Act ${R[scenes[i].act]}</text>`}).join("");
+  const ax=st.map((i,k)=>{const an=near(i,st[k+1])?"end":near(st[k-1],i)?"start":"middle";return `<line x1="${x(i)}" y1="${T}" x2="${x(i)}" y2="${H-B}" stroke="var(--rule)"/><text x="${x(i)+(an==="end"?3:an==="start"?-3:0)}" y="${H-B+16}" text-anchor="${an}">${scenes[i].act?"Act "+R[scenes[i].act]:"Ind."}</text>`}).join("");
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${CFG.chartLabel}">${ax}<text x="4" y="${y(10)+4}">10</text><text x="4" y="${y(0)+4}">0</text>${ls}</svg>
    <div class="legend">${Object.keys(EX.arc).map((k,j)=>`<span><i style="background:${cols[j]}"></i>${esc(k)}</span>`).join("")}</div><p class="intro">${esc(EX.arcnote)}</p>`}
 let GLOSSUSE=null;
@@ -656,7 +658,7 @@ function studyExplore(){
   const [,tl]=EXT.find(x=>x[0]===exSel);let h="";
   const hereK=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1;
   if(exSel==="timeline")h=EX.timeline.map((e,i)=>`<div class="exitem"><small>${i+1} · ${sName(scenes[sIdx(e.s)])}</small><br><b>${esc(e.t)}</b>${spLine(e.id)}</div>`).join("");
-  if(exSel==="map")h=`<div class="chips" style="margin-bottom:6px">${[1,2,3,4,5].map(a=>`<button class="chip" data-mapact="${a}" aria-pressed="${mapAct===a}">Act ${R[a]}</button>`).join("")}</div>${relSVG(mapAct)}`;
+  if(exSel==="map")h=`<div class="chips" style="margin-bottom:6px">${ACTS.filter(a=>EX.rel[a]).map(a=>`<button class="chip" data-mapact="${a}" aria-pressed="${mapAct===a}">${AN(a)}</button>`).join("")}</div>${relSVG(mapAct)}`;
   if(exSel==="iago")h=`<p class="intro">Steps are ticked once you've read past that scene.</p>`+EX.iago.map(([s,st],i)=>{const k=sIdx(s),done=prog.done[s]||k<hereK;return `<div class="exitem"><span class="tick">${done?"✓":"○"}</span> <small>${sName(scenes[k])}</small><p style="margin-top:2px;color:var(--ink)">${i+1}. ${esc(st)}</p></div>`}).join("");
   if(exSel==="arcs")h=arcSVG();
   if(exSel==="verse")h=verseExplore();
@@ -1008,10 +1010,10 @@ function studyProf(){const P=PROF[profSel]=PROF[profSel]||{tr:["","",""],q:["","
   $("pr-copy").onclick=()=>copyText(Object.entries(PROF).map(([w,p])=>`${title(w).toUpperCase()}\n`+p.tr.map((x,i)=>x||p.q[i]!==""?`- ${x}${p.q[i]!==""&&p.q[i]!=null?`: "${QUOTES.quotes[p.q[i]].text}"`:""}`:"").filter(Boolean).join("\n")+(p.sum?`\nChange: ${p.sum}`:"")).join("\n\n"));
 }
 /* act summaries (printable) */
-function actText(a){return `ACT ${R[a]}\n`+scenes.filter(p=>p.act===a).map(p=>{const s=STUDY.scenes[p.id]||{};return `\n${sName(p)} (${shortLoc(p)})\n${s.sum||""}\n`+(s.key||[]).map(k=>`  - ${k}`).join("\n")}).join("\n")+`\n\nKey quotes:\n`+QUOTES.quotes.filter(q=>sceneOf(q.id).act===a).map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")}
+function actText(a){return `${AN(a).toUpperCase()}\n`+scenes.filter(p=>p.act===a).map(p=>{const s=STUDY.scenes[p.id]||{};return `\n${sName(p)} (${shortLoc(p)})\n${s.sum||""}\n`+(s.key||[]).map(k=>`  - ${k}`).join("\n")}).join("\n")+`\n\nKey quotes:\n`+QUOTES.quotes.filter(q=>sceneOf(q.id).act===a).map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")}
 function studyActs(){$("sbody").innerHTML=`<p class="intro noprint">One page per act: what happens, the key points and the key quotes. Print or copy them for revision.</p>
   <div class="row noprint"><button class="btn primary" id="as-print">Print all</button><button class="btn" id="as-copy">Copy all</button></div>
-  ${[1,2,3,4,5].map(a=>`<div class="box" style="break-after:page"><h3>${LAT[a]} · Act ${R[a]}</h3>${scenes.filter(p=>p.act===a).map(p=>{const s=STUDY.scenes[p.id]||{};return `<div class="exitem"><b>${sName(p)}</b> <small>${esc(shortLoc(p))}</small><p>${esc(s.sum||"")}</p><ul>${(s.key||[]).map(k=>`<li>${esc(k)}</li>`).join("")}</ul></div>`}).join("")}
+  ${ACTS.map(a=>`<div class="box" style="break-after:page"><h3>${LAT[a]} · ${AN(a)}</h3>${scenes.filter(p=>p.act===a).map(p=>{const s=STUDY.scenes[p.id]||{};return `<div class="exitem"><b>${sName(p)}</b> <small>${esc(shortLoc(p))}</small><p>${esc(s.sum||"")}</p><ul>${(s.key||[]).map(k=>`<li>${esc(k)}</li>`).join("")}</ul></div>`}).join("")}
    <div class="lbl" style="margin-top:10px">Key quotes</div>${QUOTES.quotes.filter(q=>sceneOf(q.id).act===a).map(q=>`<p style="margin:4px 0;font-family:var(--f-old);font-size:1.05rem">“${esc(q.text)}” <small class="muted">${esc(title(speech[q.id].who))}</small></p>`).join("")}</div>`).join("")}`;
   $("as-print").onclick=()=>window.print();$("as-copy").onclick=()=>copyText([1,2,3,4,5].map(actText).join("\n\n"))}
 /* ---------- spaced practice: one scheduler for flashcards and Daily review ----------
@@ -1057,7 +1059,7 @@ function itemHTML(it){const k=it.k,ty=k.split(":")[0];
   if(ty==="fin"){const f=firstWords(q.text);return `<div class="card" style="--c:${c}"><p class="qn">Finish the quote · ${esc(title(sp.who))}</p><blockquote>“${esc(f.a)} ${it.stage==="shown"?`<span class="fin">${esc(f.b)}</span>”`:"…”"}</blockquote>${it.stage==="shown"?ans:""}</div>`}
   if(ty==="th"){const o=it.o||(it.o=shuf([rnd(q.themes),...shuf(Object.keys(QUOTES.themes).filter(t=>!q.themes.includes(t))).slice(0,3)]));
     return `<div class="qz"><div class="qn">Which theme is this quote about?</div><h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts">${o.map(t=>`<button data-pick="${t}"${it.stage==="shown"?" disabled":""} class="${it.stage==="shown"?(q.themes.includes(t)?"right":t===it.pick?"wrong":""):""}">${esc(QUOTES.themes[t][0])}</button>`).join("")}</div>${it.stage==="shown"?`<p class="muted">${esc(title(sp.who))}, ${sName(p)}. Themes: ${q.themes.map(t=>esc(QUOTES.themes[t][0])).join(", ")}.</p>`:""}</div>`}
-  if(ty==="act"){const a=p.act;return `<div class="qz"><div class="qn">Which act is this from?</div><h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts acts5">${[1,2,3,4,5].map(n=>`<button data-pick="${n}"${it.stage==="shown"?" disabled":""} class="${it.stage==="shown"?(n===a?"right":n===+it.pick?"wrong":""):""}">Act ${R[n]}</button>`).join("")}</div>${it.stage==="shown"?`<p class="muted">${esc(title(sp.who))}, ${sName(p)}.</p>`:""}</div>`}
+  if(ty==="act"){const a=p.act;return `<div class="qz"><div class="qn">Which act is this from?</div><h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts acts5">${ACTS.map(n=>`<button data-pick="${n}"${it.stage==="shown"?" disabled":""} class="${it.stage==="shown"?(n===a?"right":n===+it.pick?"wrong":""):""}">${AN(n)}</button>`).join("")}</div>${it.stage==="shown"?`<p class="muted">${esc(title(sp.who))}, ${sName(p)}.</p>`:""}</div>`}
   return ""}
 /* self-graded items (who, fin) ask for confidence first; picked items grade themselves */
 const selfGraded=k=>/^(who|fin|pt):/.test(k);
@@ -1259,7 +1261,7 @@ function studyQuiz(){
   $("sbody").innerHTML=`<p class="intro">Test yourself scene by scene, or take 20 random questions from the whole play.</p>
    ${missHTML()}
    <button class="go" id="qz-all" style="width:100%"><small>Practice test${all?` · last score ${esc(all[0])} of ${esc(all[1])}`:""}</small><b>Whole-play quiz · 20 questions</b></button>
-   ${[1,2,3,4,5].map(a=>`<div class="stage3"><h3>${LAT[a]}</h3><small>Act ${R[a]}</small></div><div class="qlist">${scenes.filter(p=>p.act===a).map(p=>{const b=prog.quiz[p.id];return `<button class="${b?"done":""}" data-q="${p.id}"><b>Scene ${p.scene.toLowerCase()}</b><span>${b?`Best: ${esc(b[0])} of ${esc(b[1])}`:`${((STUDY.scenes[p.id]||{}).quiz||[]).length} questions`}</span></button>`}).join("")}</div>`).join("")}`;
+   ${ACTS.map(a=>`<div class="stage3"><h3>${LAT[a]}</h3><small>${AN(a)}</small></div><div class="qlist">${scenes.filter(p=>p.act===a).map(p=>{const b=prog.quiz[p.id];return `<button class="${b?"done":""}" data-q="${p.id}"><b>Scene ${p.scene.toLowerCase()}</b><span>${b?`Best: ${esc(b[0])} of ${esc(b[1])}`:`${((STUDY.scenes[p.id]||{}).quiz||[]).length} questions`}</span></button>`}).join("")}</div>`).join("")}`;
   $("qz-all").onclick=()=>startQuiz("all");if($("qz-miss"))$("qz-miss").onclick=()=>startQuiz("miss");
   $("sbody").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>startQuiz(b.dataset.q));
 }
