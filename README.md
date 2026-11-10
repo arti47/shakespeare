@@ -22,6 +22,7 @@ Live site: https://arti47.github.io/shakespeare/
 - `romeo-and-juliet/` — Romeo and Juliet (prefix `rom-`).
 - `two-gentlemen/` — The Two Gentlemen of Verona (prefix `tgv-`).
 - `alls-well/` — All's Well That Ends Well (prefix `aww-`).
+- `merchant-of-venice/` — The Merchant of Venice (prefix `mov-`).
 
 Layout of a play folder `<id>/`:
 - `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
