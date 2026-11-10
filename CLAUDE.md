@@ -28,7 +28,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `CHANGELOG.md` | Release history. | Every PR |
 | `.github/workflows/build-check.yml` | CI: `node tools/build.js --check`. | Rarely |
 
-Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`, `as-you-like-it` `ayl-`, `romeo-and-juliet` `rom-`, `two-gentlemen` `tgv-`, `alls-well` `aww-`, `merchant-of-venice` `mov-`, `loves-labours-lost` `lll-`.
+Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`, `as-you-like-it` `ayl-`, `romeo-and-juliet` `rom-`, `two-gentlemen` `tgv-`, `alls-well` `aww-`, `merchant-of-venice` `mov-`, `loves-labours-lost` `lll-`, `taming-of-the-shrew` `tos-`.
 
 ## Build / release
 
@@ -71,7 +71,7 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 
 - Modern English and Study content (key facts, character analysis, motifs, questions) are written fresh from the play text. Counts/facts are derived from the text itself.
 - Study guides TY uploads (including commercial ones: SparkNotes, No Fear, CliffsNotes) are always checked against a play's modern English, summaries and Study sets. Fix factual errors and fill gaps by restating their factual points in our own words. Never copy their wording, translations or quiz items, and never reproduce their analysis section by section. Verify every guide claim against the play text before using it: guides can be wrong (e.g. one Dream guide puts Titania, not Oberon, as arriving from India).
-- Original text follows the edition already used in `play.js`; don't silently modernise spelling. New plays: Project Gutenberg text (www.gutenberg.org), with curly quotes made straight, speaker names in capitals, stage directions without brackets, and sung or chanted lines marked with a leading `~` (shown as songs). A prologue or act chorus with no scene of its own opens the first scene of its act (Romeo and Juliet), so scene numbers match standard editions.
+- Original text follows the edition already used in `play.js`; don't silently modernise spelling. New plays: Project Gutenberg text (www.gutenberg.org), with curly quotes made straight, speaker names in capitals, stage directions without brackets, and sung or chanted lines marked with a leading `~` (shown as songs). A prologue or act chorus with no scene of its own opens the first scene of its act (Romeo and Juliet), so scene numbers match standard editions. An induction with scenes of its own (The Taming of the Shrew) is act `0` in `DATA` (scene ids `a0s1`, `a0s2`): `reader.js` names it "Induction" (`AN()`, `ACTS`) and lists it before Act 1, and `build.js` labels its search hits `Ind.i`; give `EX.rel` a `"0"` key if the Induction should get a character map.
 
 ## Testing before merge (all required)
 
@@ -97,5 +97,5 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 ## Pending (update when done)
 
 - **Version wiring**: add `"version"` to `version.json` via `tools/build.js` (source of truth: top of `CHANGELOG.md`), show `Folio vX.Y.Z` in shelf footer, toast text `Updated to vX.Y.Z · tap to reload`.
-- **Guide checks**: done for all 17 plays (A&C, Tempest and Much Ado: SparkNotes and CliffsNotes; Lear, Twelfth Night, As You Like It, Romeo and Juliet, Two Gentlemen, All's Well, The Merchant of Venice and Love's Labour's Lost: SparkNotes; Richard II: No Fear). Re-check any play when TY sends a new guide.
+- **Guide checks**: done for all 18 plays (A&C, Tempest and Much Ado: SparkNotes and CliffsNotes; Lear, Twelfth Night, As You Like It, Romeo and Juliet, Two Gentlemen, All's Well, The Merchant of Venice and Love's Labour's Lost and The Taming of the Shrew: SparkNotes; Richard II: No Fear). Re-check any play when TY sends a new guide.
 - `partsfix.json` and the original page generator are not in the repo; `play.js` is the only content source.

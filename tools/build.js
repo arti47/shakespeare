@@ -63,7 +63,7 @@ for (const p of PLAYS) {
   let sc = "";
   const rows = [];
   for (const b of DATA) {
-    if (b.t === "scene") sc = b.act + "." + String(b.scene).toLowerCase();
+    if (b.t === "scene") sc = (b.act ? b.act + "." : "Ind.") + String(b.scene).toLowerCase();
     else if (b.t === "sp") rows.push([b.id, titleCase(b.who), sc, b.lines.map(l => l.replace(/^~/, "")).join(" / "), b.m]);
   }
   out("search/" + p.id + ".json", JSON.stringify(rows));
