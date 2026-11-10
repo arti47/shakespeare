@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.23.0] — 2026-11-10
+
+### Added
+- Love's Labour's Lost, on the Comedies shelf: the Project Gutenberg text with the songs marked, modern English for all 1,062 speeches, story beats, notes, a 197-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 99 key quotes in 8 themes, the broken oath (each step from the lords' vow to the ladies' year of penance), an oath-and-love chart, character map, context, critics, imagery and essay plans. Placed between The Two Gentlemen of Verona and Romeo and Juliet in Date written order. Checked against the uploaded SparkNotes guide (#71).
+
 ## [2.22.0] — 2026-11-10
 
 ### Added
