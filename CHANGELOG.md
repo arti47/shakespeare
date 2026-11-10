@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.17.0] — 2026-11-10
+
+### Added
+- Sort the plays inside each genre shelf by Recent, Date written (in the order Shakespeare wrote them) or A–Z; the choice is remembered (#PR).
+
 ## [2.16.0] — 2026-11-10
 
 ### Added

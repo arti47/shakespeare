@@ -40,7 +40,7 @@ Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `
 
 Local preview: `python3 -m http.server` in repo root → `http://localhost:8000/`.
 
-Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays. Also append the play's `QUOTES` to `LINES` and its gloss to `WORDS` (same line as `PLAYS` in `index.html`) so the shelf's Line and Word of the day cover it. Original text comes from Project Gutenberg (www.gutenberg.org is allowed in the project's network settings).
+Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays. Also append the play's `QUOTES` to `LINES` and its gloss to `WORDS` (same line as `PLAYS` in `index.html`) so the shelf's Line and Word of the day cover it, and insert its id into `CHRON` (composition order) in `index.html`. Original text comes from Project Gutenberg (www.gutenberg.org is allowed in the project's network settings).
 
 ## Versioning
 
@@ -55,11 +55,11 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 
 ## Coding conventions
 
-- **localStorage**: play-specific keys use the play's prefix (`oth-bm`, `tem-lastbk`). Shared settings use `folio-` (`folio-theme`, `folio-size`, `folio-genre`, `folio-tab`, `folio-last`, `folio-lastbk`, `folio-stat-<id>`). `reader.js` routes shared keys via `LS.key()`. Never rename or reformat an existing key without a migration (= major bump). New prefix must be unique and added to `PLAYS`.
+- **localStorage**: play-specific keys use the play's prefix (`oth-bm`, `tem-lastbk`). Shared settings use `folio-` (`folio-theme`, `folio-size`, `folio-genre`, `folio-tab`, `folio-last`, `folio-lastbk`, `folio-stat-<id>`, `folio-sort`). `reader.js` routes shared keys via `LS.key()`. Never rename or reformat an existing key without a migration (= major bump). New prefix must be unique and added to `PLAYS`.
 - Shelf backup/restore covers keys matching `folio-` or a `PLAYS[].prefix` (`mine()` in `index.html`) — new keys must fit those prefixes or backups lose them.
 - **Service worker**: one SW at repo root, scope `./`, registered only by `update.js` (`../update.js` from plays). Plays must not register their own SW. Any new top-level asset a page needs offline must be added to the precache list in `tools/build.js`.
 - Play page shell (`tools/play.html`) links `../manifest.webmanifest`, `../reader.css`, `../fonts.css`, `play.js`, `../reader.js`, `../update.js`.
-- **App shell (2.0)**: shelf and plays share one bottom nav, Library / Read / Study / You (shelf `.tabs`, plays `#fnav`; keep both in step). Play views: `reader`, `study`, `you` (no play home; `#home`/`#contents` open the reader with the Contents sheet). Study tabs are grouped by `SGROUPS` in `reader.js`. Shelf search accepts `#search=<q>`.
+- **App shell (2.0)**: shelf and plays share one bottom nav, Library / Read / Study / You (shelf `.tabs`, plays `#fnav`; keep both in step). Play views: `reader`, `study`, `you` (no play home; `#home`/`#contents` open the reader with the Contents sheet). Study tabs are grouped by `SGROUPS` in `reader.js`. Shelf search accepts `#search=<q>`. Inside a genre the shelf sorts by Recent / Date written / A–Z (`folio-sort`); date order comes from `CHRON` in `index.html` (Oxford chronology), so add each new play's id there in composition order.
 - **Shared reader**: reader behaviour lives only in `reader.js`; play differences go in `CFG`/content in `play.js`, never in forks or per-play `id` checks where a `CFG` field would do. A reader change affects every play: smoke-test each.
 - **Escaping**: stored, synced or imported user data (localStorage, backups) rendered as HTML must go through `esc()` in `reader.js`. Never interpolate raw user data into `innerHTML`.
 - No external CDNs, trackers or network calls; everything must work offline.

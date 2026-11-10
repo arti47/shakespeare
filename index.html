@@ -127,6 +127,7 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .gtile .chev{flex:none;width:22px;height:22px;color:var(--muted)}
 .ghead{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:-4px 0 4px}
 .back{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--accent);font:600 .7rem "Instrument Sans",sans-serif;padding:8px 6px 8px 0;min-height:44px;cursor:pointer}
+.sortc{padding:6px 0 0;margin-bottom:-2px}
 .gt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;margin:0;line-height:1.1}
 .soon{text-align:center;color:var(--muted);font-size:max(14px,.62rem);font-style:italic;margin:26px 0 0}
 
@@ -246,6 +247,7 @@ footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,se
   <div id="genres"></div>
   <div id="gview" hidden>
     <div class="ghead"><button class="back" id="gback" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>All genres</button><h2 class="gt" id="gtitle"></h2></div>
+    <div class="chips sortc" id="sortc" role="group" aria-label="Sort plays"><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></div>
     <div class="rail" id="rail" role="list" aria-label="Plays"></div>
     <div class="dots" id="dots" aria-hidden="true"></div>
     <section class="det" id="det" aria-live="polite"></section>
@@ -336,8 +338,19 @@ addEventListener("hashchange",()=>go(location.hash.slice(1)));
 
 /* ---------- library ---------- */
 let sel=null;
-function orderPlays(){const last=LS.get("folio-last");return PLAYS.slice().sort((a,b)=>{const sa=J("folio-stat-"+a.id),sb=J("folio-stat-"+b.id);
+/* Shelf order inside a genre: recent (last read, then most reading time), date (composition order) or az (title, ignoring "The"). Kept in folio-sort. */
+/* Composition order follows the Oxford Complete Works chronology (Wells & Taylor); plays missing here sort by their year label, after the listed ones. */
+const CHRON=["romeo-and-juliet","richard-ii","midsummer","much-ado","julius-caesar","as-you-like-it","hamlet","twelfth-night","othello","king-lear","macbeth","antony-and-cleopatra","tempest"];
+const SORTS=["recent","date","az"];
+let sortBy=SORTS.includes(LS.get("folio-sort"))?LS.get("folio-sort"):"recent";
+const yr=p=>parseInt(String(p.year).replace(/\D/g,""))||9999,ck=p=>{const i=CHRON.indexOf(p.id);return i<0?CHRON.length:i};
+const tkey=p=>p.title.replace(/^the\s+/i,"").toLowerCase();
+function orderPlays(){const last=LS.get("folio-last"),a=PLAYS.slice();
+  if(sortBy==="az")return a.sort((x,y)=>tkey(x).localeCompare(tkey(y)));
+  if(sortBy==="date")return a.sort((x,y)=>ck(x)-ck(y)||yr(x)-yr(y)||tkey(x).localeCompare(tkey(y)));
+  return a.sort((a,b)=>{const sa=J("folio-stat-"+a.id),sb=J("folio-stat-"+b.id);
   if(a.id===last)return -1;if(b.id===last)return 1;return (sb?sb.t:0)-(sa?sa.t:0)})}
+document.querySelectorAll("#sortc .chip").forEach(b=>b.onclick=()=>{sortBy=b.dataset.sort;LS.set("folio-sort",sortBy);sel=null;renderLibrary();const r=$("rail");if(r)r.scrollLeft=0});
 const GENRES=[["Comedies","Love, disguise, mistaken identity and happy endings"],["Histories","The kings of England and the wars for the crown"],["Tragedies","Ambition, jealousy and the fall of the great"]];
 const gid=g=>g.toLowerCase();
 let genre=null;try{genre=sessionStorage.getItem("folio-genre")}catch(e){}
@@ -363,6 +376,7 @@ function renderLibrary(){
   if(!inG){genre=null;renderGenres();renderToday();return}
   $("gtitle").textContent=genre;
   const ps=orderPlays().filter(p=>p.group===genre);
+  document.querySelectorAll("#sortc .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===sortBy));
   $("rail").innerHTML=ps.map(p=>{const st=J("folio-stat-"+p.id);return `<a class="cover" role="listitem" href="${p.id}/" data-play="${p.id}" style="--c:${p.c}" aria-label="${esc(p.title)}">
     ${st?'<span class="ribbon" aria-hidden="true"></span>':""}
     <span class="cin"><span class="pre">${esc(p.pre||"")}</span><span class="t${p.title.length>12?" long":""}">${esc(p.title)}</span><span class="o">❦</span><span class="y">${esc(p.year)}</span></span>
