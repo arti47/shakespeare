@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.15.4] — 2026-11-10
+
+### Fixed
+- Richard II checked against a study guide: fuller cast notes (the Queen's French birth, the Duchess of Gloucester's death at Plashy, Bagot brought in as a prisoner, Northumberland's brother) and a new cast entry for the offstage Earl of Worcester (#60).
+
 ## [2.15.3] — 2026-11-10
 
 ### Fixed
