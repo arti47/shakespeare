@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.15.2] — 2026-11-10
 
 ### Fixed
-- King Lear checked against a study guide: clearer cast notes (Edgar the elder son, Edmund the younger and his dying turn, Cordelia as the daughter Lear loved most), a new Act 1 point on how Lear frames the love test, and a Time key fact (#PR).
+- King Lear checked against a study guide: clearer cast notes (Edgar the elder son, Edmund the younger and his dying turn, Cordelia as the daughter Lear loved most), a new Act 1 point on how Lear frames the love test, and a Time key fact (#58).
 
 ## [2.15.1] — 2026-11-10
 
