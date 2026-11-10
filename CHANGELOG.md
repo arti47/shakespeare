@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.21.0] — 2026-11-10
+
+### Added
+- All's Well That Ends Well, on the Comedies shelf: the Project Gutenberg text with the Clown's songs marked, modern English for all 955 speeches, story beats, notes, a 167-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 84 key quotes in 8 themes, Helena's plan (each step from her vow to the final scene), a chart of Helena's hopes beside Parolles's rise and fall, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes guide (#PR).
+
 ## [2.19.0] — 2026-11-10
 
 ### Added
