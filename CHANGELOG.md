@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.15.3] — 2026-11-10
+
+### Fixed
+- The Tempest checked against two study guides: fuller cast notes (Miranda's age and memory of Milan, Ariel's twelve years in the pine and promised release, Caliban's parentage and how he showed Prospero the island, Gonzalo's role, Antonio's tribute deal with Naples), the fleet's return in 1.2, a new 1.2 quiz question, and context on the play's original plot, Caliban's name and the unities (#59).
+
 ## [2.15.2] — 2026-11-10
 
 ### Fixed
