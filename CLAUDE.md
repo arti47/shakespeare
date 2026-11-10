@@ -28,7 +28,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `CHANGELOG.md` | Release history. | Every PR |
 | `.github/workflows/build-check.yml` | CI: `node tools/build.js --check`. | Rarely |
 
-Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`, `as-you-like-it` `ayl-`, `romeo-and-juliet` `rom-`.
+Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`, `as-you-like-it` `ayl-`, `romeo-and-juliet` `rom-`, `two-gentlemen` `tgv-`.
 
 ## Build / release
 
@@ -97,5 +97,5 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 ## Pending (update when done)
 
 - **Version wiring**: add `"version"` to `version.json` via `tools/build.js` (source of truth: top of `CHANGELOG.md`), show `Folio vX.Y.Z` in shelf footer, toast text `Updated to vX.Y.Z · tap to reload`.
-- **Guide checks**: done for all 13 plays (A&C, Tempest and Much Ado: SparkNotes and CliffsNotes; Lear, Twelfth Night, As You Like It and Romeo and Juliet: SparkNotes; Richard II: No Fear). Re-check any play when TY sends a new guide.
+- **Guide checks**: done for all 14 plays (A&C, Tempest and Much Ado: SparkNotes and CliffsNotes; Lear, Twelfth Night, As You Like It, Romeo and Juliet and Two Gentlemen: SparkNotes; Richard II: No Fear). Re-check any play when TY sends a new guide.
 - `partsfix.json` and the original page generator are not in the repo; `play.js` is the only content source.
