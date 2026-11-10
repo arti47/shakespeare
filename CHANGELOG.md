@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.15.7] — 2026-11-10
+
+### Fixed
+- Verse lines that wrap at large text sizes now sit close under their own line, with the line-spacing gap only between verse lines, so a wrapped half no longer looks like a new line and highlights stay joined (#63).
+
 ## [2.15.6] — 2026-11-10
 
 ### Fixed
