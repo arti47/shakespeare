@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.18.0] — 2026-11-10
+
+### Added
+- Romeo and Juliet, on the Tragedies shelf: the Project Gutenberg text with modern English for all 871 speeches, story beats, notes, a 195-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 87 key quotes in 8 themes, the lovers' path (each step from the Capulet feast to the tomb), a love-and-feud chart, character map, context, critics, imagery and essay plans. The Prologue and the Act 2 Chorus open the first scene of their acts. Checked against the uploaded SparkNotes guide (#67).
+
 ## [2.17.0] — 2026-11-10
 
 ### Added
