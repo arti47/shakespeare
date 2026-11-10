@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.14.0] — 2026-11-10
 
 ### Added
-- Macbeth, on the Tragedies shelf: the Project Gutenberg text (witches' chants shown as songs) with modern English for all 681 speeches, story beats, notes, a 326-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 92 key quotes in 9 themes, the prophecies (each one and how it comes true), a power-and-guilt chart, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes and CliffsNotes guides (#PR).
+- Macbeth, on the Tragedies shelf: the Project Gutenberg text (witches' chants shown as songs) with modern English for all 681 speeches, story beats, notes, a 326-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 92 key quotes in 9 themes, the prophecies (each one and how it comes true), a power-and-guilt chart, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes and CliffsNotes guides (#54).
 
 ## [2.13.1] — 2026-11-10
 
