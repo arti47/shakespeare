@@ -70,9 +70,8 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 ## Content rules
 
 - Modern English and Study content (key facts, character analysis, motifs, questions) are written fresh from the play text. Counts/facts are derived from the text itself.
-- Published study guides may be consulted only to fact-check. Never copy or paraphrase them.
+- Study guides TY uploads (including commercial ones: SparkNotes, No Fear, CliffsNotes) are always checked against a play's modern English, summaries and Study sets. Fix factual errors and fill gaps by restating their factual points in our own words. Never copy their wording, translations or quiz items, and never reproduce their analysis section by section. Verify every guide claim against the play text before using it: guides can be wrong (e.g. one Dream guide puts Titania, not Oberon, as arriving from India).
 - Original text follows the edition already used in `play.js`; don't silently modernise spelling. New plays: Project Gutenberg text (www.gutenberg.org), with curly quotes made straight, speaker names in capitals, stage directions without brackets, and sung or chanted lines marked with a leading `~` (shown as songs).
-- Commercial study guides (SparkNotes, No Fear, CliffsNotes) are never used as sources, even if uploaded.
 
 ## Testing before merge (all required)
 
@@ -98,4 +97,5 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 ## Pending (update when done)
 
 - **Version wiring**: add `"version"` to `version.json` via `tools/build.js` (source of truth: top of `CHANGELOG.md`), show `Folio vX.Y.Z` in shelf footer, toast text `Updated to vX.Y.Z · tap to reload`.
+- **Guide checks**: done for Hamlet, A Midsummer Night's Dream and Othello. Waiting on guides from TY for Antony and Cleopatra, King Lear, Twelfth Night, Much Ado, The Tempest and Richard II.
 - `partsfix.json` and the original page generator are not in the repo; `play.js` is the only content source.
