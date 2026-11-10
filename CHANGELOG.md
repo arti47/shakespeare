@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.22.0] — 2026-11-10
+
+### Added
+- The Merchant of Venice, on the Comedies shelf: the Project Gutenberg text with modern English for all 647 speeches, story beats, notes, a 350-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 94 key quotes in 8 themes, the bond tracker (each step from signing to the deed of gift), a love-and-bond chart, character map, context, critics, imagery and essay plans. Placed between A Midsummer Night's Dream and Much Ado in Date written order. Checked against the uploaded SparkNotes guide (#70).
+
 ## [2.21.0] — 2026-11-10
 
 ### Added
