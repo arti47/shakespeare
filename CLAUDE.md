@@ -97,5 +97,5 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 ## Pending (update when done)
 
 - **Version wiring**: add `"version"` to `version.json` via `tools/build.js` (source of truth: top of `CHANGELOG.md`), show `Folio vX.Y.Z` in shelf footer, toast text `Updated to vX.Y.Z · tap to reload`.
-- **Guide checks**: done for Hamlet, A Midsummer Night's Dream and Othello. Waiting on guides from TY for Antony and Cleopatra, King Lear, Twelfth Night, Much Ado, The Tempest and Richard II.
+- **Guide checks**: done for Hamlet, A Midsummer Night's Dream, Othello and Antony and Cleopatra (SparkNotes only; the A&C CliffsNotes upload was a broken file). Waiting on guides from TY for King Lear, Twelfth Night, Much Ado, The Tempest and Richard II.
 - `partsfix.json` and the original page generator are not in the repo; `play.js` is the only content source.
