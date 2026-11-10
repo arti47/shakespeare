@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.13.1] — 2026-11-10
+
+### Fixed
+- Hamlet, A Midsummer Night's Dream and Othello checked against study guides: corrected facts and filled gaps in scene summaries, cast notes, key facts and quizzes (e.g. when Iago first suspects Othello and Emilia, the full sequence of Hamlet's and Othello's last scenes, Oberon's claim on the changeling boy), clearer modern English for a few puns and lines, and new motifs and a Hamlet 'Certainty and truth' theme (#53).
+
 ## [2.13.0] — 2026-11-09
 
 ### Added
