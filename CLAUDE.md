@@ -28,7 +28,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `CHANGELOG.md` | Release history. | Every PR |
 | `.github/workflows/build-check.yml` | CI: `node tools/build.js --check`. | Rarely |
 
-Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`.
+Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`.
 
 ## Build / release
 
