@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.13.2] — 2026-11-10
 
 ### Fixed
-- Antony and Cleopatra checked against a study guide: how Caesar brings down Lepidus in the Act 3 summary, a Time span key fact, fuller foreshadowing (the serpent talk that points to the asp), a new symbol (Antony's changing cloud) and a clearer modern line for 'salad days' (#54).
+- Antony and Cleopatra checked against a study guide: how Caesar brings down Lepidus in the Act 3 summary, a Time span key fact, fuller foreshadowing (the serpent talk that points to the asp), a new symbol (Antony's changing cloud) and a clearer modern line for 'salad days' (#55).
 
 ## [2.13.1] — 2026-11-10
 
