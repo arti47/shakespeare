@@ -5,7 +5,7 @@ const SOLO=EX.solo;
 const roman={I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7,VIII:8,IX:9,X:10,XI:11,XII:12,XIII:13,XIV:14,XV:15}, R=["","I","II","III","IV","V"];
 const LAT=["Inductio","Actus Primus","Actus Secundus","Actus Tertius","Actus Quartus","Actus Quintus"],SL={I:"Scena Prima",II:"Scena Secunda",III:"Scena Tertia",IV:"Scena Quarta",V:"Scena Quinta",VI:"Scena Sexta",VII:"Scena Septima",VIII:"Scena Octava",IX:"Scena Nona",X:"Scena Decima",XI:"Scena Undecima",XII:"Scena Duodecima",XIII:"Scena Tertia Decima",XIV:"Scena Quarta Decima",XV:"Scena Quinta Decima"};
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).replace(/(.) (Of|And|The) /g,(m,a,b)=>a+" "+b.toLowerCase()+" ");
 const $=id=>document.getElementById(id);
 const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon","turn","beats"].forEach(k=>FSH[PFX+k]=1);
 const LS={key(k){return FSH[k]?"folio-"+k.slice(PFX.length):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
@@ -648,7 +648,7 @@ let mapAct=1;
 function arcSVG(){const W=360,H=200,L=30,T=12,B=30,n=scenes.length,x=i=>L+i*(W-L-10)/(n-1),y=v=>T+(10-v)*(H-T-B)/10,cols=["var(--accent)","var(--bad)"];
   const ls=Object.entries(EX.arc).map(([k,v],j)=>`<polyline points="${v.map((a,i)=>x(i)+","+y(a)).join(" ")}" fill="none" stroke="${cols[j]}" stroke-width="2.4"/>`+v.map((a,i)=>`<circle cx="${x(i)}" cy="${y(a)}" r="2.6" fill="${cols[j]}"/>`).join("")).join("");
   const st=scenes.map((p,i)=>p.sc===1?i:-1).filter(i=>i>=0),near=(a,b)=>b!=null&&a!=null&&x(b)-x(a)<40;
-  const ax=st.map((i,k)=>{const an=near(i,st[k+1])?"end":near(st[k-1],i)?"start":"middle";return `<line x1="${x(i)}" y1="${T}" x2="${x(i)}" y2="${H-B}" stroke="var(--rule)"/><text x="${x(i)+(an==="end"?3:an==="start"?-3:0)}" y="${H-B+16}" text-anchor="${an}">${scenes[i].act?"Act "+R[scenes[i].act]:"Ind."}</text>`}).join("");
+  const ax=st.map((i,k)=>{const an=i===n-1||near(i,st[k+1])?"end":near(st[k-1],i)?"start":"middle";return `<line x1="${x(i)}" y1="${T}" x2="${x(i)}" y2="${H-B}" stroke="var(--rule)"/><text x="${x(i)+(an==="end"?3:an==="start"?-3:0)}" y="${H-B+16}" text-anchor="${an}">${scenes[i].act?"Act "+R[scenes[i].act]:"Ind."}</text>`}).join("");
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${CFG.chartLabel}">${ax}<text x="4" y="${y(10)+4}">10</text><text x="4" y="${y(0)+4}">0</text>${ls}</svg>
    <div class="legend">${Object.keys(EX.arc).map((k,j)=>`<span><i style="background:${cols[j]}"></i>${esc(k)}</span>`).join("")}</div><p class="intro">${esc(EX.arcnote)}</p>`}
 let GLOSSUSE=null;

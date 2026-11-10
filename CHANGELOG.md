@@ -4,6 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.25.0] — 2026-11-10
+
+### Added
+- The Comedy of Errors, on the Comedies shelf: the Project Gutenberg text with standard scene locations, modern English for all 615 speeches, story beats, notes, a 139-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 112 key quotes in 8 themes, the errors (each mistaken identity in order, from the first wrong Dromio to the twins meeting), a chart of Antipholus of Syracuse's confusion beside Adriana's suspicion, character map, context, critics, imagery and essay plans. Placed between The Taming of the Shrew and Love's Labour's Lost in Date written order. Checked against the uploaded SparkNotes guide.
+
+### Fixed
+- Speaker names in every play keep 'of', 'and' and 'the' in lower case (Antipholus of Syracuse, not Antipholus Of Syracuse).
+- The last act label on the scene-by-scene chart no longer runs off the right edge when the final act has only one scene.
+
 ## [2.24.0] — 2026-11-10
 
 ### Added
