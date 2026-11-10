@@ -4,10 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
-## [2.13.2] — 2026-11-10
+## [2.14.1] — 2026-11-10
 
 ### Fixed
 - Antony and Cleopatra checked against a study guide: how Caesar brings down Lepidus in the Act 3 summary, a Time span key fact, fuller foreshadowing (the serpent talk that points to the asp), a new symbol (Antony's changing cloud) and a clearer modern line for 'salad days' (#55).
+
+## [2.14.0] — 2026-11-10
+
+### Added
+- Macbeth, on the Tragedies shelf: the Project Gutenberg text (witches' chants shown as songs) with modern English for all 681 speeches, story beats, notes, a 326-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 92 key quotes in 9 themes, the prophecies (each one and how it comes true), a power-and-guilt chart, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes and CliffsNotes guides (#54).
 
 ## [2.13.1] — 2026-11-10
 
