@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.15.5] — 2026-11-10
+
+### Fixed
+- Twelfth Night checked against a study guide: fuller cast notes for Viola (her father's death on the twins' thirteenth birthday) and Antonio (his sea fight against Orsino's ships, and the purse he gives Sebastian) (#61).
+
 ## [2.15.4] — 2026-11-10
 
 ### Fixed
