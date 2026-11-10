@@ -17,6 +17,7 @@ Live site: https://arti47.github.io/shakespeare/
 - `midsummer/` — A Midsummer Night's Dream (prefix `mnd-`).
 - `hamlet/` — Hamlet (prefix `ham-`).
 - `macbeth/` — Macbeth (prefix `mac-`).
+- `julius-caesar/` — Julius Caesar (prefix `jc-`).
 
 Layout of a play folder `<id>/`:
 - `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.

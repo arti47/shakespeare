@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.15.0] — 2026-11-10
+
+### Added
+- Julius Caesar, on the Tragedies shelf: the Project Gutenberg text with modern English for all 826 speeches, story beats, notes, a 191-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 80 key quotes in 8 themes, Brutus's path (each step from Cassius's first hint to Philippi), a resolve-and-doubt chart, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes and CliffsNotes guides (#56).
+
 ## [2.14.1] — 2026-11-10
 
 ### Fixed

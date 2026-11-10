@@ -28,7 +28,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `CHANGELOG.md` | Release history. | Every PR |
 | `.github/workflows/build-check.yml` | CI: `node tools/build.js --check`. | Rarely |
 
-Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`.
+Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`.
 
 ## Build / release
 
@@ -97,5 +97,5 @@ Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new u
 ## Pending (update when done)
 
 - **Version wiring**: add `"version"` to `version.json` via `tools/build.js` (source of truth: top of `CHANGELOG.md`), show `Folio vX.Y.Z` in shelf footer, toast text `Updated to vX.Y.Z · tap to reload`.
-- **Guide checks**: done for Hamlet, A Midsummer Night's Dream, Othello, Macbeth and Antony and Cleopatra (A&C: SparkNotes only; the CliffsNotes upload was a broken file). Waiting on guides from TY for King Lear, Twelfth Night, Much Ado, The Tempest and Richard II.
+- **Guide checks**: done for Hamlet, A Midsummer Night's Dream, Othello, Macbeth, Antony and Cleopatra and Julius Caesar (A&C: SparkNotes only; the CliffsNotes upload was a broken file). Waiting on guides from TY for King Lear, Twelfth Night, Much Ado, The Tempest and Richard II.
 - `partsfix.json` and the original page generator are not in the repo; `play.js` is the only content source.
