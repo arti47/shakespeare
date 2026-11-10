@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.16.0] — 2026-11-10
 
 ### Added
-- As You Like It, on the Comedies shelf: the Project Gutenberg text with the songs marked, modern English for all 823 speeches, story beats, notes, a 296-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 83 key quotes in 8 themes, Rosalind's game (each step of her disguise as Ganymede), a love-and-brotherhood chart, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes guide (#PR).
+- As You Like It, on the Comedies shelf: the Project Gutenberg text with the songs marked, modern English for all 823 speeches, story beats, notes, a 296-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 83 key quotes in 8 themes, Rosalind's game (each step of her disguise as Ganymede), a love-and-brotherhood chart, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes guide (#65).
 
 ## [2.15.8] — 2026-11-10
 
