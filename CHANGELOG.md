@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.15.8] — 2026-11-10
+
+### Changed
+- Wrapped verse lines no longer indent; the tight spacing marks the continuation (#PR).
+
 ## [2.15.7] — 2026-11-10
 
 ### Fixed

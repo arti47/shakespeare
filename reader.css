@@ -275,7 +275,7 @@ body.mode-both .pg{max-width:1120px}
 .pt+.pt{margin-top:.6em}
 .pt.cur{background:color-mix(in srgb,var(--accent-soft) 85%,transparent);box-shadow:0 0 0 .3em color-mix(in srgb,var(--accent-soft) 85%,transparent)}
 .m p,.modern p{margin:0 0 .65em}.m p:last-child,.modern p:last-child{margin-bottom:0}
-.o .l{display:block;position:relative;padding-left:1.1em;text-indent:-1.1em}
+.o .l{display:block;position:relative}
 .o .l[data-n]::before{content:attr(data-n);position:absolute;left:-2.4em;width:1.8em;text-indent:0;text-align:right;top:.5em;font:500 max(14px,.5em) var(--f-ui);color:var(--muted);font-variant-numeric:tabular-nums}
 .o .song{font-style:italic;padding-left:2.2em}
 /* verse: a wrapped line sits tight under itself (--lhw); the Line spacing setting becomes the gap after each verse line, so unwrapped lines keep the same rhythm */
@@ -339,7 +339,7 @@ body:not(.chrome) .bbar{transform:translateY(105%);opacity:0;pointer-events:none
 .tool .pair.cur{background:var(--accent-soft);box-shadow:0 0 0 .5em var(--accent-soft);border-radius:2px;border-top-color:transparent}
 .tool .pair.cur+.pair{border-top-color:transparent}
 .tool .porig{font:400 1.2rem/1.45 var(--f-old);color:var(--ink)}
-.tool .porig span{display:block;padding-left:1em;text-indent:-1em}
+.tool .porig span{display:block}
 .tool .ptag{font:600 .875rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .tool .pmod{margin-top:.8em;background:var(--page);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:6px;padding:.6em .8em .7em}
 .tool .pmod .ptag{color:var(--accent)}
