@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.14.2] — 2026-11-10
+
+### Fixed
+- Antony and Cleopatra checked against the second (CliffsNotes) guide: fuller Act 3 summaries (Caesarion and Cleopatra's kingdoms, Antony's complaints against Caesar, his threat to Pompey's killer, Cleopatra's birthday before the last battle) and cast notes for Varrius, Silius, Taurus and Gallus (#PR).
+
 ## [2.14.1] — 2026-11-10
 
 ### Fixed
