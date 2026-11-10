@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.26.0] — 2026-11-10
 
 ### Added
-- Measure for Measure, on the Comedies shelf: the Project Gutenberg text with the boy's song marked, modern English for all 929 speeches, story beats, notes, a 179-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 110 key quotes in 8 themes, the Duke's plot (each step from the friar's habit to the final proposal), a justice-and-mercy chart, character map, context, critics, imagery and essay plans. Placed between Twelfth Night and Othello in Date written order. Checked against the uploaded SparkNotes guide.
+- Measure for Measure, on the Comedies shelf: the Project Gutenberg text with the boy's song marked, modern English for all 929 speeches, story beats, notes, a 179-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 110 key quotes in 8 themes, the Duke's plot (each step from the friar's habit to the final proposal), a justice-and-mercy chart, character map, context, critics, imagery and essay plans. Placed between Twelfth Night and Othello in Date written order. Checked against the uploaded SparkNotes guide (#74).
 
 ## [2.25.0] — 2026-11-10
 
