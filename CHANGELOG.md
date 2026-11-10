@@ -7,10 +7,10 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.24.0] — 2026-11-10
 
 ### Added
-- The Taming of the Shrew, on the Comedies shelf: the Project Gutenberg text with Christopher Sly's Induction as its own section before Act 1, the songs and Biondello's rhyme marked, modern English for all 930 speeches, story beats, notes, a 181-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 89 key quotes in 8 themes, Petruchio's taming (each step from the wooing to the wager), a chart of Katherina's defiance and compliance, character map, context, critics, imagery and essay plans. Placed after The Two Gentlemen of Verona in Date written order. Checked against the uploaded SparkNotes guide (#PR).
+- The Taming of the Shrew, on the Comedies shelf: the Project Gutenberg text with Christopher Sly's Induction as its own section before Act 1, the songs and Biondello's rhyme marked, modern English for all 930 speeches, story beats, notes, a 181-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 89 key quotes in 8 themes, Petruchio's taming (each step from the wooing to the wager), a chart of Katherina's defiance and compliance, character map, context, critics, imagery and essay plans. Placed after The Two Gentlemen of Verona in Date written order. Checked against the uploaded SparkNotes guide (#72).
 
 ### Changed
-- The reader, Study tabs, quizzes and revision sheet support a play with an Induction before Act 1 (#PR).
+- The reader, Study tabs, quizzes and revision sheet support a play with an Induction before Act 1 (#72).
 
 ## [2.23.0] — 2026-11-10
 
