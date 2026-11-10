@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.15.6] — 2026-11-10
+
+### Fixed
+- Much Ado About Nothing checked against two study guides: fuller cast notes (Claudio a Florentine count with an uncle in Messina, Beatrice's past with Benedick, Don John's grudge against Claudio, Borachio and Margaret's relationship) (#62).
+
 ## [2.15.5] — 2026-11-10
 
 ### Fixed
