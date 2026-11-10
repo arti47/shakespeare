@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.19.0] — 2026-11-10
+
+### Added
+- The Two Gentlemen of Verona, on the Comedies shelf and first in Date written order: the Project Gutenberg text with the song "Who is Silvia?" marked, modern English for all 875 speeches, story beats, notes, a 155-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 86 key quotes in 8 themes, Proteus's betrayals (each step from first sight of Silvia to the forest), a love-and-friendship chart, character map, context, critics, imagery and essay plans. Checked against the uploaded SparkNotes guide (#68).
+
 ## [2.18.0] — 2026-11-10
 
 ### Added
