@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.35.0] — 2026-11-11
+
+### Added
+- King John, on the Histories shelf: the Project Gutenberg text (eBook #1511, with standard editorial scene locations and the source's typing slips corrected), modern English for all 570 speeches, story beats, notes, a 193-word glossary and the full Study set: scene summaries and quizzes for all 16 scenes, cast profiles, 149 key quotes in 9 themes, the fate of Arthur (each step from France's claim to the boy's death and Henry's crowning), a chart of John's hold on the crown against the Bastard's rise, character map, context, critics, imagery and essay plans. Placed between A Midsummer Night's Dream and The Merchant of Venice in Date written order. Checked against the uploaded SparkNotes guide. (#86)
+
+### Fixed
+- Study charts: act labels no longer overlap when acts have only one scene; a crowded label shortens to its numeral or is left out (all plays). (#86)
+
 ## [2.34.0] — 2026-11-11
 
 ### Added
