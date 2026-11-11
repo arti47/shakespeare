@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.28.1] — 2026-11-11
 
 ### Changed
-- The Tempest and The Winter's Tale: Key facts and Context now give their First Folio genre, Comedy, and explain 'romance' as a later critics' label. Shelves stay on the Folio's three groups only: Comedies, Histories, Tragedies (#PR).
+- The Tempest and The Winter's Tale: Key facts and Context now give their First Folio genre, Comedy, and explain 'romance' as a later critics' label. Shelves stay on the Folio's three groups only: Comedies, Histories, Tragedies (#77).
 
 ## [2.28.0] — 2026-11-11
 
