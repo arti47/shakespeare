@@ -45,6 +45,10 @@ const PLAYS = constJSON(index, "PLAYS", "index.html");
   const ok = JSON.parse(m[1]), ids = PLAYS.map(p => p.id);
   if (ok.join() !== ids.join()) throw new Error(`index.html: launch redirect ok=${JSON.stringify(ok)} != PLAYS ids ${JSON.stringify(ids)}`); }
 
+/* Shelves follow the 1623 First Folio: only its three genres (see CLAUDE.md, Folio genres). */
+{ const G = ["Comedies", "Histories", "Tragedies"], bad = PLAYS.filter(p => !G.includes(p.group));
+  if (bad.length) throw new Error(`index.html: PLAYS group must be one of ${G.join(", ")} (First Folio): ${bad.map(p => p.id + "=" + p.group).join(", ")}`); }
+
 /* 1. Play pages. */
 const SHELL = rd("tools/play.html");
 for (const p of PLAYS) {
