@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.27.0] — 2026-11-11
+
+### Added
+- The Merry Wives of Windsor, on the Comedies shelf: the Project Gutenberg text with Evans's song, Quickly's snatch of song and the fairies' song marked, modern English for all 1,051 speeches, story beats, notes, a 166-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 121 key quotes in 8 themes, the wives' tricks (each step from the twin letters to Herne's oak), a chart of Falstaff's confidence against Ford's jealousy, character map, context, critics, imagery and essay plans. Placed between The Merchant of Venice and Much Ado About Nothing in Date written order. Checked against the uploaded SparkNotes guide. (#75)
+
 ## [2.26.0] — 2026-11-10
 
 ### Added
