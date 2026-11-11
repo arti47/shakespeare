@@ -40,16 +40,16 @@ Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `
 
 Local preview: `python3 -m http.server` in repo root → `http://localhost:8000/`.
 
-Adding a play: create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays. Also append the play's `QUOTES` to `LINES` and its gloss to `WORDS` (same line as `PLAYS` in `index.html`) so the shelf's Line and Word of the day cover it, and insert its id into `CHRON` (composition order) in `index.html`. Original text comes from Project Gutenberg (www.gutenberg.org is allowed in the project's network settings).
+Adding a play (First Folio plays only, see Folio genres): create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays. Also append the play's `QUOTES` to `LINES` and its gloss to `WORDS` (same line as `PLAYS` in `index.html`) so the shelf's Line and Word of the day cover it, and insert its id into `CHRON` (composition order) in `index.html`. Original text comes from Project Gutenberg (www.gutenberg.org is allowed in the project's network settings).
 
 ## Folio genres
 
-Shelves (`PLAYS[].group`, `GENRES` in `index.html`) follow the 1623 First Folio's three groups only: `Comedies`, `Histories`, `Tragedies`. No Romance or Problem shelf; `build.js` fails on any other group. Study text may mention later labels ('romance', 'problem play') but a play's Key facts `Genre` line leads with its Folio genre.
+The app holds only the 36 plays of the 1623 First Folio. Shelves (`PLAYS[].group`, `GENRES` in `index.html`) follow the 1623 First Folio's three groups only: `Comedies`, `Histories`, `Tragedies`. No Romance or Problem shelf; `build.js` fails on any other group. Study text may mention later labels ('romance', 'problem play') but a play's Key facts `Genre` line leads with its Folio genre.
 
 - Comedies: The Tempest, Two Gentlemen, Merry Wives, Measure for Measure, Comedy of Errors, Much Ado, Love's Labour's Lost, Midsummer, Merchant of Venice, As You Like It, Taming of the Shrew, All's Well, Twelfth Night, The Winter's Tale.
 - Histories: King John, Richard II, 1 & 2 Henry IV, Henry V, 1–3 Henry VI, Richard III, Henry VIII.
 - Tragedies: Troilus and Cressida (unpaginated, placed between histories and tragedies), Coriolanus, Titus Andronicus, Romeo and Juliet, Timon of Athens, Julius Caesar, Macbeth, Hamlet, King Lear, Othello, Antony and Cleopatra, Cymbeline.
-- Not in the Folio: Pericles, The Two Noble Kinsmen (also Edward III, Sir Thomas More). If one is added, ask TY which shelf it goes on.
+- Not in the Folio, so never added (TY's rule: First Folio plays only): Pericles, The Two Noble Kinsmen, Edward III, Sir Thomas More.
 
 ## Versioning
 
