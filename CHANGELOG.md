@@ -4,6 +4,8 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+- `tools/newplay/`: generic scripts for adding a play (parse Gutenberg text, merge modern English batches, validate and assemble `play.js`, recreate a work folder from a shipped play), with a how-to; CLAUDE.md now has the full add-a-play checklist and the project rules.
+
 ## [2.30.0] — 2026-11-11
 
 ### Added
