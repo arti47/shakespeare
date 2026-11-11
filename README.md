@@ -34,6 +34,7 @@ Live site: https://arti47.github.io/shakespeare/
 - `timon-of-athens/` — Timon of Athens (prefix `tim-`).
 - `coriolanus/` — Coriolanus (prefix `cor-`).
 - `cymbeline/` — Cymbeline (prefix `cym-`).
+- `king-john/` — King John (prefix `kj-`).
 
 Layout of a play folder `<id>/`:
 - `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
