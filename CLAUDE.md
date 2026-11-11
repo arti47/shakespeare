@@ -29,7 +29,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `CHANGELOG.md` | Release history. | Every PR |
 | `.github/workflows/build-check.yml` | CI: `node tools/build.js --check`. | Rarely |
 
-Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`, `as-you-like-it` `ayl-`, `romeo-and-juliet` `rom-`, `two-gentlemen` `tgv-`, `alls-well` `aww-`, `merchant-of-venice` `mov-`, `loves-labours-lost` `lll-`, `taming-of-the-shrew` `tos-`, `comedy-of-errors` `err-`, `measure-for-measure` `mfm-`, `merry-wives` `wiv-`, `winters-tale` `wt-`, `titus-andronicus` `ta-`, `troilus-and-cressida` `tc-`.
+Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `ant-`, `king-lear` `lear-`, `twelfth-night` `tn-`, `much-ado` `ado-`, `tempest` `tem-`, `richard-ii` `rii-`, `midsummer` `mnd-`, `hamlet` `ham-`, `macbeth` `mac-`, `julius-caesar` `jc-`, `as-you-like-it` `ayl-`, `romeo-and-juliet` `rom-`, `two-gentlemen` `tgv-`, `alls-well` `aww-`, `merchant-of-venice` `mov-`, `loves-labours-lost` `lll-`, `taming-of-the-shrew` `tos-`, `comedy-of-errors` `err-`, `measure-for-measure` `mfm-`, `merry-wives` `wiv-`, `winters-tale` `wt-`, `titus-andronicus` `ta-`, `troilus-and-cressida` `tc-`, `timon-of-athens` `tim-`.
 
 ## Build / release
 
@@ -123,5 +123,5 @@ The app holds only the 36 plays of the 1623 First Folio. Shelves (`PLAYS[].group
 ## Pending (update when done)
 
 - **Version wiring**: add `"version"` to `version.json` via `tools/build.js` (source of truth: top of `CHANGELOG.md`), show `Folio vX.Y.Z` in shelf footer, toast text `Updated to vX.Y.Z · tap to reload`.
-- **Guide checks**: done for 23 plays (A&C, Tempest, Much Ado, Macbeth and Julius Caesar: SparkNotes and CliffsNotes; Othello, Hamlet and Midsummer: study guides, #53; Lear, Twelfth Night, As You Like It, Romeo and Juliet, Two Gentlemen, All's Well, The Merchant of Venice, Love's Labour's Lost, The Taming of the Shrew, The Comedy of Errors, Measure for Measure, The Merry Wives of Windsor, Titus Andronicus and Troilus and Cressida: SparkNotes; Richard II: No Fear). The Winter's Tale: no guide uploaded yet. Re-check any play when TY sends a new guide.
+- **Guide checks**: done for 24 plays (A&C, Tempest, Much Ado, Macbeth and Julius Caesar: SparkNotes and CliffsNotes; Othello, Hamlet and Midsummer: study guides, #53; Lear, Twelfth Night, As You Like It, Romeo and Juliet, Two Gentlemen, All's Well, The Merchant of Venice, Love's Labour's Lost, The Taming of the Shrew, The Comedy of Errors, Measure for Measure, The Merry Wives of Windsor, Titus Andronicus, Troilus and Cressida and Timon of Athens: SparkNotes; Richard II: No Fear). The Winter's Tale: no guide uploaded yet. Re-check any play when TY sends a new guide.
 - `play.js` is the only content source in the repo. Per-play work folders (`m/*.txt`, `s1`–`s4.js`) were not committed; `node tools/newplay/template.js <slug> <wip>` recreates one from any shipped `play.js`.
