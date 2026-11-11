@@ -9,7 +9,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.30.1] — 2026-11-11
 
 ### Fixed
-- Key facts now lead with the play's First Folio genre: Othello gains a Genre line; Antony and Cleopatra, Julius Caesar and Hamlet now start theirs with "Tragedy" (#PR).
+- Key facts now lead with the play's First Folio genre: Othello gains a Genre line; Antony and Cleopatra, Julius Caesar and Hamlet now start theirs with "Tragedy" (#81).
 
 ## [2.30.0] — 2026-11-11
 
