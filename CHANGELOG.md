@@ -6,6 +6,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 - `tools/newplay/`: generic scripts for adding a play (parse Gutenberg text, merge modern English batches, validate and assemble `play.js`, recreate a work folder from a shipped play), with a how-to; CLAUDE.md now has the full add-a-play checklist and the project rules.
 
+## [2.30.1] — 2026-11-11
+
+### Fixed
+- Key facts now lead with the play's First Folio genre: Othello gains a Genre line; Antony and Cleopatra, Julius Caesar and Hamlet now start theirs with "Tragedy" (#PR).
+
 ## [2.30.0] — 2026-11-11
 
 ### Added
