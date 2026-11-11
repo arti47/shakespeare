@@ -102,6 +102,7 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .btn{font:500 .7rem "Instrument Sans",system-ui,sans-serif;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:999px;padding:10px 18px;cursor:pointer;min-height:46px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);padding:10px 24px}
 .btn.ghost{border-color:var(--rule)}
+.det .unst{display:block;margin:10px auto 0;min-height:44px;padding:0 12px;border:0;background:none;color:var(--soft);font:inherit;font-size:max(14px,.62rem);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .det .acts{display:grid;grid-template-columns:1fr 1fr;max-width:380px;margin:0 auto}
 .det .acts .pri{grid-column:1/-1}
 /* genre shelves */
@@ -390,8 +391,13 @@ function select(id,scroll){sel=id;const p=byId[id];if(!p)return;
   const st=J("folio-stat-"+p.id);
   $("det").innerHTML=`<h3>${esc(p.title)}</h3><div class="meta">${esc(p.kind)} · ${esc(p.year)}</div>
     <p>${esc(p.blurb)}</p>${st?`<div class="pg"><span class="tr" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(st.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,st.pct)}%"></i></span><span>${Math.round(st.pct)}% · ${esc(st.where)}</span></div>`:`<div class="pg"><span class="tr"></span><span>Not yet begun</span></div>`}
-    <div class="acts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#contents" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>`;
+    <div class="acts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#contents" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>${st?`<button class="unst" type="button" id="unst">Mark as not started</button>`:""}`;
+  const u=$("unst");if(u){let armed=false;u.onclick=()=>{if(!armed){armed=true;u.textContent="Tap again to confirm · notes kept";return}unstart(p);renderLibrary()}}
 }
+/* Mark a play as not started: clears its place, % read and scenes read; keeps notes, bookmarks, Study and reading time */
+function unstart(p){try{localStorage.removeItem("folio-stat-"+p.id);localStorage.removeItem(p.prefix+"pos");
+  const pr=J(p.prefix+"prog");if(pr&&pr.done){pr.done={};LS.set(p.prefix+"prog",JSON.stringify(pr))}
+  if(LS.get("folio-last")===p.id){const nx=PLAYS.filter(q=>q.id!==p.id).map(q=>[q.id,J("folio-stat-"+q.id)]).filter(x=>x[1]).sort((a,b)=>(b[1].t||0)-(a[1].t||0))[0];nx?LS.set("folio-last",nx[0]):localStorage.removeItem("folio-last")}}catch(e){}}
 let rt=0;$("rail").addEventListener("scroll",()=>{cancelAnimationFrame(rt);rt=requestAnimationFrame(()=>{if(innerWidth>=900)return;const r=$("rail"),mid=r.scrollLeft+r.clientWidth/2;let best=null,bd=1e9;
   for(const c of r.children){const d=Math.abs(c.offsetLeft+c.clientWidth/2-mid);if(d<bd){bd=d;best=c}}if(best&&best.dataset.play!==sel)select(best.dataset.play)})},{passive:true});
 $("rail").addEventListener("click",e=>{const c=e.target.closest(".cover");if(!c)return;if(c.dataset.play!==sel){e.preventDefault();e.stopPropagation();select(c.dataset.play,true);return}},true);

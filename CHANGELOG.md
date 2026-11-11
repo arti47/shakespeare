@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.30.0] — 2026-11-11
+
+### Added
+- Mark as not started: a begun play can be reset to "Not yet begun" from its Library card or its You tab (tap twice to confirm). Clears your place, % read and scenes read, and drops it from Continue reading; notes, bookmarks, highlights, Study progress and reading time are kept (#79).
+
 ## [2.29.0] — 2026-11-11
 
 ### Added
