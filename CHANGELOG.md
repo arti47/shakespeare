@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.32.0] — 2026-11-11
+
+### Added
+- Timon of Athens, on the Tragedies shelf: the Project Gutenberg text (Craig edition, with standard editorial scene locations), modern English for all 827 speeches, story beats, notes, a 175-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 194 key quotes in 8 themes, the road to ruin (each step from lavish gifts to the cave and the grave), a chart of Timon's wealth against his hatred of mankind, character map, context, critics, imagery and essay plans. Placed between All's Well That Ends Well and King Lear in Date written order. Checked against the uploaded SparkNotes guide (#PR).
+
 ## [2.31.0] — 2026-11-11
 
 ### Added
