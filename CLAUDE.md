@@ -12,7 +12,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | Path | Role | Edit? |
 |---|---|---|
 | `index.html` | Folio shelf. `const PLAYS=[...]` is the play registry (id, prefix, log, group, title…). | Hand-edit |
-| `<slug>/play.js` | **Source of truth** for a play: `CFG` (id, prefix, titles, backup id, per-play wording) + content consts (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). | Hand-edit |
+| `<slug>/play.js` | **Source of truth** for a play: `CFG` (id, prefix, titles, backup id, per-play wording) + content consts (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`, `BEATS`). | Hand-edit, or regenerate via `tools/newplay/` |
 | `reader.js` | Shared reader + study code for every play, driven by `CFG`. | Hand-edit |
 | `tools/play.html` | Page shell for play pages. | Hand-edit |
 | `<slug>/index.html` | **Generated** from `tools/play.html` + `CFG`; loads `play.js` then `../reader.js`. | Never by hand |
@@ -22,6 +22,7 @@ No framework, no npm deps. Node 20 only for `tools/build.js`.
 | `update.js` | Registers root `sw.js`, update checks, "Folio updated" toast. | Hand-edit |
 | `manifest.webmanifest`, icons | Single app manifest, scope `./`. | Rarely |
 | `tools/build.js` | Generates play pages, search index, `sw.js`, `version.json`. | Hand-edit |
+| `tools/newplay/` | Content pipeline for a new play: `parse.js` (Gutenberg → speeches), `dump.js`, `merge.js` (modern English batches), `assemble.js` (validate + write `play.js`), `template.js` (shipped play → work folder). How-to and data shapes: `tools/newplay/README.md`. Not precached, not deployed as app files. | Hand-edit |
 | `sw.js` | **Generated.** Service worker, cache `folio-<build>`. | Never by hand |
 | `version.json` | **Generated** `build` hash (+ `version`, see Versioning). | `build`: never by hand |
 | `search/<slug>.json` | **Generated** search index `[id, who, "act.scene", original, modern]` from each play's `DATA`. | Never by hand |
@@ -40,7 +41,21 @@ Plays (slug → localStorage prefix): `othello` `oth-`, `antony-and-cleopatra` `
 
 Local preview: `python3 -m http.server` in repo root → `http://localhost:8000/`.
 
-Adding a play (First Folio plays only, see Folio genres): create `<slug>/play.js` (copy one, replace `CFG` + content; new unique prefix), add the play to `PLAYS` in `index.html` **and** its id to the launch-redirect id list near the top of `index.html` (`ok=["othello",…]`, ~line 18, same order; `build.js` fails if they differ), run build, update README play list. No per-play `sw.js` for new plays. Also append the play's `QUOTES` to `LINES` and its gloss to `WORDS` (same line as `PLAYS` in `index.html`) so the shelf's Line and Word of the day cover it, and insert its id into `CHRON` (composition order) in `index.html`. Original text comes from Project Gutenberg (www.gutenberg.org is allowed in the project's network settings).
+## Adding a play (full checklist)
+
+First Folio plays only (see Folio genres). Content steps, commands and data shapes: **`tools/newplay/README.md`**.
+
+1. Ask the owner (decision cards, one at a time): slug, localStorage prefix (unique, short, e.g. `ta-`), the play's step tracker (`EX.iago`, e.g. "the revenge chain") and chart (`EX.arc`, two series, e.g. "Titus's suffering vs Tamora's power"), and whether a study guide is coming. Genre comes from the Folio list, not a question.
+2. Text: Project Gutenberg plain text (www.gutenberg.org is allowed in the project's network settings; do not ask again). `node tools/newplay/parse.js <wip>`; fix with `parse.config.js` until speakers, scenes and stage directions are clean. Work folder stays outside the repo.
+3. Modern English for every speech in `<wip>/m/*.txt` batches (10+ line speeches in line ranges → `PARTS`); `merge.js` reports `errors 0 missing 0`.
+4. Study content `s1.js`–`s4.js` (CFG, cast, colours, scene summaries + 4-option quizzes, notes, glossary, ~150 quotes in themes, `EX` extras, story `BEATS`): full parity with the latest play. All written fresh from the text.
+5. If a guide was uploaded: check modern English, summaries and Study against it (Content rules). Record it under Pending → Guide checks.
+6. `node tools/newplay/assemble.js <wip>` → `validation errors: 0`, writes `<slug>/play.js`.
+7. `index.html`: add the play to `PLAYS` (append; `id`, `prefix`, `group` = Folio genre, title fields: copy a neighbour), its id to the launch-redirect list `ok=[…]` (~line 18, same order as `PLAYS`; `build.js` fails if they differ), its `QUOTES` to `LINES` and its gloss to `WORDS` (same line as `PLAYS`) for Line/Word of the day, and its id into `CHRON` in composition order (Oxford chronology). No per-play `sw.js`.
+8. `node tools/build.js`; README play list; `CHANGELOG.md` minor bump (one Added line: text, speech count, glossary size, Study set, tracker, chart, CHRON position, guide checked); CLAUDE.md slug/prefix list above.
+9. Tests (Testing before merge), PR, squash-merge on green CI.
+
+Parallel play threads: whichever merges second takes the next minor version.
 
 ## Folio genres
 
@@ -99,6 +114,8 @@ The app holds only the 36 plays of the 1623 First Folio. Shelves (`PLAYS[].group
 
 ## Working with TY
 
+- Project rules that apply however the work is started (they were also set as project instructions): First Folio plays only and Folio genres only (see Folio genres; never Pericles, The Two Noble Kinsmen, Edward III or Sir Thomas More); always check content against any study guide TY uploads, paraphrase only, never copy wording, and the play text is the final word when a guide disagrees; **update this CLAUDE.md in the same PR whenever a change touches the code, structure, build or workflow of the repo**.
+
 - Terse, technical output. No narration; report on completion with result + PR link.
 - **Every task, before starting work: ask as many relevant questions as needed, one at a time** (wait for each answer before the next). Cover scope, versioning impact, UI/behaviour choices, content sources, and anything ambiguous. Skip only questions this file or the request already answers.
 - Each question: a multiple-choice decision card with a recommended option. If TY asks to go back, re-ask the previous question.
@@ -107,4 +124,4 @@ The app holds only the 36 plays of the 1623 First Folio. Shelves (`PLAYS[].group
 
 - **Version wiring**: add `"version"` to `version.json` via `tools/build.js` (source of truth: top of `CHANGELOG.md`), show `Folio vX.Y.Z` in shelf footer, toast text `Updated to vX.Y.Z · tap to reload`.
 - **Guide checks**: done for 22 plays (A&C, Tempest and Much Ado: SparkNotes and CliffsNotes; Lear, Twelfth Night, As You Like It, Romeo and Juliet, Two Gentlemen, All's Well, The Merchant of Venice and Love's Labour's Lost, The Taming of the Shrew, The Comedy of Errors, Measure for Measure, The Merry Wives of Windsor and Titus Andronicus: SparkNotes; Richard II: No Fear). The Winter's Tale: no guide uploaded yet. Re-check any play when TY sends a new guide.
-- `partsfix.json` and the original page generator are not in the repo; `play.js` is the only content source.
+- `play.js` is the only content source in the repo. Per-play work folders (`m/*.txt`, `s1`–`s4.js`) were not committed; `node tools/newplay/template.js <slug> <wip>` recreates one from any shipped `play.js`.
