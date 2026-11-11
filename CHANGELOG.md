@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.31.0] — 2026-11-11
 
 ### Added
-- Troilus and Cressida, on the Tragedies shelf: the Project Gutenberg text (prologue opening 1.1), modern English for all 1,160 speeches, story beats, notes, a 201-word glossary and the full Study set: scene summaries and quizzes for all 24 scenes, cast profiles, 183 key quotes in 8 themes, Cressida's exchange (each step from the first meeting to the sleeve on Diomedes' helmet), a chart of Troilus's faith against Cressida's, character map, context, critics, imagery and essay plans. Placed between Twelfth Night and Measure for Measure in Date written order. Checked against the uploaded SparkNotes guide (#PRNUM).
+- Troilus and Cressida, on the Tragedies shelf: the Project Gutenberg text (prologue opening 1.1), modern English for all 1,160 speeches, story beats, notes, a 201-word glossary and the full Study set: scene summaries and quizzes for all 24 scenes, cast profiles, 183 key quotes in 8 themes, Cressida's exchange (each step from the first meeting to the sleeve on Diomedes' helmet), a chart of Troilus's faith against Cressida's, character map, context, critics, imagery and essay plans. Placed between Twelfth Night and Measure for Measure in Date written order. Checked against the uploaded SparkNotes guide (#82).
 
 ### Changed
 - `tools/newplay/`: generic scripts for adding a play (parse Gutenberg text, merge modern English batches, validate and assemble `play.js`, recreate a work folder from a shipped play), with a how-to; CLAUDE.md now has the full add-a-play checklist and the project rules.
