@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.36.1] — 2026-11-11
+
+### Fixed
+- King Henry IV, Part 1: checked against the uploaded LitCharts guide. Scene summaries now note that Kate refuses Hotspur's request for a song (3.1), Worcester's influence and the Windsor Council (1.1), Hal's lost Council seat (3.2), Falstaff's tavern debts and ring (3.3) and his three survivors out of 150 (5.3). New note on 'Lord Mortimer of Scotland' (3.2). (#88)
+
 ## [2.36.0] — 2026-11-11
 
 ### Added
