@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.36.0] — 2026-11-11
 
 ### Added
-- King Henry IV, Part 1, on the Histories shelf: the Project Gutenberg text (PG Shakespeare Team edition, eBook #1516; speaker names expanded, standard editorial locations, typos corrected), modern English for all 789 speeches, story beats, notes, a 202-word glossary and the full Study set: scene summaries and quizzes for all 19 scenes, cast profiles, 190 key quotes in 7 themes, Hal's road to Shrewsbury (each step from tavern truant to the prince who kills Hotspur), a chart of Hal's honour against Hotspur's, character map, context, critics, imagery and essay plans. Placed between The Merchant of Venice and The Merry Wives of Windsor in Date written order. No study guide uploaded yet. (#PR)
+- King Henry IV, Part 1, on the Histories shelf: the Project Gutenberg text (PG Shakespeare Team edition, eBook #1516; speaker names expanded, standard editorial locations, typos corrected), modern English for all 789 speeches, story beats, notes, a 202-word glossary and the full Study set: scene summaries and quizzes for all 19 scenes, cast profiles, 190 key quotes in 7 themes, Hal's road to Shrewsbury (each step from tavern truant to the prince who kills Hotspur), a chart of Hal's honour against Hotspur's, character map, context, critics, imagery and essay plans. Placed between The Merchant of Venice and The Merry Wives of Windsor in Date written order. No study guide uploaded yet. (#87)
 
 ## [2.35.0] — 2026-11-11
 
