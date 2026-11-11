@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.33.0] — 2026-11-11
+
+### Added
+- Coriolanus, on the Tragedies shelf: the Project Gutenberg text, modern English for all 1,143 speeches, story beats, notes, a 213-word glossary and the full Study set: scene summaries and quizzes for all 29 scenes, cast profiles, 152 key quotes in 8 themes, the road to banishment and revenge (each step from the hunger riot to Antium), a chart of Coriolanus's standing against the tribunes' power, character map, context, critics, imagery and essay plans. Placed between Antony and Cleopatra and The Winter's Tale in Date written order. Checked against the uploaded SparkNotes guide (#83).
+
 ## [2.32.0] — 2026-11-11
 
 ### Added
