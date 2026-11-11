@@ -139,9 +139,15 @@ function renderYou(){
   $("ylist").innerHTML=row("y-notes","My notes &amp; highlights",`${nm} note${nm===1?"":"s"} · ${nf} phrase${nf===1?"":"s"} · ${BM.length} bookmark${BM.length===1?"":"s"}`)+
     row("y-cont","Contents, cast &amp; story","Every scene, the characters and the story in "+EX.timeline.length+" moments")+
     row("y-set","Reading settings","What shows on the page, text size, theme, spacing, focus")+
-    row("","Folio settings &amp; backup","Every play: theme, text size, one backup file",FOLIO_BK);
+    row("","Folio settings &amp; backup","Every play: theme, text size, one backup file",FOLIO_BK)+
+    (pos||LS.get("folio-stat-"+PLAY)?row("y-unst","Mark as not started","Clears your place and scenes read. Notes, bookmarks and Study are kept"):"");
   $("y-notes").onclick=openNotes;$("y-set").onclick=openSettings;$("y-cont").onclick=()=>openContents();
+  const u=$("y-unst");if(u){let armed=false;u.onclick=()=>{if(!armed){armed=true;u.querySelector("small").textContent="Tap again to confirm";return}unstart();renderYou()}}
 }
+/* Mark this play as not started: clears its place, % read and scenes read; keeps notes, bookmarks, Study and reading time */
+function unstart(){pos=null;prog.done={};saveProg();try{localStorage.removeItem(PFX+"pos");localStorage.removeItem("folio-stat-"+PLAY);
+  if(localStorage.getItem("folio-last")===PLAY){let best=null,bt=-1;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k||!k.startsWith("folio-stat-")||k==="folio-stat-"+PLAY)continue;let t=0;try{t=+JSON.parse(localStorage.getItem(k)).t||0}catch(e){}if(t>bt){bt=t;best=k.slice(11)}}
+    best?localStorage.setItem("folio-last",best):localStorage.removeItem("folio-last")}}catch(e){}}
 $("you").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)goScene(sIdx(g.dataset.go))});
 /* story beats (BEATS in play.js): speech id → one-line beat, shown as a ruled marker before that speech */
 const BEAT={},beatTxt=t=>esc(t).replace(/&quot;([^&]*)&quot;|"([^"]*)"/g,(m,x,y)=>"“"+(x||y)+"”");if(typeof BEATS!=="undefined")for(const s in BEATS)for(const [id,t] of BEATS[s])BEAT[id]=t;
