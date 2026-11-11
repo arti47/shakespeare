@@ -35,6 +35,7 @@ Live site: https://arti47.github.io/shakespeare/
 - `coriolanus/` — Coriolanus (prefix `cor-`).
 - `cymbeline/` — Cymbeline (prefix `cym-`).
 - `king-john/` — King John (prefix `kj-`).
+- `henry-iv-part-1/` — King Henry IV, Part 1 (prefix `1h4-`).
 
 Layout of a play folder `<id>/`:
 - `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
