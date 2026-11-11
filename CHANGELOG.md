@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.28.0] — 2026-11-11
+
+### Added
+- The Winter's Tale, on the Comedies shelf: the Project Gutenberg text with Autolycus's songs and the three-part ballad marked, Time's chorus as its own scene, modern English for all 769 speeches, story beats, notes, a 159-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 135 key quotes in 8 themes, the oracle fulfilled (each step from Apollo's verdict to 'that which is lost' being found), a winter-and-spring chart, character map, context, critics, imagery and essay plans. Placed between Antony and Cleopatra and The Tempest in Date written order (#76).
+
 ## [2.27.0] — 2026-11-11
 
 ### Added
