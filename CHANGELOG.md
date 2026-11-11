@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.34.0] — 2026-11-11
+
+### Added
+- Cymbeline, on the Tragedies shelf: the Project Gutenberg text (World Library edition, eBook #1133; songs marked, standard editorial locations), modern English for all 884 speeches, story beats, notes, a 203-word glossary and the full Study set: scene summaries and quizzes for all 27 scenes, cast profiles, 146 key quotes in 7 themes, the wager plot (each step from the bet in Rome to Iachimo's confession), a chart of Imogen's danger against Iachimo's deceit, character map, context, critics, imagery and essay plans. Placed between The Winter's Tale and The Tempest in Date written order. Checked against the uploaded SparkNotes guide. (#85)
+
 ## [2.33.0] — 2026-11-11
 
 ### Added
