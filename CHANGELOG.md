@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.29.0] — 2026-11-11
 
 ### Added
-- Titus Andronicus, on the Tragedies shelf: the Project Gutenberg text, modern English for all 588 speeches, story beats, notes, a 212-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 150 key quotes in 8 themes, the revenge chain (each wrong and its payback, from Alarbus's sacrifice to Aaron's sentence), a chart of Titus's suffering against Tamora's power, character map, context, critics, imagery and essay plans. Placed between The Taming of the Shrew and The Comedy of Errors in Date written order. Checked against the uploaded SparkNotes guide.
+- Titus Andronicus, on the Tragedies shelf: the Project Gutenberg text, modern English for all 588 speeches, story beats, notes, a 212-word glossary and the full Study set: scene summaries and quizzes, cast profiles, 150 key quotes in 8 themes, the revenge chain (each wrong and its payback, from Alarbus's sacrifice to Aaron's sentence), a chart of Titus's suffering against Tamora's power, character map, context, critics, imagery and essay plans. Placed between The Taming of the Shrew and The Comedy of Errors in Date written order. Checked against the uploaded SparkNotes guide (#78).
 
 ## [2.28.1] — 2026-11-11
 
