@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.44.0] — 2026-11-12
+
+### Changed
+- New shelf covers for all 36 plays: gilt-tooled leather bindings, each with its own emblem (Othello's strawberry handkerchief, Macbeth's dagger, Hamlet's skull, The Winter's Tale's bear, Richard III's boar…), a famous line from the play, a genre badge (comedy mask, tragedy mask, crown), corner fleurons, a year cartouche and a red silk bookmark on plays you have begun. Side covers no longer fade out, the genre shelves show each play's emblem on its spine, and the opening curtain shows the play's emblem. (#PR)
+
 ## [2.43.0] — 2026-11-12
 
 ### Added
