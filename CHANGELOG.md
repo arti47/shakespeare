@@ -4,10 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
-## [2.42.0] — 2026-11-12
+## [2.43.0] — 2026-11-12
 
 ### Added
 - King Henry VI, Part 2, on the Histories shelf: the Project Gutenberg text (eBook #1501; numbered speaker headings, a merged speaker and a misplaced speaker heading in 1.4 fixed, typos corrected, battlefield location set), modern English for all 810 speeches, story beats, notes, a 190-word glossary and the full Study set: scene summaries and quizzes for all 24 scenes, cast profiles, 218 key quotes in 8 themes, York's road to the crown (each step from Anjou and Maine through the Nevilles' oath, the Irish army and Cade's rising to St Albans), a chart of York's power against Henry's authority, character map, context, critics, imagery and essay plans. Placed between The Taming of the Shrew and 3 Henry VI in Date written order. Checked against the uploaded SparkNotes guide (play text wins: York and Buckingham, not Somerset or Suffolk, arrest the Duchess and the spirit answers her questions, not Margaret's; Simpcox names only red and black; Horner dies confessing treason; the spirit foretells death by water, which 'Walter' fulfils; York's army arrives between Dartford and Blackheath; Richard, not York, kills Somerset, and York, not Richard, kills Clifford; the Sergeant episode is not in this edition). (#94)
+
+## [2.42.0] — 2026-11-12
+
+### Added
+- King Richard III, on the Histories shelf: the Project Gutenberg text (eBook #1503; empty speaker lines before asides folded in, each ghost at Bosworth named, missing locations set), modern English for all 1130 speeches, story beats, notes, a 265-word glossary and the full Study set: scene summaries and quizzes for all 25 scenes, cast profiles, 255 key quotes in 8 themes, Richard's path to the crown (each step from Clarence's arrest through Anne, Hastings, the princes and Buckingham's fall to Bosworth), a chart of Richard's fortunes against Richmond's, character map, context, critics, imagery and essay plans. Placed between Titus Andronicus and The Comedy of Errors in Date written order. Checked against the uploaded SparkNotes guide (play text wins: Margaret lost one son, Clarence dreams of sailing to Burgundy, Lovel and Ratcliff bring Hastings' head, Buckingham's army is scattered by floods, Urswick is a priest, Blunt carries Richmond's note to Stanley, Hastings' ghost comes before the princes'). (#95)
 
 ## [2.41.0] — 2026-11-12
 
