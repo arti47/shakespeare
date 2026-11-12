@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.45.0] — 2026-11-12
+
+### Changed
+- Shelf covers, second pass: each play's cloth is now foil-stamped all over with its own repeating motif (strawberries for Othello, waves for The Tempest, skulls and rosemary for Hamlet, horseshoes and crowns for Richard III…), the emblem sits in a gilt medallion, the title on a framed plate with the year, and the famous line on a parchment scroll. The foil catches the light as a cover comes forward, the spine carries gilt bands, and the genre-shelf spines show the same patterned cloth. (#97)
+
 ## [2.44.0] — 2026-11-12
 
 ### Changed

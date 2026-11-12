@@ -89,9 +89,9 @@ for (const p of PLAYS) {
   }
 }
 
-/* Every play needs a shelf cover (covers.js: COVER[id] with colour, epigraph, emblem). */
-{ const cv = rd("covers.js"), miss = PLAYS.filter(p => !cv.includes('\n"' + p.id + '":{'));
-  if (miss.length) throw new Error(`covers.js: no COVER entry for ${miss.map(p => p.id).join(", ")}`); }
+/* Every play needs a shelf cover (covers.js: COVER[id] with colour, epigraph, emblem, and M[id] pattern motif). */
+{ const cv = rd("covers.js"), miss = PLAYS.filter(p => !cv.includes('\n"' + p.id + '":{') || !cv.includes(' "' + p.id + '":['));
+  if (miss.length) throw new Error(`covers.js: no COVER or M (pattern motif) entry for ${miss.map(p => p.id).join(", ")}`); }
 
 /* 3. Precache list. */
 const fonts = fs.readdirSync(path.join(ROOT, "fonts")).filter(f => f.endsWith(".woff2")).sort().map(f => "fonts/" + f);
