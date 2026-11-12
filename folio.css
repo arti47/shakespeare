@@ -60,3 +60,13 @@
 /* preview at the reader's text size (reader .pg = 1rem x --scale; the shelf root is already scaled, so px) */
 .sprev,.sec .sprev{margin:4px 0 0;font:400 calc(16px * var(--scale)) var(--f-old);line-height:1.35;color:var(--soft)}
 .sprev b{font-weight:400;color:var(--accent)}
+
+/* 3.1 cross-links: a quiet rubric "go" link, used in rows under items and in Related footers */
+.golink{display:inline-flex;align-items:center;gap:.3em;min-height:40px;padding:6px 14px;border:var(--line) solid var(--rule);border-radius:var(--pill);background:var(--card);color:var(--accent);font:500 max(14px,.875rem) var(--f-ui);cursor:pointer;text-decoration:none;transition:background .15s ease,border-color .15s ease}
+.golink:hover{background:var(--accent-soft);border-color:var(--accent)}
+.golink:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.golink span{font-size:1.1em;line-height:1}
+.xrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--accent)}}

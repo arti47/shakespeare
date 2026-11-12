@@ -4,6 +4,30 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [3.1.0] — 2026-11-12
+
+### Added
+- Cross-links everywhere: character names in the reader open a card linking to their Profile, Key quotes, Analysis and part; glossed words link to the Glossary; each Study section ends with a Related row; Act summaries link every scene, quote and scene quiz; quiz, review and flashcard answers link back to the scene or speech; the tracker steps link to their scenes; play You stat tiles open their sections; Contents › Cast links each character to Study (#101)
+- Key quotes are marked in the reader with a red ❦ at the line where they start; tapping it opens a quote card with its themes and links to the theme, the speaker's quotes and flashcards (#101)
+- End of each scene: Scene summary and Next scene buttons (#101)
+- Study home: Pick up (your last section) and Next step (due reviews, a quiz on a scene you've read, or the scene you're on) above the four cards, which now have progress bars (#101)
+- Desktop (1400px+): a slim rail of reading tools beside the pages; two-page view has running heads (play title over the left page, act and scene over the right) (#101)
+- Shelf search also finds glossary Words and Key quotes, shown above the speech results (#101)
+- Shelf detail sheet links to Key quotes, Characters, Act summaries and Your notes; Word of the day links to that play's Glossary (#101)
+- Deep links: `#study=<section>` keeps its section, `#study=explore:<part>[:<word>]` opens an Explore part (and a Glossary word) (#101)
+
+### Changed
+- The back gesture now steps back through where you went (Study section → Study home → reader) (#101)
+- Study in the bottom bar returns to the section you were last in; tap it again for the Study home (#101)
+- Phone shelf: a compact Continue card (Study as a link) and a shorter Line of the day, so the first shelf shows on the first screen; Word of the day, This week and Daily review move under the shelves on phones and tablets (#101)
+- The red ◆ after a speaker is now a "note" tag that opens the study note (#101)
+- Two-page view: a speech part may continue on the next page when keeping it whole would leave over a quarter of the page empty (#101)
+
+### Fixed
+- Two-page view: line numbers on the left page were cut off (#101)
+- Desktop: Study and You were squeezed to the left after reading in two-page view (#101)
+- Themes: the coverage bars were missing and the table was misaligned (#101)
+
 ## [3.0.1] — 2026-11-12
 
 ### Fixed

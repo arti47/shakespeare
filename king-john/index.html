@@ -35,6 +35,15 @@
 <!-- READER -->
 <section id="reader" hidden>
   <div class="viewport gut" id="vp"><div class="pg" id="pg"></div></div>
+  <div class="rhead" id="rhead" aria-hidden="true"><span></span><span></span></div>
+  <nav class="rail" id="rail" aria-label="Reading tools">
+    <a href="../?shelf" aria-label="Library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg><span>Library</span></a>
+    <button type="button" data-rail="contents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 6h14M5 12h14M5 18h9"/></svg><span>Contents</span></button>
+    <button type="button" data-rail="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Search</span></button>
+    <button type="button" data-rail="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg><span>Marks</span></button>
+    <button type="button" data-rail="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11"/></svg><span>Study</span></button>
+    <button type="button" data-rail="set"><span class="aa">Aa</span><span>Settings</span></button>
+  </nav>
   <div class="pgfoot" id="pgfoot"></div><div class="pgbar"><i id="pgbar"></i></div><div id="curl" aria-hidden="true" hidden></div>
   <header class="bar" id="bar"><div class="in gut">
     <button class="icon" id="b-home" aria-label="Contents, cast and story">☰</button>
@@ -58,6 +67,7 @@
   <div class="sgroups" id="sgroups"></div>
   <div class="tabs" role="tablist" id="stabs"></div>
   <div id="sbody"></div>
+  <nav id="srel" class="related noprint" aria-label="Related"></nav>
 </section>
 
 <nav class="fnav" id="fnav" aria-label="Sections"><div class="in">
