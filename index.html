@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Shakespeare Folio</title>
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#18191d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbf7ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Folio">
@@ -20,53 +20,118 @@
   if(ok&&app&&!/[?&]shelf/.test(q)&&!ss.getItem("folio-in")){ss.setItem("folio-in","1");location.replace(last+"/");}
   ss.setItem("folio-in","1");
 }catch(e){}})();
-function folioTheme(){try{var ls=localStorage,th=ls.getItem("folio-theme")||"auto";var h=new Date().getHours(),nt=h>=20||h<7;if(th==="timed")th=nt?"night":"auto";if(th==="papertimed")th=nt?"papernight":"paper";
-  if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);
-  var sc=parseFloat(ls.getItem("folio-size"))||1.3;document.documentElement.style.setProperty("--scale",sc)}catch(e){}}
-/* status-bar colour follows the chosen theme (the two media metas cover Auto) */
-function folioBar(){try{var d=document.documentElement,t=d.getAttribute("data-theme"),ms=document.querySelectorAll('meta[name="theme-color"]'),pg=t?getComputedStyle(d).getPropertyValue("--page").trim():"";
-  ms.forEach(function(m,i){if(!m.dataset.c)m.dataset.c=m.content;m.content=pg||m.dataset.c})}catch(e){}}
-folioTheme();
 </script>
+<script src="theme.js"></script>
 <link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="folio.css">
 <style>
-:root{--page:#ffffff;--ink:#111215;--soft:#2b2d33;--muted:#5f6270;--rule:#d9d8d4;--accent:#7a4f0e;--accent-ink:#ffffff;--accent-soft:#f4ecdd;--hover:#f6f1e8;--track:#e6e3dd;--bar:rgba(255,255,255,.94);--hl:#f7e9b5;--gold:#e2b65c;--leaf:#f3f1ec;--scale:1.3}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--accent-soft:#272216;--hover:#202227;--track:#33353c;--bar:rgba(24,25,29,.94);--hl:#4a3d14;color-scheme:dark}}
-:root[data-theme="dark"]{--page:#18191d;--ink:#f3f1ec;--soft:#dedad2;--muted:#a3a3ab;--rule:#33353c;--accent:#e2b65c;--accent-ink:#14110a;--accent-soft:#272216;--hover:#202227;--track:#33353c;--bar:rgba(24,25,29,.94);--hl:#4a3d14;color-scheme:dark}
-:root[data-theme="night"]{--page:#1b1510;--ink:#f1dcba;--soft:#e2cba7;--muted:#ab9470;--rule:#3a2e22;--accent:#e7a95a;--accent-ink:#1b1510;--accent-soft:#2f2418;--hover:#251c14;--track:#3a2e22;--bar:rgba(27,21,16,.95);--hl:#4a3520;--gold:#e7a95a;--leaf:#f1dcba;color-scheme:dark}
-:root[data-theme="paper"]{--page:#f3efe6;--ink:#141414;--soft:#262626;--muted:#4d4b47;--rule:#d2cdc2;--accent:#3d3a35;--accent-ink:#f3efe6;--accent-soft:#e4ded2;--hover:#ebe6db;--track:#ddd7ca;--bar:rgba(243,239,230,.96);--hl:#e6dcc0}
-:root[data-theme="papernight"]{--page:#141414;--ink:#e9e6df;--soft:#d8d4cc;--muted:#a29e96;--rule:#2e2e2e;--accent:#d9d4ca;--accent-ink:#141414;--accent-soft:#262523;--hover:#1f1f1f;--track:#2e2e2e;--bar:rgba(20,20,20,.96);--hl:#3a372f;color-scheme:dark}
+/* Shelf (3.0, "Folio print"): tokens in folio.css, shared with every play */
 *{box-sizing:border-box}
-html{touch-action:manipulation;font-size:calc(18.5px * var(--scale));-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--page);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;line-height:1.45;overflow-x:hidden}
-button{font:inherit;color:inherit}
-.fell{font-family:"IM Fell English",Georgia,serif}
+html{touch-action:manipulation;font-size:calc(18.5px * var(--scale));-webkit-text-size-adjust:100%;background:var(--page)}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--f-ui);line-height:1.45;overflow-x:hidden}
+:root[data-theme="paper"] body{background-image:var(--grain)}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.view{max-width:820px;margin:0 auto;padding:max(18px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(96px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 [hidden]{display:none!important}
-.eyebrow{font:500 max(14px,.6rem) "Instrument Sans",system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
-h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.04em;margin:4px 0 18px;line-height:1.1}
+.view{max-width:1180px;margin:0 auto;padding:max(14px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(104px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.narrow{max-width:760px}
+.eyebrow{font:400 max(14px,.66rem) var(--f-sc);letter-spacing:.12em;color:var(--accent);margin:0 0 4px}
+.rubric{color:var(--accent)}
+h2.vt{font:400 1.75rem var(--f-sc);letter-spacing:.04em;margin:2px 0 16px;line-height:1.1}
 
-/* tab bar */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bar);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--rule);padding:6px max(8px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-right,0px))}
+/* buttons, chips, switches */
+.btn{font:400 max(14px,.78rem) var(--f-old);letter-spacing:.01em;color:var(--ink);background:transparent;border:var(--line) solid var(--rule-strong);border-radius:var(--pill);padding:8px 18px;cursor:pointer;min-height:46px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{border-color:var(--rule)}
+.btn:hover{filter:brightness(.97)}
+.lnk{border:0;background:none;padding:10px 4px;min-height:44px;color:var(--soft);font:400 max(14px,.66rem) var(--f-ui);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{flex:none;border:var(--line) solid var(--rule);background:transparent;border-radius:var(--pill);padding:6px 14px;font:400 max(14px,.66rem) var(--f-old);min-height:40px;cursor:pointer;color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--page)}
+
+/* bottom nav: solid, double rule, active pill */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bar);border-top:var(--line) solid var(--rule-strong);box-shadow:0 -4px 0 -3px var(--rule-strong) inset;padding:6px max(8px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-right,0px));transition:transform .25s}
+:root[data-theme="paper"] .tabs{background-image:var(--grain)}
+.tabs.away{transform:translateY(110%)}
 .tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
-.tabs button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 4px;font:500 max(14px,.6rem) "Instrument Sans",sans-serif;letter-spacing:.06em;color:var(--muted);cursor:pointer;min-height:52px;border-radius:10px}
-.tabs button svg{width:24px;height:24px}
+.tabs button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;font:400 max(14px,.6rem) var(--f-old);color:var(--muted);cursor:pointer;min-height:54px}
+.tabs button svg{width:24px;height:24px;padding:3px 14px;box-sizing:content-box;border-radius:var(--pill);transition:background .2s}
 .tabs button[aria-current="page"]{color:var(--ink)}
-.tabs button[aria-current="page"] svg{color:var(--accent)}
+.tabs button[aria-current="page"] svg{color:var(--accent);background:var(--accent-soft)}
 
-/* library: masthead */
-.mast{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.mast .wm{font:400 1.05rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.12em}
+/* masthead */
+.mast{display:flex;align-items:center;gap:6px;margin:0 0 2px}
+.mast .wm{flex:1;font:400 1.25rem var(--f-sc);letter-spacing:.1em;line-height:1}
 .mast .wm b{font-weight:400;color:var(--accent)}
-.ib{border:0;background:transparent;color:var(--soft);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0}
+.mast .wm small{display:block;font:italic 400 max(14px,.6rem) var(--f-old);letter-spacing:0;color:var(--muted);margin-top:4px}
+.ib{border:0;background:transparent;color:var(--soft);width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0}
 .ib:hover{background:var(--hover);color:var(--ink)}
-.ib svg{width:22px;height:22px}
-.greet{font:italic 400 1.15rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0 0 14px}
+.ib svg{width:24px;height:24px}
+.mrule{height:5px;border-top:var(--line) solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);margin:10px 0 16px}
+.greet{font:italic 400 1.05rem var(--f-old);color:var(--soft);margin:0 0 14px}
+.greet.nudge{color:var(--accent);transition:color .2s}
 
-/* cover rail */
-.rail{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px calc(50% - var(--cw)/2) 22px;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));scrollbar-width:none;--cw:min(58vw,260px)}
+/* home layout: one column on phones, two on wide screens (reading desk left, bookcase right) */
+.home{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}.desk,.case{min-width:0}
+@media (min-width:1000px){.home{grid-template-columns:minmax(330px,380px) minmax(0,1fr);gap:40px;align-items:start}.desk{position:sticky;top:16px}}
+
+/* continue reading: hero card */
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding:16px;border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);color:inherit;text-decoration:none;box-shadow:var(--lift);position:relative}
+.hero::before{content:"";position:absolute;inset:4px;border:1px solid var(--rule);border-radius:calc(var(--r-m) - 4px);pointer-events:none}
+.hero .cover{--cw:92px;width:var(--cw);transform:none;filter:none;box-shadow:0 8px 16px -8px rgba(0,0,0,.6)}
+.hero h3{font:400 1.45rem/1.15 var(--f-old);margin:2px 0 4px;text-wrap:balance}
+.hero .wh{font-size:max(14px,.64rem);color:var(--soft)}
+.bar{height:6px;border-radius:3px;background:var(--track);overflow:hidden;margin:10px 0 12px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.hero .acts{display:flex;gap:8px;flex-wrap:wrap}
+.hero .acts .btn{min-height:44px;padding:6px 16px}
+.hero.empty{grid-template-columns:1fr;text-align:center}
+
+/* today: one card, line of the day with word + week in its foot */
+.today{border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);position:relative;overflow:hidden}
+.today::before{content:"";position:absolute;inset:4px;border:1px solid var(--rule);border-radius:calc(var(--r-m) - 4px);pointer-events:none}
+.lotd{padding:20px 18px 14px;text-align:center}
+.ldate{margin:0;font:italic 400 max(14px,.66rem) var(--f-old);color:var(--muted)}
+.lotd blockquote{margin:8px auto 0;max-width:26ch;font:italic 400 1.3rem/1.32 var(--f-old);text-wrap:balance}
+.lotd blockquote::first-letter{color:var(--accent);font-size:1.5em;line-height:.8}
+.lotd cite{display:block;margin:10px 0 12px;font:normal 400 max(14px,.62rem) var(--f-sc);letter-spacing:.12em;color:var(--soft)}
+.lotd .acts{display:flex;justify-content:center;gap:8px}
+.lotd .acts .btn{min-height:44px;padding:6px 16px}
+.tfoot{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule)}
+.tfoot>*{padding:12px 16px;min-width:0;border:0;background:none;text-align:left;color:inherit}
+.tfoot>*+*{border-left:1px solid var(--rule)}
+.word{cursor:pointer}
+.word b{display:block;font:400 1.15rem/1.15 var(--f-old)}
+.word span{display:block;font-size:max(14px,.62rem);color:var(--soft);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.week .wdots{display:flex;gap:4px;margin:6px 0 4px}
+.week .wd{flex:1;text-align:center;font-size:14px;color:var(--muted);max-width:22px}
+.week .wd i{display:block;width:14px;height:14px;margin:0 auto 2px;border-radius:50%;border:1.5px solid var(--rule)}
+.week .wd.on i{background:var(--accent);border-color:var(--accent)}
+.week .wd.now{color:var(--ink);font-weight:600}
+.week small{display:block;font-size:max(14px,.6rem);color:var(--soft)}
+.week small b{font:600 1rem var(--f-ui);color:var(--ink)}
+.due{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--rule);font-size:max(14px,.64rem)}
+.due b{color:var(--accent)}
+.due .chips{gap:6px}
+
+/* bookcase: three genre shelves */
+.order{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.order .lbl{font:400 max(14px,.62rem) var(--f-sc);letter-spacing:.1em;color:var(--muted)}
+.shelf{margin:18px 0 6px}
+.shelf h3{display:flex;align-items:baseline;gap:10px;margin:0;font:400 1.55rem var(--f-sc);letter-spacing:.05em;line-height:1.1}
+.shelf h3 em{font:normal 400 max(14px,.62rem) var(--f-sc);letter-spacing:.1em;color:var(--accent)}
+.shelf h3::after{content:"";flex:1;height:4px;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);align-self:center}
+.shelf p.gd{margin:4px 0 0;font:italic 400 max(14px,.7rem) var(--f-old);color:var(--soft)}
+.rail{--cw:clamp(124px,34vw,156px);display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 max(16px,env(safe-area-inset-left,0px));padding:14px max(16px,env(safe-area-inset-left,0px)) 18px;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));scrollbar-width:none;position:relative}
 .rail::-webkit-scrollbar{display:none}
+.rail::after{content:"";flex:0 0 2px}
+@media (min-width:1000px){.rail{--cw:150px;flex-wrap:wrap;overflow:visible;margin:0;padding:14px 0 20px;scroll-snap-type:none;gap:18px 16px}}
+.shelfbase{height:8px;margin:-10px 0 0;border-radius:2px;background:linear-gradient(var(--rule),var(--track));box-shadow:0 6px 10px -6px rgba(0,0,0,.35)}
+@media (min-width:1000px){.shelfbase{display:none}}
+
+
 /* emblems (covers.js): enamelled gilt badges */
 .embl .f{fill:url(#fg);stroke:none}
 .embl .a{fill:var(--en)}
@@ -117,135 +182,83 @@ h2.vt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;lette
 .cover .cp{position:absolute;left:6.5%;right:0;bottom:0;height:5px;background:rgba(0,0,0,.5);z-index:5}
 .cover .cp i{display:block;height:100%;background:var(--gilt)}
 .cover .ribbon{position:absolute;top:-3px;right:7%;width:7cqw;height:26cqw;background:linear-gradient(90deg,#8e1b22,#b8262f 50%,#8e1b22);box-shadow:0 2px 3px rgba(0,0,0,.4);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);z-index:5}
-.dots{display:flex;justify-content:center;gap:8px;margin:-8px 0 16px}
-.dots i{width:7px;height:7px;border-radius:50%;background:var(--rule)}
-.dots i.on{background:var(--accent);width:20px;border-radius:4px}
+/* covers on the shelves: always full size; the leather system above is covers.js's */
+.rail .cover,.dsheet .cover,.hero .cover{transform:none;filter:none;scroll-snap-align:start}
+.rail .cover{transition:transform .2s}
+@media (hover:hover){.rail .cover:hover{transform:translateY(-4px)}}
 
-/* selected play detail */
-.det{text-align:center;max-width:520px;margin:0 auto}
-.det h3{font:400 1.45rem "IM Fell English",Georgia,serif;margin:0;line-height:1.3;text-wrap:balance}
-.det .meta{display:block;font-size:max(14px,.6rem);line-height:1.4;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:8px 0 10px}
-.det p{margin:0 auto 12px;color:var(--soft);font-size:.8rem;max-width:32ch;text-wrap:balance}
-.det .pg{display:flex;align-items:center;gap:10px;max-width:380px;margin:0 auto 16px;font-size:max(14px,.62rem);color:var(--soft)}
-.det .pg>span:last-child{flex:none;max-width:60%;text-align:left}
-.det .pg .tr{flex:1;height:6px;border-radius:3px;background:var(--track);overflow:hidden;min-width:50px}
-.det .pg .tr i{display:block;height:100%;background:var(--accent)}
-.det q{display:block;quotes:none;font:italic 400 1.05rem "IM Fell English",Georgia,serif;color:var(--ink);margin:0 auto 6px;max-width:30ch}
-.det .where{font-size:.66rem;color:var(--muted);margin-bottom:14px}
-.acts{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-.btn{font:500 .7rem "Instrument Sans",system-ui,sans-serif;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:999px;padding:10px 18px;cursor:pointer;min-height:46px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);padding:10px 24px}
-.btn.ghost{border-color:var(--rule)}
-.det .unst{display:block;margin:10px auto 0;min-height:44px;padding:0 12px;border:0;background:none;color:var(--soft);font:inherit;font-size:max(14px,.62rem);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.det .acts{display:grid;grid-template-columns:1fr 1fr;max-width:380px;margin:0 auto}
-.det .acts .pri{grid-column:1/-1}
-/* genre shelves */
-.contl{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 18px;border:1.5px solid var(--accent);border-radius:8px;color:inherit;text-decoration:none;background:var(--accent-soft)}
-.contl .tx{flex:1;min-width:0}
-.contl small{display:block;font-size:max(14px,.54rem);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
-.contl b{display:block;font:400 1.1rem "IM Fell English",Georgia,serif;line-height:1.25}
-.contl span{display:block;font-size:max(14px,.62rem);color:var(--soft)}
-.contl svg{flex:none;width:22px;height:22px;color:var(--accent)}
-.gtile{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:transparent;border:0;border-top:1.5px solid var(--ink);padding:18px 4px 20px;cursor:pointer;color:inherit}
-.gtile:last-of-type{border-bottom:1.5px solid var(--ink)}
-.gtile:hover{background:var(--hover)}
-.spines{flex:none;display:flex;align-items:flex-end;justify-content:center;gap:3px;height:92px;width:122px}
-.spine{width:22px;height:88px;background:var(--c);border-radius:2px 3px 3px 2px;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:inset -3px 0 0 rgba(0,0,0,.3),0 4px 10px -4px rgba(0,0,0,.5);outline:1px solid rgba(255,255,255,.08)}
-.spine{background-image:var(--sp);background-size:24px 24px;background-blend-mode:normal}
-.spine .sem{background:var(--c);border-radius:50%;padding:1px;box-shadow:0 0 0 1px var(--gold)}
-.spine::before,.spine::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--gold)}
-.spine::before{top:9px}.spine::after{bottom:9px}
-.spine .sem{width:20px;height:20px;color:#ebc96c;position:relative;--kc:var(--c);filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
-.spine b{font:400 .95rem "IM Fell English",Georgia,serif;color:var(--gold);position:relative}
-.spine:nth-child(2n){height:82px}.spine:nth-child(3n){height:92px}
-.gtile .gx{flex:1;min-width:0}
-.gtile h3{font:400 1.5rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;margin:0;line-height:1.15}
-.gtile p{margin:3px 0 4px;font-size:.72rem;color:var(--soft)}
-.gtile .gn{font-size:max(14px,.58rem);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
-.gtile .chev{flex:none;width:22px;height:22px;color:var(--muted)}
-.ghead{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:-4px 0 4px}
-.back{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--accent);font:600 .7rem "Instrument Sans",sans-serif;padding:8px 6px 8px 0;min-height:44px;cursor:pointer}
-.sortc{padding:6px 0 0;margin-bottom:-2px}
-.gt{font:400 1.7rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.05em;margin:0;line-height:1.1}
-.soon{text-align:center;color:var(--muted);font-size:max(14px,.62rem);font-style:italic;margin:26px 0 0}
-
-/* today (top of the Library since 2.0) */
-.mast .mb{display:flex;gap:2px}
-.greet.nudge{color:var(--accent);transition:color .2s}
-.today{margin:0 0 22px}
-.today .date{margin:0 0 8px;font-size:.95rem}
-.trail{display:grid;grid-auto-flow:column;grid-auto-columns:86%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px))}
-.trail::-webkit-scrollbar{display:none}
-.trail .card{scroll-snap-align:center;margin:0}
-.today .card.lotd{padding:22px 16px 18px}
-.today .lotd blockquote{font-size:1.25rem}
-.today .word b{font-size:1.4rem}
-.today .card.week,.today .card.due{margin:12px 0 0;padding:14px 16px}
-.duel{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.today .week .eyebrow{margin-bottom:4px}
-@media (min-width:760px){.trail{grid-auto-flow:row;grid-template-columns:1.5fr 1fr;margin:0;padding:0;overflow:visible}}
-.date{font:italic 400 1.05rem "IM Fell English",Georgia,serif;color:var(--soft);margin:0}
-.card{border:1.5px solid var(--ink);border-radius:4px;padding:22px 18px;margin-bottom:18px;position:relative}
-.card.lotd{text-align:center;padding:30px 18px 24px}
-.card.lotd::before{content:"";position:absolute;inset:5px;border:1px solid var(--rule);pointer-events:none;border-radius:2px}
-.lotd blockquote{margin:0 auto;max-width:24ch;font:italic 400 1.55rem "IM Fell English",Georgia,serif;line-height:1.3}
-.lotd cite{display:block;margin:14px 0 16px;font:normal 500 max(14px,.6rem) "Instrument Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
-.word b{font:400 1.7rem "IM Fell English",Georgia,serif;display:block;line-height:1.1}
-.word p:not(.eyebrow){margin:6px 0 0;font-size:.82rem}
-.word small{display:block;margin-top:8px;font-size:max(14px,.6rem);color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
-.wk{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.wdots{display:flex;gap:6px}
-.wd{width:30px;text-align:center;font-size:max(14px,.5rem);color:var(--muted)}
-.wd i{display:block;width:18px;height:18px;margin:0 auto 4px;border-radius:50%;border:1.5px solid var(--rule)}
-.wd.on i{background:var(--accent);border-color:var(--accent)}
-.wd.today{color:var(--ink);font-weight:600}
-.big-n{font:600 1.6rem "Instrument Sans",sans-serif;line-height:1}
-.big-n small{display:block;font-size:max(14px,.6rem);font-weight:400;color:var(--soft);margin-top:2px}
+/* play detail sheet (tap a cover) */
+.dsheet{position:fixed;inset:0;z-index:40;background:var(--shade);display:flex;align-items:flex-end;justify-content:center}
+.dsheet .box{position:relative;width:min(560px,100%);max-height:92vh;overflow:auto;background:var(--page);border-radius:var(--r-l) var(--r-l) 0 0;padding:10px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));animation:up .22s ease-out}
+:root[data-theme="paper"] .dsheet .box{background-image:var(--grain)}
+@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:760px){.dsheet{align-items:center}.dsheet .box{border-radius:var(--r-l);border:var(--line) solid var(--rule-strong);padding:22px}}
+@media (prefers-reduced-motion:reduce){.dsheet .box{animation:none}}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--rule);margin:0 auto 12px}
+@media (min-width:760px){.grab{display:none}}
+.dsheet .x{position:absolute;top:8px;right:8px}
+.dtop{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start}
+.dtop .cover{--cw:clamp(120px,34vw,170px);width:var(--cw)}
+.dtop h3{font:400 1.6rem/1.12 var(--f-old);margin:4px 30px 4px 0;text-wrap:balance}
+.dtop .meta{font:400 max(14px,.62rem) var(--f-sc);letter-spacing:.12em;color:var(--accent)}
+.dtop p{margin:10px 0 0;font-size:max(14px,.72rem);color:var(--soft)}
+.dprog{margin:16px 0 4px;font-size:max(14px,.64rem);color:var(--soft)}
+.dprog .bar{margin:6px 0 0}
+.dacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.dacts .pri{grid-column:1/-1}
+.dsheet .lnk{display:block;margin:6px auto 0}
 
 /* search */
-.sbox{position:sticky;top:0;z-index:5;background:var(--page);padding:6px 0 10px}
-.sbox input{width:100%;font:400 1rem "Instrument Sans",sans-serif;color:var(--ink);background:var(--page);border:1.5px solid var(--ink);border-radius:999px;padding:12px 18px 12px 46px;min-height:50px;outline:none}
+.back{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--accent);font:400 .75rem var(--f-old);padding:8px 6px 8px 0;min-height:44px;cursor:pointer}
+.sbox{position:sticky;top:0;z-index:5;background:var(--page);padding:6px 0 10px;border-bottom:1px solid var(--rule)}
+:root[data-theme="paper"] .sbox{background-image:var(--grain)}
+.sfield{position:relative}
+.sbox input{width:100%;font:400 1rem var(--f-old);color:var(--ink);background:var(--card);border:var(--line) solid var(--rule-strong);border-radius:var(--pill);padding:10px 18px 10px 48px;min-height:52px;outline:none}
 .sbox input:focus{box-shadow:0 0 0 3px var(--accent-soft)}
-.sbox .mg{position:absolute;left:16px;top:20px;width:22px;height:22px;color:var(--muted)}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
-.chip{flex:none;border:1.5px solid var(--rule);background:transparent;border-radius:999px;padding:7px 14px;font-size:max(14px,.6rem);font-weight:500;cursor:pointer;min-height:38px}
-.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--page)}
-.hint{color:var(--muted);font-size:.7rem;margin:18px 4px}
+.sbox .mg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:22px;height:22px;color:var(--muted)}
+.sfilt{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.sfilt select{appearance:none;-webkit-appearance:none;border:var(--line) solid var(--rule);border-radius:var(--pill);background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23888' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center;padding:6px 36px 6px 14px;min-height:40px;font:400 max(14px,.66rem) var(--f-old);max-width:100%}
+.hint{color:var(--muted);font-size:max(14px,.7rem);margin:18px 4px}
 .hint b{color:var(--ink);font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
-.res{list-style:none;margin:0;padding:0}
-.res a{display:block;padding:14px 4px;border-bottom:1px solid var(--rule);color:inherit;text-decoration:none}
-.res a:hover{background:var(--hover)}
-.res .rm{font-size:max(14px,.6rem);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
-.res .rt{font:400 1.02rem "IM Fell English",Georgia,serif;margin-top:2px}
-.res .rt.mod{font:400 .8rem "Instrument Sans",sans-serif;color:var(--soft)}
+.count{font:400 max(14px,.62rem) var(--f-sc);letter-spacing:.08em;color:var(--muted);margin:12px 2px 4px}
+.grp{border-bottom:1px solid var(--rule)}
+.grp>button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:14px 2px;text-align:left;cursor:pointer;min-height:52px}
+.grp>button b{flex:1;font:400 1.1rem var(--f-old)}
+.grp>button span{font:600 max(14px,.6rem) var(--f-ui);color:var(--accent-ink);background:var(--accent);border-radius:var(--pill);padding:2px 10px}
+.grp>button svg{width:18px;height:18px;color:var(--muted);transition:transform .2s}
+.grp.open>button svg{transform:rotate(90deg)}
+.res{list-style:none;margin:0 0 10px;padding:0}
+.res a{display:block;padding:10px 12px;margin:0 0 6px;border-left:3px solid var(--rule);color:inherit;text-decoration:none}
+.res a:hover{background:var(--hover);border-left-color:var(--accent)}
+.res .rm{font:400 max(14px,.6rem) var(--f-sc);letter-spacing:.08em;color:var(--accent)}
+.res .rm i{font-style:normal;color:var(--muted);margin-left:6px}
+.res .rt{font:400 1rem/1.4 var(--f-old);margin-top:2px}
+.res .rt.mod{font:400 max(14px,.7rem)/1.5 var(--f-ui);color:var(--soft)}
 .res mark{background:var(--hl);color:var(--ink);border-radius:2px;padding:0 1px}
-.count{font-size:max(14px,.6rem);color:var(--muted);margin:8px 4px}
+.more{margin:0 0 12px 12px}
 
 /* you */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.stat{border:1.5px solid var(--rule);border-radius:4px;padding:12px 10px;text-align:center}
-.stat b{display:block;font:600 1.35rem "Instrument Sans",sans-serif;line-height:1.1}
-.stat span{font-size:max(14px,.6rem);color:var(--soft);letter-spacing:.06em;text-transform:uppercase}
+.stat{border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);padding:12px 8px;text-align:center;background:var(--card)}
+.stat b{display:block;font:600 1.4rem var(--f-ui);line-height:1.1;color:var(--accent)}
+.stat span{font:400 max(14px,.58rem) var(--f-sc);color:var(--soft);letter-spacing:.06em}
+.lbl{display:block;font:400 max(14px,.62rem) var(--f-sc);letter-spacing:.1em;color:var(--muted);margin:6px 0 8px}
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:4px;justify-content:start;overflow-x:auto;padding-bottom:4px}
 .heat i{width:16px;height:16px;border-radius:3px;background:var(--track)}
 .heat i.l1{background:color-mix(in srgb,var(--accent) 35%,var(--track))}
 .heat i.l2{background:color-mix(in srgb,var(--accent) 65%,var(--track))}
 .heat i.l3{background:var(--accent)}
 .heat i.t{outline:2px solid var(--ink);outline-offset:1px}
-.sec{margin:26px 0 0}
-.sec h3{font:400 1.15rem "IM Fell English SC","IM Fell English",Georgia,serif;letter-spacing:.06em;margin:0 0 10px;display:flex;align-items:center;gap:10px}
-.sec h3::after{content:"";flex:1;height:1px;background:var(--ink)}
-.sec p{font-size:.7rem;color:var(--soft);margin:0 0 12px}
-.lbl{display:block;font-size:max(14px,.6rem);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:4px 0 6px}
-.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;margin-bottom:14px;max-width:100%}
-.seg button{border:0;background:transparent;font:500 max(14px,.6rem) "Instrument Sans",sans-serif;padding:9px 12px;min-height:42px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
-.seg.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));border-radius:14px;width:100%}
-.seg.grid button{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.sec{margin:28px 0 0}
+.sec h3{font:400 1.2rem var(--f-sc);letter-spacing:.06em;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.sec h3::after{content:"";flex:1;height:4px;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong)}
+.sec p{font-size:max(14px,.7rem);color:var(--soft);margin:0 0 12px}
 .btns{display:flex;flex-wrap:wrap;gap:10px}
-#msg{margin-top:12px;font-size:.68rem}
+#msg{margin-top:12px;font-size:max(14px,.68rem)}
 #msg:empty{display:none}
-footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,serif;color:var(--muted);text-align:center}
+footer{margin-top:34px;text-align:center;color:var(--muted);font:italic 400 max(14px,.62rem) var(--f-old)}
+footer .orn{justify-content:center;margin-bottom:8px}
+
 
 /* curtain */
 .curt{position:fixed;inset:0;z-index:60;pointer-events:none}
@@ -261,63 +274,54 @@ footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,se
 .curt .cembs{display:block;width:120px;height:120px;margin:10px auto 0;color:#b8862a;--kc:var(--page)}
 .curt i{display:block;color:var(--accent);font-style:normal;font-size:1.5rem;margin-top:6px}
 @media (prefers-reduced-motion:reduce){.cover .shine{animation:none}.cover,.curt .h,.curt .ttl{transition:none}}
-
-@media (min-width:900px){
-  .rail{--cw:250px;justify-content:center;padding-left:0;padding-right:0;margin:0;overflow:visible;flex-wrap:wrap;scroll-snap-type:none}
-  .cover{transform:none}.cover.on{outline:3px solid var(--accent);outline-offset:6px}
-  .dots{display:none}
-  .lib-grid{display:block}
-}
 </style>
 </head>
 <body>
 
 <!-- LIBRARY -->
 <main class="view" id="v-library">
-  <div class="mast"><span class="wm">The <b>Folio</b></span><span class="mb"><button class="ib" id="searchb" type="button" aria-label="Search every play" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button><button class="ib" id="themeb" title="Theme"></button></span></div>
-  <p class="greet" id="greet"></p>
-  <div id="cont"></div>
-  <section class="today" id="today" aria-label="Today">
-    <p class="date" id="tdate"></p>
-    <div class="trail"><div class="card lotd" id="lotd"></div><div class="card word" id="word"></div></div>
-    <div class="card week" id="week"></div>
-    <div class="card due" id="due" hidden></div>
-  </section>
-  <div id="genres"></div>
-  <div id="gview" hidden>
-    <div class="ghead"><button class="back" id="gback" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>All genres</button><h2 class="gt" id="gtitle"></h2></div>
-    <div class="chips sortc" id="sortc" role="group" aria-label="Sort plays"><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></div>
-    <div class="rail" id="rail" role="list" aria-label="Plays"></div>
-    <div class="dots" id="dots" aria-hidden="true"></div>
-    <section class="det" id="det" aria-live="polite"></section>
+  <div class="mast"><span class="wm">The <b>Folio</b><small>Comedies, Histories &amp; Tragedies</small></span><button class="ib" id="searchb" type="button" aria-label="Search every play" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button><button class="ib" id="themeb" type="button" title="Theme"></button></div>
+  <div class="mrule"></div>
+  <div class="home">
+    <div class="desk">
+      <p class="greet" id="greet"></p>
+      <div id="cont"></div>
+      <section class="today" id="today" aria-label="Today" style="margin-top:18px"></section>
+    </div>
+    <div class="case">
+      <div class="order" role="group" aria-label="Order the shelves"><span class="lbl">Order</span><span class="chips" id="sortc"><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></span></div>
+      <div id="shelves"></div>
+    </div>
   </div>
-  <p class="soon">More plays join the Folio as they are finished.</p>
+  <footer><div class="orn">❦</div>Mr. William Shakespeares Comedies, Histories, &amp; Tragedies · London, 1623</footer>
 </main>
 
 <!-- SEARCH -->
-<main class="view" id="v-search" hidden>
+<main class="view narrow" id="v-search" hidden>
   <button class="back" id="sback" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Library</button>
   <h2 class="vt">Search the Folio</h2>
   <div class="sbox">
-    <div style="position:relative"><svg class="mg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <div class="sfield"><svg class="mg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
     <label class="sr" for="q">Search every play</label><input id="q" type="search" placeholder="A word, a line, a character…" autocomplete="off" enterkeyhint="search"></div>
-    <div class="chips" id="scope"></div>
+    <div class="sfilt"><span class="chips" id="sgen"></span><label class="sr" for="splay">Play</label><select id="splay"></select></div>
   </div>
   <div id="sres"></div>
 </main>
 
 <!-- YOU -->
-<main class="view" id="v-you" hidden>
+<main class="view narrow" id="v-you" hidden>
   <h2 class="vt">Your reading</h2>
   <div class="stats" id="stats"></div>
   <span class="lbl">Last 15 weeks</span>
   <div class="heat" id="heat" aria-label="Days read"></div>
   <div class="sec">
-    <h3>Settings</h3>
+    <h3>Appearance</h3>
     <span class="lbl">Theme, for every play</span>
-    <div class="seg grid" id="seg-theme" role="group" aria-label="Theme"><button data-th="paper">Paper</button><button data-th="papernight">Paper night</button><button data-th="papertimed">Paper, night after 8pm</button><button data-th="auto">Auto</button><button data-th="light">Light</button><button data-th="dark">Dark</button><button data-th="night">Night</button><button data-th="timed">Night after 8pm</button></div>
-    <span class="lbl">Text size, for every play</span>
-    <div class="seg" id="seg-size" role="group" aria-label="Text size"><button data-sz="1.15">Small</button><button data-sz="1.3">Normal</button><button data-sz="1.5">Large</button><button data-sz="1.75">Extra large</button></div>
+    <div class="ttiles" id="ttiles" role="group" aria-label="Theme"></div>
+    <button class="tog" id="nightauto" role="switch" aria-checked="false" type="button"><span>Night after 8pm<small>Switches to Night from 8pm to 7am</small></span><i></i></button>
+    <span class="lbl" style="margin-top:14px">Text size, for every play</span>
+    <div class="size"><span style="font-size:15px">A</span><label class="sr" for="szr">Text size</label><input type="range" id="szr" min="0" max="3" step="1"><span style="font-size:26px">A</span></div>
+    <p class="sprev" id="sprev"></p>
   </div>
   <div class="sec">
     <h3>Backup</h3>
@@ -331,10 +335,12 @@ footer{margin-top:34px;font:italic max(14px,.62rem) "IM Fell English",Georgia,se
     <p>iPhone or iPad: Share, then Add to Home Screen. Android or desktop Chrome: Install app in the browser menu. Every play then works offline.</p>
     <div class="btns"><button class="btn pri" id="instb" hidden>Install now</button></div>
   </div>
-  <footer>Mr. William Shakespeares Comedies, Histories, &amp; Tragedies · London, 1623</footer>
+  <footer><div class="orn">❦</div>Mr. William Shakespeares Comedies, Histories, &amp; Tragedies · London, 1623</footer>
 </main>
 
-<nav class="tabs" aria-label="Sections"><div class="in">
+<div class="dsheet" id="dsheet" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="dtitle" tabindex="-1"><div class="grab"></div><button class="ib x" id="dx" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div id="dbody"></div></div></div>
+
+<nav class="tabs" id="tabs" aria-label="Sections"><div class="in">
   <button data-tab="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg>Library</button>
   <button data-tab="read"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 6.5C10 5 7.2 4.5 3.5 4.8v13.4c3.7-.3 6.5.2 8.5 1.8 2-1.6 4.8-2.1 8.5-1.8V4.8C16.8 4.5 14 5 12 6.5zM12 6.5V20"/></svg>Read</button>
   <button data-tab="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11M21.5 9v5"/></svg>Study</button>
@@ -352,32 +358,35 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const J=k=>{try{return JSON.parse(LS.get(k)||"null")}catch(e){return null}};
 const byId=Object.fromEntries(PLAYS.map((p,i)=>[p.id,Object.assign(p,{c:coverColor(p.id)})]));
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>';
 function ago(t){const d=Math.floor((Date.now()-t)/864e5);return d<=0?"today":d===1?"yesterday":d<7?d+" days ago":d<60?Math.round(d/7)+" weeks ago":Math.round(d/30)+" months ago"}
 const dkey=d=>{const z=new Date(d);return z.getFullYear()+"-"+String(z.getMonth()+1).padStart(2,"0")+"-"+String(z.getDate()).padStart(2,"0")};
 const dayNo=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5);
 function readDays(){const days={};for(const p of PLAYS){const L=J(p.log)||{};for(const[k,v]of Object.entries(L))if(v&&(v.p||v.s))days[k]=(days[k]||0)+(v.s||0)}return days}
 function streak(days){let s=0;const now=new Date();for(let i=0;i<400;i++){const d=new Date(now);d.setDate(now.getDate()-i);if(days[dkey(d)]!=null)s++;else if(i>0)break}return s}
+const coverA=(p,st,cls)=>`<a class="cover${cls||""}" href="${p.id}/" data-cover="${p.id}" style="--c:${p.c}" aria-label="${esc(p.title)}${st?`, ${Math.round(st.pct)}% read`:""}">${coverHTML(p,st)}</a>`;
 
 /* ---------- tabs ---------- */
 /* one app shell: Library / Read / Study / You, the same nav as inside every play. Read and Study open the last play. */
 const TABS=["library","search","you"];
-function go(tab,push){let q=null;if(/^search=/.test(tab||"")){try{q=decodeURIComponent(tab.slice(7))}catch(e){q=tab.slice(7)}tab="search"}
-  if(!TABS.includes(tab))tab="library";
+function go(tab){let q=null;if(/^search=/.test(tab||"")){try{q=decodeURIComponent(tab.slice(7))}catch(e){q=tab.slice(7)}tab="search"}
+  if(!TABS.includes(tab))tab="library";closeDetail(true);
   TABS.forEach(t=>$("v-"+t).hidden=t!==tab);
   document.querySelectorAll(".tabs button").forEach(b=>{if(b.dataset.tab===tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   LS.set("folio-tab",tab);try{history.replaceState(null,"",location.pathname+location.search+(tab==="library"?"":"#"+tab))}catch(e){}
-  scrollTo(0,0);
+  scrollTo(0,0);$("tabs").classList.remove("away");
   if(tab==="library")renderLibrary();if(tab==="you")renderYou();if(tab==="search"){if(q!=null)$("q").value=q;initSearch();if(q)runSearch()}
 }
 function lastPlay(path){const p=byId[LS.get("folio-last")];if(p){openPlay(p.id,p.id+"/"+path);return}
-  go("library");if(genre)setGenre(null);$("greet").textContent="Choose a play to begin. Read and Study then open it where you left off.";$("greet").classList.add("nudge");setTimeout(()=>$("greet").classList.remove("nudge"),1600)}
+  go("library");$("greet").textContent="Choose a play from the shelves. Read and Study then open it where you left off.";$("greet").classList.add("nudge");setTimeout(()=>$("greet").classList.remove("nudge"),1600)}
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(t==="read")lastPlay("");else if(t==="study")lastPlay("#study");else go(t)});
 $("searchb").onclick=()=>go("search");$("sback").onclick=()=>go("library");
 addEventListener("hashchange",()=>go(location.hash.slice(1)));
+/* the nav steps aside while you scroll down, and comes back when you scroll up */
+let lastY=0;addEventListener("scroll",()=>{const y=scrollY,t=$("tabs");if(y>lastY+6&&y>120)t.classList.add("away");else if(y<lastY-6||y<60)t.classList.remove("away");lastY=y},{passive:true});
 
 /* ---------- library ---------- */
-let sel=null;
-/* Shelf order inside a genre: recent (last read, then most reading time), date (composition order) or az (title, ignoring "The"). Kept in folio-sort. */
+/* Shelf order: recent (last read, then most reading time), date (composition order) or az (title, ignoring "The"). Kept in folio-sort. */
 /* Composition order follows the Oxford Complete Works chronology (Wells & Taylor); plays missing here sort by their year label, after the listed ones. */
 const CHRON=["two-gentlemen","taming-of-the-shrew","henry-vi-part-2","henry-vi-part-3","henry-vi-part-1","titus-andronicus","richard-iii","comedy-of-errors","loves-labours-lost","romeo-and-juliet","richard-ii","midsummer","king-john","merchant-of-venice","henry-iv-part-1","merry-wives","henry-iv-part-2","much-ado","henry-v","julius-caesar","as-you-like-it","hamlet","twelfth-night","troilus-and-cressida","measure-for-measure","othello","alls-well","timon-of-athens","king-lear","macbeth","antony-and-cleopatra","coriolanus","winters-tale","cymbeline","tempest","henry-viii"];
 const SORTS=["recent","date","az"];
@@ -389,127 +398,119 @@ function orderPlays(){const last=LS.get("folio-last"),a=PLAYS.slice();
   if(sortBy==="date")return a.sort((x,y)=>ck(x)-ck(y)||yr(x)-yr(y)||tkey(x).localeCompare(tkey(y)));
   return a.sort((a,b)=>{const sa=J("folio-stat-"+a.id),sb=J("folio-stat-"+b.id);
   if(a.id===last)return -1;if(b.id===last)return 1;return (sb?sb.t:0)-(sa?sa.t:0)})}
-document.querySelectorAll("#sortc .chip").forEach(b=>b.onclick=()=>{sortBy=b.dataset.sort;LS.set("folio-sort",sortBy);sel=null;renderLibrary();const r=$("rail");if(r)r.scrollLeft=0});
+document.querySelectorAll("#sortc .chip").forEach(b=>b.onclick=()=>{sortBy=b.dataset.sort;LS.set("folio-sort",sortBy);renderShelves();document.querySelectorAll(".rail").forEach(r=>r.scrollLeft=0)});
 const GENRES=[["Comedies","Love, disguise, mistaken identity and happy endings"],["Histories","The kings of England and the wars for the crown"],["Tragedies","Ambition, jealousy and the fall of the great"]];
-const gid=g=>g.toLowerCase();
-let genre=null;try{genre=sessionStorage.getItem("folio-genre")}catch(e){}
-function setGenre(g,push){genre=g;try{g?sessionStorage.setItem("folio-genre",g):sessionStorage.removeItem("folio-genre")}catch(e){}
-  if(push&&g)try{history.pushState({g},"")}catch(e){}sel=null;renderLibrary();scrollTo(0,0)}
-addEventListener("popstate",()=>{if(genre&&!$("v-library").hidden)setGenre(null)});
-$("gback").onclick=()=>{if(history.state&&history.state.g)history.back();else setGenre(null)};
-function renderGenres(){
-  const last=byId[LS.get("folio-last")],ls=last&&J("folio-stat-"+last.id);
-  const cont=ls?`<a class="contl" href="${last.id}/" data-play="${last.id}"><span class="tx"><small>Continue reading</small><b>${esc(last.title)}</b><span>${Math.round(ls.pct)}% · ${esc(ls.where)}</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></a>`:"";
-  $("cont").innerHTML=cont;
-  $("genres").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=PLAYS.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
-    return `<button class="gtile" type="button" data-g="${g}"><span class="spines" aria-hidden="true">${ps.slice(0,5).map(p=>`<span class="spine" style="--c:${p.c};--sp:${coverPattern(p.id)}">${emblemSVG(p.id,"sem")||`<b>${esc(p.mono||p.title[0])}</b>`}</span>`).join("")}</span>
-      <span class="gx"><h3>${g}</h3><p>${esc(d)}</p><span class="gn">${ps.length} play${ps.length===1?"":"s"}${begun?` · ${begun} begun`:""}</span></span>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></button>`}).join("");
-  document.querySelectorAll(".gtile").forEach(b=>b.onclick=()=>setGenre(b.dataset.g,true));
-}
 function renderLibrary(){
-  const h=new Date().getHours(),last=byId[LS.get("folio-last")];
-  $("greet").textContent=(h<5?"Late at night":h<12?"Good morrow":h<18?"Good afternoon":"Good even")+(last?". Your place is kept.":". Choose a play to begin.");
-  const inG=genre&&PLAYS.some(p=>p.group===genre);
-  $("genres").hidden=$("cont").hidden=$("today").hidden=!!inG;$("gview").hidden=!inG;
-  if(!inG){genre=null;renderGenres();renderToday();return}
-  $("gtitle").textContent=genre;
-  const ps=orderPlays().filter(p=>p.group===genre);
+  const h=new Date().getHours(),last=byId[LS.get("folio-last")],ls=last&&J("folio-stat-"+last.id);
+  $("greet").textContent=(h<5?"Late at night":h<12?"Good morrow":h<18?"Good afternoon":"Good even")+(ls?". Your place is kept.":". Choose a play to begin.");
+  $("cont").innerHTML=ls?`<div class="hero">${coverA(last,ls)}<div><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
+    <div class="bar" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,ls.pct)}%"></i></div>
+    <div class="acts"><a class="btn pri" href="${last.id}/" data-play="${last.id}">Resume · ${Math.round(ls.pct)}%</a><a class="btn ghost" href="${last.id}/#study" data-play="${last.id}">Study</a></div></div></div>`:"";
+  renderToday();renderShelves();
+}
+function renderShelves(){
   document.querySelectorAll("#sortc .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===sortBy));
-  $("rail").innerHTML=ps.map(p=>{const st=J("folio-stat-"+p.id);return `<a class="cover" role="listitem" href="${p.id}/" data-play="${p.id}" style="--c:${p.c}" aria-label="${esc(p.title)}">${coverHTML(p,st)}</a>`}).join("");
-  $("dots").innerHTML=ps.map(()=>"<i></i>").join("");
-  const want=sel&&byId[sel]?sel:ps[0]&&ps[0].id;select(want,true);
+  const ord=orderPlays();
+  $("shelves").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=ord.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
+    return `<section class="shelf" aria-label="${g}"><h3>${g}<em>${ps.length} plays${begun?` · ${begun} begun`:""}</em></h3><p class="gd">${esc(d)}</p>
+      <div class="rail" role="list">${ps.map(p=>coverA(p,J("folio-stat-"+p.id))).join("")}</div><div class="shelfbase"></div></section>`}).join("");
 }
-function select(id,scroll){sel=id;const p=byId[id];if(!p)return;
-  const covers=[...document.querySelectorAll(".cover")];covers.forEach((c,i)=>{c.classList.toggle("on",c.dataset.play===id);$("dots").children[i]&&$("dots").children[i].classList.toggle("on",c.dataset.play===id)});
-  if(scroll){const c=covers.find(c=>c.dataset.play===id);if(c&&innerWidth<900){const r=$("rail");r.scrollLeft=c.offsetLeft-(r.clientWidth-c.clientWidth)/2}}
-  const st=J("folio-stat-"+p.id);
-  $("det").innerHTML=`<h3>${esc(p.title)}</h3><div class="meta">${esc(p.kind)} · ${esc(p.year)}</div>
-    <p>${esc(p.blurb)}</p>${st?`<div class="pg"><span class="tr" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(st.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,st.pct)}%"></i></span><span>${Math.round(st.pct)}% · ${esc(st.where)}</span></div>`:`<div class="pg"><span class="tr"></span><span>Not yet begun</span></div>`}
-    <div class="acts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#contents" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>${st?`<button class="unst" type="button" id="unst">Mark as not started</button>`:""}`;
-  const u=$("unst");if(u){let armed=false;u.onclick=()=>{if(!armed){armed=true;u.textContent="Tap again to confirm · notes kept";return}unstart(p);renderLibrary()}}
-}
+/* tap a cover: its detail sheet (Begin / Continue, Contents, Study, Mark as not started) */
+document.addEventListener("click",e=>{const c=e.target.closest("a[data-cover]");if(!c||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();openDetail(c.dataset.cover)});
+let dOpen=null,dFocus=null;
+function openDetail(id){const p=byId[id];if(!p)return;const st=J("folio-stat-"+p.id);
+  if(!dOpen){dFocus=document.activeElement;try{history.pushState({d:id},"")}catch(e){}}dOpen=id;
+  $("dbody").innerHTML=`<div class="dtop">${`<span class="cover" style="--c:${p.c}" aria-hidden="true">${coverHTML(p,st)}</span>`}<div><div class="meta">${esc(p.kind)} · ${esc(p.year)}</div><h3 id="dtitle">${esc(p.title)}</h3><p>${esc(p.blurb)}</p></div></div>
+    <div class="dprog">${st?`${Math.round(st.pct)}% read · ${esc(st.where)}`:"Not yet begun"}<div class="bar"><i style="width:${st?Math.max(2,st.pct):0}%"></i></div></div>
+    <div class="dacts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#contents" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>
+    ${st?`<button class="lnk" type="button" id="unst">Mark as not started</button>`:""}`;
+  $("dsheet").hidden=false;$("dsheet").querySelector(".box").focus({preventScroll:true});
+  const u=$("unst");if(u){let armed=false;u.onclick=()=>{if(!armed){armed=true;u.textContent="Tap again to confirm · notes kept";return}unstart(p);closeDetail();renderLibrary()}}}
+function closeDetail(quiet){if(!dOpen)return;dOpen=null;$("dsheet").hidden=true;if(!quiet&&history.state&&history.state.d){try{history.back()}catch(e){}}if(dFocus&&dFocus.focus&&!quiet)dFocus.focus({preventScroll:true})}
+$("dx").onclick=()=>closeDetail();$("dsheet").addEventListener("click",e=>{if(e.target.id==="dsheet")closeDetail()});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&dOpen)closeDetail()});
+addEventListener("popstate",()=>{if(dOpen){dOpen=null;$("dsheet").hidden=true}});
 /* Mark a play as not started: clears its place, % read and scenes read; keeps notes, bookmarks, Study and reading time */
 function unstart(p){try{localStorage.removeItem("folio-stat-"+p.id);localStorage.removeItem(p.prefix+"pos");
   const pr=J(p.prefix+"prog");if(pr&&pr.done){pr.done={};LS.set(p.prefix+"prog",JSON.stringify(pr))}
   if(LS.get("folio-last")===p.id){const nx=PLAYS.filter(q=>q.id!==p.id).map(q=>[q.id,J("folio-stat-"+q.id)]).filter(x=>x[1]).sort((a,b)=>(b[1].t||0)-(a[1].t||0))[0];nx?LS.set("folio-last",nx[0]):localStorage.removeItem("folio-last")}}catch(e){}}
-let rt=0;$("rail").addEventListener("scroll",()=>{cancelAnimationFrame(rt);rt=requestAnimationFrame(()=>{if(innerWidth>=900)return;const r=$("rail"),mid=r.scrollLeft+r.clientWidth/2;let best=null,bd=1e9;
-  for(const c of r.children){const d=Math.abs(c.offsetLeft+c.clientWidth/2-mid);if(d<bd){bd=d;best=c}}if(best&&best.dataset.play!==sel)select(best.dataset.play)})},{passive:true});
-$("rail").addEventListener("click",e=>{const c=e.target.closest(".cover");if(!c)return;if(c.dataset.play!==sel){e.preventDefault();e.stopPropagation();select(c.dataset.play,true);return}},true);
-addEventListener("mouseover",e=>{const c=e.target.closest&&e.target.closest(".cover");if(c&&innerWidth>=900&&c.dataset.play!==sel)select(c.dataset.play)});
 
-/* ---------- today ---------- */
+/* ---------- today: line of the day, word of the day, this week, daily review ---------- */
 let li=null;
-function renderToday(){
-  $("tdate").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});let h="";
   if(LINES.length){if(li==null)li=(dayNo()*7919)%LINES.length;const L=LINES[li],p=byId[L.play];
-    $("lotd").innerHTML=`<p class="eyebrow">Line of the day</p><blockquote>${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite><div class="acts"><a class="btn pri" href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play</a><button class="btn ghost" id="lnext">Another</button></div>`;
-    $("lnext").onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;renderToday()}}
-  else $("lotd").hidden=true;
-  if(WORDS.length){const W=WORDS[(dayNo()*104729)%WORDS.length],p=byId[W[2]];
-    $("word").innerHTML=`<p class="eyebrow">Word of the day</p><b>${esc(W[0])}</b><p>${esc(W[1])}</p><small>From ${esc(p?p.title:"")}</small><div class="acts" style="justify-content:flex-start;margin-top:12px"><button class="btn ghost" id="wfind">Find it in the plays</button></div>`;
-    $("wfind").onclick=()=>{go("search");$("q").value=W[0].replace(/^'/,"");runSearch()}}
-  else $("word").hidden=true;
+    h+=`<div class="lotd"><p class="eyebrow">Line of the day</p><p class="ldate">${esc(date)}</p><blockquote>${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite>
+      <div class="acts"><a class="btn pri" href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play</a><button class="btn ghost" type="button" id="lnext">Another</button></div></div>`}
   const days=readDays(),now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
-  const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days);
-  $("week").innerHTML=`<p class="eyebrow">This week</p><div class="wk"><div class="wdots">${wk.map((d,i)=>`<span class="wd${days[dkey(d)]!=null?" on":""}${i===6?" today":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div>
-    <div class="big-n">${s}<small>day${s===1?"":"s"} in a row${mins?` · ${mins} min this week`:""}</small></div></div>${days[dkey(now)]==null?`<div class="acts" style="justify-content:flex-start;margin-top:14px"><button class="btn pri" id="readnow">Read a page today</button></div>`:""}`;
-  const rn=$("readnow");if(rn)rn.onclick=()=>{const p=byId[LS.get("folio-last")]||PLAYS[0];openPlay(p.id,p.id+"/")};
-  renderDue();
+  const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days),W=WORDS.length?WORDS[(dayNo()*104729)%WORDS.length]:null,wp=W&&byId[W[2]];
+  h+=`<div class="tfoot">${W?`<button class="word" type="button" id="wfind" aria-label="Word of the day: ${esc(W[0])}. Find it in the plays"><p class="eyebrow">Word of the day</p><b>${esc(W[0])}</b><span>${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span></button>`:"<div></div>"}
+    <div class="week"><p class="eyebrow">This week</p><div class="wdots">${wk.map((d,i)=>`<span class="wd${days[dkey(d)]!=null?" on":""}${i===6?" now":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small></div></div>`;
+  h+=dueHTML();el.innerHTML=h;
+  const ln=$("lnext");if(ln)ln.onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;renderToday()};
+  const wf=$("wfind");if(wf)wf.onclick=()=>{go("search");$("q").value=W[0].replace(/^'/,"");runSearch()};
 }
 /* Daily review: items due in each play (flashcards in <prefix>prog.srs, other review items in <prefix>rev.it) */
-function renderDue(){const now=Date.now(),rows=[];let any=false,next=Infinity;
+function dueHTML(){const now=Date.now(),rows=[];let any=false;
   for(const p of PLAYS){const pr=J(p.prefix+"prog")||{},rv=J(p.prefix+"rev")||{},all=[...Object.values(pr.srs||{}),...Object.values((rv&&rv.it)||{})].filter(s=>s&&isFinite(s.d));
-    if(all.length)any=true;const n=all.filter(s=>s.d<=now).length;all.forEach(s=>{if(s.d>now)next=Math.min(next,s.d)});if(n)rows.push([p,n])}
-  const el=$("due");if(!any){el.hidden=true;return}el.hidden=false;const tot=rows.reduce((a,r)=>a+r[1],0);
-  el.innerHTML=`<p class="eyebrow">Daily review</p>${tot?`<div class="big-n">${tot}<small>item${tot===1?"":"s"} due${rows.length>1?` across ${rows.length} plays`:""}</small></div><div class="duel">${rows.map(([p,n])=>`<a class="btn ghost" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</div>`
-    :`<p>Nothing due today.${isFinite(next)?` Next review ${esc(new Date(next).toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"}))}.`:""}</p>`}`}
+    if(all.length)any=true;const n=all.filter(s=>s.d<=now).length;if(n)rows.push([p,n])}
+  if(!any||!rows.length)return "";const tot=rows.reduce((a,r)=>a+r[1],0);
+  return `<div class="due"><span><b>${tot}</b> review item${tot===1?"":"s"} due</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</span></div>`}
 
-/* ---------- search ---------- */
-const IDX={};let scope="all",loading=null;
+/* ---------- search: genre chips + play picker, results grouped by play ---------- */
+const IDX={};let sg="all",sp="all",loading=null;const openG=new Set();
 const norm=s=>s.toLowerCase().replace(/[’‘]/g,"'").normalize("NFD").replace(/[̀-ͯ]/g,"");
 function initSearch(){
-  $("scope").innerHTML=[`<button class="chip" data-s="all">All plays</button>`].concat(PLAYS.map(p=>`<button class="chip" data-s="${p.id}">${esc(p.title)}</button>`)).join("");
-  document.querySelectorAll("#scope .chip").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.s===scope);b.onclick=()=>{scope=b.dataset.s;initSearch();runSearch()}});
+  $("sgen").innerHTML=["all",...GENRES.map(g=>g[0])].map(g=>`<button class="chip" type="button" data-g="${g}" aria-pressed="${sg===g}">${g==="all"?"All":g}</button>`).join("");
+  document.querySelectorAll("#sgen .chip").forEach(b=>b.onclick=()=>{sg=b.dataset.g;sp="all";initSearch();runSearch()});
+  const ps=PLAYS.filter(p=>sg==="all"||p.group===sg).sort((a,b)=>tkey(a).localeCompare(tkey(b)));
+  $("splay").innerHTML=`<option value="all">${sg==="all"?"All 36 plays":"All "+sg.toLowerCase()}</option>`+ps.map(p=>`<option value="${p.id}"${sp===p.id?" selected":""}>${esc(p.title)}</option>`).join("");
   if(!$("q").value)hint();
   load();setTimeout(()=>$("q").focus({preventScroll:true}),50);
 }
-function hint(){const ex=["green-eyed","honest","Egypt","handkerchief","melting","Moor"];
+$("splay").onchange=e=>{sp=e.target.value;runSearch()};
+function hint(){const ex=["green-eyed","honest","crown","handkerchief","melting","Moor"];
   $("sres").innerHTML=`<p class="hint">Search every play at once, in Shakespeare's words or the modern English. Try ${ex.map(w=>`<b data-ex="${w}">${w}</b>`).join(", ")}.</p>`;
   document.querySelectorAll("[data-ex]").forEach(b=>b.onclick=()=>{$("q").value=b.dataset.ex;runSearch()})}
 function load(){if(loading)return loading;loading=Promise.all(PLAYS.map(p=>IDX[p.id]?null:fetch("search/"+p.id+".json").then(r=>r.json()).then(a=>{IDX[p.id]=a.map(x=>({id:x[0],who:x[1],sc:x[2],o:x[3],m:x[4],no:norm(x[3]),nm:norm(x[4]),nw:norm(x[1])}))}).catch(()=>{})));return loading}
 function mark(text,q){const n=norm(text),i=n.indexOf(q);if(i<0)return esc(text);
   let a=Math.max(0,i-70),b=Math.min(text.length,i+q.length+90);const pre=a>0?"…":"",post=b<text.length?"…":"";
   return pre+esc(text.slice(a,i))+"<mark>"+esc(text.slice(i,i+q.length))+"</mark>"+esc(text.slice(i+q.length,b))+post}
-let st=0,shown=40;
-function runSearch(more){clearTimeout(st);st=setTimeout(async()=>{
-  const raw=$("q").value.trim(),q=norm(raw);if(!more)shown=40;
+let stT=0;const SHOW=3;
+function runSearch(){clearTimeout(stT);stT=setTimeout(async()=>{
+  const raw=$("q").value.trim(),q=norm(raw);
   if(q.length<2){hint();return}
   if(PLAYS.some(p=>!IDX[p.id])){$("sres").innerHTML=`<p class="hint">Opening the plays…</p>`;loading=null;await load()}
-  const hits=[];for(const p of PLAYS){if(scope!=="all"&&scope!==p.id)continue;for(const x of IDX[p.id]||[]){
-    const io=x.no.indexOf(q),im=x.nm.indexOf(q),iw=x.nw.indexOf(q);if(io<0&&im<0&&iw<0)continue;hits.push({p,x,inO:io>=0||im<0})}}
-  hits.sort((a,b)=>(b.inO-a.inO));
-  $("sres").innerHTML=`<p class="count">${hits.length?hits.length+" speech"+(hits.length===1?"":"es"):"Nothing found"} for “${esc(raw)}”</p><ul class="res">${hits.slice(0,shown).map(({p,x,inO})=>`<li><a href="${p.id}/#sp=${x.id}" data-play="${p.id}"><div class="rm">${esc(x.who)} · ${esc(p.title)} ${esc(x.sc)}</div><div class="rt${inO?"":" mod"}">${inO?mark(x.o,q):"Modern: "+mark(x.m,q)}</div></a></li>`).join("")}</ul>${hits.length>shown?`<div class="acts" style="margin:16px 0"><button class="btn" id="more">Show more</button></div>`:""}`;
-  const m=$("more");if(m)m.onclick=()=>{shown+=60;runSearch(true)};
-},more?0:140)}
-$("q").addEventListener("input",()=>runSearch());
+  const groups=[];let tot=0;for(const p of PLAYS){if(sg!=="all"&&p.group!==sg||sp!=="all"&&sp!==p.id)continue;const hits=[];for(const x of IDX[p.id]||[]){
+    const io=x.no.indexOf(q),im=x.nm.indexOf(q),iw=x.nw.indexOf(q);if(io<0&&im<0&&iw<0)continue;hits.push({x,inO:io>=0||im<0})}
+    if(hits.length){hits.sort((a,b)=>b.inO-a.inO);groups.push([p,hits]);tot+=hits.length}}
+  groups.sort((a,b)=>b[1].length-a[1].length);const one=groups.length===1;
+  $("sres").innerHTML=`<p class="count">${tot?`${tot} speech${tot===1?"":"es"} in ${groups.length} play${groups.length===1?"":"s"}`:"Nothing found"} for “${esc(raw)}”</p>`+groups.map(([p,hits])=>{const op=one||openG.has(p.id)||(!openG.size&&groups[0][0]===p),all=openG.has(p.id+"*");
+    return `<div class="grp${op?" open":""}"><button type="button" data-grp="${p.id}" aria-expanded="${op}"><b>${esc(p.title)}</b><span>${hits.length}</span>${CHEV}</button>${op?`<ul class="res">${hits.slice(0,all?hits.length:Math.max(SHOW,one?40:SHOW)).map(({x,inO})=>`<li><a href="${p.id}/#sp=${x.id}" data-play="${p.id}"><div class="rm">${esc(x.who)}<i>${esc(x.sc)}${inO?"":" · modern English"}</i></div><div class="rt${inO?"":" mod"}">${inO?mark(x.o,q):mark(x.m,q)}</div></a></li>`).join("")}</ul>${!all&&hits.length>(one?40:SHOW)?`<button class="btn ghost more" type="button" data-all="${p.id}">Show all ${hits.length}</button>`:""}`:""}</div>`}).join("");
+  document.querySelectorAll("[data-grp]").forEach(b=>b.onclick=()=>{const id=b.dataset.grp;openG.has(id)?openG.delete(id):openG.add(id);runSearch()});
+  document.querySelectorAll("[data-all]").forEach(b=>b.onclick=()=>{openG.add(b.dataset.all+"*");runSearch()});
+},140)}
+$("q").addEventListener("input",()=>{openG.clear();runSearch()});
 
 /* ---------- you ---------- */
-const THN={auto:"Auto",light:"Light",paper:"Paper",dark:"Dark",papernight:"Paper night",night:"Night",timed:"Night after 8pm",papertimed:"Paper, night after 8pm"};
-const ICON={auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
- light:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
+const THN={paper:"Paper",light:"Light",dark:"Dark",night:"Night"};
+const ICON={light:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
  dark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
  paper:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6M9 18h4"/></svg>',
- papernight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="3" width="14" height="18" rx="2" fill="currentColor" fill-opacity=".25"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>',
  night:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21h6M10 21v-9h4v9M12 12V9"/><path d="M12 3c1.6 1.8 2 3 1.2 4.3-.5.8-1.9.8-2.4 0C10 6 10.4 4.8 12 3z" fill="currentColor"/></svg>'};
-function renderTheme(){const th=LS.get("folio-theme")||"auto",sz=parseFloat(LS.get("folio-size"))||1.3;
-  $("themeb").innerHTML=ICON[th]||ICON[th==="papertimed"?"paper":th==="timed"?"night":"auto"];$("themeb").setAttribute("aria-label","Theme: "+(THN[th]||"Auto")+". Tap to change");
-  document.querySelectorAll("#seg-theme button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.th===th));
-  let best=null;document.querySelectorAll("#seg-size button").forEach(b=>{if(!best||Math.abs(b.dataset.sz-sz)<Math.abs(best.dataset.sz-sz))best=b});
-  document.querySelectorAll("#seg-size button").forEach(b=>b.setAttribute("aria-pressed",b===best))}
-document.querySelectorAll("#seg-theme button").forEach(b=>b.onclick=()=>{LS.set("folio-theme",b.dataset.th);folioTheme();folioBar();renderTheme()});
-document.querySelectorAll("#seg-size button").forEach(b=>b.onclick=()=>{LS.set("folio-size",b.dataset.sz);folioTheme();folioBar();renderTheme()});
-$("themeb").onclick=()=>{const seq=["auto","light","paper","dark","papernight","night"],th=LS.get("folio-theme")||"auto";LS.set("folio-theme",seq[(seq.indexOf(th)+1)%seq.length]);folioTheme();folioBar();renderTheme()};
+const SIZES=[1.15,1.3,1.5,1.75],SZN=["Small","Normal","Large","Extra large"];
+/* Auto (never chosen) shows as Light or Dark, whichever the device is using */
+const shownTheme=()=>{const t=folioThemeChosen();return t==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):t};
+function setTheme(t){LS.set("folio-theme",t);folioTheme();folioBar();renderTheme()}
+function renderTheme(){const th=shownTheme(),now=folioThemeNow(),sz=parseFloat(LS.get("folio-size"))||1.3;
+  $("themeb").innerHTML=ICON[now==="auto"?th:now]||ICON.light;$("themeb").setAttribute("aria-label","Theme: "+(THN[th]||"Light")+". Tap to change");
+  $("ttiles").innerHTML=FOLIO_THEMES.map(t=>`<button class="tt tt-${t}" type="button" data-th="${t}" aria-pressed="${t===th}"><span class="sw2">A<em>a</em></span><span class="tl">${THN[t]}</span></button>`).join("");
+  $("ttiles").querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>setTheme(b.dataset.th));
+  $("nightauto").setAttribute("aria-checked",folioNightAuto());
+  let bi=0;SIZES.forEach((s,i)=>{if(Math.abs(s-sz)<Math.abs(SIZES[bi]-sz))bi=i});$("szr").value=bi;$("szr").setAttribute("aria-valuetext",SZN[bi]);
+  $("sprev").innerHTML=`<b>${SZN[bi]}.</b> Now is the winter of our discontent`}
+$("nightauto").onclick=()=>{LS.set("folio-nightauto",folioNightAuto()?"0":"1");folioTheme();folioBar();renderTheme()};
+$("szr").oninput=e=>{LS.set("folio-size",SIZES[+e.target.value]);folioTheme();renderTheme()};
+$("themeb").onclick=()=>{const seq=FOLIO_THEMES,th=shownTheme();setTheme(seq[(seq.indexOf(th)+1)%seq.length])};
 function renderYou(){
   const days=readDays(),tot=Math.round(Object.values(days).reduce((a,b)=>a+b,0)/60),begun=PLAYS.filter(p=>J("folio-stat-"+p.id)).length;
   $("stats").innerHTML=`<div class="stat"><b>${streak(days)}</b><span>Day streak</span></div><div class="stat"><b>${tot<60?tot+"m":(tot/60).toFixed(1)+"h"}</b><span>Time read</span></div><div class="stat"><b>${begun}/${PLAYS.length}</b><span>Plays begun</span></div>`;

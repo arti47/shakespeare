@@ -1,43 +1,6 @@
 
 /* Layout: an e-reader for a Folio. Home = title page, contents, "The Names of the Actors". Reader = one screen-sized page at a time, menus hidden (tap empty space to show them, swipe or arrow keys to turn). Tap a speech part for its modern English; long-press for word meanings and notes (side panel on wide screens, bottom sheet on phones). Study = its own tab. Type: IM Fell for Shakespeare, Instrument Sans for everything modern. */
-:root{
-  --bg:#eceae6; --page:#ffffff; --ink:#111215; --soft:#2b2d33; --muted:#5f6270; --rule:#d9d8d4; --card:#ffffff; --nmix:#000000; --nmw:78%;
-  --accent:#7a4f0e; --accent-ink:#ffffff; --accent-soft:#efe6d6;
-  --hl:#f5dede; --hl-ink:#8a1f2e; --berry:#a3243a;
-  --ok:#2c7048; --bad:#a83232; --shade:rgba(15,18,35,.45);
-  --f-old:"IM Fell English", "IM Fell DW Pica", Georgia, serif;
-  --f-sc:"IM Fell English SC", "IM Fell English", Georgia, serif;
-  --f-ui:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --scale:1.3;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#101114; --page:#18191d; --ink:#f3f1ec; --soft:#dedad2; --muted:#a3a3ab; --rule:#33353c; --card:#202227; --nmix:#ffffff; --nmw:55%;
-  --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216;
-  --hl:#3a1a24; --hl-ink:#f4bcc5; --berry:#f08a9b;
-  --ok:#6cc38a; --bad:#ef8a83; --shade:rgba(0,0,0,.6); color-scheme:dark}}
-:root[data-theme="night"]{
-  --bg:#130f0b; --page:#1b1510; --ink:#f1dcba; --soft:#e2cba7; --muted:#ab9470; --rule:#3a2e22; --card:#221a13; --nmix:#f1dcba; --nmw:55%;
-  --accent:#e7a95a; --accent-ink:#1b1510; --accent-soft:#2f2418;
-  --hl:#3e2a1e; --hl-ink:#f6c9a4; --berry:#f0a08a;
-  --ok:#9cc88a; --bad:#f09a83; --shade:rgba(0,0,0,.6); color-scheme:dark}
-:root[data-theme="dark"]{
-  --bg:#101114; --page:#18191d; --ink:#f3f1ec; --soft:#dedad2; --muted:#a3a3ab; --rule:#33353c; --card:#202227; --nmix:#ffffff; --nmw:55%;
-  --accent:#e2b65c; --accent-ink:#14110a; --accent-soft:#272216;
-  --hl:#3a1a24; --hl-ink:#f4bcc5; --berry:#f08a9b;
-  --ok:#6cc38a; --bad:#ef8a83; --shade:rgba(0,0,0,.6); color-scheme:dark}
-/* Paper: e-ink style. Warm matte off-white, faint grain, near-black ink, no colour glare, page turns snap instead of sliding */
-:root[data-theme="paper"]{
-  --bg:#e9e5dc; --page:#f3efe6; --ink:#141414; --soft:#262626; --muted:#4d4b47; --rule:#d2cdc2; --card:#f6f3ec; --nmix:#000000; --nmw:80%;
-  --accent:#3d3a35; --accent-ink:#f3efe6; --accent-soft:#e4ded2;
-  --hl:#e3dccd; --hl-ink:#141414; --berry:#5a2a2a;
-  --ok:#2f5a3a; --bad:#7a2a2a; --shade:rgba(20,18,14,.4); --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); color-scheme:light}
-:root[data-theme="papernight"]{
-  --bg:#0b0b0b; --page:#141414; --ink:#e9e6df; --soft:#d8d4cc; --muted:#a29e96; --rule:#2e2e2e; --card:#1b1b1b; --nmix:#ffffff; --nmw:60%;
-  --accent:#d9d4ca; --accent-ink:#141414; --accent-soft:#262523;
-  --hl:#2c2a26; --hl-ink:#f0ece4; --berry:#e2b0b0;
-  --ok:#9cc4a0; --bad:#e8a39a; --shade:rgba(0,0,0,.6); --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); color-scheme:dark}
 :root[data-theme="paper"]{--hl-ev:#ece2bf;--hl-fav:#d9e1ea;--hl-cf:#ecd9d9}
-:root[data-theme="papernight"]{--hl-ev:#35301c;--hl-fav:#1d2733;--hl-cf:#3a2226}
 :root[data-theme^="paper"] body,:root[data-theme^="paper"] #reader,:root[data-theme^="paper"] .sheet .sbox,:root[data-theme^="paper"] .panel,:root[data-theme^="paper"] .sheet .head{background-image:var(--grain)}
 :root[data-theme^="paper"] .pg{text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
 :root[data-theme^="paper"] *{box-shadow:none!important}
@@ -78,14 +41,14 @@ abbr.g{text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,tran
 /* ---------- batch A: reader extras ---------- */
 :root{--hl-ev:#f7e9b5;--hl-fav:#d8e7fb;--hl-cf:#f8dbe0;--lh:1.55}
 :root[data-theme="dark"],:root[data-theme="night"]{--hl-ev:#3b3315;--hl-fav:#172a42;--hl-cf:#40202b}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hl-ev:#3b3315;--hl-fav:#172a42;--hl-cf:#40202b}}
+@media (prefers-color-scheme: dark){:root:not([data-theme]){--hl-ev:#3b3315;--hl-fav:#172a42;--hl-cf:#40202b}}
 .sp.hl.hl-ev .o,.sp.hl.hl-ev .m{background:var(--hl-ev);box-shadow:0 0 0 .25em var(--hl-ev)}
 .sp.hl.hl-fav .o,.sp.hl.hl-fav .m{background:var(--hl-fav);box-shadow:0 0 0 .25em var(--hl-fav)}
 .sp.hl.hl-cf .o,.sp.hl.hl-cf .m{background:var(--hl-cf);box-shadow:0 0 0 .25em var(--hl-cf)}
 .hlk{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:-.05em;margin-right:4px;border:1px solid var(--rule)}
 .hlk.ev{background:var(--hl-ev)}.hlk.fav{background:var(--hl-fav)}.hlk.cf{background:var(--hl-cf)}
 :root{--fc-r:#f8d7de;--fc-y:#f7eaa6;--fc-g:#d3ecd0;--fc-b:#d6e6fb;--fc-v:#e5dbf7;--fci-r:#c2405a;--fci-y:#a8850a;--fci-g:#3f8f47;--fci-b:#3b74c4;--fci-v:#7d55c7}
-:root[data-theme="dark"],:root[data-theme="night"],:root[data-theme="papernight"]{--fc-r:#4a2330;--fc-y:#3f3614;--fc-g:#1f3a24;--fc-b:#172a42;--fc-v:#2f2546;--fci-r:#f08a9b;--fci-y:#e2c25c;--fci-g:#7ccf86;--fci-b:#7fb0f0;--fci-v:#b99af0}
+:root[data-theme="dark"],:root[data-theme="night"]{--fc-r:#4a2330;--fc-y:#3f3614;--fc-g:#1f3a24;--fc-b:#172a42;--fc-v:#2f2546;--fci-r:#f08a9b;--fci-y:#e2c25c;--fci-g:#7ccf86;--fci-b:#7fb0f0;--fci-v:#b99af0}
 @media (prefers-color-scheme: dark){:root:not([data-theme]){--fc-r:#4a2330;--fc-y:#3f3614;--fc-g:#1f3a24;--fc-b:#172a42;--fc-v:#2f2546;--fci-r:#f08a9b;--fci-y:#e2c25c;--fci-g:#7ccf86;--fci-b:#7fb0f0;--fci-v:#b99af0}}
 .fc-r{--fc:var(--fc-r);--fci:var(--fci-r)}.fc-y{--fc:var(--fc-y);--fci:var(--fci-y)}.fc-g{--fc:var(--fc-g);--fci:var(--fci-g)}.fc-b{--fc:var(--fc-b);--fci:var(--fci-b)}.fc-v{--fc:var(--fc-v);--fci:var(--fci-v)}
 .pg mark.fph{background:var(--fc,var(--fc-r));color:inherit;border-bottom:2px solid var(--fci,var(--fci-r));border-radius:2px;box-shadow:0 0 0 .08em var(--fc,var(--fc-r));-webkit-box-decoration-break:clone;box-decoration-break:clone}
@@ -641,3 +604,140 @@ ol.beats button:hover,ol.beats button:focus-visible{border-left-color:var(--acce
 .sp:not(.vs) .o .l:not(.song){display:inline;padding-left:0;text-indent:0;line-height:inherit;padding-bottom:0}
 .sp:not(.vs) .o .l:not(.song)::after{content:" "}
 .sp:not(.vs) .o .l[data-n]:not(.song)::before{display:none}
+
+/* ======================================================================
+   3.0 "Folio print": ivory paper, black ink, red rubrics, double rules.
+   Tokens in ../folio.css (shared with the shelf). This layer restyles; behaviour is unchanged.
+   ====================================================================== */
+body{font-size:1rem}
+.btn{border:var(--line) solid var(--rule);border-radius:var(--pill);padding:8px 16px;min-height:42px;font:400 1rem var(--f-old);color:var(--ink)}
+.btn.sm{min-height:36px;padding:4px 12px;font-size:.95rem}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+a.btn.primary{color:var(--accent-ink)}
+.chip{border-width:var(--line);font:400 .95rem var(--f-old);padding:5px 13px;min-height:36px}
+.eyebrow{color:var(--accent)}
+.lbl{font:400 .95rem var(--f-sc);letter-spacing:.1em;text-transform:none;color:var(--muted)}
+.link{color:var(--accent)}
+
+/* reader chrome: solid paper bars with a double rule */
+.bar,.bbar{background:var(--page);backdrop-filter:none;-webkit-backdrop-filter:none}
+:root[data-theme="paper"] .bar,:root[data-theme="paper"] .bbar,:root[data-theme="paper"] .fnav{background-image:var(--grain)}
+.bar{border-bottom:var(--line) solid var(--rule-strong);box-shadow:0 3px 0 -2px var(--rule-strong)}
+.bbar{border-top:1px solid var(--rule)}
+.where b{font:400 1.15rem var(--f-old)}
+.where b::after{color:var(--accent)}
+.where small{font:400 .875rem var(--f-sc);letter-spacing:.1em;text-transform:none}
+.icon{border-radius:50%;min-width:44px;height:44px;color:var(--ink)}
+.icon:hover{background:var(--hover)}
+.bbar .pn{font:400 .95rem var(--f-old);color:var(--soft)}
+.pgfoot{font:400 .875rem var(--f-sc);letter-spacing:.1em;color:var(--muted)}
+.pgbar i{opacity:.8}
+
+/* bottom nav: same as the shelf (solid, double rule, active pill) */
+.fnav{background:var(--page);backdrop-filter:none;-webkit-backdrop-filter:none;border-top:var(--line) solid var(--rule-strong);box-shadow:0 -4px 0 -3px var(--rule-strong) inset}
+.fnav a,.fnav button{font:400 .9rem var(--f-old);letter-spacing:0;gap:3px;padding:4px 0}
+.fnav svg{padding:3px 14px;box-sizing:content-box;border-radius:var(--pill);transition:background .2s}
+.fnav [aria-current="page"] svg{background:var(--accent-soft)}
+@media (hover:hover){.fnav a:hover,.fnav button:hover{background:transparent}.fnav a:hover svg,.fnav button:hover svg{background:var(--hover)}}
+
+/* compact scene opener: the play text starts on the first page */
+.shead{padding:.2em 0 .7em;margin-bottom:.7em;border-bottom:0;position:relative}
+.shead::after{content:"";display:block;height:4px;margin:.7em auto 0;width:min(100%,22em);border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong)}
+.shead .eyebrow{font-size:max(14px,.58em);letter-spacing:.1em}
+.shead h1{font:400 1.45em/1.05 var(--f-old);margin:.05em 0 0}
+.shead .loc{font-size:max(14px,.78em);margin-top:.2em;color:var(--soft);flex-wrap:nowrap;max-width:100%}
+.shead .loc span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.shead .loc svg{width:1.4em;height:1.4em}
+.recapb{display:inline-flex;align-items:center;gap:.2em;margin-top:.55em;border:var(--line) solid var(--accent);border-radius:var(--pill);padding:.25em .9em;min-height:40px;font:400 max(14px,.62em) var(--f-old);letter-spacing:0;color:var(--accent);background:transparent}
+.recapb span{color:var(--accent)}
+.sheet .onstage{text-align:left;font-size:.95rem;line-height:1.7;letter-spacing:0;margin:0 0 6px}
+.sheet .preq{margin:4px 0 14px;max-width:none;font-size:1rem;border-style:solid;border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+
+/* tap a part: the modern English card (high contrast) and a rubric bar beside the tapped lines */
+.pt.open,.pt.cur{background:none;box-shadow:none;border-left:3px solid var(--accent);padding-left:.55em;margin-left:calc(-.55em - 3px)}
+.mx{font:400 max(16px,.8em)/1.55 var(--f-ui);color:var(--ink);background:var(--card);border:var(--line) solid var(--rule-strong);border-left:5px solid var(--accent);border-radius:var(--r-s);padding:.6em .85em .55em;margin:.45em 0 .8em;box-shadow:var(--lift)}
+.mx::before{content:"Modern English";display:block;font:400 max(14px,.78em) var(--f-sc);letter-spacing:.1em;color:var(--accent);margin-bottom:.2em}
+.mxa button{border:var(--line) solid var(--rule);background:var(--page);color:var(--ink);font:400 max(14px,.85em) var(--f-old);min-height:38px;padding:4px 12px}
+.mxa small{color:var(--accent)}
+
+/* speech heads and stage directions */
+.nm{letter-spacing:.07em}
+.sd{color:var(--soft)}
+.beat{color:var(--accent);font-family:var(--f-old);font-style:italic;font-weight:400;font-size:max(14px,.8em)}
+.beat::before,.beat::after{background:var(--rule-strong);opacity:.5}
+.endblk b{font-family:var(--f-sc)}
+
+/* first-run guide, once per app */
+.hint{background:var(--card);color:var(--ink);border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);box-shadow:var(--lift),0 0 0 100vmax var(--shade);padding:18px 20px 16px;width:min(360px,88vw);font-size:1rem}
+.hint::before{content:"";position:absolute;inset:4px;border:1px solid var(--rule);border-radius:calc(var(--r-m) - 4px);pointer-events:none}
+.hint .eyebrow{font:400 1.25rem var(--f-sc);margin:0 0 6px;text-align:center}
+.hint ol{margin:6px 0 14px;padding-left:1.3em}
+.hint li{margin:6px 0;line-height:1.45}
+.hint li::marker{color:var(--accent);font-family:var(--f-old)}
+.hint li b{display:inline;font:400 1.05rem var(--f-old);color:var(--accent);margin:0}
+.hint button{display:block;width:100%;background:var(--accent);color:var(--accent-ink);border:0;border-radius:var(--pill);padding:10px 14px;min-height:44px;font:400 1.05rem var(--f-old)}
+
+/* sheets */
+.sheet .sbox{border-radius:var(--r-l) var(--r-l) 0 0}
+@media (min-width:900px){.sheet .sbox{border-radius:var(--r-l);border:var(--line) solid var(--rule-strong)}}
+.sheet .head{border-bottom:var(--line) solid var(--rule-strong);box-shadow:0 3px 0 -2px var(--rule-strong)}
+.sheet h2{font:400 1.6rem var(--f-sc);letter-spacing:.05em}
+.opt{padding-block:14px}
+.segs{border-width:var(--line);border-radius:var(--pill)}
+.segs button{font:400 .95rem var(--f-old);padding:7px 14px;min-height:40px}
+.segs button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+.panel .phead h2{font-family:var(--f-sc)}
+.panel{border-left:var(--line) solid var(--rule-strong)}
+.tool .pmod{border-left-width:5px}
+
+/* Study: header, home cards, section chips */
+.sbar h1{font:400 1.9rem var(--f-sc);letter-spacing:.06em;font-style:normal}
+.sgroups{display:flex;align-items:center;gap:10px;background:none;border-radius:0;padding:0;margin:0 0 6px}
+.sgback{display:inline-flex;align-items:center;gap:2px;border:0;background:none;color:var(--accent);font:400 1.05rem var(--f-old);min-height:44px;padding:0 6px 0 0}
+.sgname{font:400 1.05rem var(--f-sc);letter-spacing:.08em;color:var(--muted)}
+.sgroups+.tabs{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;border-bottom:var(--line) solid var(--rule-strong);padding-bottom:12px;margin-bottom:16px}
+.sgroups+.tabs button{border:var(--line) solid var(--rule);border-radius:var(--pill);padding:6px 14px;min-height:40px;font:400 1rem var(--f-old);color:var(--ink);background:transparent}
+.sgroups+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--page)}
+.sgcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px;margin-top:6px}
+.sgc{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;gap:4px 14px;align-items:start;text-align:left;border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);padding:16px;color:var(--ink);box-shadow:var(--lift);cursor:pointer}
+.sgc::before{content:"";position:absolute;inset:4px;border:1px solid var(--rule);border-radius:calc(var(--r-m) - 4px);pointer-events:none}
+.sgc:hover{border-color:var(--accent)}
+.sgn{grid-row:1/3;font:400 2.4rem/1 var(--f-old);color:var(--accent);min-width:1.4em;text-align:center}
+.sgt b{display:block;font:400 1.5rem/1.1 var(--f-sc);letter-spacing:.05em}
+.sgt small{display:block;font-size:.95rem;color:var(--soft);margin-top:4px}
+.sgt em{display:block;font:italic 400 .95rem var(--f-old);color:var(--muted);margin-top:6px}
+.sgp{grid-column:2;font:600 .875rem var(--f-ui);color:var(--accent)}
+@media (max-width:520px){.sgt small{display:none}.sgc{padding:14px}}
+.sglast{display:block;margin:16px auto 0;border:0;background:none;color:var(--soft);font:400 1rem var(--f-old);min-height:44px}
+.sglast b{font-weight:400;color:var(--accent)}
+.qt blockquote{font-size:1.3rem}
+.qz,.card{border-width:var(--line);border-color:var(--rule-strong);border-radius:var(--r-m)}
+.opts button{border-width:var(--line);border-radius:var(--r-s);min-height:48px;font-size:1rem}
+.qsel select{border-width:var(--line);border-radius:var(--pill)}
+
+/* play You: hero + stat tiles (same as the shelf) */
+#you .sbar h1{font-family:var(--f-sc)}
+.go{width:min(100%,420px);align-items:stretch;text-align:left;background:var(--card);color:var(--ink);border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);padding:14px 18px;box-shadow:var(--lift);gap:2px}
+.go small{font:400 .95rem var(--f-sc);letter-spacing:.1em;text-transform:none;opacity:1;color:var(--accent)}
+.go b{font:400 1.45rem var(--f-old)}
+.go>span:not(.meter){color:var(--soft);font-size:.95rem}
+.go .meter{display:block;width:100%;height:6px;border-radius:3px;margin-top:8px;background:var(--track)}
+#you .cont{display:flex;flex-direction:column;align-items:center;gap:14px}
+.ytiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:min(100%,520px)}
+.ytiles>div{border:var(--line) solid var(--rule);border-radius:var(--r-m);background:var(--card);padding:10px 6px;text-align:center}
+.ytiles b{display:block;font:600 1.35rem var(--f-ui);color:var(--accent);line-height:1.2}
+.ytiles b small{font-size:.875rem;color:var(--muted);font-weight:500}
+.ytiles span{font:400 .875rem var(--f-sc);letter-spacing:.06em;color:var(--soft)}
+.ylist{border-top:var(--line) solid var(--rule-strong)}
+.yrow b{font-family:var(--f-old)}
+
+/* desktop: two facing pages like an open Folio (1200px+) */
+@media (min-width:1200px){
+  body.spread .pg{max-width:min(1320px,calc(100vw - 160px));padding-left:0}
+  body.spread.tools .pg{transform:none}
+}
+.spread{display:grid;grid-template-columns:1fr 1fr;gap:64px;height:100%;position:relative}
+.spread::before{content:"";position:absolute;top:-8px;bottom:-8px;left:50%;width:64px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.07) 45%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.07) 55%,transparent);pointer-events:none}
+.spread .leaf{min-width:0;overflow:hidden;padding-left:2.2em;margin-left:-2.2em}
+/* desktop: menus show when the pointer nears the top or bottom edge */
+@media (hover:hover) and (min-width:900px){.edge-hint{position:absolute;left:0;right:0;height:56px;z-index:11}}
