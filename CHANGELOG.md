@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.39.0] — 2026-11-12
+
+### Added
+- King Henry VI, Part 1, on the Histories shelf: the Project Gutenberg text (eBook #1500; old-style act headings, unbracketed stage directions and run-in speakers tidied, Orleans locations set), modern English for all 688 speeches, story beats, notes, a 199-word glossary and the full Study set: scene summaries and quizzes for all 27 scenes, cast profiles, 208 key quotes in 8 themes, the roses quarrel (each step of the York–Somerset feud from the Temple Garden to the lost relief of Talbot and York's scorn of the peace), a chart of Talbot's fortunes against Joan's, character map, context, critics, imagery and essay plans. Placed between The Taming of the Shrew and Titus Andronicus in Date written order. Checked against the uploaded SparkNotes guide (play text wins: Vernon wears the white rose and Basset the red, Reignier fights for Charles, Paris revolts to the French, Joan fights York in 5.3, York is restored to his whole inheritance). (#91)
+
 ## [2.38.0] — 2026-11-12
 
 ### Added
