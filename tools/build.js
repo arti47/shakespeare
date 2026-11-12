@@ -89,10 +89,14 @@ for (const p of PLAYS) {
   }
 }
 
+/* Every play needs a shelf cover (covers.js: COVER[id] with colour, epigraph, emblem). */
+{ const cv = rd("covers.js"), miss = PLAYS.filter(p => !cv.includes('\n"' + p.id + '":{'));
+  if (miss.length) throw new Error(`covers.js: no COVER entry for ${miss.map(p => p.id).join(", ")}`); }
+
 /* 3. Precache list. */
 const fonts = fs.readdirSync(path.join(ROOT, "fonts")).filter(f => f.endsWith(".woff2")).sort().map(f => "fonts/" + f);
 const F = ["./", "index.html", "fonts.css", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable.png", "apple-touch-icon.png",
-  ...fonts, ...PLAYS.map(p => "search/" + p.id + ".json"), "reader.css", "reader.js",
+  ...fonts, ...PLAYS.map(p => "search/" + p.id + ".json"), "reader.css", "reader.js", "covers.js",
   ...PLAYS.flatMap(p => [p.id + "/index.html", p.id + "/", p.id + "/play.js"]), "update.js"];
 for (const f of F) if (!f.endsWith("/") && !fs.existsSync(path.join(ROOT, f)) && !stale.includes(f)) throw new Error("missing " + f);
 
