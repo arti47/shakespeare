@@ -7,18 +7,18 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.2.0] — 2026-11-12
 
 ### Changed
-- Study looks like an illuminated folio: one header bar per screen (the STUDY title only on the Study home), topic and theme pages open under a banner with a scalloped valance, a lattice in the topic colour, the emblem as a watermark and a laurel round the progress ring (#PR)
-- Reading tools are drawn, not just written: the plot timeline is a road with act plates as gates and a seal at each stop, Key facts is a playbill with an icon per fact, Context is a cabinet of illustrated drawers, Critics are scroll cards with the year as a badge, the glossary has a one-row sticky alphabet and an illuminated initial for each letter, and Analysis, Context and scene summaries open with a drop cap (#PR)
-- The character map uses medallions, curved coloured arrows and a larger canvas, and a medallion opens that character's page. The resolve and action chart has filled areas, act bands and filled dots for scenes you have read (#PR)
-- Character pages show lines, speeches and scenes as round badges, plus a map of that character's relationships. A theme's road winds, with seals for its three stops. Act summaries open with the act plate in front of the stage picture, and the act's key quotes show their speakers' medallions (#PR)
-- Practise: each drill opens on a one-line rule card, drills have icons, flashcards sit on a stack and turn over when you check, scene quizzes are a grid of seals per act that fill with your best score and turn gilt at full marks, the whole-play quiz is a laurel banner, and scores show inside a laurel wreath that turns gold at full marks (#PR)
-- Daily review shows today's reviews as a ring and your last 14 days of study as seals (#PR)
-- Writing tools sit on parchment with seals for steps; the essay outline and the revision sheet are printed folio pages with a running head and red headings (#PR)
-- "Test yourself first" is a covered-eye button in the header; the Related links are one Next card with the rest under More (#PR)
-- Filters, toggles and act chips are pills in the topic colour (never black), selects match, and Dark and Night are warmer, with a candlelit glow and no bright Next card (#PR)
-- A topic or theme with no progress shows a Begin badge instead of an empty ring; a full ring turns gilt (#PR)
-- Tablet and desktop: tools show in two columns, with Next and a line to remember in a side column; decks show two or three cards; the Study home has larger tiles (#PR)
-- Pages rise in when opened, and full rings and full marks get a short celebration. All motion is off with reduced motion (#PR)
+- Study looks like an illuminated folio: one header bar per screen (the STUDY title only on the Study home), topic and theme pages open under a banner with a scalloped valance, a lattice in the topic colour, the emblem as a watermark and a laurel round the progress ring (#105)
+- Reading tools are drawn, not just written: the plot timeline is a road with act plates as gates and a seal at each stop, Key facts is a playbill with an icon per fact, Context is a cabinet of illustrated drawers, Critics are scroll cards with the year as a badge, the glossary has a one-row sticky alphabet and an illuminated initial for each letter, and Analysis, Context and scene summaries open with a drop cap (#105)
+- The character map uses medallions, curved coloured arrows and a larger canvas, and a medallion opens that character's page. The resolve and action chart has filled areas, act bands and filled dots for scenes you have read (#105)
+- Character pages show lines, speeches and scenes as round badges, plus a map of that character's relationships. A theme's road winds, with seals for its three stops. Act summaries open with the act plate in front of the stage picture, and the act's key quotes show their speakers' medallions (#105)
+- Practise: each drill opens on a one-line rule card, drills have icons, flashcards sit on a stack and turn over when you check, scene quizzes are a grid of seals per act that fill with your best score and turn gilt at full marks, the whole-play quiz is a laurel banner, and scores show inside a laurel wreath that turns gold at full marks (#105)
+- Daily review shows today's reviews as a ring and your last 14 days of study as seals (#105)
+- Writing tools sit on parchment with seals for steps; the essay outline and the revision sheet are printed folio pages with a running head and red headings (#105)
+- "Test yourself first" is a covered-eye button in the header; the Related links are one Next card with the rest under More (#105)
+- Filters, toggles and act chips are pills in the topic colour (never black), selects match, and Dark and Night are warmer, with a candlelit glow and no bright Next card (#105)
+- A topic or theme with no progress shows a Begin badge instead of an empty ring; a full ring turns gilt (#105)
+- Tablet and desktop: tools show in two columns, with Next and a line to remember in a side column; decks show two or three cards; the Study home has larger tiles (#105)
+- Pages rise in when opened, and full rings and full marks get a short celebration. All motion is off with reduced motion (#105)
 
 ## [4.1.0] — 2026-11-12
 
