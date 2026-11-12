@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [3.1.1] — 2026-11-12
+
+### Changed
+- Settings › How to read is now a short list, one line per gesture with an icon, in four groups (Turning pages, Understanding, Marking, Text size) that fold away (#102)
+
 ## [3.1.0] — 2026-11-12
 
 ### Added
