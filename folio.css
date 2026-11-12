@@ -70,3 +70,46 @@
 .flash{animation:flash 1.6s ease-out}
 @keyframes flash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
 @media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--accent)}}
+
+/* 4.0 art (art.js): wax seals, cast medallions, act title plates, the stage picture */
+.seal{display:block;width:44px;height:44px;flex:none;overflow:visible}
+.seal .wx{fill:url(#fwx);filter:drop-shadow(0 1.5px 1.5px rgba(40,5,5,.45))}
+.seal .wr{fill:none;stroke:rgba(255,220,200,.35);stroke-width:2}
+.seal .wr2{fill:none;stroke:rgba(60,5,5,.45);stroke-width:1.5}
+.seal .wh{fill:none;stroke:rgba(255,235,220,.45);stroke-width:3;stroke-linecap:round}
+.seal .st{font:400 30px var(--f-sc);fill:#fbe3d6;letter-spacing:.02em}
+.seal.g .wr{stroke:url(#fgl);stroke-width:4}
+.seal.g .st{fill:url(#fgl)}
+.seal.e .se{fill:var(--card);stroke:var(--rule-strong);stroke-width:2.5;stroke-dasharray:5 5}
+.seal.e .st{fill:var(--muted)}
+.seal.e.now .se{stroke:var(--accent);stroke-dasharray:none;stroke-width:4}
+.seal.e.now .st{fill:var(--accent)}
+.medal{display:block;width:44px;height:44px;flex:none}
+.medal .mo{fill:var(--card);stroke:var(--rule-strong);stroke-width:1.5}
+.medal .ml ellipse{fill:color-mix(in srgb,var(--mc) 55%,var(--muted))}
+.medal .md{fill:color-mix(in srgb,var(--mc) 78%,#000)}
+.medal .mi{fill:none;stroke:rgba(255,245,225,.55);stroke-width:1.2}
+.medal .mt{font:400 30px var(--f-sc);fill:#fff8ea;letter-spacing:.02em}
+.aplate{position:relative;display:grid;justify-items:center;gap:0;padding:.9em 1.4em .8em;margin:0 auto;max-width:20em;text-align:center;color:var(--ink)}
+.aplate .apf{position:absolute;inset:0;width:100%;height:100%}
+.aplate .ap1{fill:var(--card);stroke:var(--rule-strong);stroke-width:1.6;vector-effect:non-scaling-stroke}
+.aplate .ap2{fill:none;stroke:var(--accent);stroke-width:1;vector-effect:non-scaling-stroke}
+.aplate>span,.aplate>b{position:relative}
+.aplate .apl{font:400 max(14px,.72em) var(--f-sc);letter-spacing:.16em;color:var(--accent)}
+.aplate .apn{display:flex;align-items:center;gap:.5em;font:400 2.3em/1.05 var(--f-sc);letter-spacing:.04em}
+.aplate .apn span{font-size:.42em;color:var(--accent)}.aplate .apn .apr{transform:scaleX(-1)}
+.aplate .aps{font:italic 400 max(14px,.72em) var(--f-old);color:var(--soft)}
+.stage{margin:.4em auto 0;max-width:22em;text-align:center}
+.stage svg{display:block;width:100%;height:auto}
+.stage .sb{fill:color-mix(in srgb,var(--accent-soft) 55%,var(--card))}
+.stage .fl{fill:none;stroke:var(--rule-strong);stroke-width:1.2;opacity:.55}
+.stage .sp{fill:none;stroke:var(--ink);stroke-width:1.05;stroke-linecap:round;stroke-linejoin:round}
+.stage .cu{fill:var(--accent)}
+.stage .cf{fill:none;stroke:rgba(0,0,0,.28);stroke-width:1.6;stroke-linecap:round}
+.stage .pe{fill:color-mix(in srgb,var(--accent) 80%,#000)}
+.stage .ar{fill:none;stroke:var(--rule-strong);stroke-width:2.2}
+.stage .ft circle{fill:var(--gold)}
+.stage figcaption{margin-top:.35em;font:500 max(14px,.6em) var(--f-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+@keyframes stamp{0%{transform:scale(2.2) rotate(-18deg);opacity:0}60%{transform:scale(.92) rotate(4deg);opacity:1}100%{transform:none}}
+.stamp{animation:stamp .6s cubic-bezier(.3,1.4,.5,1) both}
+@media (prefers-reduced-motion:reduce){.stamp{animation:none}}

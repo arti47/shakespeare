@@ -15,6 +15,7 @@
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../fonts.css">
 <script src="../theme.js"></script>
+<script src="../art.js"></script>
 <style>body{margin:0}:root{padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head>
 <body>
@@ -29,6 +30,12 @@
   </div>
   <div class="cont" id="contcard"></div>
   <div class="ylist" id="ylist"></div>
+</section>
+
+<!-- PLAY: the journey map (4.0) -->
+<section id="map" class="gut" hidden>
+  <div class="sbar"><span class="sp-l"></span><h1>Journey</h1><button class="icon" id="m-search" aria-label="Search"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button></div>
+  <div id="mapbody"></div>
 </section>
 
 <!-- READER -->
@@ -71,9 +78,10 @@
 
 <nav class="fnav" id="fnav" aria-label="Sections"><div class="in">
   <a href="../?shelf" data-nav="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg>Library</a>
+  <button data-nav="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M5 20c3-1 4-4 2-6s-1-5 3-6 7 0 8-4"/><circle cx="5" cy="20" r="1.6" fill="currentColor"/><path d="M15.5 3.5l3 .8-1 3"/></svg>Play</button>
   <button data-nav="reader"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 6.5C10 5 7.2 4.5 3.5 4.8v13.4c3.7-.3 6.5.2 8.5 1.8 2-1.6 4.8-2.1 8.5-1.8V4.8C16.8 4.5 14 5 12 6.5zM12 6.5V20"/></svg>Read</button>
   <button data-nav="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11M21.5 9v5"/></svg>Study</button>
-  <button data-nav="you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>You</button>
+  <button data-nav="you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="nf">You</span><span class="ns">Me</span></button>
 </div></nav>
 <aside class="panel" id="panel" aria-label="Speech tools"><div class="phead"><h2 id="panel-title"></h2><button class="btn sm" id="panel-close">Close</button></div><div class="pbody" id="panel-body"></div></aside>
 <div class="sheet" id="sheet" hidden><div class="sbox" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
@@ -83,6 +91,7 @@
 </div></div>
 <div class="toast" id="toast" hidden></div>
 
+<script src="../covers.js"></script>
 <script src="play.js"></script>
 <script src="../reader.js"></script>
 

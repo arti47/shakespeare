@@ -22,6 +22,7 @@
 }catch(e){}})();
 </script>
 <script src="theme.js"></script>
+<script src="art.js"></script>
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="folio.css">
 <style>
@@ -281,7 +282,7 @@ footer .orn{justify-content:center;margin-bottom:8px}
 .lotd blockquote{font-size:.9rem;line-height:1.36;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .lotd .ldate{display:inline;font-size:1em;letter-spacing:0;text-transform:none;font-variant:normal}
 .lotd cite{margin:6px 0 4px}
-.today2{margin-top:22px}
+
 .lacts{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px}
 .lacts a,.lacts button{display:inline-flex;align-items:center;min-height:40px;border:0;background:none;padding:0;color:var(--accent);font:500 max(14px,.66rem) var(--f-ui);text-decoration:none;cursor:pointer}
 .lotd blockquote.all{display:block;-webkit-line-clamp:unset}
@@ -297,6 +298,88 @@ footer .orn{justify-content:center;margin-bottom:8px}
 .rt .gw{display:block;font-family:var(--f-old);font-weight:400;font-size:1.1em;color:var(--ink)}
 .rt .gm{display:block;font:400 max(14px,.66rem)/1.4 var(--f-ui);color:var(--soft)}
 .rt.kq{font-family:var(--f-old);font-style:italic}
+/* 4.0: bigger covers; Today is one card stack you swipe (line, word, week, reviews); Simple hides sort and genre chips; three tabs in Simple */
+.rail{--cw:clamp(150px,42vw,192px);gap:16px}
+@media (min-width:1000px){.rail{--cw:176px;gap:22px 18px}}
+html.simple .order,html.simple #sgen{display:none!important}
+.tabs [data-tab="play"]{display:none}
+html.simple .tabs [data-tab="play"]{display:flex}
+html.simple .tabs [data-tab="read"],html.simple .tabs [data-tab="study"]{display:none}
+html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
+.tabs .ns{display:none}html.simple .tabs .nf{display:none}html.simple .tabs .ns{display:inline}
+.today{isolation:isolate;overflow:visible;margin-bottom:12px}
+.today::after{content:"";position:absolute;left:10px;right:10px;bottom:-7px;height:14px;z-index:-1;border:var(--line) solid var(--rule-strong);border-top:0;border-radius:0 0 var(--r-m) var(--r-m);background:var(--card)}
+.stk-in{display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--r-m)}
+.stk-in::-webkit-scrollbar{display:none}
+.stk-c{scroll-snap-align:start;min-width:0;padding:16px 18px 6px;text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:178px}
+.stk-c .lotd{padding:0}
+.stk-c.word b{display:block;font:400 1.8rem/1.1 var(--f-old);margin:4px 0}
+.stk-c.word .wm{display:block;font-size:max(14px,.72rem);color:var(--soft)}
+.stk-c.word .wl{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px;margin-top:8px}
+.stk-c.word .wl a,.stk-c.word .wl button{border:0;background:none;padding:6px 0;min-height:40px;color:var(--accent);font:500 max(14px,.66rem) var(--f-ui);text-decoration:none;cursor:pointer}
+.stk-c.week .wdots{justify-content:center;margin:8px auto 6px}
+.stk-c.week small{display:block;font-size:max(14px,.64rem);color:var(--soft)}
+.stk-c.week small b{font:600 1rem var(--f-ui);color:var(--ink)}
+.stk-c .lvrow{display:inline-flex;align-items:center;gap:8px;margin:10px auto 0;font:400 1rem var(--f-old);border:0;background:none;color:var(--ink);cursor:pointer;min-height:44px}
+.stk-c .lvrow .seal{width:36px;height:36px}
+.stk-c.duec .chips{justify-content:center;margin-top:8px}
+.stk-c.duec .big{font:400 2rem var(--f-sc);color:var(--accent)}
+.stk-dots{display:flex;justify-content:center;gap:2px;padding:0 0 6px}
+.stk-dots button{border:0;background:none;width:30px;height:30px;display:grid;place-items:center;cursor:pointer;padding:0}
+.stk-dots button i{width:8px;height:8px;border-radius:50%;background:var(--rule);transition:all .2s}
+.stk-dots button[aria-current="true"] i{background:var(--accent);width:20px;border-radius:4px}
+/* level card (You) */
+.lvc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);padding:16px;margin:0 0 18px;box-shadow:var(--lift)}
+.lvc .seal{width:84px;height:84px}
+.lvc small{display:block;font:400 max(14px,.6rem) var(--f-sc);letter-spacing:.1em;color:var(--accent)}
+.lvc b{display:block;font:400 1.5rem/1.1 var(--f-old)}
+.lvc span{display:block;color:var(--soft);font-size:max(14px,.66rem)}
+.lvc .bar{margin:8px 0 4px}
+.lvc em{display:block;line-height:1.35;font-style:normal;font-size:max(14px,.62rem);color:var(--muted)}
+.lvlist{list-style:none;margin:10px 0 20px;padding:0;display:grid;gap:4px}
+.lvlist li{display:flex;align-items:center;gap:10px;font-size:max(14px,.66rem);color:var(--muted)}
+.lvlist li .seal{width:30px;height:30px}
+.lvlist li.on{color:var(--ink)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 6px}
+.modes button{border:var(--line) solid var(--rule);border-radius:var(--r-m);background:var(--card);padding:12px 14px;text-align:left;cursor:pointer;color:var(--ink);min-height:84px}
+.modes button b{display:block;font:400 1.15rem var(--f-old)}
+.modes button span{display:block;font-size:max(14px,.6rem);color:var(--soft)}
+.modes button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+/* welcome: three cards, first visit in Simple */
+.wel{position:fixed;inset:0;z-index:70;background:var(--page);display:flex;align-items:center;justify-content:center}
+:root[data-theme="paper"] .wel{background-image:var(--grain)}
+.wbox{width:min(560px,100%);height:100%;max-height:760px;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top,0px)) 0 calc(14px + env(safe-area-inset-bottom,0px))}
+.wtrack{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.wtrack::-webkit-scrollbar{display:none}
+.wc{scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 24px;min-height:0;overflow-y:auto}
+.wc h2{font:400 1.7rem/1.15 var(--f-old);margin:4px 0 10px;text-wrap:balance}
+.wc p{margin:0 0 8px;color:var(--soft);font-size:max(14px,.8rem);max-width:30ch}
+.wart{min-height:clamp(170px,30vh,250px);width:100%;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.fan{position:relative}
+.fan .cover{--cw:clamp(96px,26vw,128px);width:var(--cw);position:absolute;transform:none;filter:none}
+.fan .cover:nth-child(1){transform:translateX(-62%) rotate(-10deg) scale(.9)}
+.fan .cover:nth-child(3){transform:translateX(62%) rotate(10deg) scale(.9)}
+.fan .cover:nth-child(2){z-index:2}
+.mock{margin-top:26px;width:min(320px,90%);border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);padding:16px 18px;text-align:left;box-shadow:var(--lift);position:relative}
+.mock .mn{display:block;font:400 max(14px,.66rem) var(--f-sc);letter-spacing:.08em;color:var(--accent)}
+.mock .ml{display:block;font:400 1.05rem/1.4 var(--f-old)}
+.mock .ml u{text-decoration:underline dotted var(--accent);text-underline-offset:4px}
+.mock .mm{display:block;margin-top:8px;padding-left:10px;border-left:3px solid var(--accent);font-size:max(14px,.7rem);color:var(--soft)}
+.mock .mg{position:absolute;right:-6px;top:-18px;background:var(--ink);color:var(--page);border-radius:8px;padding:6px 10px;font-size:max(14px,.62rem);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.mock .mg b{font-family:var(--f-old);font-weight:400}
+.wseals{display:flex;flex-direction:column;align-items:center;gap:10px}
+.wseals .row{display:flex;gap:6px}
+.wseals .row .seal{width:54px;height:54px}
+.wseals .lv{display:flex;align-items:center;gap:8px;font:400 max(14px,.72rem) var(--f-old)}
+.wseals .lv .seal{width:40px;height:40px}
+.wq{font:400 max(14px,.66rem) var(--f-sc)!important;letter-spacing:.1em;color:var(--accent)!important;margin-top:10px!important}
+.wgoal{justify-content:center}
+.wgoal .chip{min-height:44px}
+.wnav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 20px 0}
+.wdots{display:flex;gap:6px}
+.wdots i{width:8px;height:8px;border-radius:50%;background:var(--rule);transition:all .2s}
+.wdots i.on{background:var(--accent);width:20px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){.stk-dots button i,.wdots i{transition:none}}
 @media (max-width:600px){
   .hero{padding:12px 14px;gap:14px}
   .hero h3{font-size:1.2rem;margin:0 0 2px}
@@ -304,7 +387,7 @@ footer .orn{justify-content:center;margin-bottom:8px}
   .hero .acts .btn{min-height:42px;padding:4px 14px}
   .lotd{padding:14px 14px 8px}
   .greet{margin:0 0 10px;font-size:.95rem}
-  .case{display:flex;flex-direction:column}.case .order{order:2;margin-top:6px}.case #today2{order:3}
+  .case{display:flex;flex-direction:column}.case .order{order:2;margin-top:6px}
   .lacts{gap:2px 16px}
   .lotd blockquote{font-size:.82rem}
 }
@@ -325,7 +408,6 @@ footer .orn{justify-content:center;margin-bottom:8px}
     <div class="case">
       <div class="order" role="group" aria-label="Order the shelves"><span class="lbl">Order</span><span class="chips" id="sortc"><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></span></div>
       <div id="shelves"></div>
-      <section class="today today2" id="today2" aria-label="This week" hidden></section>
     </div>
   </div>
   <footer><div class="orn">❦</div>Mr. William Shakespeares Comedies, Histories, &amp; Tragedies · London, 1623</footer>
@@ -346,9 +428,16 @@ footer .orn{justify-content:center;margin-bottom:8px}
 <!-- YOU -->
 <main class="view narrow" id="v-you" hidden>
   <h2 class="vt">Your reading</h2>
+  <div id="lvl"></div>
   <div class="stats" id="stats"></div>
   <span class="lbl">Last 15 weeks</span>
   <div class="heat" id="heat" aria-label="Days read"></div>
+  <div class="sec">
+    <h3>App mode</h3>
+    <p>For every play. You can switch at any time; nothing you have saved changes.</p>
+    <div class="modes" id="modes" role="group" aria-label="App mode"><button type="button" data-mode="simple"><b>Simple</b><span>Three tabs, a journey map, quests, a calmer page</span></button><button type="button" data-mode="full"><b>Full</b><span>Every tool, four tabs, line numbers and study notes</span></button></div>
+    <button class="lnk" type="button" id="rewel">Show the welcome again</button>
+  </div>
   <div class="sec">
     <h3>Appearance</h3>
     <span class="lbl">Theme, for every play</span>
@@ -377,10 +466,12 @@ footer .orn{justify-content:center;margin-bottom:8px}
 
 <nav class="tabs" id="tabs" aria-label="Sections"><div class="in">
   <button data-tab="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4.5h3.2v15H4zM8.6 4.5h3.2v15H8.6zM13.3 5.6l3-.8 3.8 14.2-3 .8z"/></svg>Library</button>
+  <button data-tab="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M5 20c3-1 4-4 2-6s-1-5 3-6 7 0 8-4"/><circle cx="5" cy="20" r="1.6" fill="currentColor"/><path d="M15.5 3.5l3 .8-1 3"/></svg>Play</button>
   <button data-tab="read"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 6.5C10 5 7.2 4.5 3.5 4.8v13.4c3.7-.3 6.5.2 8.5 1.8 2-1.6 4.8-2.1 8.5-1.8V4.8C16.8 4.5 14 5 12 6.5zM12 6.5V20"/></svg>Read</button>
   <button data-tab="study"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11M21.5 9v5"/></svg>Study</button>
-  <button data-tab="you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>You</button>
+  <button data-tab="you"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="nf">You</span><span class="ns">Me</span></button>
 </div></nav>
+<div class="wel" id="wel" hidden><div class="wbox" role="dialog" aria-modal="true" aria-labelledby="wel-t"><div class="wtrack" id="wtrack"></div><div class="wnav"><button class="lnk" type="button" id="wskip">Skip</button><span class="wdots" id="wdots"></span><button class="btn pri" type="button" id="wnext">Next</button></div></div></div>
 
 <script src="covers.js"></script>
 <div class="curt" id="curt" aria-hidden="true"><div class="h l"></div><div class="h r"></div><div class="ttl"><div><small id="cpre"></small><b id="ctitle"></b><i id="cemb">❦</i></div></div></div>
@@ -414,7 +505,7 @@ function go(tab){let q=null;if(/^search=/.test(tab||"")){try{q=decodeURIComponen
 }
 function lastPlay(path){const p=byId[LS.get("folio-last")];if(p){openPlay(p.id,p.id+"/"+path);return}
   go("library");$("greet").textContent="Choose a play from the shelves. Read and Study then open it where you left off.";$("greet").classList.add("nudge");setTimeout(()=>$("greet").classList.remove("nudge"),1600)}
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(t==="read")lastPlay("");else if(t==="study")lastPlay("#study");else go(t)});
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(t==="play")lastPlay("#map");else if(t==="read")lastPlay("");else if(t==="study")lastPlay("#study");else go(t)});
 $("searchb").onclick=()=>go("search");$("sback").onclick=()=>go("library");
 addEventListener("hashchange",()=>go(location.hash.slice(1)));
 /* the nav steps aside while you scroll down, and comes back when you scroll up */
@@ -472,29 +563,37 @@ function unstart(p){try{localStorage.removeItem("folio-stat-"+p.id);localStorage
   if(LS.get("folio-last")===p.id){const nx=PLAYS.filter(q=>q.id!==p.id).map(q=>[q.id,J("folio-stat-"+q.id)]).filter(x=>x[1]).sort((a,b)=>(b[1].t||0)-(a[1].t||0))[0];nx?LS.set("folio-last",nx[0]):localStorage.removeItem("folio-last")}}catch(e){}}
 
 /* ---------- today: line of the day, word of the day, this week, daily review ---------- */
-let li=null;
-function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});let h="";
+let li=null,stI=0;
+/* seals across every play (art.js), and each play's count kept in its folio-stat-<id>.sl so a play page can add up the others */
+function seals(){let n=0;for(const p of PLAYS){const k=folioSealsOf(J(p.prefix+"prog"));n+=k;const st=J("folio-stat-"+p.id);if(st&&st.sl!==k){st.sl=k;LS.set("folio-stat-"+p.id,JSON.stringify(st))}}return n}
+/* Today (4.0): one card stack you swipe: line of the day, word of the day, this week with your level, reviews due */
+function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"}),C=[];
   if(LINES.length){if(li==null)li=(dayNo()*7919)%LINES.length;const L=LINES[li],p=byId[L.play];
-    h+=`<div class="lotd"><p class="eyebrow">Line of the day <span class="ldate">· ${esc(date)}</span></p><blockquote id="lq">${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite>
-      <div class="lacts"><button class="lmore" type="button" id="lmore" hidden>Whole line</button><a href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play ›</a><button type="button" id="lnext">Another ›</button></div></div>`}
+    C.push(["lotd",`<div class="lotd"><p class="eyebrow">Line of the day <span class="ldate">· ${esc(date)}</span></p><blockquote id="lq">${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite>
+      <div class="lacts"><button class="lmore" type="button" id="lmore" hidden>Whole line</button><a href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play ›</a><button type="button" id="lnext">Another ›</button></div></div>`,"Line"])}
+  const W=WORDS.length?WORDS[(dayNo()*104729)%WORDS.length]:null,wp=W&&byId[W[2]];
+  if(W)C.push(["word",`<p class="eyebrow">Word of the day</p><b>${esc(W[0])}</b><span class="wm">${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span>`,"Word"]);
   const days=readDays(),now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
-  const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days),W=WORDS.length?WORDS[(dayNo()*104729)%WORDS.length]:null,wp=W&&byId[W[2]];
-  let h2=`<div class="tfoot">${W?`<div class="word"><p class="eyebrow">Word of the day</p><b>${esc(W[0])}</b><span>${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span></div>`:"<div></div>"}
-    <div class="week"><p class="eyebrow">This week</p><div class="wdots">${wk.map((d,i)=>`<span class="wd${days[dkey(d)]!=null?" on":""}${i===6?" now":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small></div></div>`;
-  h2+=dueHTML();
-  /* phones and tablets: the word, week and daily review go under the shelves, so the plays show on the first screen */
-  const split=!matchMedia("(min-width:1000px)").matches;el.innerHTML=split?h:h+h2;$("today2").innerHTML=split?h2:"";$("today2").hidden=!split;
+  const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days),n=seals(),Lv=folioLevel(n);
+  C.push(["week",`<p class="eyebrow">This week</p><div class="wdots">${wk.map((d,i)=>`<span class="wd${days[dkey(d)]!=null?" on":""}${i===6?" now":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small><button class="lvrow" type="button" id="lvgo">${folioLevelBadge(n)}<span>${esc(Lv.name)} · ${n} seal${n===1?"":"s"}</span></button>`,"Week"]);
+  const due=dueHTML();if(due)C.push(["duec",due,"Reviews"]);
+  if(stI>=C.length)stI=0;
+  el.innerHTML=`<div class="stk-in" id="stkin">${C.map(c=>`<div class="stk-c ${c[0]}">${c[1]}</div>`).join("")}</div>${C.length>1?`<div class="stk-dots" role="group" aria-label="Today cards">${C.map((c,i)=>`<button type="button" data-st="${i}" aria-label="${c[2]}" aria-current="${i===stI}"><i></i></button>`).join("")}</div>`:""}`;
+  const si=$("stkin");si.scrollLeft=stI*si.clientWidth;
+  si.addEventListener("scroll",()=>{const i=Math.round(si.scrollLeft/Math.max(1,si.clientWidth));if(i!==stI){stI=i;el.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-current",+b.dataset.st===i))}},{passive:true});
+  el.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>si.scrollTo({left:+b.dataset.st*si.clientWidth,behavior:reduce?"auto":"smooth"}));
   {const q=$("lq"),m=$("lmore");if(q&&m){m.hidden=q.scrollHeight<=q.clientHeight+2;m.onclick=()=>{q.classList.add("all");m.hidden=true}}}
-  const ln=$("lnext");if(ln)ln.onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;renderToday()};
+  const ln=$("lnext");if(ln)ln.onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;stI=0;renderToday()};
   const wf=$("wfind");if(wf)wf.onclick=()=>{go("search");$("q").value=W[0].replace(/^'/,"");runSearch()};
+  $("lvgo").onclick=()=>go("you");
 }
-try{matchMedia("(min-width:1000px)").addEventListener("change",()=>renderToday())}catch(e){}
+
 /* Daily review: items due in each play (flashcards in <prefix>prog.srs, other review items in <prefix>rev.it) */
 function dueHTML(){const now=Date.now(),rows=[];let any=false;
   for(const p of PLAYS){const pr=J(p.prefix+"prog")||{},rv=J(p.prefix+"rev")||{},all=[...Object.values(pr.srs||{}),...Object.values((rv&&rv.it)||{})].filter(s=>s&&isFinite(s.d));
     if(all.length)any=true;const n=all.filter(s=>s.d<=now).length;if(n)rows.push([p,n])}
   if(!any||!rows.length)return "";const tot=rows.reduce((a,r)=>a+r[1],0);
-  return `<div class="due"><span><b>${tot}</b> review item${tot===1?"":"s"} due</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</span></div>`}
+  return `<p class="eyebrow">Daily review</p><div class="big">${tot}</div><span>review item${tot===1?"":"s"} due today</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</span>`}
 
 /* ---------- search: genre chips + play picker, results grouped by play ---------- */
 const IDX={};let sg="all",sp="all",loading=null;const openG=new Set();
@@ -564,9 +663,33 @@ function renderYou(){
   const now=new Date(),start=new Date(now);start.setDate(now.getDate()-now.getDay()-7*14);const cells=[];
   for(let d=new Date(start);d<=now;d.setDate(d.getDate()+1)){const s=days[dkey(d)];const l=s==null?"":s<300?" l1":s<1200?" l2":" l3";cells.push(`<i class="${l}${dkey(d)===dkey(now)?" t":""}" title="${dkey(d)}"></i>`)}
   $("heat").innerHTML=cells.join("");
+  const n=seals(),L=folioLevel(n);
+  $("lvl").innerHTML=`<div class="lvc">${folioLevelBadge(n)}<div><small>Your level</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><div class="bar"><i style="width:${Math.round(L.frac*100)}%"></i></div><em>${n} seal${n===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}. A red seal for each scene you read, a gilt one when its quests are done.</em></div></div>
+    <ul class="lvlist">${FOLIO_LEVELS.map((x,i)=>`<li class="${i<=L.i?"on":""}">${folioSeal(["I","II","III","IV","V"][i],i<=L.i?(i>=3?"g":""):"e")}<span><b>${esc(x[1])}</b> · ${x[0]} seals</span></li>`).join("")}</ul>`;
+  document.querySelectorAll("#modes [data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===folioMode()));
   const bk=+LS.get("folio-lastbk");$("bksum").textContent=bk?"Last saved "+ago(bk)+".":"Not saved yet.";
   renderTheme();
 }
+
+document.querySelectorAll("#modes [data-mode]").forEach(b=>b.onclick=()=>{folioSetMode(b.dataset.mode);renderYou()});
+$("rewel").onclick=()=>welcome(true);
+
+/* ---------- welcome (4.0): three cards on a first visit in Simple mode, the last asks what brings you here (folio-goal) ---------- */
+function welcome(force){if(!force&&(!folioSimple()||LS.get("folio-welcome")||LS.get("folio-last")))return;
+  const pick=["Comedies","Histories","Tragedies"].map(g=>PLAYS.find(p=>p.group===g)).filter(Boolean),gl=LS.get("folio-goal");
+  const cards=[
+    `<div class="wart fan">${pick.map(p=>`<span class="cover" style="--c:${p.c}" aria-hidden="true">${coverHTML(p,null)}</span>`).join("")}</div><p class="eyebrow">Welcome to the Folio</p><h2 id="wel-t">Every play of the 1623 First Folio</h2><p>${PLAYS.length} plays, Comedies, Histories and Tragedies, on your phone, tablet or computer. They work offline too.</p>`,
+    `<div class="wart"><div class="mock"><span class="mg"><b>discontent</b> · unhappiness</span><span class="mn">Richard</span><span class="ml">Now is the winter of our <u>discontent</u></span><span class="ml">Made glorious summer by this sun of York</span><span class="mm">Our unhappy days are over, turned to bright summer by the new king.</span></div></div><p class="eyebrow">How it reads</p><h2>Shakespeare's words, with help one tap away</h2><p>Tap a line for modern English. Tap an underlined word for its meaning. Swipe to turn the page.</p>`,
+    `<div class="wart wseals"><div class="row">${folioSeal("I","")}${folioSeal("II","g")}${folioSeal("III","")}${folioSeal("IV","n")}</div><div class="lv">${folioLevelBadge(0)}<span>Groundling → Master of the Revels</span></div></div><p class="eyebrow">Your journey</p><h2>A wax seal for every scene</h2><p>Each play has a map. Read a scene to seal it, do its quick quests for a gilt seal, and rise through the company.</p>
+     <p class="wq">What brings you here?</p><div class="chips wgoal">${[["enjoy","Enjoy the plays"],["exam","Study for an exam"],["both","Both"]].map(([k,l])=>`<button class="chip" type="button" data-goal="${k}" aria-pressed="${gl===k}">${l}</button>`).join("")}</div>`];
+  $("wtrack").innerHTML=cards.map(c=>`<section class="wc">${c}</section>`).join("");$("wdots").innerHTML=cards.map((c,i)=>`<i class="${i?"":"on"}"></i>`).join("");
+  $("wel").hidden=false;document.body.style.overflow="hidden";const tr=$("wtrack");tr.scrollLeft=0;let at=0;
+  const paint=()=>{$("wdots").querySelectorAll("i").forEach((d,i)=>d.classList.toggle("on",i===at));$("wnext").textContent=at===cards.length-1?"Choose a play":"Next"};paint();
+  tr.onscroll=()=>{const i=Math.round(tr.scrollLeft/Math.max(1,tr.clientWidth));if(i!==at){at=i;paint()}};
+  const close=()=>{LS.set("folio-welcome","1");$("wel").hidden=true;document.body.style.overflow="";go("library")};
+  $("wnext").onclick=()=>{if(at>=cards.length-1)close();else tr.scrollTo({left:(at+1)*tr.clientWidth,behavior:reduce?"auto":"smooth"})};$("wskip").onclick=close;
+  tr.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{LS.set("folio-goal",b.dataset.goal);tr.querySelectorAll("[data-goal]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  setTimeout(()=>$("wnext").focus({preventScroll:true}),50)}
 
 /* ---------- curtain + open play ---------- */
 function openPlay(id,href){const p=byId[id];if(reduce||!p){location.href=href;return}
@@ -599,6 +722,7 @@ fi.onchange=async()=>{const f=fi.files[0];fi.value="";if(!f)return;let j;try{j=J
 
 folioBar();renderTheme();
 go(location.hash.slice(1)||"library");
+welcome();
 
 </script>
 <script src="update.js" defer></script>

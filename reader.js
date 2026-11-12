@@ -58,7 +58,7 @@ let SEL=null;/* phrase being selected on the page: {id,a,b,anc,drag,edit,c,note}
 const lineWords=l=>String(l).replace(/^~/,"").split(/\s+/).filter(Boolean);
 function favText(id,a,b){const sp=speech[id];if(!sp)return "";const out=[];for(let l=a[0];l<=b[0];l++){const w=lineWords(sp.lines[l]||"");out.push(w.slice(l===a[0]?a[1]:0,l===b[0]?b[1]+1:w.length).join(" "))}return out.filter(Boolean).join(" / ")}
 try{prog=Object.assign(prog,JSON.parse(LS.get(PFX+"prog")||"{}"));prog.cards=prog.cards||{}}catch(e){}
-prog.srs=prog.srs||{};prog.miss=prog.miss||{q:[],c:{}};prog.conf=prog.conf||{};prog.exam=prog.exam||"";
+prog.srs=prog.srs||{};prog.miss=prog.miss||{q:[],c:{}};prog.conf=prog.conf||{};prog.exam=prog.exam||"";prog.qst=prog.qst&&typeof prog.qst==="object"?prog.qst:{};
 function saveMark(id,patch){
   const v=Object.assign({},marks[id]||{},patch,{t:Date.now()}),empty=!v.hl&&!(v.note&&v.note.trim())&&!(v.th&&v.th.length);
   if(empty)delete marks[id];else marks[id]=v;LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks();}
@@ -92,15 +92,18 @@ let pos=null;try{pos=JSON.parse(LS.get(PFX+"pos")||"null")}catch(e){}
 function setHash(h,push){if(location.hash.slice(1)!==h){try{history[push?"pushState":"replaceState"](null,"","#"+h)}catch(e){}}}
 document.addEventListener("touchstart",e=>{const x=e.touches[0].clientX;if((x<24||x>innerWidth-24)&&!e.target.closest("button,a,input,select,textarea,label,summary"))e.preventDefault()},{passive:false});
 /* one app shell: Read / Study / You views share the Folio's bottom nav (Library goes back to the shelf) */
-function show(v){view=v;$("you").hidden=v!=="you";$("reader").hidden=v!=="reader";$("study").hidden=v!=="study";closePanel();
-  document.body.classList.remove("v-reader","v-study","v-you");document.body.classList.add("v-"+v);
-  document.querySelectorAll("#fnav [data-nav]").forEach(b=>{if(b.dataset.nav===v)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+function show(v){view=v;["you","reader","study","map"].forEach(x=>$(x).hidden=v!==x);closePanel();if(v!=="reader"&&$("coach"))$("coach").remove();
+  document.body.classList.remove("v-reader","v-study","v-you","v-map");document.body.classList.add("v-"+v);
+  /* Simple mode has three tabs: Play (map, reader and Study) stands for all three */
+  const nv=folioSimple()&&(v==="reader"||v==="study")?"map":v;
+  document.querySelectorAll("#fnav [data-nav]").forEach(b=>{if(b.dataset.nav===nv)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   document.body.style.overflow=v==="reader"?"hidden":"";if(v!=="reader")document.body.classList.remove("chrome");else setTimeout(hint,400)}
 function route(){
   const h=location.hash.slice(1);closeSheet();
   if(h.startsWith("share=")){const ids=h.slice(6).split(".").filter(i=>speech[i]);setHash("you");show("you");renderYou();openShared(ids);return}
   if(h.startsWith("sp=")){const id=h.slice(3),k=scenes.findIndex(s=>s.items.some(x=>String(x.id)===id));if(k>=0){setHash(scenes[k].id);show("reader");openScene(k,{key:id+":0",flash:true,speech:id});return}}
   if(h==="you"){show("you");renderYou();scrollTo(0,0);return}
+  if(h==="map"){show("map");renderMap();scrollTo(0,0);return}
   /* old play home (#home) and the shelf's Contents link: open the page with the Contents sheet */
   if(h==="home"||h==="contents"){goRead();setTimeout(()=>openContents("scenes"),60);return}
   if(h==="study"){SH=true;show("study");renderStudy();scrollTo(0,0);return}
@@ -109,13 +112,15 @@ function route(){
   const k=sIdx(h);
   if(k>=0){show("reader");openScene(k,pos&&pos.s===h?{key:pos.key,keep:true}:{page:0});return}
   if(pos&&sIdx(pos.s)>=0){setHash(pos.s,false);show("reader");openScene(sIdx(pos.s),{key:pos.key,keep:true});setTimeout(pulseLast,500);return}
-  goScene(0,{page:0});
+  /* first visit to a play (no place kept yet): the journey map */
+  setHash("map",false);show("map");renderMap();scrollTo(0,0);
 }
 addEventListener("hashchange",route);addEventListener("popstate",route);
 function goScene(k,opts){setHash(scenes[k].id,true);show("reader");openScene(k,opts||{page:0})}
 function goSpeech(id){const sp=speech[id];if(!sp)return;if(S.who&&sp.who!==S.who)S.who="";closeSheet();goScene(sIdx(sp.page),{speech:+id,flash:true})}
 function goStudy(tab,sub){SH=!tab;if(tab){S.stab=tab;LS.set(PFX+"stab",tab)}setHash(tab?"study="+tab+(tab==="explore"&&sub?":"+sub:""):"study",true);show("study");renderStudy();scrollTo(0,0)}
 function goYou(){setHash("you",true);show("you");renderYou();scrollTo(0,0)}
+function goMap(){setHash("map",true);show("map");renderMap();scrollTo(0,0)}
 function goRead(){if(pos&&sIdx(pos.s)>=0)goScene(sIdx(pos.s),{key:pos.key,keep:true});else goScene(0)}
 /* ---------- cross-links (3.1): data-to="<where>[?k=v&k=v]" works anywhere (reader, popups, sheets, Study)
    where = scene:<id> | speech:<id> | you | study | study:<tab>[:<explore section>]
@@ -129,6 +134,7 @@ function goTo(spec){const [w,qs]=String(spec).split("?"),P={};(qs||"").split("&"
   if(a==="speech"){goSpeech(b);return}
   if(a==="scene"){const k=sIdx(b);if(k>=0){closeSheet();goScene(k,{page:0})}return}
   if(a==="you"){closeSheet();goYou();return}
+  if(a==="map"){closeSheet();goMap();return}
   if(a==="read"){closeSheet();goRead();return}
   if(a==="contents"){goRead();setTimeout(()=>openContents("scenes"),60);return}
   if(a!=="study")return;closeSheet();
@@ -147,7 +153,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-to]");if(!
 $("rail").addEventListener("click",e=>{const b=e.target.closest("[data-rail]");if(!b)return;const r=b.dataset.rail;
   if(r==="contents")openContents();else if(r==="search")$("b-search").click();else if(r==="notes")openNotes();else if(r==="study")goStudy(SLAST?S.stab:"",S.stab==="explore"?exSel:"");else if(r==="set")openSettings()});
 $("fnav").addEventListener("click",e=>{const b=e.target.closest("button[data-nav]");if(!b)return;const v=b.dataset.nav;
-  if(v==="reader"){if(view==="reader")toggleChrome(false);else goRead()}else if(v==="study"){/* first tap: the section you were last in; again: Study home */if(view!=="study")goStudy(SLAST?S.stab:"",S.stab==="explore"?exSel:"");else if(!SH)goStudy();else scrollTo({top:0,behavior:"smooth"})}else if(v==="you"){if(view!=="you")goYou();else scrollTo({top:0,behavior:"smooth"})}});
+  if(v==="map"){if(view!=="map")goMap();else scrollTo({top:0,behavior:"smooth"})}else if(v==="reader"){if(view==="reader")toggleChrome(false);else goRead()}else if(v==="study"){/* first tap: the section you were last in; again: Study home */if(view!=="study")goStudy(SLAST?S.stab:"",S.stab==="explore"?exSel:"");else if(!SH)goStudy();else scrollTo({top:0,behavior:"smooth"})}else if(v==="you"){if(view!=="you")goYou();else scrollTo({top:0,behavior:"smooth"})}});
 
 /* ---------- home ---------- */
 function bkRemHTML(){const n=Object.keys(marks).length+BM.length+FAV.length;if(!n)return "";let f=+LS.get(PFX+"first")||0;if(!f){f=Date.now();LS.set(PFX+"first",String(f))}
@@ -167,7 +173,8 @@ function renderYou(){
   $("contcard").innerHTML=`<button class="go" id="contbtn"><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span><span class="meter"><i style="width:${pct}%"></i></span></button>
     <div class="ytiles"><button type="button" data-to="contents"><b>${done}<small>/${scenes.length}</small></b><span>Scenes read ›</span></button><button type="button" data-to="study:quiz"><b>${qt?Math.round(qc/qt*100)+"%":"–"}</b><span>Quiz score ›</span></button><button type="button" data-to="study:cards"><b>${Object.keys(prog.cards).length}<small>/${QUOTES.quotes.length}</small></b><span>Quotes learnt ›</span></button>
     <div><b>${s7}</b><span>Day${s7===1?"":"s"} in a row</span></div><div><b>${td}<small>m</small></b><span>Today</span></div><div><b>${w.min}<small>m</small></b><span>This week</span></div></div>`;
-  $("contcard").insertAdjacentHTML("beforeend",examHTML()+bkRemHTML());if($("ex-set"))$("ex-set").onclick=openExamDate;
+  $("you").querySelector(".sbar h1").textContent=folioSimple()?"Me":"You";
+  $("contcard").insertAdjacentHTML("beforeend",levelHTML()+(folioSimple()&&goal()==="enjoy"?"":examHTML())+bkRemHTML());if($("ex-set"))$("ex-set").onclick=openExamDate;
   $("contbtn").onclick=goRead;
   const nm=Object.keys(marks).filter(k=>speech[k]).length,nf=FAV.filter(f=>speech[f.id]).length;
   const row=(id,t,sub,href)=>`${href?`<a class="yrow" href="${href}">`:`<button class="yrow" id="${id}">`}<span><b>${t}</b><small>${sub}</small></span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>${href?"</a>":"</button>"}`;
@@ -192,6 +199,7 @@ function contentsHTML(){
   const here=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1,lp=here>=0?scenes[here]:scenes[0];
   let h=`<div class="ctabs" role="tablist">${[["scenes","Scenes"],...(Object.keys(BEAT).length?[["beats","Beats"]]:[]),["cast","Cast"],["story","Story"]].map(([k,l])=>`<button role="tab" data-ctab="${k}" aria-selected="${ctab===k}">${l}</button>`).join("")}</div>`;
   if(ctab==="scenes"){
+    h+=`<div class="xrow" style="margin:0 0 8px">${toLink("map","Journey map")}</div>`;
     h+=`<div class="jump"><label for="jl" class="sr">Go to line</label><input class="sinput" id="jl" inputmode="decimal" placeholder="Go to line, e.g. 3.3.165"><button class="btn" id="jl-go">Go</button></div>`;
     const rc=RECENT.filter(r=>speech[r.id]);if(rc.length)h+=`<div class="eyebrow" style="margin:6px 0 2px">Recently viewed</div>`+rc.slice(0,3).map(r=>{const sp=speech[r.id],q=partsOf(sp)[r.pi]||partsOf(sp)[0];
       return `<div class="item" data-recent="${esc(r.id)}:${esc(r.pi)}" tabindex="0"><small>${esc(where(sp))}</small><span style="font-family:var(--f-old)">${esc(sp.lines[q[0]].replace(/^~/,""))}…</span></div>`}).join("");
@@ -206,7 +214,7 @@ function contentsHTML(){
       h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>${AN(a)}</small></summary>`+ps.map(p=>`<div class="bscene${here>=0&&p.id===pos.s?" here":""}"><div class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</div><ol class="beats">${BEATS[p.id].map(([id,t])=>`<li><button data-speech="${id}">${beatTxt(t)}</button></li>`).join("")}</ol></div>`).join("")+`</details>`}
     h+=`</div>`}
   else if(ctab==="cast"){h+=`<p class="hcap">The Names of the Actors, as the 1623 Folio lists them</p><div class="cast">`+STUDY.chars.map(c=>{const key=c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","");const has=whoSet.has(key);
-      return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p>${has?`<div class="xrow">${whoLinks(key)}</div>`:""}</div>`}).join("")+`</div>`}
+      return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${folioMedal(c.name,COLORS[key],"cm")}${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p>${has?`<div class="xrow">${whoLinks(key)}</div>`:""}</div>`}).join("")+`</div>`}
   else h+=`<p class="hcap">The story in ${EX.timeline.length} moments. Tap one to jump there.</p><ol class="story">`+EX.timeline.map(e=>{const k=sIdx(e.s);return `<li><button data-speech="${e.id}" class="${here>=0&&k<here?"past":""}${k===here?" now":""}"><small>${sName(scenes[k])}</small><span>${esc(e.t)}</span></button></li>`}).join("")+`</ol>`;
   return h}
 function openContents(t){if(t)ctab=t;LS.set(PFX+"htab",ctab);openSheet("Contents",contentsHTML());
@@ -248,7 +256,7 @@ function linesHTML(it,a,b){let h="";const ps=partsOf(it);ps.forEach((p,i)=>{cons
 function unfold(id,pi){const k=id+":"+pi,sp=speech[id],on=!OPEN.has(k);if(on)OPEN.add(k);else OPEN.delete(k);OPENV++;hideGloss();
   const top=cur.pages[cur.i].find(b=>b.t==="sp"),before=cur.i;
   openScene(cur.k,{key:on?id+":"+partsOf(sp)[pi][0]:top?top.key:pos&&pos.key,keep:true});
-  if(on)addRecent(id,pi)}
+  if(on){addRecent(id,pi);coachDid(0)}}
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
   return out.map(p=>`<p>${esc(p)}</p>`).join("")}
@@ -262,29 +270,35 @@ function openBefore(id){const p=scenes[sIdx(id)],s=STUDY.scenes[id]||{};
 const FIRSTSP={};scenes.forEach(p=>p.items.forEach(it=>{if(it.t==="sp"&&CH[it.who]&&!FIRSTSP[it.who])FIRSTSP[it.who]=it.id}));
 let PRED={};try{PRED=JSON.parse(LS.get(PFX+"pred")||"{}")}catch(e){}
 function endExtras(p){const c=prog.conf[p.id];
-  return `<div class="endbtns"><button data-endact="quiz:${p.id}">${preQ(p)?"Did you find out? Quick quiz":"Quick quiz on this scene"}</button><button data-endact="quotes:${p.id}">Key quotes from this scene</button>${(STUDY.scenes[p.id]||{}).sum?`<button data-endact="sum:${p.id}">Scene summary</button>`:""}${sIdx(p.id)<scenes.length-1?`<button data-endact="next:${p.id}">Next: ${sName(scenes[sIdx(p.id)+1])} ›</button>`:""}</div>
+  return `<div class="endbtns"><button data-endact="quiz:${p.id}">${preQ(p)?"Did you find out? Quick quiz":"Quick quiz on this scene"}</button><button data-endact="quotes:${p.id}">Key quotes from this scene</button>${(STUDY.scenes[p.id]||{}).sum?`<button data-endact="sum:${p.id}">Scene summary</button>`:""}</div>
    <div class="conf">How well do you know this scene? ${[["r","Shaky"],["a","OK"],["g","Confident"]].map(([k,l])=>`<button data-endact="conf:${p.id}:${k}" aria-pressed="${c===k}"><i class="dot ${k}"></i>${l}</button>`).join("")}</div>`}
 function endAct(v){const [a,s,k]=v.split(":");
   if(a==="quiz"){goStudy("quiz");startQuiz(s);return}
   if(a==="next"){goScene(sIdx(s)+1,{page:0});return}
+  if(a==="check"){openCheck(s);return}
   if(a==="sum"){const x=STUDY.scenes[s]||{},p=scenes[sIdx(s)];openSheet(sName(p),`<p class="hcap">${esc(shortLoc(p))}</p><p>${esc(x.sum||"")}</p>${(x.key||[]).length?`<ul>${x.key.map(k=>`<li>${esc(k)}</li>`).join("")}</ul>`:""}<div class="xrow">${toLink("study:acts?a="+p.act,"Act summary")}${x.quiz?toLink("study:quiz?s="+s,"Quiz this scene"):""}</div>`);return}
   if(a==="quotes"){const qs=QUOTES.quotes.filter(q=>speech[q.id].page===s);openSheet("Key quotes",qs.length?qs.map(quoteHTML).join(""):`<p class="muted">No key quotes are listed for this scene. Try the Key quotes tab in Study.</p>`);return}
   if(a==="conf"){prog.conf[s]=prog.conf[s]===k?"":k;saveProg();refreshMarks();toast("Saved")}}
 function onStageWho(p){const ws=[];p.items.forEach(i=>{if(i.t==="sp"&&i.who&&!ws.includes(i.who))ws.push(i.who)});return ws}
 function onStage(p){const ws=onStageWho(p);
-  return `<div class="onstage">On stage: ${ws.map(w=>`<span style="--c:${COLORS[w]||"var(--ink)"}">${esc(title(w))}</span>`).join(" · ")}</div>`}
+  return `<div class="onstage meds">${ws.map(w=>`<span class="oc" style="--c:${COLORS[w]||"var(--ink)"}">${folioMedal(w,COLORS[w])}<b>${esc(title(w))}</b></span>`).join("")}</div>`}
 /* verse or prose */
 const PROSE={};for(const id in speech){const L=speech[id].lines.map(l=>l.replace(/^~/,"").replace(/\[[^\]]*\]\s*/g,""));if(L.length<2)continue;
   const low=L.slice(1).filter(l=>/^[a-z]/.test(l)).length,long=L.filter(l=>l.length>62).length;PROSE[id]=low/(L.length-1)>=.5||long>=Math.max(1,L.length/3)}
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
     const n=onStageWho(p).length;
-    return `<div class="blk shead"><div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div><h1>${sName(p)}</h1><div class="loc"><svg viewBox="0 0 40 40" aria-hidden="true">${PICS[stageType(p)]}</svg><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div>`}
+    const first=p.sc===1;
+    return `<div class="blk shead${first?" actopen":""}">${first?folioPlate(LAT[p.act],p.act?R[p.act]:"",AN(p.act),"shplate")+`<div class="eyebrow">${SL[p.scene]||""}</div>`:`<div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div>`}<h1>${sName(p)}</h1>${folioStage(PICS[stageType(p)],"","shstage")}<div class="loc"><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div>`}
   if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
     const po=EX.predict[p.id],g=PRED[p.id];
-    return `<div class="blk endblk"><div class="orn">❧</div><b>End of ${sName(p)}</b>${n?`<span>Turn the page for ${sName(n)} · ${esc(shortLoc(n))}</span>`:`<span>Finis</span>`}${S.sum&&(STUDY.scenes[p.id]||{}).sum?`<div class="sum endsum"><b>The Argument</b>${esc(STUDY.scenes[p.id].sum)}</div>`:""}
-      ${po?`<div class="pred"><p>${g!=null?`Your guess: ${esc(po[g])}. Turn the page to find out.`:"What do you think happens next?"}</p><div class="chips">${po.map((o,i)=>`<button class="chip" data-pred="${p.id}:${i}" aria-pressed="${g===i}">${esc(o)}</button>`).join("")}</div></div>`:""}${endExtras(p)}</div>`}
+    /* 4.0 scene-end card: the wax seal stamps, a three-question check, a big Next. Full mode keeps the other end-of-scene tools below. */
+    const fresh=!prog.done[p.id],o=prog.qst[p.id]||{},Q=questsOf(p.id),sl=allSeals()+(fresh?1:0),L=folioLevel(sl);
+    const chk=Q.includes("q")?(Array.isArray(o.q)?`<button class="ckb done" data-endact="check:${p.id}">Check: ${esc(o.q[0])} of ${esc(o.q[1])} right · try again</button>`:`<button class="ckb${goal()==="enjoy"?" done":""}" data-endact="check:${p.id}">Check yourself · 3 questions</button>`):"";
+    return `<div class="blk endblk endcard">${folioSeal(p.scene,o.g?"g":"",fresh?"endseal stamp":"endseal")}<b>End of ${sName(p)}</b><span class="lvl">Scene sealed · ${sl} seal${sl===1?"":"s"} · ${esc(L.name)}</span>${chk}
+      ${n?`<button class="nextsc" data-endact="next:${p.id}"><small>Next</small><b>${sName(n)}</b><span>${esc(shortLoc(n))} ›</span></button>`:`<span class="fin">Finis</span>`}${S.sum&&(STUDY.scenes[p.id]||{}).sum?`<div class="sum endsum"><b>The Argument</b>${esc(STUDY.scenes[p.id].sum)}</div>`:""}
+      ${po?`<div class="pred"><p>${g!=null?`Your guess: ${esc(po[g])}. Turn the page to find out.`:"What do you think happens next?"}</p><div class="chips">${po.map((o,i)=>`<button class="chip" data-pred="${p.id}:${i}" aria-pressed="${g===i}">${esc(o)}</button>`).join("")}</div></div>`:""}${folioSimple()?"":endExtras(p)}</div>`}
   const it=bk.it,c=COLORS[it.who],cont=bk.u0>0||it.cont,aside=it.lines.some(l=>/\[Aside/.test(l)),solo=SOLO[it.id];
   let prevSp=null;for(const x of p.items){if(x===it)break;if(x.t==="sp"&&x.who===it.who)prevSp=x}
   const sw=PROSE[it.id]&&prevSp&&!PROSE[prevSp.id];
@@ -297,7 +311,7 @@ function blockHTML(bk,p){
   else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2])}</div></div>`).join("");
   const hl=hlOf(m),hc=hl?" hl hl-"+hl:"";
   const beat=S.beats&&!bk.u0&&!S.who&&BEAT[it.id]?`<div class="beat" aria-label="Story beat"><span>${beatTxt(BEAT[it.id])}</span></div>`:"";
-  const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1">${esc(firstSentence(ch.desc))}</div>`:"";
+  const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1">${folioMedal(it.who,COLORS[it.who],"wm")}<span>${esc(firstSentence(ch.desc))}</span></div>`:"";
   return `<article class="blk sp${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${PROSE[it.id]?"":" vs"}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}">${beat}<div class="hd"><span class="nm${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div>${intro}<div class="body">${body}</div></article>`;
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ----------
@@ -320,6 +334,7 @@ function paginate(p){
   const flush=()=>{if(page.length)pages.push(page);page=[];measure.innerHTML=""};
   const add=bk=>{measure.insertAdjacentHTML("beforeend",blockHTML(bk,p));return measure.lastElementChild};
   for(const bk0 of blocks){
+    if(bk0.t==="end")flush();/* the end-of-scene card gets a page of its own */
     let bk=bk0,guard=0;
     while(guard++<500){
       const el=add(bk);
@@ -367,9 +382,9 @@ function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidde
   const put=()=>{pg.innerHTML=html;pg.scrollTop=0;pg.style.overflowY=pg.scrollHeight>pg.clientHeight+2?"auto":"hidden"};
   if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
   const first=cur.pages[i].find(b=>b.t==="sp")||cur.pages[i][0];
-  if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set(PFX+"pos",JSON.stringify(pos));const st={pct:Math.round((cur.k+(i+1)/cur.pages.length)/scenes.length*1000)/10,where:sName(p),t:Date.now()};LS.set("folio-stat-"+PLAY,JSON.stringify(st));
+  if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set(PFX+"pos",JSON.stringify(pos));const st={pct:Math.round((cur.k+(i+1)/cur.pages.length)/scenes.length*1000)/10,where:sName(p),t:Date.now(),sl:ownSeals()};LS.set("folio-stat-"+PLAY,JSON.stringify(st));
     setTimeout(()=>{const sp=pg.querySelector(".sp[data-id]");if(!sp)return;const l=sp.querySelector(".o .l")||sp.querySelector(".o");st.who=first&&first.t==="sp"?title(first.it.who):"";st.line=l?l.textContent.replace(/^\s*\d+\s*/,"").trim().slice(0,140):"";LS.set("folio-stat-"+PLAY,JSON.stringify(st))},250)}
-  if(i+step()>=cur.pages.length&&!prog.done[p.id]){prog.done[p.id]=Date.now();saveProg()}
+  if(i+step()>=cur.pages.length&&!prog.done[p.id]){const b4=allSeals();prog.done[p.id]=Date.now();saveProg();syncSeals(b4)}
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140),i2=Math.min(n,i+step());
   $("pgfoot").textContent=`${sName(p)} · ${i2>i+1?`${i+1}–${i2}`:i+1} / ${n}`;{const rh=$("rhead").children;rh[0].textContent=CFG.short||CFG.title;rh[1].textContent=sName(p)}$("pgbar").style.width=((i+1)/n*100)+"%";if(!keep)logRead();
   $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
@@ -384,7 +399,7 @@ function turn(d,fromBar){
   if(curlOn()){curlAuto(d);return}
   doTurn(d)}
 function doTurn(d){
-  if(d>0){if(cur.i+step()<=cur.pages.length-1)renderPage(cur.i+step(),1);else if(cur.k<scenes.length-1){setHash(scenes[cur.k+1].id,false);openScene(cur.k+1,{page:0})}else toast("The end of the play")}
+  if(d>0){coachDid(2);if(cur.i+step()<=cur.pages.length-1)renderPage(cur.i+step(),1);else if(cur.k<scenes.length-1){setHash(scenes[cur.k+1].id,false);openScene(cur.k+1,{page:0})}else toast("The end of the play")}
   else{if(cur.i>0)renderPage(cur.i-step(),-1);else if(cur.k>0){setHash(scenes[cur.k-1].id,false);openScene(cur.k-1,{page:"last"})}}
 }
 /* ---------- page curl: the sheet folds along the perpendicular bisector of its corner and the finger ----------
@@ -477,7 +492,7 @@ function endPress(e,cancel){if(CU&&CU.drag){curlRelease(cancel);return}if(!press
   const mx=P.tgt.closest&&P.tgt.closest("[data-mx]");if(mx){const [id,pi]=mx.dataset.mx.split(":");unfold(+id,+pi);return}
   const kqm=P.tgt.closest&&P.tgt.closest(".kqm[data-kq]");if(kqm){openKQ(+kqm.dataset.kq);return}
   const nt=P.tgt.closest&&P.tgt.closest("[data-note]");if(nt){showPop(nt,"Study note",STUDY.notes[nt.dataset.note]||"");return}
-  const nm=P.tgt.closest&&P.tgt.closest(".nm[data-who]");if(nm){const c=CH[nm.dataset.who];if(c){showPop(nm,title(nm.dataset.who),c.desc,whoLinks(nm.dataset.who));return}}
+  const nm=P.tgt.closest&&P.tgt.closest(".nm[data-who]");if(nm){const c=CH[nm.dataset.who];if(c){showPop(nm,title(nm.dataset.who),c.desc,whoLinks(nm.dataset.who),folioMedal(nm.dataset.who,COLORS[nm.dataset.who],"pm"));return}}
   if(P.sp&&S.mode==="orig"){const pt=P.tgt.closest(".pt");if(pt){if(toolsId!=null)closePanel();unfold(+P.sp.dataset.id,+pt.dataset.p);return}}
   if(P.sp){const pt=P.tgt.closest(".pt")||(P.tgt.closest(".chunk")||P.sp).querySelector(".pt");
     if(pt){const id=+P.sp.dataset.id,pi=+pt.dataset.p;if(partSel&&partSel.id===id&&partSel.pi===pi&&toolsId!=null){closePanel();return}openPart(id,pi,false);return}}
@@ -505,7 +520,7 @@ let chromeT=0;
 if(matchMedia("(hover:hover)").matches)addEventListener("mousemove",e=>{if(view!=="reader"||!sheet.hidden||e.buttons)return;const y=e.clientY;
   if((y<56||y>innerHeight-110)&&!document.body.classList.contains("chrome"))toggleChrome(true);else if(document.body.classList.contains("chrome"))armChrome()},{passive:true});
 function armChrome(){clearTimeout(chromeT);chromeT=setTimeout(()=>{const a=document.activeElement;if(view==="reader"&&sheet.hidden&&!(a&&a.closest&&a.closest("#bar,#bbar")&&a.matches("input,select")))document.body.classList.remove("chrome")},4000)}
-function toggleChrome(on){document.body.classList.toggle("chrome",on);if(document.body.classList.contains("chrome"))armChrome();else clearTimeout(chromeT)}
+function toggleChrome(on){document.body.classList.toggle("chrome",on);if(document.body.classList.contains("chrome")){armChrome();coachDid(3)}else clearTimeout(chromeT)}
 ["pointerdown","input","keydown"].forEach(ev=>["bar","bbar"].forEach(id=>$(id).addEventListener(ev,()=>{if(document.body.classList.contains("chrome"))armChrome()})));
 $("p-prev").onclick=()=>turn(-1,1);$("p-next").onclick=()=>turn(1,1);
 function pagePreview(i){const b=cur.pages[i]||[];const f=b.find(x=>x.t==="sp");if(!f)return b.some(x=>x.t==="head")?"Scene opening":"End of scene";
@@ -608,10 +623,10 @@ function showGloss(el){const w=el.textContent,k=gmap[w.toLowerCase()];if(!k)retu
   const d=document.createElement("div");d.className="gpop";d.innerHTML=`<b>${esc(k)}</b><span>${esc(G[k])}</span><div class="gacts">${toLink("study:explore:glossary?w="+encodeURIComponent(k),"Glossary")}</div>`;
   document.body.appendChild(d);const r=el.getBoundingClientRect(),bw=d.offsetWidth,bh=d.offsetHeight;
   let x=Math.max(10,Math.min(innerWidth-bw-10,r.left+r.width/2-bw/2)),y=r.top-bh-10;if(y<10)y=r.bottom+10;
-  d.style.left=x+"px";d.style.top=y+"px";el.classList.add("on");d._el=el;gpop=d;
+  d.style.left=x+"px";d.style.top=y+"px";el.classList.add("on");d._el=el;gpop=d;coachDid(1);
   d.addEventListener("pointerup",e=>e.stopPropagation())}
 document.addEventListener("pointerdown",e=>{if(gpop&&!e.target.closest(".gpop,#vp"))hideGloss()},true);
-function showPop(el,h,txt,acts){hideGloss();const d=document.createElement("div");d.className="gpop";d.innerHTML=`<small>${esc(h)}</small><span>${esc(txt)}</span>${acts?`<div class="gacts">${acts}</div>`:""}`;
+function showPop(el,h,txt,acts,icon){hideGloss();const d=document.createElement("div");d.className="gpop"+(icon?" wpop":"");d.innerHTML=`${icon||""}<small>${esc(h)}</small><span>${esc(txt)}</span>${acts?`<div class="gacts">${acts}</div>`:""}`;
   document.body.appendChild(d);const r=el.getBoundingClientRect(),bw=d.offsetWidth,bh=d.offsetHeight;
   let x=Math.max(10,Math.min(innerWidth-bw-10,r.left+r.width/2-bw/2)),y=r.bottom+8;if(y+bh>innerHeight-10)y=r.top-bh-8;
   d.style.left=x+"px";d.style.top=y+"px";gpop=d;d.addEventListener("pointerup",e=>e.stopPropagation())}
@@ -691,8 +706,9 @@ function nextStep(){const d=dueKeys().length;if(d)return ["study:review",`Review
   return ["study:cards","Learn key quotes with flashcards","Practise"]}
 let SLAST=false;
 function renderStudyHome(){SLAST=false;$("sgroups").hidden=true;$("stabs").hidden=true;$("srel").innerHTML="";const last=TABS.find(t=>t[0]===S.stab),nx=nextStep();
-  $("sbody").innerHTML=`<div class="pickup">${last?`<button class="pk" data-to="study:${last[0]}${last[0]==="explore"&&exSel?":"+exSel:""}"><small>Pick up</small><b>${esc(last[1])}${last[0]==="explore"&&exSel?" · "+esc((EXT.find(x=>x[0]===exSel)||[,""])[1]):""}</b></button>`:""}<button class="pk next" data-to="${nx[0]}"><small>Next step · ${nx[2]}</small><b>${esc(nx[1])}</b></button></div>
-  <div class="sgcards">${SGROUPS.map(([k,l,ts],i)=>`<button class="sgc" data-sg="${k}"><span class="sgn" aria-hidden="true">${["I","II","III","IV"][i]}</span><span class="sgt"><b>${l}</b><small>${esc(SGI[k])}</small><em>${ts.map(t=>TABS.find(x=>x[0]===t)[1]).join(" · ")}</em></span><span class="sgp">${esc(sgProgress(k))}</span><span class="sgbar" aria-hidden="true"><i style="width:${Math.round(sgFrac(k)*100)}%"></i></span></button>`).join("")}</div>`}
+  const cards=`<div class="pickup">${last?`<button class="pk" data-to="study:${last[0]}${last[0]==="explore"&&exSel?":"+exSel:""}"><small>Pick up</small><b>${esc(last[1])}${last[0]==="explore"&&exSel?" · "+esc((EXT.find(x=>x[0]===exSel)||[,""])[1]):""}</b></button>`:""}<button class="pk next" data-to="${nx[0]}"><small>Next step · ${nx[2]}</small><b>${esc(nx[1])}</b></button></div>
+  <div class="sgcards">${SGROUPS.map(([k,l,ts],i)=>`<button class="sgc" data-sg="${k}"><span class="sgn" aria-hidden="true">${["I","II","III","IV"][i]}</span><span class="sgt"><b>${l}</b><small>${esc(SGI[k])}</small><em>${ts.map(t=>TABS.find(x=>x[0]===t)[1]).join(" · ")}</em></span><span class="sgp">${esc(sgProgress(k))}</span><span class="sgbar" aria-hidden="true"><i style="width:${Math.round(sgFrac(k)*100)}%"></i></span></button>`).join("")}</div>`;
+  $("sbody").innerHTML=folioSimple()?questHomeHTML(cards):cards}
 /* "Related" footer under every Study section: links to the sections that follow on from it (kept in step by an observer, as sections re-render themselves) */
 function relList(){const T=k=>(TABS.find(x=>x[0]===k)||[,k])[1],W=w=>esc(title(w)),R=[],add=(sp,l)=>R.push([sp,l]);
   const who=w=>{if(!w)return;if(MAINS.includes(w))add("study:prof?who="+w,"Profile: "+W(w));if(whoQ(w))add("study:quotes?who="+w,"Key quotes: "+W(w));if(EX.analysis&&EX.analysis[w])add("study:explore:analysis?an="+w,"Analysis: "+W(w));if(MAINS.includes(w))add("study:part?who="+w,"Learn "+W(w)+"'s part")};
@@ -1580,6 +1596,7 @@ function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
   openSheet("Settings",`
+    <div class="opt"><div class="lbl">App mode, for every play</div>${segs("appmode",[["simple","Simple"],["full","Full"]],folioMode())}<small>Simple: three tabs, a journey map, quests and a calmer page. Full: every tool, four tabs, line numbers and study notes.</small></div>
     <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, tap any line and its modern English opens underneath. On a tablet, Both puts the two side by side.</small></div>
     <div class="opt"><div class="lbl">Theme, for every play</div><div class="ttiles" id="s-tiles"></div><button class="tog" id="s-night" role="switch" type="button"><span>Night after 8pm<small>Switches to Night from 8pm to 7am</small></span><i></i></button><small>Paper is a warm, matte page like an e-reader. Night is warm and dim for reading in bed.</small></div>
     <div class="opt"><div class="lbl">Text size, for every play</div><div class="size"><span style="font-size:15px">A</span><label class="sr" for="s-size">Text size</label><input type="range" id="s-size" min="0" max="3" step="1"><span style="font-size:26px">A</span></div><p class="sprev" id="s-prev"></p></div>
@@ -1595,7 +1612,8 @@ function openSettings(){
     <div class="opt howto"><div class="lbl">How to read</div>${HOWTO.map(([g,rows],gi)=>`<details${gi?"":" open"}><summary>${g}</summary><ul>${rows.map(([ic,b,t])=>`<li><span class="hic" aria-hidden="true">${ic}</span><span><b>${b}</b>${t}</span></li>`).join("")}</ul></details>`).join("")}</div>
     ${backupHTML()}
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
-  $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
+  $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="appmode"){folioSetMode(v);$("sheet-body").querySelectorAll(`[data-set="appmode"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));show(view);if(view==="study")renderStudy();if(view==="you")renderYou();if(view==="map")renderMap();cur.sig="";repaginate();toast(v==="simple"?"Simple mode":"Full mode");return}
+    if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
     if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="beats")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   const TN={paper:"Paper",light:"Light",dark:"Dark",night:"Night"},SZN=["Small","Normal","Large","Extra large"];
   const paint=()=>{const c=folioThemeChosen(),th=c==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):c;
@@ -1611,11 +1629,108 @@ function openSettings(){
   wireBackup(()=>{if(view==="you")renderYou();refreshMarks()});
   let armed=false;$("resetprog").onclick=()=>{if(!armed){armed=true;$("resetmsg").textContent="Tap again to confirm. Your notes are kept.";return}prog={done:{},quiz:{},cards:{},srs:{},miss:{q:[],c:{},s:{}},conf:{},exam:prog.exam};saveProg();REV={it:{},cal:[]};saveRev();$("resetmsg").textContent="Progress reset.";armed=false;if(view==="you")renderYou()};
 }
-$("b-home").onclick=()=>openContents();$("b-where").onclick=()=>openContents("scenes");$("b-search").onclick=()=>openSearch("");$("b-set").onclick=openSettings;$("b-bm").onclick=toggleBM;
+$("b-home").onclick=()=>folioSimple()?goMap():openContents();$("b-where").onclick=()=>openContents("scenes");$("b-search").onclick=()=>openSearch("");$("b-set").onclick=openSettings;$("b-bm").onclick=toggleBM;
+
+/* ---------- 4.0: seals, levels, quests, the journey map, first-scene tips ---------- */
+/* seals: a red seal for each scene read, a gilt one when all of a scene's quests are done. The level counts seals across every play
+   (this play from prog, the others from the sl field each play keeps in its folio-stat-<id>; the shelf refreshes those). */
+const goal=()=>{const g=LS.get("folio-goal");return g==="enjoy"||g==="exam"?g:"both"};
+const ownSeals=()=>folioSealsOf(prog);
+function allSeals(){let n=ownSeals();try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k||!k.startsWith("folio-stat-")||k==="folio-stat-"+PLAY)continue;let v=null;try{v=JSON.parse(localStorage.getItem(k))}catch(e){}if(v&&+v.sl>0)n+=Math.floor(+v.sl)}}catch(e){}return n}
+function syncSeals(before){try{const st=JSON.parse(LS.get("folio-stat-"+PLAY)||"null");if(st){st.sl=ownSeals();LS.set("folio-stat-"+PLAY,JSON.stringify(st))}}catch(e){}
+  if(before!=null){const a=folioLevel(before),b=folioLevel(allSeals());if(b.i>a.i)setTimeout(()=>toast("New level: "+b.name),900)}}
+/* quests (prog.qst[scene] = {r, q:[right,of], k, g}): Recap, a three-question Check, Key quotes; whichever the scene has content for */
+const QL={r:["Recap","What happened, in a minute","❧"],q:["Check","Three quick questions","?"],k:["Key quotes","The lines to know","❦"]};
+function questsOf(s){const x=STUDY.scenes[s]||{},Q=[];if(x.sum)Q.push("r");if((x.quiz||[]).length)Q.push("q");if(QUOTES.quotes.some(q=>speech[q.id].page===s))Q.push("k");return Q}
+function questDone(s,k,v){if(sIdx(s)<0||!QL[k])return;const b4=allSeals(),o=prog.qst[s]=prog.qst[s]||{};o[k]=v||1;const all=questsOf(s).every(q=>o[q]),fresh=all&&!o.g;if(all)o.g=1;saveProg();syncSeals(b4);
+  if(fresh)toast("All quests done · a gilt seal for "+sName(scenes[sIdx(s)]));if(view==="map")renderMap();else if(view==="study"&&SH)renderStudy();else if(view==="you")renderYou();else refreshMarks()}
+function questsHTML(s){const o=prog.qst[s]||{},Q=questsOf(s);if(!Q.length)return "";
+  return `<div class="quests">${Q.map(k=>`<button class="qst${o[k]?" done":""}" type="button" data-quest="${k}:${s}"><span class="qi" aria-hidden="true">${o[k]?"✓":QL[k][2]}</span><span class="qx"><b>${QL[k][0]}</b><small>${k==="q"&&Array.isArray(o.q)?`${esc(o.q[0])} of ${esc(o.q[1])} right`:QL[k][1]}</small></span></button>`).join("")}</div>`}
+function openQuest(k,s){const p=scenes[sIdx(s)];if(!p)return;const x=STUDY.scenes[s]||{};
+  if(k==="q"){openCheck(s);return}
+  if(k==="r"){openSheet("Recap",`<p class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</p><p class="recap">${esc(x.sum||"")}</p>${(x.key||[]).length?`<ul>${x.key.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}<div class="row"><button class="btn primary" data-qdone="r:${s}">Got it ✓</button></div><div class="xrow">${toLink("study:acts?a="+p.act,"Act summary")}${toLink("scene:"+s,"Read the scene again")}</div>`);return}
+  if(k==="k"){const qs=QUOTES.quotes.filter(q=>speech[q.id].page===s);openSheet("Key quotes",`<p class="eyebrow">${sName(p)}</p>${qs.map(quoteHTML).join("")}<div class="row"><button class="btn primary" data-qdone="k:${s}">I know these ✓</button></div><div class="xrow">${toLink("study:cards","Practise as flashcards")}</div>`)}}
+/* the three-question check, in a sheet (questions from the scene quiz) */
+let ck=null;
+function openCheck(s){const all=((STUDY.scenes[s]||{}).quiz||[]).map(q=>Object.assign({s},q));if(!all.length)return;
+  ck={s,qs:shuf(all).slice(0,3).map(q=>{const ix=shuf(q.o.map((_,i)=>i));return Object.assign({},q,{o:ix.map(i=>q.o[i]),a:ix.indexOf(q.a)})}),i:0,ok:0,ans:null,saved:false};renderCheck()}
+function renderCheck(){const p=scenes[sIdx(ck.s)],n=ck.qs.length;
+  if(ck.i<n){const q=ck.qs[ck.i];
+    openSheet("Check yourself",`<div class="qz ck"><div class="qn">${sName(p)} · question ${ck.i+1} of ${n}</div><h3>${esc(q.q)}</h3><div class="opts">${q.o.map((o,i)=>`<button type="button" data-ck="${i}"${ck.ans!=null?" disabled":""} class="${ck.ans!=null?(i===q.a?"right":i===ck.ans?"wrong":""):""}">${esc(o)}</button>`).join("")}</div>
+      ${ck.ans!=null?`<p class="ckfb">${ck.ans===q.a?"Right.":"Not quite: the right answer is marked."}</p><div class="row"><button class="btn primary" data-cknext="1">${ck.i+1<n?"Next question":"See your result"}</button></div>`:""}</div>`);return}
+  if(!ck.saved){ck.saved=true;questDone(ck.s,"q",[ck.ok,n])}
+  const nx=scenes[sIdx(ck.s)+1],o=prog.qst[ck.s]||{};
+  openSheet("Check yourself",`<div class="ckres">${folioSeal(p.scene,o.g?"g":"","bigseal stamp")}<div class="big">${ck.ok} of ${n}</div><p>${ck.ok===n?"All right. Well read.":ck.ok?"Good. The ones you missed are saved for Review in Study.":"These are saved for Review in Study. The scene summary will help."}</p>
+    <div class="row">${nx?`<button class="btn primary" data-go="${nx.id}">Next: ${sName(nx)} ›</button>`:""}<button class="btn" data-ckagain="1">Try again</button></div><div class="xrow">${toLink("study:quiz?s="+ck.s,"Whole scene quiz")}${o.r?"":toLink("study","Other quests")}</div></div>`)}
+sheet.addEventListener("click",e=>{
+  const c=e.target.closest("[data-ck]");if(c&&ck&&ck.ans==null){const q=ck.qs[ck.i];ck.ans=+c.dataset.ck;const M=prog.miss.q,ix=M.findIndex(m=>m.q===q.q);
+    if(ck.ans===q.a){ck.ok++;if(ix>=0)M.splice(ix,1)}else if(ix<0)M.push({q:q.q,o:q.o,a:q.a,s:q.s});saveProg();renderCheck();return}
+  if(e.target.closest("[data-cknext]")&&ck){ck.i++;ck.ans=null;renderCheck();return}
+  if(e.target.closest("[data-ckagain]")&&ck){openCheck(ck.s);return}
+  const d=e.target.closest("[data-qdone]");if(d){const [k,s]=d.dataset.qdone.split(":");closeSheet();questDone(s,k);toast(QL[k][0]+" done");return}
+  const q=e.target.closest("[data-quest]");if(q){const [k,s]=q.dataset.quest.split(":");openQuest(k,s);return}
+  const st=e.target.closest("[data-stop]");if(st)openStop(st.dataset.stop)});
+document.addEventListener("click",e=>{const q=e.target.closest("#sbody [data-quest],#mapbody [data-quest],#contcard [data-quest]");if(q){const [k,s]=q.dataset.quest.split(":");openQuest(k,s)}
+  if(e.target.closest("#qmore")){QMORE=true;renderStudy()}});
+/* Simple mode's Study home: quests for the scenes you've read, every tool folded under All tools */
+let QMORE=false;
+function questHomeHTML(cards){const read=scenes.filter(p=>prog.done[p.id]&&questsOf(p.id).length).sort((a,b)=>prog.done[b.id]-prog.done[a.id]),open=read.filter(p=>!(prog.qst[p.id]||{}).g),gilt=read.length-open.length;
+  let h=`<div class="qhead">${folioSeal("❦","g","qhs")}<div><h2>Quests</h2><p>Three short quests for each scene you've read: a recap, a quick check and the key quotes. Finish them for a gilt seal.</p></div></div>`;
+  if(!read.length)h+=`<div class="empty">${folioSeal(scenes[0].scene,"n","emps")}<p>Read your first scene to unlock its quests.</p><button class="btn primary" type="button" data-to="read">Start reading</button></div>`;
+  else{h+=(QMORE?open:open.slice(0,3)).map(p=>`<div class="qcard"><div class="qct">${folioSeal(p.scene,"","")}<span><b>${sName(p)}</b><small>${esc(shortLoc(p))}</small></span></div>${questsHTML(p.id)}</div>`).join("");
+    if(open.length>3&&!QMORE)h+=`<button class="link" type="button" id="qmore">Show all ${open.length} scenes with quests</button>`;
+    if(!open.length)h+=`<div class="empty">${folioSeal("❦","g","emps")}<p>Every quest is done for the scenes you've read. Read on to unlock more.</p><button class="btn primary" type="button" data-to="read">Read on</button></div>`;
+    if(gilt)h+=`<p class="muted gsum">${gilt} scene${gilt===1?"":"s"} with a gilt seal.</p>`}
+  return h+`<details class="alltools"><summary><b>All tools</b><small>Summaries, profiles, themes, flashcards, quizzes, essay help</small></summary>${cards}</details>`}
+/* the journey map: the play as a road of scenes, act plates as gates, a seal at every scene read */
+const MAPX=[50,72,84,70,46,24,14,28];
+function renderMap(){const here=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1,lp=here>=0?scenes[here]:scenes[0],done=scenes.filter(p=>prog.done[p.id]).length,all=allSeals(),L=folioLevel(all),gl=goal();
+  $("map").querySelector(".sbar h1").textContent=folioSimple()?"Play":"Journey";
+  let h=`<div class="mhead"><span class="memb">${typeof emblemSVG==="function"?emblemSVG(PLAY,"emb"):""}</span><div><p class="eyebrow">${esc(CFG.pre||"")}</p><h2>${esc(CFG.h1||CFG.title)}</h2>${CFG.post?`<p class="mpost">${esc(CFG.post)}</p>`:""}</div></div>
+    <button class="go mgo" type="button" data-to="read"><small>${pos?"Continue reading":"Begin the play"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span></button>
+    <div class="mprog"><span><b>${done}</b> of ${scenes.length} scenes sealed</span><button class="mlv" type="button" data-to="you">${folioLevelBadge(all)}<span>${esc(L.name)}</span></button></div><div class="mbar" aria-hidden="true"><i style="width:${done/scenes.length*100}%"></i></div>
+    <div class="xrow mlinks">${toLink("study",folioSimple()?"Quests &amp; study":"Study")}${toLink("contents","Contents")}</div>
+    <div class="mapw" id="mapw"><svg class="mpath" id="mpath" aria-hidden="true"></svg>`;
+  let j=0;
+  for(const a of ACTS){const ps=scenes.filter(p=>p.act===a);if(!ps.length)continue;
+    h+=folioPlate(LAT[a],a?R[a]:"",`${AN(a)} · ${ps.filter(p=>prog.done[p.id]).length} of ${ps.length} sealed`,"mplate");
+    h+=`<ol class="stops">`+ps.map(p=>{const k=sIdx(p.id),d=prog.done[p.id],o=prog.qst[p.id]||{},Q=questsOf(p.id),x=MAPX[j++%MAPX.length];
+      const pips=d&&Q.length&&gl!=="enjoy"?`<span class="pips" title="Quests">${Q.map(q=>`<i class="${o[q]?"on":""}"></i>`).join("")}<em>${Q.filter(q=>o[q]).length} of ${Q.length} quests</em></span>`:"";
+      return `<li style="--x:${x}"${x>60?` class="r"`:""}><button class="stop${d?" done":""}${k===here?" here":""}" type="button" data-stop="${p.id}">${d?folioSeal(p.scene,o.g?"g":""):folioSeal(p.scene,k===here?"n":"e")}<span class="sl"><b>Scene ${p.scene.toLowerCase()}${k===here?`<em>You are here</em>`:""}</b><small>${esc(shortLoc(p))}</small>${pips}</span></button></li>`}).join("")+`</ol>`}
+  h+=`<div class="mend">${folioSeal("❦",done===scenes.length?"g":"e","mfin")}<b>Finis</b></div></div>`;
+  $("mapbody").innerHTML=h;requestAnimationFrame(drawPath)}
+function drawPath(){const w=$("mapw"),sv=$("mpath");if(!w||!sv||view!=="map")return;const b=w.getBoundingClientRect();
+  const nodes=[...w.querySelectorAll(".stop .seal,.mfin")],pts=nodes.map(e=>{const r=e.getBoundingClientRect();return [Math.round(r.left+r.width/2-b.left),Math.round(r.top+r.height/2-b.top)]});
+  const last=nodes.reduce((m,e,i)=>e.closest(".stop.done")?i:m,-1);
+  const path=ps=>ps.length<2?"":"M"+ps[0].join(" ")+ps.slice(1).map((p,i)=>{const a=ps[i],my=(a[1]+p[1])/2;return `C${a[0]} ${my} ${p[0]} ${my} ${p[0]} ${p[1]}`}).join("");
+  sv.setAttribute("viewBox",`0 0 ${Math.round(b.width)} ${Math.round(b.height)}`);sv.setAttribute("width",Math.round(b.width));sv.setAttribute("height",Math.round(b.height));
+  sv.innerHTML=`<path class="road" d="${path(pts)}"/>${last>0?`<path class="walked" d="${path(pts.slice(0,last+1))}"/>`:""}`}
+addEventListener("resize",()=>{if(view==="map")requestAnimationFrame(drawPath)});
+$("mapbody").addEventListener("click",e=>{const s=e.target.closest("[data-stop]");if(s)openStop(s.dataset.stop)});
+$("m-search").onclick=()=>openSearch("");
+/* a stop on the map: the scene's stage, who is in it, read it, and its quests once read */
+function openStop(id){const p=scenes[sIdx(id)];if(!p)return;const d=prog.done[id],k=stageType(p),here=pos&&pos.s===id;
+  openSheet(sName(p),`${folioStage(PICS[k],(EX.place[p.id]?EX.place[p.id]+" · ":"")+(EX.stage[k]||""),"stopstage")}<p class="hcap">${esc(p.loc)}</p>${!d&&preQ(p)?`<div class="preq"><b>Read to find out</b>${esc(preQ(p))}</div>`:""}
+    <h3 class="lbl">On stage</h3>${onStage(p)}<div class="row">${here?`<button class="btn primary" type="button" data-to="read">Carry on reading</button>`:`<button class="btn primary" type="button" data-go="${id}">${d?"Read it again":"Read this scene"}</button>`}</div>
+    ${d?`<h3 class="lbl">Quests</h3>${questsHTML(id)||`<p class="muted">No quests for this scene.</p>`}`:`<p class="muted">Read the scene to seal it and unlock its quests.</p>`}`)}
+/* first scene, Simple mode: four tips, one at a time, each done when you do it (folio-tips = tips seen; once per app) */
+const COACH=[["Tap any line","Its modern English opens underneath. Tap it again to fold it away."],["Tap an underlined word","A short meaning pops up."],["Swipe to turn the page","Or tap near the right-hand edge."],["Tap the middle of the page","The menus appear: Contents, Search, Settings and the Play tab."]];
+let coachN=Math.max(0,+LS.get("folio-tips")||0);
+function coachSave(){LS.set("folio-tips",String(coachN));if(coachN>=COACH.length)LS.set("folio-hint","1")}
+function coach(){const old=$("coach");if(old)old.remove();if(!folioSimple()||coachN>=COACH.length||view!=="reader")return;const c=COACH[coachN],d=document.createElement("div");d.id="coach";d.className="coach";d.setAttribute("role","status");
+  d.innerHTML=`<span class="cn">Tip ${coachN+1} of ${COACH.length}</span><b>${c[0]}</b><span class="ct">${c[1]}</span><div class="cb"><button class="link" type="button" data-c="skip">No more tips</button><button class="btn primary" type="button" data-c="ok">Got it</button></div>`;
+  $("reader").appendChild(d);["pointerdown","pointerup"].forEach(ev=>d.addEventListener(ev,e=>e.stopPropagation()));
+  d.onclick=e=>{const b=e.target.closest("[data-c]");if(!b)return;coachN=b.dataset.c==="skip"?COACH.length:coachN+1;coachSave();coach()}}
+function coachDid(n){if(coachN===n&&folioSimple()&&view==="reader"){coachN++;coachSave();const o=$("coach");if(o)o.remove();setTimeout(coach,900)}}
+/* the level card (You / Me) */
+function levelHTML(){const all=allSeals(),L=folioLevel(all);
+  return `<div class="lvcard">${folioLevelBadge(all,"lvbig")}<div class="lvt"><small>Your level · every play</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><span class="meter"><i style="width:${Math.round(L.frac*100)}%"></i></span><em>${all} seal${all===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}</em></div></div>
+    <div class="ystrip" aria-label="Seals in this play">${ACTS.map(a=>`<div><small>${AN(a)}</small><span>${scenes.filter(p=>p.act===a).map(p=>`<button type="button" data-stop="${p.id}" aria-label="${sName(p)}">${folioSeal(p.scene,prog.done[p.id]?((prog.qst[p.id]||{}).g?"g":""):"e","mini")}</button>`).join("")}</span></div>`).join("")}</div>`}
+$("you").addEventListener("click",e=>{const s=e.target.closest("[data-stop]");if(s)openStop(s.dataset.stop)});
 
 /* ---------- first-run hint ---------- */
 /* once per app (folio-hint), not once per play: three short steps, Folio style */
-function hint(){if(LS.get("folio-hint")||LS.get(PFX+"hint4")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.setAttribute("role","dialog");d.setAttribute("aria-label","How to read");
+function hint(){if(folioSimple()){coach();return}if(LS.get("folio-hint")||LS.get(PFX+"hint4")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.setAttribute("role","dialog");d.setAttribute("aria-label","How to read");
   d.innerHTML=`<p class="eyebrow">How to read</p><ol><li><b>Swipe</b> or tap the page edge to turn the page.</li><li><b>Tap a line</b> and its modern English opens under it. Tap a dotted word for its meaning.</li><li><b>Tap empty space</b> for the menus. Press and hold a word to save a phrase.</li></ol><button class="btn primary">Begin</button>`;
   $("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.querySelector("button").onclick=()=>{d.remove();LS.set("folio-hint","1")}}
 
