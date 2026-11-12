@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [2.46.0] — 2026-11-12
 
 ### Changed
-- Shelf covers, third pass: all 36 emblems redrawn as large enamelled gilt badges (gold foil with coloured enamel: red strawberries on Othello's handkerchief, a green asp before a golden sun, Lear's crown split by lightning, a white boar for Richard III, red and white roses for 1 Henry VI…), each filling an ogee arch window with scrolled spandrels across the cover. The epigraph is removed; the genre-shelf spines and the opening curtain show the new emblems. (#PR)
+- Shelf covers, third pass: all 36 emblems redrawn as large enamelled gilt badges (gold foil with coloured enamel: red strawberries on Othello's handkerchief, a green asp before a golden sun, Lear's crown split by lightning, a white boar for Richard III, red and white roses for 1 Henry VI…), each filling an ogee arch window with scrolled spandrels across the cover. The epigraph is removed; the genre-shelf spines and the opening curtain show the new emblems. (#98)
 
 ## [2.45.0] — 2026-11-12
 
