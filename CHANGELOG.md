@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.42.0] — 2026-11-12
+
+### Added
+- King Richard III, on the Histories shelf: the Project Gutenberg text (eBook #1503; empty speaker lines before asides folded in, each ghost at Bosworth named, missing locations set), modern English for all 1130 speeches, story beats, notes, a 265-word glossary and the full Study set: scene summaries and quizzes for all 25 scenes, cast profiles, 255 key quotes in 8 themes, Richard's path to the crown (each step from Clarence's arrest through Anne, Hastings, the princes and Buckingham's fall to Bosworth), a chart of Richard's fortunes against Richmond's, character map, context, critics, imagery and essay plans. Placed between Titus Andronicus and The Comedy of Errors in Date written order. Checked against the uploaded SparkNotes guide (play text wins: Margaret lost one son, Clarence dreams of sailing to Burgundy, Lovel and Ratcliff bring Hastings' head, Buckingham's army is scattered by floods, Urswick is a priest, Blunt carries Richmond's note to Stanley, Hastings' ghost comes before the princes'). (#95)
+
 ## [2.41.0] — 2026-11-12
 
 ### Added
