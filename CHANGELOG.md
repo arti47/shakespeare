@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.37.0] — 2026-11-12
+
+### Added
+- King Henry V, on the Histories shelf: the Project Gutenberg text (eBook #1521; act choruses open the first scene of each act and the Epilogue closes 5.2, standard editorial locations, typing slips corrected), modern English for all 753 speeches, story beats, notes, a 178-word glossary and the full Study set: scene summaries and quizzes for all 23 scenes, cast profiles, 203 key quotes in 9 themes, Henry's road to Agincourt (each step from the tennis balls to the Treaty of Troyes), a chart of English against French fortunes, character map, context, critics, imagery and essay plans. Placed between Much Ado About Nothing and Julius Caesar in Date written order. Checked against the uploaded SparkNotes guide. (#89)
+
 ## [2.36.1] — 2026-11-11
 
 ### Fixed
