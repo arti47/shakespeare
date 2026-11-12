@@ -36,6 +36,7 @@ Live site: https://arti47.github.io/shakespeare/
 - `cymbeline/` — Cymbeline (prefix `cym-`).
 - `king-john/` — King John (prefix `kj-`).
 - `henry-iv-part-1/` — King Henry IV, Part 1 (prefix `1h4-`).
+- `henry-v/` — King Henry V (prefix `h5-`).
 - `henry-iv-part-2/` — King Henry IV, Part 2 (prefix `2h4-`).
 
 Layout of a play folder `<id>/`:
