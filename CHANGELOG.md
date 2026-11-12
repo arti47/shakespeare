@@ -4,10 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [2.42.0] — 2026-11-12
+
+### Added
+- King Richard III, on the Histories shelf: the Project Gutenberg text (eBook #1503; empty speaker lines before asides folded in, each ghost at Bosworth named, missing locations set), modern English for all 1130 speeches, story beats, notes, a 265-word glossary and the full Study set: scene summaries and quizzes for all 25 scenes, cast profiles, 255 key quotes in 8 themes, Richard's path to the crown (each step from Clarence's arrest through Anne, Hastings, the princes and Buckingham's fall to Bosworth), a chart of Richard's fortunes against Richmond's, character map, context, critics, imagery and essay plans. Placed between Titus Andronicus and The Comedy of Errors in Date written order. Checked against the uploaded SparkNotes guide (play text wins: Margaret lost one son, Clarence dreams of sailing to Burgundy, Lovel and Ratcliff bring Hastings' head, Buckingham's army is scattered by floods, Urswick is a priest, Blunt carries Richmond's note to Stanley, Hastings' ghost comes before the princes'). (#95)
+
 ## [2.41.0] — 2026-11-12
 
 ### Added
-- King Richard III, on the Histories shelf: the Project Gutenberg text (eBook #1503; empty speaker lines before asides folded in, each ghost at Bosworth named, missing locations set), modern English for all 1130 speeches, story beats, notes, a 265-word glossary and the full Study set: scene summaries and quizzes for all 25 scenes, cast profiles, 255 key quotes in 8 themes, Richard's path to the crown (each step from Clarence's arrest through Anne, Hastings, the princes and Buckingham's fall to Bosworth), a chart of Richard's fortunes against Richmond's, character map, context, critics, imagery and essay plans. Placed between Titus Andronicus and The Comedy of Errors in Date written order. Checked against the uploaded SparkNotes guide (play text wins: Margaret lost one son, Clarence dreams of sailing to Burgundy, Lovel and Ratcliff bring Hastings' head, Buckingham's army is scattered by floods, Urswick is a priest, Blunt carries Richmond's note to Stanley, Hastings' ghost comes before the princes'). (#PR)
+- King Henry VIII, on the Histories shelf: the Project Gutenberg text (eBook #1541; Globe scene division with five scenes in Act 5, the Prologue opens 1.1 and the Epilogue closes 5.5, the christening song marked, run-in speakers and typos corrected), modern English for all 725 speeches, story beats, notes, a 209-word glossary and the full Study set: scene summaries and quizzes for all 17 scenes, cast profiles, 219 key quotes in 8 themes, the falls of the great (each step from Buckingham's arrest through Katherine's divorce and Wolsey's fall to Cranmer's rise and Elizabeth's christening), a chart of Wolsey's power against Anne's rise, character map, context, critics, imagery and essay plans. Placed after The Tempest, last in Date written order. Checked against the uploaded SparkNotes guide (play text wins: Buckingham missed the Field of the Cloth of Gold through illness, his peers condemn him, Katherine's father is Ferdinand of Spain and the Emperor her nephew, Campeius brings a commission to judge rather than a verdict, Anne also speaks in 1.4, Cranmer is asked to be godfather). (#93)
 
 ## [2.40.0] — 2026-11-12
 
