@@ -57,5 +57,6 @@
 .size{display:flex;align-items:center;gap:12px}
 .size>span{font-family:var(--f-old);color:var(--muted)}
 .size input{flex:1;accent-color:var(--accent);height:44px}
-.sprev{margin:4px 0 0;font:400 1rem var(--f-old);color:var(--soft)}
+/* preview at the reader's text size (reader .pg = 1rem x --scale; the shelf root is already scaled, so px) */
+.sprev,.sec .sprev{margin:4px 0 0;font:400 calc(16px * var(--scale)) var(--f-old);line-height:1.35;color:var(--soft)}
 .sprev b{font-weight:400;color:var(--accent)}
