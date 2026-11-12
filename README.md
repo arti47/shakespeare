@@ -40,6 +40,7 @@ Live site: https://arti47.github.io/shakespeare/
 - `henry-iv-part-2/` — King Henry IV, Part 2 (prefix `2h4-`).
 - `henry-vi-part-1/` — King Henry VI, Part 1 (prefix `1h6-`).
 - `henry-vi-part-3/` — King Henry VI, Part 3 (prefix `3h6-`).
+- `henry-vi-part-2/` — King Henry VI, Part 2 (prefix `2h6-`).
 
 Layout of a play folder `<id>/`:
 - `play.js`: the play's source. It holds `CFG` (id, localStorage prefix, titles, backup id, per-play wording) and the content (`DATA`, `STUDY`, `PARTS`, `QUOTES`, `EX`, `EXT`, `MAINS`, `COLORS`, `PICS`). Edit content here.
