@@ -274,6 +274,40 @@ footer .orn{justify-content:center;margin-bottom:8px}
 .curt .cembs{display:block;width:120px;height:120px;margin:10px auto 0;color:#b8862a;--kc:var(--page)}
 .curt i{display:block;color:var(--accent);font-style:normal;font-size:1.5rem;margin-top:6px}
 @media (prefers-reduced-motion:reduce){.cover .shine{animation:none}.cover,.curt .h,.curt .ttl{transition:none}}
+/* 3.1: compact Continue + Today, so the shelves start on the first screen of a phone */
+.tlink{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;color:var(--accent);font:500 max(14px,.7rem) var(--f-ui);text-decoration:none}
+.tlink:hover{text-decoration:underline}
+.hero .acts{align-items:center}
+.lotd blockquote{font-size:.9rem;line-height:1.36;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.lotd .ldate{display:inline;font-size:1em;letter-spacing:0;text-transform:none;font-variant:normal}
+.lotd cite{margin:6px 0 4px}
+.today2{margin-top:22px}
+.lacts{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px}
+.lacts a,.lacts button{display:inline-flex;align-items:center;min-height:40px;border:0;background:none;padding:0;color:var(--accent);font:500 max(14px,.66rem) var(--f-ui);text-decoration:none;cursor:pointer}
+.lotd blockquote.all{display:block;-webkit-line-clamp:unset}
+.lmore{border:0;background:none;color:var(--accent);font:500 max(14px,.66rem) var(--f-ui);min-height:36px;cursor:pointer}
+.word .wl{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;-webkit-line-clamp:unset;overflow:visible}
+.word .wl a,.word .wl button{border:0;background:none;padding:6px 0;min-height:32px;color:var(--accent);font:500 max(14px,.62rem) var(--f-ui);text-decoration:none;cursor:pointer}
+.word{cursor:default}
+.dlinks{display:flex;flex-wrap:wrap;gap:4px 16px;margin:12px 2px 0}
+.dlinks a{display:inline-flex;align-items:center;min-height:40px;color:var(--accent);font:500 max(14px,.66rem) var(--f-ui);text-decoration:none}
+.xg .xh{display:flex;align-items:center;gap:10px;padding:14px 2px;min-height:52px}
+.xg .xh b{flex:1;font:400 1.1rem var(--f-old);color:var(--accent)}
+.xg .xh span{font:600 max(14px,.6rem) var(--f-ui);color:var(--accent-ink);background:var(--accent);border-radius:var(--pill);padding:2px 10px}
+.rt .gw{display:block;font-family:var(--f-old);font-weight:400;font-size:1.1em;color:var(--ink)}
+.rt .gm{display:block;font:400 max(14px,.66rem)/1.4 var(--f-ui);color:var(--soft)}
+.rt.kq{font-family:var(--f-old);font-style:italic}
+@media (max-width:600px){
+  .hero{padding:12px 14px;gap:14px}
+  .hero h3{font-size:1.2rem;margin:0 0 2px}
+  .hero .eyebrow{margin:0}
+  .hero .acts .btn{min-height:42px;padding:4px 14px}
+  .lotd{padding:14px 14px 8px}
+  .greet{margin:0 0 10px;font-size:.95rem}
+  .case{display:flex;flex-direction:column}.case .order{order:2;margin-top:6px}.case #today2{order:3}
+  .lacts{gap:2px 16px}
+  .lotd blockquote{font-size:.82rem}
+}
 </style>
 </head>
 <body>
@@ -291,6 +325,7 @@ footer .orn{justify-content:center;margin-bottom:8px}
     <div class="case">
       <div class="order" role="group" aria-label="Order the shelves"><span class="lbl">Order</span><span class="chips" id="sortc"><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></span></div>
       <div id="shelves"></div>
+      <section class="today today2" id="today2" aria-label="This week" hidden></section>
     </div>
   </div>
   <footer><div class="orn">❦</div>Mr. William Shakespeares Comedies, Histories, &amp; Tragedies · London, 1623</footer>
@@ -405,7 +440,7 @@ function renderLibrary(){
   $("greet").textContent=(h<5?"Late at night":h<12?"Good morrow":h<18?"Good afternoon":"Good even")+(ls?". Your place is kept.":". Choose a play to begin.");
   $("cont").innerHTML=ls?`<div class="hero">${coverA(last,ls)}<div><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
     <div class="bar" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,ls.pct)}%"></i></div>
-    <div class="acts"><a class="btn pri" href="${last.id}/" data-play="${last.id}">Resume · ${Math.round(ls.pct)}%</a><a class="btn ghost" href="${last.id}/#study" data-play="${last.id}">Study</a></div></div></div>`:"";
+    <div class="acts"><a class="btn pri" href="${last.id}/" data-play="${last.id}">Resume · ${Math.round(ls.pct)}%</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div>`:"";
   renderToday();renderShelves();
 }
 function renderShelves(){
@@ -423,6 +458,7 @@ function openDetail(id){const p=byId[id];if(!p)return;const st=J("folio-stat-"+p
   $("dbody").innerHTML=`<div class="dtop">${`<span class="cover" style="--c:${p.c}" aria-hidden="true">${coverHTML(p,st)}</span>`}<div><div class="meta">${esc(p.kind)} · ${esc(p.year)}</div><h3 id="dtitle">${esc(p.title)}</h3><p>${esc(p.blurb)}</p></div></div>
     <div class="dprog">${st?`${Math.round(st.pct)}% read · ${esc(st.where)}`:"Not yet begun"}<div class="bar"><i style="width:${st?Math.max(2,st.pct):0}%"></i></div></div>
     <div class="dacts"><a class="btn pri" href="${p.id}/" data-play="${p.id}">${st?"Continue reading":"Begin the play"}</a><a class="btn ghost" href="${p.id}/#contents" data-play="${p.id}">Contents</a><a class="btn ghost" href="${p.id}/#study" data-play="${p.id}">Study</a></div>
+    <div class="dlinks"><a href="${p.id}/#study=quotes" data-play="${p.id}">Key quotes ›</a><a href="${p.id}/#study=prof" data-play="${p.id}">Characters ›</a><a href="${p.id}/#study=acts" data-play="${p.id}">Act summaries ›</a><a href="${p.id}/#you" data-play="${p.id}">Your notes ›</a></div>
     ${st?`<button class="lnk" type="button" id="unst">Mark as not started</button>`:""}`;
   $("dsheet").hidden=false;$("dsheet").querySelector(".box").focus({preventScroll:true});
   const u=$("unst");if(u){let armed=false;u.onclick=()=>{if(!armed){armed=true;u.textContent="Tap again to confirm · notes kept";return}unstart(p);closeDetail();renderLibrary()}}}
@@ -439,16 +475,20 @@ function unstart(p){try{localStorage.removeItem("folio-stat-"+p.id);localStorage
 let li=null;
 function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});let h="";
   if(LINES.length){if(li==null)li=(dayNo()*7919)%LINES.length;const L=LINES[li],p=byId[L.play];
-    h+=`<div class="lotd"><p class="eyebrow">Line of the day</p><p class="ldate">${esc(date)}</p><blockquote>${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite>
-      <div class="acts"><a class="btn pri" href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play</a><button class="btn ghost" type="button" id="lnext">Another</button></div></div>`}
+    h+=`<div class="lotd"><p class="eyebrow">Line of the day <span class="ldate">· ${esc(date)}</span></p><blockquote id="lq">${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite>
+      <div class="lacts"><button class="lmore" type="button" id="lmore" hidden>Whole line</button><a href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play ›</a><button type="button" id="lnext">Another ›</button></div></div>`}
   const days=readDays(),now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
   const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days),W=WORDS.length?WORDS[(dayNo()*104729)%WORDS.length]:null,wp=W&&byId[W[2]];
-  h+=`<div class="tfoot">${W?`<button class="word" type="button" id="wfind" aria-label="Word of the day: ${esc(W[0])}. Find it in the plays"><p class="eyebrow">Word of the day</p><b>${esc(W[0])}</b><span>${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span></button>`:"<div></div>"}
+  let h2=`<div class="tfoot">${W?`<div class="word"><p class="eyebrow">Word of the day</p><b>${esc(W[0])}</b><span>${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span></div>`:"<div></div>"}
     <div class="week"><p class="eyebrow">This week</p><div class="wdots">${wk.map((d,i)=>`<span class="wd${days[dkey(d)]!=null?" on":""}${i===6?" now":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small></div></div>`;
-  h+=dueHTML();el.innerHTML=h;
+  h2+=dueHTML();
+  /* phones and tablets: the word, week and daily review go under the shelves, so the plays show on the first screen */
+  const split=!matchMedia("(min-width:1000px)").matches;el.innerHTML=split?h:h+h2;$("today2").innerHTML=split?h2:"";$("today2").hidden=!split;
+  {const q=$("lq"),m=$("lmore");if(q&&m){m.hidden=q.scrollHeight<=q.clientHeight+2;m.onclick=()=>{q.classList.add("all");m.hidden=true}}}
   const ln=$("lnext");if(ln)ln.onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;renderToday()};
   const wf=$("wfind");if(wf)wf.onclick=()=>{go("search");$("q").value=W[0].replace(/^'/,"");runSearch()};
 }
+try{matchMedia("(min-width:1000px)").addEventListener("change",()=>renderToday())}catch(e){}
 /* Daily review: items due in each play (flashcards in <prefix>prog.srs, other review items in <prefix>rev.it) */
 function dueHTML(){const now=Date.now(),rows=[];let any=false;
   for(const p of PLAYS){const pr=J(p.prefix+"prog")||{},rv=J(p.prefix+"rev")||{},all=[...Object.values(pr.srs||{}),...Object.values((rv&&rv.it)||{})].filter(s=>s&&isFinite(s.d));
@@ -484,7 +524,14 @@ function runSearch(){clearTimeout(stT);stT=setTimeout(async()=>{
     const io=x.no.indexOf(q),im=x.nm.indexOf(q),iw=x.nw.indexOf(q);if(io<0&&im<0&&iw<0)continue;hits.push({x,inO:io>=0||im<0})}
     if(hits.length){hits.sort((a,b)=>b.inO-a.inO);groups.push([p,hits]);tot+=hits.length}}
   groups.sort((a,b)=>b[1].length-a[1].length);const one=groups.length===1;
-  $("sres").innerHTML=`<p class="count">${tot?`${tot} speech${tot===1?"":"es"} in ${groups.length} play${groups.length===1?"":"s"}`:"Nothing found"} for “${esc(raw)}”</p>`+groups.map(([p,hits])=>{const op=one||openG.has(p.id)||(!openG.size&&groups[0][0]===p),all=openG.has(p.id+"*");
+  /* 3.1: matching glossary words and key quotes come first */
+  const inScope=id=>{const p=byId[id];return p&&(sg==="all"||p.group===sg)&&(sp==="all"||sp===id)};
+  const wds=WORDS.filter(w=>inScope(w[2])&&norm(w[0]).includes(q)).sort((a,b)=>(norm(a[0])===q?0:1)-(norm(b[0])===q?0:1)).slice(0,openG.has("w*")?200:6),
+    kqs=LINES.filter(L=>inScope(L.play)&&norm(L.text).includes(q)).slice(0,openG.has("k*")?200:6);
+  const nW=WORDS.filter(w=>inScope(w[2])&&norm(w[0]).includes(q)).length,nK=LINES.filter(L=>inScope(L.play)&&norm(L.text).includes(q)).length;
+  const extra=(nW?`<div class="grp open xg"><div class="xh"><b>Words</b><span>${nW}</span></div><ul class="res">${wds.map(w=>`<li><a href="${w[2]}/#study=explore:glossary:${encodeURIComponent(w[0])}" data-play="${w[2]}"><div class="rm">${esc(byId[w[2]].title)}<i>Glossary</i></div><div class="rt"><b class="gw">${esc(w[0])}</b><span class="gm">${esc(w[1])}</span></div></a></li>`).join("")}</ul>${nW>wds.length?`<button class="btn ghost more" type="button" data-all="w">Show all ${nW}</button>`:""}</div>`:"")+
+    (nK?`<div class="grp open xg"><div class="xh"><b>Key quotes</b><span>${nK}</span></div><ul class="res">${kqs.map(L=>`<li><a href="${L.play}/#sp=${encodeURIComponent(L.id)}" data-play="${L.play}"><div class="rm">${esc(L.who)}<i>${esc(byId[L.play].title)}</i></div><div class="rt kq">${mark(L.text,q)}</div></a></li>`).join("")}</ul>${nK>kqs.length?`<button class="btn ghost more" type="button" data-all="k">Show all ${nK}</button>`:""}</div>`:"");
+  $("sres").innerHTML=`<p class="count">${tot?`${tot} speech${tot===1?"":"es"} in ${groups.length} play${groups.length===1?"":"s"}`:"No speeches"} for “${esc(raw)}”</p>`+extra+groups.map(([p,hits])=>{const op=one||openG.has(p.id)||(![...openG].some(x=>!/^[wk]\*$/.test(x))&&groups[0][0]===p),all=openG.has(p.id+"*");
     return `<div class="grp${op?" open":""}"><button type="button" data-grp="${p.id}" aria-expanded="${op}"><b>${esc(p.title)}</b><span>${hits.length}</span>${CHEV}</button>${op?`<ul class="res">${hits.slice(0,all?hits.length:Math.max(SHOW,one?40:SHOW)).map(({x,inO})=>`<li><a href="${p.id}/#sp=${x.id}" data-play="${p.id}"><div class="rm">${esc(x.who)}<i>${esc(x.sc)}${inO?"":" · modern English"}</i></div><div class="rt${inO?"":" mod"}">${inO?mark(x.o,q):mark(x.m,q)}</div></a></li>`).join("")}</ul>${!all&&hits.length>(one?40:SHOW)?`<button class="btn ghost more" type="button" data-all="${p.id}">Show all ${hits.length}</button>`:""}`:""}</div>`}).join("");
   document.querySelectorAll("[data-grp]").forEach(b=>b.onclick=()=>{const id=b.dataset.grp;openG.has(id)?openG.delete(id):openG.add(id);runSearch()});
   document.querySelectorAll("[data-all]").forEach(b=>b.onclick=()=>{openG.add(b.dataset.all+"*");runSearch()});
