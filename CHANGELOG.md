@@ -4,6 +4,28 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [3.0.0] — 2026-11-12
+
+### Changed
+- New look for the whole app, "Folio print": ivory paper, black ink and red rubrics as in the 1623 printing, double rules, Fell type for titles, buttons and labels. One set of design tokens (`folio.css`) now styles the shelf and every play, so they always match.
+- Library home redesigned: a Continue reading card with the play's cover and progress, one Today card (line of the day, word of the day, this week), then all three genre shelves on the home screen (no extra tap into a genre). Tapping a cover opens its detail sheet (Begin/Continue, Contents, Study, Mark as not started). Wide screens show the reading desk beside the bookcase.
+- Themes reduced to four, shown as colour tiles: Paper, Light, Dark, Night, plus a "Night after 8pm" switch. Saved choices carry over (Night after 8pm → Auto + switch on; Paper, night after 8pm → Paper + switch on; Paper night → Dark). Text size is a slider with a live preview. Same controls on the shelf and in every play's Settings.
+- Reader: compact scene opener, so the play text starts on the first page on a phone. On stage, Read to find out, setting and story so far now sit behind one Before you read button.
+- Reader: the modern English under a tapped part is a high-contrast card, and a red bar marks the tapped lines.
+- Reader on computers and large tablets (1200px wide and up): two facing pages like an open book. With a mouse, the menus appear when the pointer nears the top or bottom edge.
+- Reader: the first-run guide is three short steps and shows once for the whole app, not once in every play.
+- Study opens on four cards (Learn, Practise, Write, Revise) with your progress. Each card's sections show as buttons that wrap, so none are cut off on a phone.
+- Search: filter by genre or pick one play; results are grouped by play, with counts.
+- Each play's You page shows your stats as tiles, like the shelf.
+- Bottom nav is solid (no see-through), with a highlighted pill for the current tab, and it slides away while you scroll down the shelf.
+
+### Fixed
+- Settings and other sheets no longer stay open when you move to another view.
+- The "Turned to the next page so the part fits" message no longer covers the modern English.
+
+### Removed
+- The "More plays join the Folio" line (all 36 Folio plays are on the shelves).
+
 ## [2.46.0] — 2026-11-12
 
 ### Changed

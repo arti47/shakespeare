@@ -14,10 +14,11 @@
 <link rel="icon" href="../icon-192.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../fonts.css">
+<script src="../theme.js"></script>
 <style>body{margin:0}:root{padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head>
 <body>
-<link rel="stylesheet" href="../reader.css">@CSS@
+<link rel="stylesheet" href="../folio.css"><link rel="stylesheet" href="../reader.css">@CSS@
 
 <!-- YOU: this play's reading, notes and settings -->
 <section id="you" class="gut" hidden>
@@ -51,7 +52,7 @@
 <!-- STUDY -->
 <section id="study" class="gut" hidden>
   <div class="sbar"><span class="sp-l"></span><h1>Study</h1><button class="icon" id="s-search" aria-label="Search"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button></div>
-  <div class="sgroups" role="tablist" id="sgroups"></div>
+  <div class="sgroups" id="sgroups"></div>
   <div class="tabs" role="tablist" id="stabs"></div>
   <div id="sbody"></div>
 </section>
