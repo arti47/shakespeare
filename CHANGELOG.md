@@ -4,6 +4,24 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.0.0] — 2026-11-12
+
+### Added
+- Two app modes, Simple and Full, for every play (Settings, and You on the shelf). New readers start in Simple; anyone with saved reading stays in Full. Nothing saved changes (#103)
+- Simple mode: three tabs (Library, Play, Me), Study opens on Quests with every tool under All tools, and the page hides line numbers and study-note tags (#103)
+- Welcome: three cards on a first visit (the Folio, how reading works, seals and levels) ending with "What brings you here?" (enjoy, exam or both) (#103)
+- First-scene tips in Simple: four short tips, one at a time, each done when you try it (#103)
+- Journey map for each play: the scenes as a road with act title plates as gates, a seal at every scene read, quest dots, Continue; it opens on a first visit to a play, from the Play tab and from Contents (#103)
+- Wax seals and levels: a red seal for each scene read, a gilt one when its quests are done; levels from Groundling through Hired Man, Player and Sharer to Master of the Revels, counted across every play (#103)
+- Quests for each scene read: Recap, a three-question Check and Key quotes (#103)
+- Scene-end card on a page of its own: the seal stamps, Check yourself (3 questions), a large Next scene button (#103)
+- Graphics: act title plates and a large stage picture (proscenium and curtains) on scene openers, cast medallions in Before you read, Contents › Cast, name cards and first entrances (#103)
+- Shelf: Today is one swipeable card stack (Line, Word, This week with your level, Daily review); You shows your level and the app mode (#103)
+
+### Changed
+- Bigger covers on the shelves (#103)
+- Simple mode hides the shelf's sort and genre chips (#103)
+
 ## [3.1.1] — 2026-11-12
 
 ### Changed
