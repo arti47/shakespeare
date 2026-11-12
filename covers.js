@@ -19,6 +19,7 @@ const strawb=(x,y)=>`<g transform="translate(${x} ${y})"><path class="f" d="M-4.
 const env=(t)=>`<g transform="${t}"><rect x="0" y="0" width="54" height="36" rx="2"/><path d="M0 0L27 20L54 0"/></g>`;
 const sun=(cx,cy,r)=>`<circle class="f" cx="${cx}" cy="${cy}" r="${r}"/>`+rays(cx,cy,r+2.5,r+7,12,Math.PI/12);
 
+window.coverColor=id=>(window.COVER[id]||{}).c||"#1d1b22";
 window.COVER={
 "othello":{c:"#3b1220",q:"I kiss'd thee ere I kill'd thee",
  e:`<path d="M18 30Q34 22 50 28T82 24Q76 46 84 64Q66 72 50 66T18 76Q24 54 18 30Z"/><path d="M24 35Q36 29 50 33T76 30Q71 47 77 60Q63 66 50 61T25 70Q29 52 24 35Z" stroke-width="1" stroke-dasharray="1.5 2.5"/>${strawb(38,42)}${strawb(60,40)}${strawb(48,54)}${strawb(66,55)}${strawb(34,60)}<path d="M84 64L90 74M18 76L12 84" stroke-width="1.6"/>`},
@@ -95,22 +96,72 @@ window.COVER={
  e:`<path d="M43 52L47 92H53L57 52Z"/><path d="M36 45H64L59 53H41Z"/><path class="f" d="M50 4C56 16 67 21 63 34C61 41 55 44 50 44C43 44 37 40 37 32C37 24 45 22 43 12C48 18 50 18 50 4Z"/><path class="k" d="M50 22C53 28 57 31 55 36C54 39 52 40 50 40C46 40 44 37 45 33C46 30 49 29 50 22Z" stroke="none"/>${spark(72,14,3)}${spark(28,18,2.6)}${spark(76,34,2.2)}`}
 };
 
+/* Pattern motifs: one small device per play in a 20×20 box, repeated half-drop across the cloth (Clothbound-classics style).
+   [a] or [a, b] (b alternates with a). Same classes as emblems: f filled, k cut back to the cloth. */
+const M=(()=>{const st5=(cx,cy,r)=>{let d="";for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,q=i%2?r*.42:r;d+=(i?"L":"M")+R(cx+q*Math.cos(a))+" "+R(cy+q*Math.sin(a))}return `<path class="f" d="${d}Z"/>`};
+ const sunm=(r,n)=>`<circle class="f" cx="10" cy="10" r="${r}"/>`+rays(10,10,r+1.6,r+5,n);
+ const rosem=f=>`<circle${f?' class="f"':""} cx="10" cy="10" r="6"/><path${f?' class="k"':""} d="M10 6.6A3.4 3.4 0 1 1 7 10A1.8 1.8 0 1 1 11 10" stroke-width="1.2"/>`;
+ const cres=`<path class="f" d="M12 3A7 7 0 1 0 12 17A5.5 5.5 0 1 1 12 3Z"/>`;
+ return {
+ "othello":[`<path class="f" d="M5 8Q4 16 10 18Q16 16 15 8Q10 6 5 8Z"/><path d="M6 6.5L10 3L14 6.5"/><circle class="k" cx="8" cy="11" r=".8"/><circle class="k" cx="12" cy="11" r=".8"/><circle class="k" cx="10" cy="14" r=".8"/>`],
+ "antony-and-cleopatra":[`<path class="f" d="M10 3Q14 9 10 16Q6 9 10 3Z"/><path class="f" d="M3 8Q9 10 10 16Q4 15 3 8ZM17 8Q11 10 10 16Q16 15 17 8Z"/>`,`<path class="f" d="M10 3L18 17H2Z"/><path class="k" d="M10 3L13 17" stroke-width="1"/>`],
+ "king-lear":[`<path class="f" d="M12 1L5 11H9L6 19L15 8H11L14 1Z"/>`,`<path d="M6 3L4 8M11 5L9 10M16 3L14 8M8 12L6 17M14 12L12 17" stroke-width="1.3"/>`],
+ "tempest":[`<path d="M1 12Q5 6 9 10Q11 12 13 10Q11 7 14 6Q18 6 19 10"/><path d="M1 16Q5 12 10 16T19 16"/>`],
+ "twelfth-night":[`<ellipse class="f" cx="7" cy="15" rx="3.6" ry="2.6" transform="rotate(-20 7 15)"/><path d="M10 14V3L16 5"/>`,`<ellipse class="f" cx="5" cy="15" rx="3" ry="2.2" transform="rotate(-20 5 15)"/><ellipse class="f" cx="14" cy="13" rx="3" ry="2.2" transform="rotate(-20 14 13)"/><path d="M7.6 14V4L16.6 2V12"/>`],
+ "much-ado":[`<path class="f" d="M10 17C4 12 2 9 4 6C6 3 9 4 10 7C11 4 14 3 16 6C18 9 16 12 10 17Z"/>`,`<path d="M4 4L16 16M16 4L4 16" stroke-width="1.6"/><path d="M3 7L7 3M13 3L17 7" stroke-width="1.6"/>`],
+ "midsummer":[cres,st5(10,10,7)],
+ "richard-ii":[`<path class="f" d="M3 15L2 6L6.5 10L10 4L13.5 10L18 6L17 15Z"/><path class="k" d="M3 13H17" stroke-width="1"/>`],
+ "hamlet":[`<path class="f" d="M4 10C4 5 7 3 10 3C13 3 16 5 16 10C16 12 14 13 14 14V17H6V14C6 13 4 12 4 10Z"/><circle class="k" cx="7.6" cy="10" r="1.8"/><circle class="k" cx="12.4" cy="10" r="1.8"/><path class="k" d="M8 15V17M10 15V17M12 15V17" stroke-width=".9"/>`,`<path d="M10 18V8"/><ellipse class="f" cx="7" cy="9" rx="3" ry="1.3" transform="rotate(30 7 9)"/><ellipse class="f" cx="13" cy="7" rx="3" ry="1.3" transform="rotate(-30 13 7)"/><ellipse class="f" cx="7" cy="14" rx="3" ry="1.3" transform="rotate(30 7 14)"/><ellipse class="f" cx="13" cy="12" rx="3" ry="1.3" transform="rotate(-30 13 12)"/>`],
+ "macbeth":[`<path class="f" d="M10 1L12 5V12H8V5Z"/><path d="M5 12.5H15M10 13V18"/>`,`<path class="f" d="M10 4Q14 11 10 15Q6 11 10 4Z"/>`],
+ "julius-caesar":[`<path d="M5 18Q8 8 15 3"/><ellipse class="f" cx="7" cy="11" rx="3.2" ry="1.4" transform="rotate(-40 7 11)"/><ellipse class="f" cx="11" cy="12" rx="3.2" ry="1.4" transform="rotate(20 11 12)"/><ellipse class="f" cx="10" cy="7" rx="3.2" ry="1.4" transform="rotate(-50 10 7)"/><ellipse class="f" cx="14" cy="7.5" rx="3.2" ry="1.4" transform="rotate(10 14 7.5)"/>`],
+ "as-you-like-it":[`<circle class="f" cx="10" cy="8" r="6"/><path d="M10 12V18M7 18H13"/>`,`<path class="f" d="M6 9Q6 17 10 18Q14 17 14 9Z"/><path class="f" d="M5 9Q10 4 15 9Z"/><path d="M10 6V3"/>`],
+ "romeo-and-juliet":[st5(10,10,8),`<path class="f" d="M10 16C5 12 3 9 5 6.5C7 4 9.5 5 10 7.5C10.5 5 13 4 15 6.5C17 9 15 12 10 16Z"/>`],
+ "two-gentlemen":[`<rect x="3" y="5" width="14" height="10" rx="1"/><path d="M3 5L10 11L17 5"/>`],
+ "alls-well":[`<circle cx="10" cy="12" r="5"/><path class="f" d="M7.6 6.4L10 3L12.4 6.4L10 8Z"/>`],
+ "merchant-of-venice":[`<circle cx="10" cy="10" r="6.5"/><circle class="f" cx="10" cy="10" r="3"/>`,`<path d="M10 3V17M4 6H16M7 17H13"/><path class="f" d="M2 11Q4 14 6 11ZM14 11Q16 14 18 11Z"/><path d="M4 6L2 11M4 6L6 11M16 6L14 11M16 6L18 11" stroke-width=".8"/>`],
+ "loves-labours-lost":[`<path class="f" d="M16 2Q8 6 5 15Q12 10 16 2Z"/><path d="M5 15L3 18"/>`],
+ "taming-of-the-shrew":[sunm(3.6,8),cres],
+ "comedy-of-errors":[`<ellipse cx="6.5" cy="10" rx="5" ry="3"/><ellipse cx="13.5" cy="10" rx="5" ry="3"/>`],
+ "measure-for-measure":[`<path d="M5 3H15M5 17H15"/><path class="f" d="M6 4Q6 9 10 10Q14 9 14 4ZM10 10Q6 11 6 16H14Q14 11 10 10Z"/>`],
+ "merry-wives":[`<path class="f" d="M3 8H17L15 17H5Z"/><path class="k" d="M6.5 8L8 17M10 8V17M13.5 8L12 17M4 12.5H16" stroke-width=".9"/><path d="M6 8Q10 1 14 8"/>`,`<path d="M10 18V11M10 11Q5 9 4 3M5.5 7L2 6M10 11Q15 9 16 3M14.5 7L18 6" stroke-width="1.5"/>`],
+ "winters-tale":[rays(10,10,0,8,6,Math.PI/6)+`<path d="M10 5L8 3M10 5L12 3M10 15L8 17M10 15L12 17" stroke-width="1.2"/>`],
+ "titus-andronicus":[`<path class="f" d="M10 3Q15 11 10 16Q5 11 10 3Z"/>`,`<path d="M4 17H16M5 5H15M7 5V17M10 5V17M13 5V17" stroke-width="1.4"/><path class="f" d="M4 5L10 2L16 5Z"/>`],
+ "troilus-and-cressida":[`<path d="M3 17L16 4"/><path class="f" d="M17 3L11 5L15 9Z"/><path d="M3 17L2 13M3 17L7 18"/>`],
+ "timon-of-athens":[`<path class="f" d="M5 3H15Q15 10 10 11Q5 10 5 3Z"/><path d="M10 11V17M6 17H14"/>`,`<circle cx="10" cy="10" r="5"/><circle class="f" cx="10" cy="10" r="2"/>`],
+ "coriolanus":[`<path class="f" d="M10 2C13 4 11 6 14 7C16 9 12 10 15 12C16 15 12 14 11 17H9C8 14 4 15 5 12C8 10 4 9 6 7C9 6 7 4 10 2Z"/><path class="k" d="M10 4V18" stroke-width="1"/>`],
+ "cymbeline":[(()=>{let s="";for(let i=0;i<8;i++){const a=i*Math.PI/4,x=10+5*Math.cos(a),y=10+5*Math.sin(a);s+=`<ellipse class="f" cx="${R(x)}" cy="${R(y)}" rx="3" ry="1.5" transform="rotate(${R(a*180/Math.PI)} ${R(x)} ${R(y)})"/>`}return s+`<circle class="k" cx="10" cy="10" r="2"/>`})()],
+ "king-john":[`<path class="f" d="M10 3Q13 8 10 12Q7 8 10 3Z"/><path class="f" d="M10 12Q4 10 3 5Q8 6 10 12ZM10 12Q16 10 17 5Q12 6 10 12Z"/><path d="M10 12V18"/>`],
+ "henry-iv-part-1":[rays(10,10,0,8,8,0)+`<circle class="f" cx="10" cy="10" r="3"/><circle class="k" cx="10" cy="10" r="1.2"/>`],
+ "henry-v":[`<path class="f" d="M10 2C7 6 7 10 9 13H11C13 10 13 6 10 2Z"/><path class="f" d="M9 13C5 13 2 11 3 7C4 5 6 6 6 7.5C5 8 6 10 9 13ZM11 13C15 13 18 11 17 7C16 5 14 6 14 7.5C15 8 14 10 11 13Z"/><rect class="f" x="6" y="12.6" width="8" height="2" rx=".6"/><path d="M10 14.6V18M8.6 15Q8 17 6 17.6M11.4 15Q12 17 14 17.6" stroke-width="1.3"/>`],
+ "henry-iv-part-2":[`<circle class="f" cx="10" cy="12" r="5"/><path d="M10 7V2M8 4H12"/><path class="k" d="M5 12H15" stroke-width="1"/>`],
+ "henry-vi-part-1":[rosem(1),rosem(0)],
+ "henry-vi-part-3":[sunm(3.4,12)],
+ "henry-viii":[`<circle cx="10" cy="10" r="7"/><circle class="f" cx="10" cy="10" r="3.4"/><circle class="f" cx="10" cy="3" r="1.2"/><circle class="f" cx="10" cy="17" r="1.2"/><circle class="f" cx="3" cy="10" r="1.2"/><circle class="f" cx="17" cy="10" r="1.2"/>`],
+ "richard-iii":[`<path d="M5 17V9A5 5 0 0 1 15 9V17" stroke-width="2.6"/><circle class="k" cx="5" cy="11" r=".7"/><circle class="k" cx="15" cy="11" r=".7"/><circle class="k" cx="6" cy="6" r=".7"/><circle class="k" cx="14" cy="6" r=".7"/>`,`<path class="f" d="M3 15L2 6L6.5 10L10 4L13.5 10L18 6L17 15Z"/>`],
+ "henry-vi-part-2":[`<path class="f" d="M10 2C12 6 16 8 15 12C14 16 12 17 10 17C7 17 5 15 5 12C5 9 8 8 7 4C9 6 10 6 10 2Z"/>`]
+ }})();
+const GILT="#ebc96c";
+/* the cloth pattern for a play as a CSS url(): motif in gilt, "k" parts in the cloth colour; tile 48px, half-drop */
+const patCache={};
+window.coverPattern=id=>{if(patCache[id])return patCache[id];const m=M[id],c=window.coverColor(id);if(!m)return"none";
+  const paint=s=>s.replace(/class="f"/g,`fill="${GILT}" stroke="none"`).replace(/class="k"/g,`fill="${c}" stroke="${c}"`);
+  const a=paint(m[0]),b=paint(m[1]||m[0]);
+  const s=`<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g fill="none" stroke="${GILT}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(2 2)">${a}</g><g transform="translate(26 26)">${b}</g></g></svg>`;
+  return patCache[id]=`url('data:image/svg+xml,${encodeURIComponent(s).replace(/'/g,"%27").replace(/\(/g,"%28").replace(/\)/g,"%29")}')`};
 const ORN={Comedies:`<circle cx="12" cy="12" r="9"/><path class="k" d="M7 9.5Q8.5 8 10 9.5M14 9.5Q15.5 8 17 9.5M7 14Q12 19 17 14" stroke-width="1.6" fill="none"/>`,
  Tragedies:`<circle cx="12" cy="12" r="9"/><path class="k" d="M7 8.5Q8.5 10 10 8.5M14 8.5Q15.5 10 17 8.5M7.5 17Q12 12.5 16.5 17" stroke-width="1.6" fill="none"/>`,
  Histories:`<path d="M3 18L2 7L7.5 11.5L12 4L16.5 11.5L22 7L21 18Z"/><path class="k" d="M3 15.5H21" stroke-width="1.2" fill="none"/>`};
-const CORNER=`<svg class="cn" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22V8Q2 2 8 2H22" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 6Q14 7 16 16M6 6Q7 14 16 16" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="6" r="2.2" fill="currentColor"/></svg>`;
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 const svg=(inner,cls)=>`<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+const BANNER=`<svg class="bn" viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true"><path class="tl" d="M18 12H2L9 24L2 36H18Z"/><path class="tl" d="M182 12H198L191 24L198 36H182Z"/><path class="fd" d="M18 36L26 40V32ZM182 36L174 40V32Z"/><path class="bd" d="M26 4H174V40H26Z"/><path class="ed" d="M26 7H174M26 37H174" fill="none"/></svg>`;
 window.emblemSVG=(id,cls="emb")=>{const k=window.COVER[id];return k?svg(k.e,cls):""};
-window.coverColor=id=>(window.COVER[id]||{}).c||"#1d1b22";
 /* stat = folio-stat-<id> or null; returns the inner markup of a .cover link */
 window.coverHTML=(p,st)=>{const k=window.COVER[p.id]||{},t=p.title||"",n=t.length;
-  return `<span class="hinge" aria-hidden="true"></span><span class="frame" aria-hidden="true">${CORNER}${CORNER}${CORNER}${CORNER}</span>
+  return `<span class="pat" aria-hidden="true" style="background-image:${window.coverPattern(p.id)}"></span><span class="hinge" aria-hidden="true"></span><span class="shine" aria-hidden="true"></span>
   <span class="badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor">${ORN[p.group]||ORN.Comedies}</svg></span>
   ${st?'<span class="ribbon" aria-hidden="true"></span>':""}
-  <span class="cin"><span class="hd"><span class="pre">${esc(p.pre||"")}</span><span class="t${n>20?" xl":n>12?" long":""}">${esc(t)}</span></span>
-  ${k.e?svg(k.e,"emb"):'<span class="o">❦</span>'}
-  ${k.q?`<span class="q">“${esc(k.q)}”</span>`:""}</span>
-  <span class="yr">${esc(p.year||"")}</span>
+  <span class="cin"><span class="med">${k.e?svg(k.e,"emb"):'<span class="o">❦</span>'}</span>
+  <span class="plate"><span class="pre">${esc(p.pre||"")}</span><span class="t${n>20?" xl":n>12?" long":""}">${esc(t)}</span><span class="yr">${esc(p.year||"")}</span></span>
+  ${k.q?`<span class="scroll">${BANNER}<span class="q">${esc(k.q)}</span></span>`:""}</span>
   ${st?`<span class="cp"><i style="width:${Math.max(2,Math.min(100,+st.pct||0))}%"></i></span>`:""}`};
 })();
