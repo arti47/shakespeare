@@ -4,6 +4,19 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.1.0] — 2026-11-12
+
+### Changed
+- Study opens on eight illustrated topics (Story, People, Themes, Quotes, Words, Practise, Write, Revise), each with its own emblem, colour and progress ring. Simple mode shows your quests as swipeable cards above them (#104)
+- Each topic is a page of small tool tiles with an icon and a name; every tool opens full screen under one header (back to its topic, the title, and a ? for how it works). The section chip rows are gone (#104)
+- Intros are one line; the full how-to opens from the ? button (#104)
+- Key quotes are swipeable cards with the speaker's medallion; tap a speaker to filter. Act summaries are scene cards (stage picture, seal, summary, key points) under each act plate. Both have a List view, remembered on the device (#104)
+- The Essay planner, Profiles and step 3 of Paragraphs go one step per screen with a progress bar, then show the whole outline, tap any line to edit it. Saved plans and profiles are unchanged (#104)
+
+### Added
+- A page for each character: portrait medallion, who they are, lines and scenes, their key quotes as cards, analysis, and links to their profile and part (#104)
+- A page for each theme: an emblem, quotes learnt, and its course through the play as three stops (beginning, turning point, ending) with quote cards and what critics say (#104)
+
 ## [4.0.0] — 2026-11-12
 
 ### Added
