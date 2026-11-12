@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [3.0.1] — 2026-11-12
+
+### Fixed
+- The text-size preview in Settings and on the You tab now grows and shrinks with the slider, at the reader's real text size (#100)
+
 ## [3.0.0] — 2026-11-12
 
 ### Changed
