@@ -4,10 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
-## [2.41.0] — 2026-11-12
+## [2.42.0] — 2026-11-12
 
 ### Added
 - King Henry VI, Part 2, on the Histories shelf: the Project Gutenberg text (eBook #1501; numbered speaker headings, a merged speaker and a misplaced speaker heading in 1.4 fixed, typos corrected, battlefield location set), modern English for all 810 speeches, story beats, notes, a 190-word glossary and the full Study set: scene summaries and quizzes for all 24 scenes, cast profiles, 218 key quotes in 8 themes, York's road to the crown (each step from Anjou and Maine through the Nevilles' oath, the Irish army and Cade's rising to St Albans), a chart of York's power against Henry's authority, character map, context, critics, imagery and essay plans. Placed between The Taming of the Shrew and 3 Henry VI in Date written order. Checked against the uploaded SparkNotes guide (play text wins: York and Buckingham, not Somerset or Suffolk, arrest the Duchess and the spirit answers her questions, not Margaret's; Simpcox names only red and black; Horner dies confessing treason; the spirit foretells death by water, which 'Walter' fulfils; York's army arrives between Dartford and Blackheath; Richard, not York, kills Somerset, and York, not Richard, kills Clifford; the Sergeant episode is not in this edition). (#94)
+
+## [2.41.0] — 2026-11-12
+
+### Added
+- King Henry VIII, on the Histories shelf: the Project Gutenberg text (eBook #1541; Globe scene division with five scenes in Act 5, the Prologue opens 1.1 and the Epilogue closes 5.5, the christening song marked, run-in speakers and typos corrected), modern English for all 725 speeches, story beats, notes, a 209-word glossary and the full Study set: scene summaries and quizzes for all 17 scenes, cast profiles, 219 key quotes in 8 themes, the falls of the great (each step from Buckingham's arrest through Katherine's divorce and Wolsey's fall to Cranmer's rise and Elizabeth's christening), a chart of Wolsey's power against Anne's rise, character map, context, critics, imagery and essay plans. Placed after The Tempest, last in Date written order. Checked against the uploaded SparkNotes guide (play text wins: Buckingham missed the Field of the Cloth of Gold through illness, his peers condemn him, Katherine's father is Ferdinand of Spain and the Emperor her nephew, Campeius brings a commission to judge rather than a verdict, Anne also speaks in 1.4, Cranmer is asked to be godfather). (#93)
 
 ## [2.40.0] — 2026-11-12
 
