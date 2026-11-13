@@ -95,7 +95,7 @@ let pos=null;try{pos=JSON.parse(LS.get(PFX+"pos")||"null")}catch(e){}
 function setHash(h,push){if(location.hash.slice(1)!==h){try{history[push?"pushState":"replaceState"](null,"","#"+h)}catch(e){}}}
 document.addEventListener("touchstart",e=>{const x=e.touches[0].clientX;if((x<24||x>innerWidth-24)&&!e.target.closest("button,a,input,select,textarea,label,summary"))e.preventDefault()},{passive:false});
 /* one app shell: Read / Study / You views share the Folio's bottom nav (Library goes back to the shelf) */
-function show(v){view=v;["you","reader","study","map"].forEach(x=>$(x).hidden=v!==x);closePanel();if(v!=="reader"&&$("coach"))$("coach").remove();
+function show(v){view=v;if(v!=="reader"&&$("pvback"))$("pvback").hidden=true;["you","reader","study","map"].forEach(x=>$(x).hidden=v!==x);closePanel();if(v!=="reader"&&$("coach"))$("coach").remove();
   document.body.classList.remove("v-reader","v-study","v-you","v-map");document.body.classList.add("v-"+v);
   if(v!=="reader"&&!matchMedia("(prefers-reduced-motion: reduce)").matches){const el=$(v);el.classList.remove("f43in");void el.offsetWidth;el.classList.add("f43in")}
   /* Simple mode has three tabs: Play (map, reader and Study) stands for all three */
@@ -110,10 +110,10 @@ function route(){
   if(h==="map"){show("map");renderMap();scrollTo(0,0);return}
   /* old play home (#home) and the shelf's Contents link: open the page with the Contents sheet */
   if(h==="home"||h==="contents"){goRead();setTimeout(()=>openContents("scenes"),60);return}
-  if(h==="study"){SH=true;show("study");renderStudy();scrollTo(0,0);return}
+  if(h==="study"){SH=true;show("study");renderStudy();scrollTo(0,0);pvRestore();return}
   if(h.startsWith("study=")){const [t,x,w]=h.slice(6).split(":");SH=false;SV=null;
     if(SPAGES.includes(t)){let v="";try{v=decodeURIComponent(x||"")}catch(e){}SV={k:t,x:v};if(t==="topic")TP=v}
-    else if(TABS.some(y=>y[0]===t)){S.stab=t;LS.set(PFX+"stab",t);if(t==="explore")exSel=x&&EXT.some(y=>y[0]===x)?x:"";if(t==="drill"){const k=x&&DRILLS.some(d=>d[0]===x)?x:"";if(k!==dr.k)dr={k}}}show("study");renderStudy();scrollTo(0,0);
+    else if(TABS.some(y=>y[0]===t)){S.stab=t;LS.set(PFX+"stab",t);if(t==="explore")exSel=x&&EXT.some(y=>y[0]===x)?x:"";if(t==="drill"){const k=x&&DRILLS.some(d=>d[0]===x)?x:"";if(k!==dr.k)dr={k}}}show("study");renderStudy();scrollTo(0,0);pvRestore();
     if(w){let k="";try{k=decodeURIComponent(w)}catch(e){}const el=k&&document.querySelector(`#sbody [data-gw="${CSS.escape(k)}"]`);if(el){el.scrollIntoView({block:"center"});el.classList.add("flash")}}return}
   const k=sIdx(h);
   if(k>=0){show("reader");openScene(k,pos&&pos.s===h?{key:pos.key,keep:true}:{page:0});return}
@@ -945,7 +945,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-dk]");if(!
 /* a key quote as a card: speaker medallion, the line, themes, note */
 function qCard(q){const sp=speech[q.id];return `<div class="kq" style="--c:${COLORS[sp.who]||"var(--ink)"}"><div class="kqh">${folioMedal(sp.who,COLORS[sp.who],"kqm")}<span><b>${esc(title(sp.who))}</b><small>${sName(sceneOf(q.id))}</small></span></div>
   ${q.text.length>260?`<blockquote class="kqc">“${esc(q.text)}”</blockquote><button class="link kqall" type="button" data-kqall>Show all</button>`:`<blockquote>“${esc(q.text)}”</blockquote>`}<p class="kqt">${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}</p><p class="kqn">${esc(q.note)}</p>
-  <div class="kqa"><button class="link" type="button" data-speech="${q.id}">Read in context</button>${prog.cards[q.i]?`<span class="kql">Learnt</span>`:""}</div></div>`}
+  <div class="kqa">${chip(q.id)}${prog.cards[q.i]?`<span class="kql">Learnt</span>`:""}</div></div>`}
 /* the Study header: a way back, the title, and a ? for the how-to */
 function sHead(back,backL,ttl){$("sgroups").hidden=false;$("stabs").hidden=true;
   $("sgroups").innerHTML=`<button class="sgback" type="button" data-to="${esc(back)}" aria-label="Back to ${esc(backL)}">${CHEV}<span>${esc(backL)}</span></button><h2 class="sgname">${esc(ttl)}</h2><button class="sgq" id="sgq" type="button" aria-label="How this works" hidden>?</button>`}
@@ -1022,7 +1022,7 @@ function relList(){const T=k=>(TABS.find(x=>x[0]===k)||[,k])[1],W=w=>esc(title(w
 /* one Next card (the best follow-on), the rest folded under More; a line to remember beside it on wide screens */
 function renderRel(){const el=$("srel");if(!el)return;if(SH||SV||view!=="study"){el.innerHTML="";return}
   const [n,...m]=relList(),q=QUOTES.quotes[Math.floor(Date.now()/864e5)%QUOTES.quotes.length];
-  el.innerHTML=`<button class="nextc" type="button" data-to="${esc(n[0])}"><small>Next</small><b>${n[1]}</b><span class="nxa" aria-hidden="true">›</span></button>${m.length?`<details class="rmore"><summary>More</summary><div>${m.map(([sp,l])=>toLink(sp,l)).join("")}</div></details>`:""}${q?`<div class="sideq"><small>A line to remember</small><blockquote>“${esc(q.text)}”</blockquote><p>${esc(title(speech[q.id].who))} · <button class="link" type="button" data-speech="${q.id}">Read</button></p></div>`:""}`}
+  el.innerHTML=`<button class="nextc" type="button" data-to="${esc(n[0])}"><small>Next</small><b>${n[1]}</b><span class="nxa" aria-hidden="true">›</span></button>${m.length?`<details class="rmore"><summary>More</summary><div>${m.map(([sp,l])=>toLink(sp,l)).join("")}</div></details>`:""}${q?`<div class="sideq"><small>A line to remember</small><blockquote>“${esc(q.text)}”</blockquote><p>${esc(title(speech[q.id].who))} · ${chip(q.id)}</p></div>`:""}`}
 try{new MutationObserver(()=>renderRel()).observe($("sbody"),{childList:true})}catch(e){}
 let SBACK=null;
 function renderStudy(){
@@ -1048,7 +1048,7 @@ try{new MutationObserver(shortIntros).observe($("sbody"),{childList:true,subtree
 document.addEventListener("click",e=>{const b=e.target.closest("[data-iq]");if(!b||INTROS[+b.dataset.iq]==null)return;const t=document.querySelector("#sgroups .sgname");openSheet(t?t.textContent:"How it works",`<p class="intro i1 ifull">${INTROS[+b.dataset.iq]}</p>`)});
 $("s-search").onclick=$("y-search").onclick=()=>openSearch("");
 function quoteHTML(q){const sp=speech[q.id];return `<div class="qt" style="--c:${COLORS[sp.who]||"var(--ink)"}"><blockquote>“${esc(q.text)}”</blockquote>
-  <div class="meta"><b>${esc(title(sp.who))}</b><span>${sName(sceneOf(q.id))}</span><button class="link" data-speech="${q.id}">Read in context</button></div>
+  <div class="meta"><b>${esc(title(sp.who))}</b>${chip(q.id)}</div>
   <p>${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}<br>${esc(q.note)}</p></div>`}
 let qf={who:"",th:""};
 /* cards or a list, for Key quotes and Act summaries (folio-deckview) */
@@ -1067,7 +1067,47 @@ let exSel="";
 let cmp=[0,1];
 const EXK={facts:"keyfacts",analysis:"analysis",motifs:"motifs",bigq:"bigq"};
 const exHas=k=>!EXK[k]||Object.keys(EX[EXK[k]]||{}).length>0;let anSel="";
-const spLine=id=>{const sp=speech[id];return sp?`<div class="o2">${esc(sp.lines.join(" ").replace(/~/g,"").slice(0,160))}${sp.lines.join(" ").length>160?"…":""}</div><small>${esc(where(sp))} · <button class="link" data-speech="${id}">Read in context</button></small>`:""};
+const spLine=id=>{const sp=speech[id];return sp?`<div class="o2">${esc(sp.lines.join(" ").replace(/~/g,"").slice(0,160))}${sp.lines.join(" ").length>160?"…":""}</div><small>${chip(id)}</small>`:""};
+/* ---------- 4.8 links to the text: every Study item points at its lines. chip(id,j) = scene chip, evHTML(ids) = evidence rows
+   (EX.ev, tools/newplay/evidence.js), rich(t) links quoted phrases and "Act 3, Scene 2" mentions; all open openPv() first,
+   a preview slip (original + modern), whose "Open in play" leaves PVBACK so the reader's Back pill returns to the item. */
+const LR=["","i","ii","iii","iv","v","vi","vii","viii","ix","x","xi","xii","xiii","xiv","xv"];
+const scShort=p=>(p.act?R[p.act]:"Ind")+"."+p.scene.toLowerCase();
+const kqj=id=>{for(let j=0;j<(speech[id]||{lines:[]}).lines.length;j++)if(KQL[id+":"+j])return j;return 0};
+function chip(id,j){const sp=speech[id];if(!sp)return "";const p=sceneOf(id);
+  return `<button class="schip" type="button" data-pv="${id}${j!=null?":"+j:""}" aria-label="${esc(sName(p)+", "+title(sp.who))}: preview in the play"><span class="sca">${scShort(p)}</span><span class="scw">${esc(title(sp.who))}</span><span class="scr" aria-hidden="true">›</span></button>`}
+const clip=(s,n)=>s.length>n?s.slice(0,n).replace(/\s+\S*$/,"")+"…":s;
+function evHTML(ids,lab){ids=(ids||[]).filter(id=>speech[id]);if(!ids.length)return "";
+  return `<div class="evr"><div class="evl">${lab||"In the play"}</div>${ids.map(id=>{const sp=speech[id],j=kqj(id),p=sceneOf(id);
+    return `<button class="evb" type="button" data-pv="${id}:${j}" style="--c:${COLORS[sp.who]||"var(--accent)"}"><q>${esc(clip(sp.lines[j].replace(/^~/,"").replace(/\[[^\]]*\]\s*/g,""),110))}</q><small><span class="sca">${scShort(p)}</span>${esc(title(sp.who))}</small></button>`}).join("")}</div>`}
+/* quoted phrases (3+ words) found in the play's lines, and act/scene mentions, become links */
+let NZT=null;const nzq=s=>s.toLowerCase().replace(/&\w+;/g," ").replace(/[’']/g,"").replace(/[^a-z ]+/g," ").replace(/\s+/g," ").trim();
+function findPhrase(t){const f=nzq(t);if(f.split(" ").length<3)return null;
+  if(!NZT)NZT=Object.keys(speech).map(id=>[id,speech[id].lines.map(l=>nzq(l))]);
+  for(const [id,ls] of NZT){const all=ls.join(" ");if(!all.includes(f))continue;const w=f.split(" ").slice(0,3).join(" ");let j=ls.findIndex(l=>l.includes(w));return [id,j<0?0:j]}return null}
+function rich(t){let s=esc(t);
+  s=s.replace(/(“|&quot;|‘|(?:^|(?<=[\s(—–]))')([^“”‘’"<>]{8,}?)(”|&quot;|’|'(?=[\s.,;:!?)—–]|$))/g,(m,a,b,c)=>{const h=findPhrase(b);return h?`<button class="qlnk" type="button" data-pv="${h[0]}:${h[1]}">${m}</button>`:m});
+  return s.replace(/\b(Act ([1-5]|[IV]+)),? (?:Scene|scene|sc\.) ([0-9]+|[ivxIVX]+)\b/g,(m,x,a,sc)=>{const an=/^\d$/.test(a)?+a:roman[a],sn=/^\d+$/.test(sc)?LR[+sc]:sc.toLowerCase();
+    const p=scenes.find(z=>z.act===an&&z.scene.toLowerCase()===sn);return p?`<button class="qlnk sclnk" type="button" data-go2="${p.id}">${m}</button>`:m})}
+/* the preview slip */
+let PVBACK=null;
+function openPv(v){const [id,jj]=String(v).split(":"),sp=speech[id];if(!sp)return;const p=sceneOf(id),n=sp.lines.length,j=Math.min(n-1,Math.max(0,jj==null?kqj(id):+jj));
+  const a=n<=9?0:Math.max(0,Math.min(n-9,j-3)),b=n<=9?n:a+9,pr=partsOf(sp).find(([x,y])=>j>=x&&j<=y)||[0,n-1,sp.m];
+  const kq=QUOTES.quotes.find(q=>String(q.id)===String(id));PVBACK={h:location.hash,k:v,y:scrollY,from:view};
+  openSheet(sName(p),`<div class="pvs" style="--c:${COLORS[sp.who]||"var(--accent)"}"><div class="pvh">${typeof folioMedal==="function"?folioMedal(sp.who,COLORS[sp.who],"pvm"):""}<div><b>${esc(title(sp.who))}</b><small>${esc(shortLoc(p))}</small></div></div>
+   ${kq?`<div class="pvk">❦ Key quote · ${kq.themes.map(t=>esc(QUOTES.themes[t][0])).join(", ")}</div>`:""}
+   <div class="pvo">${a>0?`<div class="pvx">…</div>`:""}${sp.lines.slice(a,b).map((l,i)=>`<div class="pvl${a+i===j?" hl":""}${l.startsWith("~")?" song":""}">${esc(l.replace(/^~/,""))}</div>`).join("")}${b<n?`<div class="pvx">…</div>`:""}</div>
+   <div class="pvm2"><div class="evl">In modern English${pr[1]>pr[0]&&n>1?` · lines ${pr[0]+1}–${pr[1]+1} of ${n}`:""}</div><p>${esc(pr[2]||sp.m)}</p></div>
+   <div class="row"><button class="btn primary" type="button" data-pvopen="${id}">Open in play ›</button><button class="btn" type="button" data-pvclose>Close</button></div></div>`)}
+function pvOpen(id){PVBACK=PVBACK&&PVBACK.from==="study"?Object.assign(PVBACK,{y:scrollY}):null;goSpeech(id);pvPill()}
+function pvPill(){let b=$("pvback");if(!PVBACK){if(b)b.hidden=true;return}
+  if(!b){b=document.createElement("button");b.id="pvback";b.type="button";b.className="pvback";b.onclick=()=>history.back();document.body.appendChild(b)}
+  b.innerHTML=`<span aria-hidden="true">‹</span> Back to Study`;b.hidden=false}
+/* back in Study: the item that was opened is put back in view, its drawer open */
+/* route() can run twice for one Back (hashchange + popstate), so PVBACK is kept a moment */
+let pvT=0;function pvRestore(){const P=PVBACK;if(!P||P.h!==location.hash||P.from!=="study")return;clearTimeout(pvT);pvT=setTimeout(()=>{if(PVBACK===P){PVBACK=null;pvPill()}},600);
+  const el=document.querySelector(`#sbody [data-pv="${CSS.escape(String(P.k))}"]`);if(el){let d=el.closest("details");while(d){d.open=true;d=d.parentElement.closest("details")}
+    el.scrollIntoView({block:"center"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}else scrollTo(0,P.y)}
 /* character maps: medallions joined by curved, coloured arrows; a medallion opens that character's page */
 const RELC={love:"#d4559a",trust:"var(--ok)",hate:"var(--bad)",deceive:"var(--accent)"},RELD={love:"",trust:"",hate:"7 5",deceive:"2 5"};
 const f1=v=>(+v).toFixed(1);
@@ -1090,8 +1130,8 @@ function miniRel(w){if(!EX.rel)return "";const M=new Map();Object.values(EX.rel)
   const ed=E.map(([o,k,out])=>{const two=E.some(e=>e[0]===o&&e[2]!==out),[p1,p2]=out?[C,P[o]]:[P[o],C];return relEdge(p1,p2,out?44:S/2+3,out?S/2+7:48,two?22:0,k,"mr")}).join("");
   return `<div class="mapf"><svg class="chart rmap" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title(w))}'s relationships">${`<defs>${relMk("mr")}</defs>`}${ed}${O.map(n=>relNode(n,P[n][0],P[n][1],S,wa)).join("")}${medalAt(w,cx,cy,80)}</svg></div>${relLegend()}`}
 /* a critic as a scroll card: the source, the year as a badge, the reading */
-function critHTML([w,x]){const y=(String(w).match(/\b(1[5-9]\d\d|20\d\d)\b/)||[])[1];
-  return `<div class="crit">${y?`<span class="cry">${y}</span>`:""}<small>${embSVG(TEMB.quill,"crq")}${esc(w)}</small><p>${esc(x)}</p></div>`}
+function critHTML([w,x],k,i){const y=(String(w).match(/\b(1[5-9]\d\d|20\d\d)\b/)||[])[1],ev=k!=null?(((EX.ev||{}).cr||{})[k]||[])[i]:null;
+  return `<div class="crit">${y?`<span class="cry">${y}</span>`:""}<small>${embSVG(TEMB.quill,"crq")}${esc(w)}</small><p>${rich(x)}</p>${ev?evHTML(ev,"Test it on"):""}</div>`}
 let mapAct=1;
 function arcSVG(){const W=360,H=214,L=30,T=12,B=36,n=scenes.length,x=i=>L+i*(W-L-10)/Math.max(1,n-1),y=v=>T+(10-v)*(H-T-B)/10,cols=["var(--t-story)","var(--t-practise)"];
   const pts=v=>v.map((a,i)=>f1(x(i))+","+f1(y(a))).join(" ");
@@ -1119,27 +1159,27 @@ function studyExplore(){
   if(exSel==="arcs")h=arcSVG();
   if(exSel==="verse")h=verseExplore();
   if(exSel==="director")h=dirExplore();
-  if(exSel==="context")h=`<p class="intro">The world the play was written in. Open a drawer of the cabinet to read it.</p><div class="cabinet">${EX.context.map(([a,b])=>`<details class="cab"><summary>${embSVG(TEMB[pickI(CTXI,a+" "+b,"quill")],"cabi")}<b>${esc(a)}</b></summary><p class="dc1">${esc(b)}</p></details>`).join("")}</div>`;
-  if(exSel==="critics")h=`<p class="intro">Use one of these in an essay to show you know other readings. "Paraphrased" means it is a summary, not their exact words.</p>`+Object.entries(EX.critics).map(([k,v])=>`<div class="crhead">${embSVG(TEMB[temb(k)],"crem")}<h3>${esc((QUOTES.themes[k]||[k])[0])}</h3></div>`+v.map(critHTML).join("")).join("");
-  if(exSel==="devices")h=Object.entries(EX.devices).map(([k,nm])=>{const its=Object.entries(EX.dev).flatMap(([id,arr])=>arr.filter(a=>a[0]===k).map(a=>[id,a]));return its.length?`<div class="stage3"><h3>${esc(nm)}</h3><small>${its.length}</small></div>`+its.map(([id,a])=>`<div class="exitem"><p style="color:var(--ink)">“${esc(a[2])}”: ${esc(a[1])}</p><small>${esc(where(speech[id]))} · <button class="link" data-speech="${id}">Read in context</button></small></div>`).join(""):""}).join("");
+  if(exSel==="context")h=`<p class="intro">The world the play was written in. Open a drawer of the cabinet to read it.</p><div class="cabinet">${EX.context.map(([a,b],i)=>`<details class="cab"><summary>${embSVG(TEMB[pickI(CTXI,a+" "+b,"quill")],"cabi")}<b>${esc(a)}</b><span class="evn">${((EX.ev||{}).ctx||[])[i]?EX.ev.ctx[i].length:""}</span></summary><p class="dc1">${rich(b)}</p>${evHTML(((EX.ev||{}).ctx||[])[i],"Where the play shows it")}</details>`).join("")}</div>`;
+  if(exSel==="critics")h=`<p class="intro">Use one of these in an essay to show you know other readings. "Paraphrased" means it is a summary, not their exact words.</p>`+Object.entries(EX.critics).map(([k,v])=>`<div class="crhead">${embSVG(TEMB[temb(k)],"crem")}<h3>${esc((QUOTES.themes[k]||[k])[0])}</h3></div>`+v.map((c,i)=>critHTML(c,k,i)).join("")).join("");
+  if(exSel==="devices")h=Object.entries(EX.devices).map(([k,nm])=>{const its=Object.entries(EX.dev).flatMap(([id,arr])=>arr.filter(a=>a[0]===k).map(a=>[id,a]));return its.length?`<div class="stage3"><h3>${esc(nm)}</h3><small>${its.length}</small></div>`+its.map(([id,a])=>`<div class="exitem"><p style="color:var(--ink)">“${esc(a[2])}”: ${esc(a[1])}</p><small>${chip(id)}</small></div>`).join(""):""}).join("");
   if(exSel==="symbols"){h=Object.entries(EX.symbols).map(([nm,re])=>{const rx=new RegExp(re,"i"),ids=Object.keys(speech).filter(id=>rx.test(speech[id].lines.join(" ")));
     const per=[1,2,3,4,5].map(a=>ids.filter(id=>sceneOf(id).act===a).length);
-    return `<details class="exitem"><summary><b>${esc(nm)}</b> <small>${ids.length} speeches · by act: ${per.join(" / ")}</small></summary>${ids.slice(0,60).map(id=>{const sp=speech[id],l=sp.lines.find(x=>rx.test(x))||sp.lines[0];return `<div class="exitem"><div class="o2">${esc(l.replace(/^~/,""))}</div><small>${esc(where(sp))} · <button class="link" data-speech="${id}">Read</button></small></div>`}).join("")}</details>`}).join("")}
-  if(exSel==="contrast")h=EX.contrast.map(c=>`<div class="exitem"><b>${esc(c.t)}</b><ul>${c.pts.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>${c.ids.map(spLine).join("")}</div>`).join("");
-  if(exSel==="insults")h=`<p class="intro">${CFG.insultsIntro}</p>`+EX.insults.map(x=>`<div class="exitem"><b>“${esc(x.f.replace(/^#\d+$/,"Devil!"))}”</b> <small>${esc(x.who)}</small><p>${esc(x.n)}</p><small>${esc(where(speech[x.id]))} · <button class="link" data-speech="${x.id}">Read in context</button></small></div>`).join("");
+    return `<details class="exitem"><summary><b>${esc(nm)}</b> <small>${ids.length} speeches · by act: ${per.join(" / ")}</small></summary>${ids.slice(0,60).map(id=>{const sp=speech[id],l=sp.lines.find(x=>rx.test(x))||sp.lines[0];return `<div class="exitem"><div class="o2">${esc(l.replace(/^~/,""))}</div><small>${chip(id)}</small></div>`}).join("")}</details>`}).join("")}
+  if(exSel==="contrast")h=EX.contrast.map(c=>`<div class="exitem"><b>${esc(c.t)}</b><ul>${c.pts.map(x=>`<li>${rich(x)}</li>`).join("")}</ul>${c.ids.map(spLine).join("")}</div>`).join("");
+  if(exSel==="insults")h=`<p class="intro">${CFG.insultsIntro}</p>`+EX.insults.map(x=>`<div class="exitem"><b>“${esc(x.f.replace(/^#\d+$/,"Devil!"))}”</b> <small>${esc(x.who)}</small><p>${rich(x.n)}</p><small>${chip(x.id)}</small></div>`).join("");
   if(exSel==="pronouns")h=`<p class="intro">"Thou" and "thee" are used to close friends, children and inferiors, or as an insult. "You" is polite and respectful. A switch from one to the other usually means a change in feeling.</p>`+EX.pronouns.map(x=>`<div class="exitem"><b>“${esc(x.f)}”</b><p>${esc(x.n)}</p>${spLine(x.id)}</div>`).join("");
   if(exSel==="glossary"){const u=glossUse(),ks=Object.keys(G).sort((a,b)=>a.toLowerCase().replace(/^'/,"").localeCompare(b.toLowerCase().replace(/^'/,"")));
     const L=[...new Set(ks.map(k=>k.replace(/^'/,"")[0].toUpperCase()))];
-    let gl="";h=`<div class="az">${L.map(l=>`<button data-az="${l}">${l}</button>`).join("")}</div>`+ks.map(k=>{const l=k.replace(/^'/,"")[0].toUpperCase(),ini=l!==gl?(gl=l,`<div class="gini" data-letter="${l}" aria-hidden="true"><span>${l}</span></div>`):"";return ini+`<div class="exitem" data-gw="${esc(k)}" data-letter="${k.replace(/^'/,"")[0].toUpperCase()}"><b>${esc(k)}</b><p>${esc(G[k])}</p>${u[k]?`<small>First used: ${esc(where(speech[u[k]]))} · <button class="link" data-speech="${u[k]}">Read</button></small>`:""}</div>`}).join("")}
+    let gl="";h=`<div class="az">${L.map(l=>`<button data-az="${l}">${l}</button>`).join("")}</div>`+ks.map(k=>{const l=k.replace(/^'/,"")[0].toUpperCase(),ini=l!==gl?(gl=l,`<div class="gini" data-letter="${l}" aria-hidden="true"><span>${l}</span></div>`):"";return ini+`<div class="exitem" data-gw="${esc(k)}" data-letter="${k.replace(/^'/,"")[0].toUpperCase()}"><b>${esc(k)}</b><p>${esc(G[k])}</p>${u[k]?`<small>First used: ${chip(u[k])}</small>`:""}</div>`}).join("")}
   if(exSel==="compare")h=compareHTML();
   if(exSel==="facts")h=`<div class="playbill"><div class="pbh">${typeof emblemSVG==="function"?`<span class="pbe">${emblemSVG(PLAY,"emb")}</span>`:""}<small>${esc(CFG.pre||"")}</small><h3>${esc(CFG.h1||CFG.title)}</h3><small>${esc(CFG.post||"")}</small></div><div class="orn" aria-hidden="true">❦</div>
-    <dl class="pbl">${EX.keyfacts.map(([a,b])=>`<div class="pbr">${embSVG(FICON[pickI(FACTI,a,"fleuron")],"pbi")}<dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl></div>`;
+    <dl class="pbl">${EX.keyfacts.map(([a,b])=>`<div class="pbr">${embSVG(FICON[pickI(FACTI,a,"fleuron")],"pbi")}<dt>${esc(a)}</dt><dd>${rich(b)}</dd></div>`).join("")}</dl></div>`;
   if(exSel==="analysis"){const ks=Object.keys(EX.analysis);if(!ks.includes(anSel))anSel=ks[0];
     h=`<div class="chips" style="margin-bottom:10px">${ks.map(k=>`<button class="chip" data-an="${esc(k)}" aria-pressed="${anSel===k}">${esc(title(k))}</button>`).join("")}</div>`+
-      EX.analysis[anSel].map(x=>`<p class="anp">${esc(x)}</p>`).join("")+(()=>{const qs=QUOTES.quotes.filter(q=>speech[q.id].who===anSel);return qs.length?`<div class="stage3"><h3>Their key quotes</h3><small>${qs.length}</small></div>`+qs.map(quoteHTML).join(""):""})()}
-  if(exSel==="motifs")h=`<p class="intro">A motif is an idea or image that keeps coming back. A symbol is an object that stands for something bigger.</p>`+EX.motifs.map(([n,x,qi])=>`<div class="exitem"><b>${esc(n)}</b><p>${esc(x)}</p>${(qi||[]).map(i=>QUOTES.quotes[i]?quoteHTML(QUOTES.quotes[i]):"").join("")}</div>`).join("")+
-      ((EX.symbols2||[]).length?`<div class="stage3"><h3>Symbols</h3></div>`+EX.symbols2.map(([n,x])=>`<div class="exitem"><b>${esc(n)}</b><p>${esc(x)}</p></div>`).join("")+`<p><button class="link" data-ex="symbols">Find every mention in the Symbol tracker ›</button></p>`:"");
-  if(exSel==="bigq")h=`<p class="intro">Questions with no single right answer. Take a side, then use the points and quotes as evidence.</p>`+EX.bigq.map(([q,pts,qi])=>`<details class="exitem bq"><summary><b>${esc(q)}</b></summary><ul>${pts.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>${(qi||[]).map(i=>QUOTES.quotes[i]?quoteHTML(QUOTES.quotes[i]):"").join("")}</details>`).join("");
+      EX.analysis[anSel].map(x=>`<p class="anp">${rich(x)}</p>`).join("")+(()=>{const qs=QUOTES.quotes.filter(q=>speech[q.id].who===anSel);return qs.length?`<div class="stage3"><h3>Their key quotes</h3><small>${qs.length}</small></div>`+qs.map(quoteHTML).join(""):""})()}
+  if(exSel==="motifs")h=`<p class="intro">A motif is an idea or image that keeps coming back. A symbol is an object that stands for something bigger.</p>`+EX.motifs.map(([n,x,qi])=>`<div class="exitem"><b>${esc(n)}</b><p>${rich(x)}</p>${(qi||[]).map(i=>QUOTES.quotes[i]?quoteHTML(QUOTES.quotes[i]):"").join("")}</div>`).join("")+
+      ((EX.symbols2||[]).length?`<div class="stage3"><h3>Symbols</h3></div>`+EX.symbols2.map(([n,x])=>`<div class="exitem"><b>${esc(n)}</b><p>${rich(x)}</p></div>`).join("")+`<p><button class="link" data-ex="symbols">Find every mention in the Symbol tracker ›</button></p>`:"");
+  if(exSel==="bigq")h=`<p class="intro">Questions with no single right answer. Take a side, then use the points and quotes as evidence.</p>`+EX.bigq.map(([q,pts,qi])=>{const qs=(qi||[]).map(i=>QUOTES.quotes[i]).filter(Boolean);return `<details class="exitem bq"><summary><b>${esc(q)}</b><span class="evn">${qs.length||""}</span></summary><ul>${pts.map(x=>`<li>${rich(x)}</li>`).join("")}</ul>${evHTML(qs.map(q=>q.id),"Evidence")}</details>`}).join("");
   $("sbody").innerHTML=`<div class="exh"><button class="btn sm" data-ex="">‹ All topics</button><h2>${tl}</h2></div>${h}`;
 }
 /* practise: gap fill, memory ladder, explain a line, who said it, order events */
@@ -1190,8 +1230,8 @@ function verseExplore(){const all=Object.values(speech),lines=sp=>sp.lines.lengt
    <div class="box"><h3>The whole play</h3><p><b>${pct(V,P)}%</b> verse, <b>${100-pct(V,P)}%</b> prose by lines.</p>${top.map(([w,[v,p]])=>`<div class="vbar"><span>${esc(title(w))}</span><i><b style="width:${pct(v,p)}%"></b></i><small>${pct(v,p)}% verse</small></div>`).join("")}</div>
    <div class="box"><h3>Try the verse lab</h3><label class="lbl" for="vl-s">Key speech</label><select class="sinput" id="vl-s">${kq.map(id=>`<option value="${id}"${+id===+vlSel?" selected":""}>${esc(title(speech[id].who))} · ${esc(lineOf(speech[id].lines[0]).slice(0,48))}</option>`).join("")}</select>${verseLabHTML(speech[vlSel])}<p class="muted">In the reader, every speech's tools have this lab too.</p></div>
    ${sw.length?`<div class="box"><h3>Switching between verse and prose</h3><p class="intro">These characters speak both in the same scene. A switch often marks a change of mood, company or control.</p>${sw.slice(0,12).map(([s,who,p])=>`<div class="exitem"><small>${sName(s)}</small><p style="color:var(--ink)">${esc(title(who))} <button class="link" data-speech="${p.id}">See the prose</button></p></div>`).join("")}</div>`:""}
-   ${shared.length?`<div class="box"><h3>Shared lines (${shared.length})</h3><p class="intro">One speaker ends a line and the next finishes it: a fast, close exchange.</p>${shared.slice(0,8).map(sp=>{const nx=sharedWith(sp).find(x=>x[0]==="after")[1];return `<div class="exitem"><p style="color:var(--ink)">${esc(title(sp.who))}: “${esc(lineOf(sp.lines[sp.lines.length-1]))}” / ${esc(title(nx.who))}: “${esc(lineOf(nx.lines[0]))}”</p><small>${sName(sceneOf(sp.id))} · <button class="link" data-speech="${sp.id}">Read in context</button></small></div>`}).join("")}</div>`:""}
-   ${cps.length?`<div class="box"><h3>Scenes that end in a rhyme (${cps.length})</h3>${cps.slice(0,8).map(sp=>`<div class="exitem"><p style="color:var(--ink)">“${esc(lineOf(sp.lines[sp.lines.length-2]))} / ${esc(lineOf(sp.lines[sp.lines.length-1]))}”</p><small>${esc(where(sp))} · <button class="link" data-speech="${sp.id}">Read in context</button></small></div>`).join("")}</div>`:""}`}
+   ${shared.length?`<div class="box"><h3>Shared lines (${shared.length})</h3><p class="intro">One speaker ends a line and the next finishes it: a fast, close exchange.</p>${shared.slice(0,8).map(sp=>{const nx=sharedWith(sp).find(x=>x[0]==="after")[1];return `<div class="exitem"><p style="color:var(--ink)">${esc(title(sp.who))}: “${esc(lineOf(sp.lines[sp.lines.length-1]))}” / ${esc(title(nx.who))}: “${esc(lineOf(nx.lines[0]))}”</p><small>${sName(sceneOf(sp.id))} · ${chip(sp.id)}</small></div>`}).join("")}</div>`:""}
+   ${cps.length?`<div class="box"><h3>Scenes that end in a rhyme (${cps.length})</h3>${cps.slice(0,8).map(sp=>`<div class="exitem"><p style="color:var(--ink)">“${esc(lineOf(sp.lines[sp.lines.length-2]))} / ${esc(lineOf(sp.lines[sp.lines.length-1]))}”</p><small>${chip(sp.id)}</small></div>`).join("")}</div>`:""}`}
 /* language drills */
 const LANG=EX.lang||{un:[],pun:[],st:[]};
 const wtok=l=>l.split(/\s+/).filter(Boolean);
@@ -1202,26 +1242,26 @@ function langDrill(back){let h="";
     const hl=esc(ln).replace(new RegExp("(^|[^A-Za-z'])("+esc(g.k).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?![A-Za-z])","i"),"$1<mark>$2</mark>");
     h=`<div class="qz"><div class="qn">Word ${g.n} · ${g.ok} right · ${esc(where(sp))}</div><p class="intro">Use the rest of the line to guess what the marked word means here.</p><h3 style="font:400 1.3rem/1.45 var(--f-old)">${hl}</h3>
      <div class="opts">${g.o.map(o=>`<button data-wd="${esc(o)}"${g.ans?" disabled":""} class="${g.ans?(o===g.k?"right":o===g.ans?"wrong":""):""}">${esc(G[o])}</button>`).join("")}</div>
-     ${g.ans?`<p class="muted"><b>${esc(g.k)}</b>: ${esc(G[g.k])}</p><div class="row"><button class="btn primary" id="wd-next">Next word</button><button class="btn" data-speech="${g.id}">Read in context</button></div>`:""}</div>`}
+     ${g.ans?`<p class="muted"><b>${esc(g.k)}</b>: ${esc(G[g.k])}</p><div class="row"><button class="btn primary" id="wd-next">Next word</button>${chip(g.id)}</div>`:""}</div>`}
   if(dr.k==="untangle"){const U=LANG.un;if(dr.u==null||!U[dr.u.i])dr.u={i:0,pk:[],res:null};const u=dr.u,[id,orig,mod]=U[u.i],ws=wtok(mod),ord=u.ord||(u.ord=shuf(ws.map((_,i)=>i)));
     const built=u.pk.map(i=>ws[i]).join(" "),done=u.pk.length===ws.length,ok=done&&u.pk.map(i=>clean(ws[i])).join(" ")===ws.map(clean).join(" ");
     h=`<div class="qz"><div class="qn">Line ${u.i+1} of ${U.length} · ${esc(where(speech[id]))}</div><p class="intro">Shakespeare often moves words around to fit the beat or to stress a word. Tap the words to put the line into everyday order.</p>
      <h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(orig)}”</h3><div class="ord words">${ord.map(i=>`<button data-uw="${i}"${u.pk.includes(i)?" disabled":""}>${esc(ws[i].replace(/[,.;:!?]+$/,""))}</button>`).join("")}</div>
      <p class="ubuilt" style="color:${done?(ok?"var(--ok)":"var(--bad)"):"var(--ink)"}">${esc(built.replace(/[,.;:!?](?=\s|$)/g,""))||"<span class='muted'>Your order appears here</span>"}</p>
      ${done?`<p>${ok?"<b>Right.</b>":"<b>Not quite.</b> One everyday order:"} ${esc(mod)}</p><p class="muted">Which word did Shakespeare's order push to the front or the end? That is usually the word he wants stressed.</p>`:""}
-     <div class="row">${u.pk.length&&!done?`<button class="link" id="un-undo">Undo</button>`:""}${done?`<button class="btn primary" id="un-next">${u.i+1<U.length?"Next line":"Start again"}</button>`:""}<button class="btn" data-speech="${id}">Read in context</button></div></div>`}
+     <div class="row">${u.pk.length&&!done?`<button class="link" id="un-undo">Undo</button>`:""}${done?`<button class="btn primary" id="un-next">${u.i+1<U.length?"Next line":"Start again"}</button>`:""}${chip(id)}</div></div>`}
   if(dr.k==="pun"){const Pn=LANG.pun;if(dr.pn==null||!Pn[dr.pn.i])dr.pn={i:0,pick:null};const pn=dr.pn,[id,line,word,kind,ex]=Pn[pn.i],tw=wtok(word).map(clean),ws=wtok(line);
     const lab={pun:"Pun: one word, two meanings",shift:"Functional shift: a word used as a different part of speech",malapropism:"Malapropism: the wrong word that sounds like the right one",wordplay:"Wordplay"}[kind]||"Wordplay";
     h=`<div class="qz"><div class="qn">${pn.i+1} of ${Pn.length} · ${esc(where(speech[id]))}</div><p class="intro">${kind==="shift"?"Which word is doing a job it doesn't usually do?":kind==="malapropism"?"Which word is the wrong one?":"Which word is doing double duty?"} Tap it.</p>
      <div class="punl">${ws.map((w,i)=>{const hit=tw.includes(clean(w));return `<button data-pw="${i}"${pn.pick!=null?" disabled":""} class="${pn.pick!=null?(hit?"right":+pn.pick===i?"wrong":""):""}">${esc(w)}</button>`}).join(" ")}</div>
-     ${pn.pick!=null?`<div class="snote"><b>${esc(lab)}</b><br>${esc(ex)}</div><div class="row"><button class="btn primary" id="pn-next">${pn.i+1<Pn.length?"Next":"Start again"}</button><button class="btn" data-speech="${id}">Read in context</button></div>`:""}</div>`}
+     ${pn.pick!=null?`<div class="snote"><b>${esc(lab)}</b><br>${esc(ex)}</div><div class="row"><button class="btn primary" id="pn-next">${pn.i+1<Pn.length?"Next":"Start again"}</button>${chip(id)}</div>`:""}</div>`}
   if(dr.k==="stress"){const St=LANG.st;if(dr.st==null||!St[dr.st.i])dr.st={i:0,seen:[]};const s=dr.st,[id,line,opts]=St[s.i],ws=wtok(line);
     const on=s.seen[s.seen.length-1];
     h=`<div class="qz"><div class="qn">${s.i+1} of ${St.length} · ${esc(where(speech[id]))}</div><p class="intro">Say the line aloud three times, leaning on a different word each time. Tap the word you'd stress to see what it does.</p>
      <h3 class="stl">${(used=>ws.map(w=>{const k=opts.findIndex(o=>clean(o[0])===clean(w));if(k>=0&&used.has(k))return esc(w);used.add(k);return k<0?esc(w):`<button class="stw${s.seen.includes(k)?" seen":""}${on===k?" on":""}" data-sw="${k}">${esc(w)}</button>`}).join(" "))(new Set())}</h3>
      ${s.seen.map(k=>`<div class="snote"><b>Stress “${esc(opts[k][0])}”</b><br>${esc(opts[k][1])}</div>`).join("")}
      ${s.seen.length>=opts.length?`<p class="muted">No single right answer: actors choose. Which reading fits your view of the character? Use it in an essay as "an actor might stress…".</p>`:""}
-     <div class="row"><button class="btn primary" id="st-next">${s.i+1<St.length?"Next line":"Start again"}</button><button class="btn" data-speech="${id}">Read in context</button></div></div>`}
+     <div class="row"><button class="btn primary" id="st-next">${s.i+1<St.length?"Next line":"Start again"}</button>${chip(id)}</div></div>`}
   $("sbody").innerHTML=back+h;const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
   $("sbody").querySelectorAll("[data-wd]").forEach(b=>b.onclick=()=>{const g=dr.g;g.ans=b.dataset.wd;if(g.ans===g.k)g.ok++;dr.gok=g.ok;studyDrill()});
   on("wd-next",()=>{dr.g0=dr.g.n;dr.g=null;studyDrill()});
@@ -1240,7 +1280,7 @@ function dirCard(i){const [id,line,q,opts]=DIRS[i],sp=speech[id],c=DIRC[i]||{},c
   return `<div class="exitem dirc"><small>${esc(where(sp))}</small><h3>${esc(q)}</h3><p class="dline">“${esc(line)}”</p>
    <div class="opts">${opts.map((o,j)=>`<button data-dc="${i}:${j}" class="${ch===j?"right":""}" aria-pressed="${ch===j}"><b>${esc(o[0])}</b>${ch!=null?`<span>${esc(o[1])}</span>`:""}</button>`).join("")}</div>
    ${ch!=null?`<label class="lbl" for="dw-${i}">Why this choice? Say what the audience should feel.</label><textarea class="sinput" id="dw-${i}" data-dw="${i}" placeholder="I would stage it this way because…">${esc(c.w||"")}</textarea>`:`<p class="muted">Pick how you would stage it. Every option is defensible: the effects appear once you choose.</p>`}
-   <div class="row"><button class="link" data-speech="${id}">Read in context</button></div></div>`}
+   <div class="row">${chip(id)}</div></div>`}
 function dirExplore(){const n=Object.values(DIRC).filter(x=>x&&x.c!=null).length;
   return `<p class="intro">You are the director. Each moment can be staged more than one way, and each choice changes what the audience feel. Examiners reward "an actor might…" or "a director could…" when you explain the effect. ${n} of ${DIRS.length} decided.</p>`+DIRS.map((_,i)=>dirCard(i)).join("")}
 function dirTools(id){const ix=DIRS.map((d,i)=>[d,i]).filter(([d])=>+d[0]===+id);if(!ix.length)return "";
@@ -1501,7 +1541,7 @@ function studyActs(){const L=DV==="list",AS=ACTS.filter(a=>scenes.some(p=>p.act=
   <div class="qbar noprint"><div class="chips" role="group" aria-label="Go to act">${AS.map(a=>`<button class="chip" type="button" data-actj="${a}">${a?"Act "+R[a]:"Induction"}</button>`).join("")}</div>${dvToggle()}</div>
   ${L?`<div class="row noprint"><button class="btn" id="as-print">Print all</button><button class="btn" id="as-copy">Copy all</button></div>`:""}
   ${AS.map(a=>{const ps=scenes.filter(p=>p.act===a),kq=QUOTES.quotes.filter(q=>sceneOf(q.id).act===a);
-    const kqs=`<div class="lbl" style="margin-top:10px">Key quotes</div>${kq.map(q=>{const w=speech[q.id].who;return `<div class="akq">${folioMedal(w,COLORS[w],"akm")}<p>“${esc(q.text)}” <small class="muted">${esc(title(w))}</small> <button class="link noprint" data-speech="${q.id}">Read</button></p></div>`}).join("")}`;
+    const kqs=`<div class="lbl" style="margin-top:10px">Key quotes</div>${kq.map(q=>{const w=speech[q.id].who;return `<div class="akq">${folioMedal(w,COLORS[w],"akm")}<p>“${esc(q.text)}” <small class="muted">${esc(title(w))}</small> ${chip(q.id)}</p></div>`}).join("")}`;
     return `<section class="actd" id="act-${a}"><div class="actban">${folioStage(PICS[stageType(ps[0])],"","abst")}${folioPlate(LAT[a],a?R[a]:"",AN(a),"actpl")}</div>${L?`<div class="box">${ps.map(p=>{const s=STUDY.scenes[p.id]||{};return `<div class="exitem"><b>${sName(p)}</b> <small>${esc(shortLoc(p))}</small><p>${esc(s.sum||"")}</p><ul>${(s.key||[]).map(k=>`<li>${esc(k)}</li>`).join("")}</ul><div class="xrow noprint"><button class="golink" type="button" data-go2="${p.id}">Read the scene <span aria-hidden="true">›</span></button>${s.quiz?`<button class="golink" type="button" data-quiz2="${p.id}">Quiz <span aria-hidden="true">›</span></button>`:""}</div></div>`}).join("")}${kqs}</div>`
       :deckHTML([...ps.map(sceneCard),...(kq.length?[`<div class="scc kqc">${kqs}</div>`]:[])],"","Scenes of "+AN(a))}</section>`}).join("")}`;
   if($("as-print"))$("as-print").onclick=()=>window.print();if($("as-copy"))$("as-copy").onclick=()=>copyText(AS.map(actText).join("\n\n"))}
@@ -1554,9 +1594,9 @@ function itemHTML0(it){const k=it.k,ty=k.split(":")[0];
   return ""}
 /* self-graded items (who, fin) ask for confidence first; picked items grade themselves */
 const selfGraded=k=>/^(who|fin|pt):/.test(k);
-function itemButtons(it){if(!selfGraded(it.k))return it.stage==="shown"?`<button class="btn primary" data-it="next">Next</button>${it.k.startsWith("qz:")?(it.q?`<button class="link" data-go2="${it.q.s}">Read the scene</button>`:""):`<button class="link" data-speech="${kq(it.k).id}">Read in context</button>`}`:"";
+function itemButtons(it){if(!selfGraded(it.k))return it.stage==="shown"?`<button class="btn primary" data-it="next">Next</button>${it.k.startsWith("qz:")?(it.q?`<button class="link" data-go2="${it.q.s}">Read the scene</button>`:""):`${chip(kq(it.k).id)}`}`:"";
   if(it.stage==="ask")return `<button class="btn primary" data-it="sure">I'm sure · turn</button><button class="btn" data-it="unsure">Not sure · turn</button>`;
-  return `<button class="btn" data-it="no">Not yet</button><button class="btn primary" data-it="yes">I knew it</button>${it.k.startsWith("qz:")?"":`<button class="link" data-speech="${it.k.startsWith("pt:")?it.k.split(":")[1]:kq(it.k).id}">Read in context</button>`}`}
+  return `<button class="btn" data-it="no">Not yet</button><button class="btn primary" data-it="yes">I knew it</button>${it.k.startsWith("qz:")?"":`${chip(it.k.startsWith("pt:")?it.k.split(":")[1]:kq(it.k).id)}`}`}
 function pickOk(it,v){const ty=it.k.split(":")[0];if(ty==="qz")return +v===it.q.a;const q=kq(it.k);if(ty==="th")return q.themes.includes(v);if(ty==="act")return +v===sceneOf(q.id).act;return false}
 
 /* flashcards: two directions, quotes not yet learnt come first, shuffled */
@@ -1807,7 +1847,7 @@ function wireBackup(after){
 }
 /* the revision sheet as a printed folio page: running head, rubricated headings */
 const revHTML=t=>`<div class="olrh" aria-hidden="true"><span>${esc(CFG.short)}</span><span>Revision sheet</span></div>`+t.split("\n").map((l,i)=>{const s=l.trim();if(!i)return `<h3 class="rvh">${esc(s)}</h3>`;
-  if(s&&!/^\s/.test(l)&&/^[A-Z][A-Z0-9 ,:;'’()&.\-/]+$/.test(s)&&/[A-Z]{3}/.test(s))return `<h4>${esc(s)}</h4>`;return `<div class="rl${/^\s{4}/.test(l)?" n2":/^\s{2}/.test(l)?" n1":""}">${s?esc(s):"&nbsp;"}</div>`}).join("");
+  if(s&&!/^\s/.test(l)&&/^[A-Z][A-Z0-9 ,:;'’()&.\-/]+$/.test(s)&&/[A-Z]{3}/.test(s))return `<h4>${esc(s)}</h4>`;return `<div class="rl${/^\s{4}/.test(l)?" n2":/^\s{2}/.test(l)?" n1":""}">${s?esc(s.replace(/(^|[\s(])"/g,"$1“").replace(/"/g,"”")):"&nbsp;"}</div>`}).join("");
 function studyRevise(){
   const t=revisionText();
   $("sbody").innerHTML=`<p class="intro">Everything you've marked, your quiz scores and the quotes you still need to learn, on one sheet.</p>
@@ -1817,6 +1857,7 @@ function studyRevise(){
   wireBackup(studyRevise);
 }
 $("sbody").addEventListener("click",e=>{
+  const pv=e.target.closest("[data-pv]");if(pv){e.preventDefault();openPv(pv.dataset.pv);return}
   const qw=e.target.closest("[data-qwho]");if(qw){qf.who=qw.dataset.qwho;const y=scrollY;studyQuotes();scrollTo(0,y);return}
   const dv=e.target.closest("[data-dv]");if(dv){DV=dv.dataset.dv;LS.set("folio-deckview",DV);const y=scrollY;renderStudy();scrollTo(0,y);return}
   const aj=e.target.closest("[data-actj]");if(aj){const el=$("act-"+aj.dataset.actj);if(el)el.scrollIntoView({block:"start"});return}
@@ -1836,7 +1877,7 @@ $("sbody").addEventListener("click",e=>{
   const an=e.target.closest("[data-an]");if(an){anSel=an.dataset.an;studyExplore();return}
   const ma=e.target.closest("[data-mapact]");if(ma){mapAct=+ma.dataset.mapact;studyExplore();return}
   const az=e.target.closest("[data-az]");if(az){const el=document.querySelector(`[data-letter="${az.dataset.az}"]`);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});return}
-  const s=e.target.closest("[data-speech]");if(s){goSpeech(s.dataset.speech);return}
+  const s=e.target.closest("[data-speech]");if(s){openPv(s.dataset.speech);return}
   const c=e.target.closest(".chips .chip");if(c){const f=c.parentNode.dataset.f,v=c.dataset.v;
     if(f==="who")qf.who=v;else if(f==="th")qf.th=v;else if(f==="theme")thSel=v;renderStudy()}});
 $("sbody").addEventListener("input",e=>{const t=e.target.closest("[data-dw]");if(t){const i=t.dataset.dw;DIRC[i]=Object.assign({},DIRC[i],{w:t.value.slice(0,4000)});saveDir()}});
@@ -1865,6 +1906,9 @@ sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
   const fh=e.target.closest("[data-fph]");if(fh){const f=FAV.find(x=>String(x.t)===fh.dataset.fph);if(f)goSpeech(f.id);return}
   const bk=e.target.closest("[data-bm]");if(bk){const b=BM[+bk.dataset.bm];closeSheet();setHash(b.s);show("reader");openScene(sIdx(b.s),{key:b.key});return}
   const rc=e.target.closest("[data-recent]");if(rc){const [id,pi]=rc.dataset.recent.split(":").map(Number);goSpeech(id);setTimeout(()=>{showPartPage(id,pi);openPart(id,pi,false)},250);return}
+  const po=e.target.closest("[data-pvopen]");if(po){pvOpen(po.dataset.pvopen);return}
+  if(e.target.closest("[data-pvclose]")){PVBACK=null;closeSheet();return}
+  const pv=e.target.closest("[data-pv]");if(pv){openPv(pv.dataset.pv);return}
   const g=e.target.closest("[data-speech]");if(g){goSpeech(g.dataset.speech);return}
   const p=e.target.closest("[data-go]");if(p){closeSheet();goScene(sIdx(p.dataset.go))}});
 sheet.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-speech],[data-go],[data-bm],[data-fph]");if(g&&!e.target.closest("button"))g.click()}});
@@ -1943,7 +1987,7 @@ function openImage(paras,who,ref){const c=quoteImage(paras,who,ref),url=c.toData
 /* compare two key quotes */
 function compareHTML(){const Q=QUOTES.quotes,a=Q[cmp[0]],b=Q[cmp[1]];
   const sel=i=>`<label class="sr" for="cmp${i}">Quote ${i+1}</label><select id="cmp${i}" data-cmp="${i}">${Q.map(q=>`<option value="${q.i}"${q.i===cmp[i]?" selected":""}>${esc(title(speech[q.id].who))}: ${esc(q.text.slice(0,50))}</option>`).join("")}</select>`;
-  const card=(q,i)=>{const sp=speech[q.id];return `<div>${sel(i)}<blockquote>“${esc(q.text)}”</blockquote><small>${esc(where(sp))}</small><p>${esc(q.note)}</p>${EX.why[q.i]?`<p><b>Why it matters:</b> ${esc(EX.why[q.i])}</p>`:""}<p class="muted">${q.themes.map(t=>esc(QUOTES.themes[t][0])).join(" · ")}</p><button class="link" data-speech="${q.id}">Read in context</button></div>`};
+  const card=(q,i)=>{const sp=speech[q.id];return `<div>${sel(i)}<blockquote>“${esc(q.text)}”</blockquote><small>${esc(where(sp))}</small><p>${esc(q.note)}</p>${EX.why[q.i]?`<p><b>Why it matters:</b> ${esc(EX.why[q.i])}</p>`:""}<p class="muted">${q.themes.map(t=>esc(QUOTES.themes[t][0])).join(" · ")}</p>${chip(q.id)}</div>`};
   const sa=speech[a.id],sb=speech[b.id],pa=sceneOf(a.id),pb=sceneOf(b.id),sh=a.themes.filter(t=>b.themes.includes(t)).map(t=>QUOTES.themes[t][0]);
   const pr=[];if(sa.who===sb.who)pr.push(`Both are spoken by ${title(sa.who)}. What has changed in them between ${sName(pa)} and ${sName(pb)}, and what caused it?`);
   else pr.push(`How do ${title(sa.who)} and ${title(sb.who)} see things differently here? Whose view does the audience trust, and why?`);

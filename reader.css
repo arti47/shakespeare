@@ -1924,3 +1924,39 @@ body.v-reader nav.fnav [aria-current="page"]{color:var(--accent)}
   body.spread .sp .o .l[data-n]::before{right:-2em}
 }
 @media (prefers-reduced-motion:reduce){.tpage *,.apage *{animation:none!important;transition:none!important}}
+/* ---------- 4.8 links to the text (Study): scene chips, evidence rows, linked phrases, preview slip, Back to Study pill ---------- */
+.schip{display:inline-flex;align-items:center;gap:6px;min-height:32px;margin:2px 0;padding:3px 10px 3px 4px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--rule));border-radius:999px;background:var(--card);color:var(--ink);font:400 .9rem/1.2 var(--f-ui);cursor:pointer;vertical-align:middle;max-width:100%}
+.schip .sca,.evb .sca{display:inline-grid;place-items:center;min-width:2.6em;padding:2px 7px;border-radius:999px;background:var(--accent);color:var(--card);font:600 .8rem/1.3 var(--f-ui);letter-spacing:.02em;font-variant-numeric:lining-nums}
+.schip .scw{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schip .scr{color:var(--accent);font-size:1.1rem;line-height:1}
+.schip:hover,.evb:hover{border-color:var(--accent)}
+.schip:focus-visible,.evb:focus-visible,.qlnk:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.evr{display:grid;gap:8px;margin:4px 16px 16px;padding:12px 0 0;border-top:1px dashed var(--rule)}
+.crit .evr,.bq .evr{margin:10px 0 4px}
+.evl{font:400 .95rem var(--f-sc);letter-spacing:.08em;color:var(--accent)}
+.evb{display:grid;gap:4px;width:100%;padding:10px 12px 10px 14px;border:1px solid var(--rule);border-left:3px solid var(--c);border-radius:var(--r-m,10px);background:color-mix(in srgb,var(--c) 6%,var(--card));color:var(--ink);text-align:left;cursor:pointer}
+.evb q{font:italic 400 1.02rem/1.4 var(--f-body);quotes:"“" "”"}
+.evb small{display:flex;align-items:center;gap:8px;color:var(--muted);font:400 .875rem var(--f-ui)}
+.evn:not(:empty){display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:auto;padding:0 6px;border-radius:999px;background:color-mix(in srgb,var(--accent) 14%,var(--card));color:var(--accent);font:600 .8rem var(--f-ui)}
+.cab:not([open])>summary .evn{margin:0}
+.bq>summary{display:flex;align-items:center;gap:10px}
+.qlnk{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:inherit;cursor:pointer;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 55%,transparent);text-decoration-thickness:1.5px;text-underline-offset:3px}
+.qlnk:hover{color:var(--accent)}
+.qlnk.sclnk{text-decoration-style:dotted}
+#sbody .flash{animation:pvfl 1.6s ease-out}
+@keyframes pvfl{0%,40%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 45%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+.pvs .pvh{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.pvs .pvh svg,.pvs .pvh .pvm{width:44px;height:44px;flex:none}
+.pvs .pvh b{display:block;font:400 1.15rem var(--f-old);color:var(--c)}
+.pvs .pvh small{color:var(--muted)}
+.pvk{margin:0 0 8px;font:400 .95rem var(--f-sc);letter-spacing:.06em;color:var(--accent)}
+.pvo{padding:12px 14px;border:1px solid var(--rule);border-radius:var(--r-m,10px);background:var(--paper,var(--card));font:400 1.05rem/1.55 var(--f-body)}
+.pvl{padding:0 6px;border-radius:4px}
+.pvl.hl{background:color-mix(in srgb,var(--c) 16%,transparent);box-shadow:inset 3px 0 0 var(--c)}
+.pvl.song{font-style:italic}
+.pvx{color:var(--muted);padding:0 6px}
+.pvm2{margin:12px 0 4px;padding:10px 14px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--card));border-radius:0 var(--r-m,10px) var(--r-m,10px) 0}
+.pvm2 p{margin:4px 0 0;line-height:1.5}
+.pvback{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 64px);display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 16px;border:1px solid var(--accent);border-radius:999px;background:var(--card);color:var(--accent);font:600 .95rem var(--f-ui);box-shadow:var(--lift);cursor:pointer}
+.pvback[hidden]{display:none}
+@media print{.schip,.evr,.pvback{display:none!important}.qlnk{text-decoration:none}}
