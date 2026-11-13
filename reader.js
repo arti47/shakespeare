@@ -274,7 +274,9 @@ function linesHTML(it,a,b){let h="";const ps=partsOf(it);ps.forEach((p,i)=>{cons
 function unfold(id,pi){const k=id+":"+pi,sp=speech[id],on=!OPEN.has(k);if(on)OPEN.add(k);else OPEN.delete(k);OPENV++;hideGloss();
   const top=cur.pages[cur.i].find(b=>b.t==="sp"),before=cur.i;
   openScene(cur.k,{key:on?id+":"+partsOf(sp)[pi][0]:top?top.key:pos&&pos.key,keep:true});
-  if(on){addRecent(id,pi);coachDid(0)}}
+  if(on){addRecent(id,pi);coachDid(0);
+    /* 4.5: a tall part is laid out line by line, so its slip may land on a later page: show that page */
+    if(!pg.querySelector(`.mx[data-mx="${id}:${pi}"]`)){const ln=partsOf(sp)[pi][1],j=cur.pages.findIndex(pp=>pp.some(b=>b.t==="sp"&&b.it&&b.it.id===id&&b.units&&b.units.slice(b.u0,b.u1).some(u=>u[1]===ln)));if(j>=0&&j!==cur.i)renderPage(j,0,true)}}}
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
   return out.map(p=>`<p>${esc(p)}</p>`).join("")}
@@ -311,13 +313,18 @@ const PROSE={};for(const id in speech){const L=speech[id].lines.map(l=>l.replace
 /* 4.3 celebration: gilt rays behind a seal that has just been stamped */
 const BURST='<svg class="burst" viewBox="0 0 100 100" aria-hidden="true">'+Array.from({length:12},(_,i)=>`<path d="M50 50L${(50+48*Math.cos(i*Math.PI/6-.12)).toFixed(1)} ${(50+48*Math.sin(i*Math.PI/6-.12)).toFixed(1)}L${(50+48*Math.cos(i*Math.PI/6+.12)).toFixed(1)} ${(50+48*Math.sin(i*Math.PI/6+.12)).toFixed(1)}Z"/>`).join("")+'</svg>';
 const TAILP='<svg class="tailp" viewBox="0 0 120 34" aria-hidden="true"><path class="tp1" d="M60 30C52 22 40 20 28 22c6-6 18-8 26-2-4-6-14-8-22-6 8-6 20-4 28 6 8-10 20-12 28-6-8-2-18 0-22 6 8-6 20-4 26 2-12-2-24 0-32 8z"/><circle class="tp2" cx="60" cy="8" r="3"/><circle class="tp2" cx="48" cy="11" r="1.8"/><circle class="tp2" cx="72" cy="11" r="1.8"/><path class="tp3" d="M6 17H22M98 17H114"/></svg>';
+/* 4.5: under an entrance, a medallion for each character the direction names (tap for who they are) */
+const ENTC={};
+function entWho(t){if(!/^\s*(re-?)?enter\b/i.test(t||""))return [];if(ENTC[t])return ENTC[t];const low=t.toLowerCase(),out=[];
+  for(const w of whoSet){if(!CH[w]||/ and |^all$|^both$/i.test(w))continue;const n=title(w).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,"\\$&");if(new RegExp("\\b"+n+"\\b").test(low))out.push([low.search(new RegExp("\\b"+n+"\\b")),w])}
+  return ENTC[t]=out.sort((a,b)=>a[0]-b[0]).map(x=>x[1]).slice(0,8)}
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
     const n=onStageWho(p).length;
     const first=p.sc===1;
     /* 4.4: a slim headpiece band (stage vignette with its sky, act and scene, place, Before you read); the act strip only at act starts */
     return `<div class="blk shead sh44${first?" actopen":""}">${first?`<div class="astrip"><span>${AN(p.act)}</span><i>${LAT[p.act]}</i></div>`:""}<div class="hband">${folioStage(PICS[stageType(p)],"","hvig",skyOf(p))}<div class="hbt"><div class="eyebrow">${SL[p.scene]||""}</div><h1>${sName(p)}</h1><div class="loc"><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div></div></div>`}
-  if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
+  if(bk.t==="sd"){const ws=entWho(bk.it.text);return `<div class="blk sd">${esc(bk.it.text)}${ws.length?`<span class="ents">${ws.map(w=>`<button type="button" class="entm" data-who="${esc(w)}" aria-label="${esc(title(w))}">${folioMedal(w,COLORS[w],"em")}</button>`).join("")}</span>`:""}</div>`}
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
     const po=EX.predict[p.id],g=PRED[p.id];
     /* 4.0 scene-end card: the wax seal stamps, a three-question check, a big Next. Full mode keeps the other end-of-scene tools below. */
@@ -347,14 +354,18 @@ function blockHTML(bk,p){
    cur.i is always the left (even) page, and a turn moves two pages. */
 const SPREAD_GAP=64;
 const spread=()=>innerWidth>=1200&&!document.body.classList.contains("tight");
-const leafW=()=>{if(!spread())return pg.clientWidth;const cs=getComputedStyle(pg);return Math.floor((pg.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-SPREAD_GAP)/2)};
-const step=()=>spread()?2:1;
-const even=i=>spread()?i-i%2:i;
+/* 4.5: Both mode on wide screens (1000px+) is a parallel-text opening: Shakespeare on the left page, modern English facing it, part by part */
+const facing=()=>S.mode==="both"&&innerWidth>=1000&&!document.body.classList.contains("tight");
+const twoLeaves=()=>spread()&&!facing();
+const leafW=()=>{if(!spread())return pg.clientWidth;const cs=getComputedStyle(pg),w=pg.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);return twoLeaves()?Math.floor((w-SPREAD_GAP)/2):Math.floor(w)};
+const step=()=>twoLeaves()?2:1;
+const even=i=>twoLeaves()?i-i%2:i;
 function pageHTML(pages,i,k){const p=scenes[k],h=n=>(pages[n]||[]).map(b=>blockHTML(b,p)).join("");
-  return spread()?`<div class="spread2"><div class="leaf">${h(i)}</div><div class="leaf">${h(i+1)}</div></div>`:h(i)}
+  const rib=spread()?'<i class="sribbon" aria-hidden="true"></i>':"";
+  return twoLeaves()?`<div class="spread2">${rib}<div class="leaf">${h(i)}</div><div class="leaf">${h(i+1)}</div></div>`:facing()?`<div class="spread2 facing">${rib}<div class="leaf">${h(i)}</div></div>`:h(i)}
 let cur={k:-1,pages:[],i:0,words:0,sig:""};
 function paginate(p){
-  document.body.classList.toggle("spread",spread());
+  document.body.classList.toggle("spread",spread());document.body.classList.toggle("facing",facing());
   const blocks=sceneBlocks(p);
   measure.className="pg";measure.style.width=leafW()+"px";measure.style.maxWidth="none";measure.style.padding=spread()?"0":"";
   const H=pg.clientHeight-2,pages=[];let page=[];measure.innerHTML="";
@@ -376,13 +387,14 @@ function paginate(p){
         if(best){const part=Object.assign({},bk,{u1:best});add(part);page.push(part);flush();bk=Object.assign({},bk,{u0:best,key:bk.it.id+":"+bk.units[best][0]});continue}
       }
       if(page.length){flush();continue}
+      if(bk.t==="sp"&&S.mode==="orig"&&bk.units){const u=bk.units[bk.u0];if(u&&u[1]>u[0]){const ex=lineUnits(u),units=[...bk.units.slice(0,bk.u0),...ex,...bk.units.slice(bk.u0+1)];bk=Object.assign({},bk,{units,u1:bk.u1+ex.length-1});continue}}
       add(bk);page.push(bk);flush();break; // taller than a whole page on its own
     }
   }
   flush();measure.innerHTML="";
   return pages.length?pages:[[]];
 }
-const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,OPENV,pg.clientWidth,pg.clientHeight,spread()].join("|");
+const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,OPENV,pg.clientWidth,pg.clientHeight,spread(),facing()].join("|");
 function openScene(k,opts){
   opts=opts||{};const p=scenes[k];if(cur.k!==k&&OPEN.size){OPEN.clear();OPENV++}
   if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
@@ -402,8 +414,20 @@ function findKey(key){
   let best=-1;for(let i=0;i<cur.pages.length;i++)for(const b of cur.pages[i])if(b.t==="sp"&&String(b.it.id)===sid&&b.units[b.u0][0]<= +ln)best=i;
   return best;
 }
+/* 4.5 Folio page frame: running head, page number, catchword (the next page's first word, as in the 1623 print), time left in the scene */
+function catchword(pages,i){const b=(pages[i]||[])[0];if(!b)return "";const fw=t=>String(t||"").replace(/^~/,"").trim().split(/\s+/)[0]||"";
+  if(b.t==="sp")return fw(b.it.lines[b.units[b.u0][0]]);if(b.t==="sd")return fw(b.it.text);return ""}
+function footHTML(pages,i,mins){const n=pages.length,i2=Math.min(n,i+step());
+  return `<span class="pfl">${mins>0?`${mins} min left in scene`:""}</span><span class="pfc">${i2>i+1?`${i+1}–${i2}`:i+1} of ${n}</span><span class="pfr">${esc(catchword(pages,i+step()))}</span>`}
+function frame(i,n){const r=pg.getBoundingClientRect(),rh=$("rhead"),pf=$("pgfoot"),de=$("dogear");
+  if(!spread()){rh.style.left=r.left+"px";rh.style.width=r.width+"px";pf.style.left=r.left+"px";pf.style.width=r.width+"px"}else{rh.style.left=rh.style.width=pf.style.left=pf.style.width=""}
+  /* desk: the page stack moves from right to left as you read the scene */
+  if(spread()){const f=Math.min(1,(i+step())/Math.max(1,n)),L=1+Math.round(f*4),Rn=1+Math.round((1-f)*4),sh=[];
+    for(let j=1;j<=L;j++)sh.push(`${-3*j}px ${3*j}px 0 ${-j}px color-mix(in srgb,var(--page) ${92-j*5}%,#000)`);
+    for(let j=1;j<=Rn;j++)sh.push(`${3*j}px ${3*j}px 0 ${-j}px color-mix(in srgb,var(--page) ${92-j*5}%,#000)`);pg.style.setProperty("--stack",sh.join(","))}
+  if(de){if(spread()){de.style.left=(r.right+34-38)+"px";de.style.top=(r.bottom+18-38)+"px";de.style.right=de.style.bottom="auto"}else de.style.left=de.style.top=de.style.right=de.style.bottom=""}}
 function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidden=true}
-  document.body.classList.toggle("spread",spread());i=even(i);
+  document.body.classList.toggle("spread",spread());document.body.classList.toggle("facing",facing());i=even(Math.max(0,Math.min(i|0,cur.pages.length-1)));
   const p=scenes[cur.k];cur.i=i;
   const html=pageHTML(cur.pages,i,cur.k);
   const reduce=noMotion()||noSlide;
@@ -414,7 +438,7 @@ function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidde
     setTimeout(()=>{const sp=pg.querySelector(".sp[data-id]");if(!sp)return;const l=sp.querySelector(".o .l")||sp.querySelector(".o");st.who=first&&first.t==="sp"?title(first.it.who):"";st.line=l?l.textContent.replace(/^\s*\d+\s*/,"").trim().slice(0,140):"";LS.set("folio-stat-"+PLAY,JSON.stringify(st))},250)}
   if(i+step()>=cur.pages.length&&!prog.done[p.id]){const b4=allSeals();prog.done[p.id]=Date.now();saveProg();syncSeals(b4)}
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140),i2=Math.min(n,i+step());
-  $("pgfoot").textContent=`${sName(p)} · ${i2>i+1?`${i+1}–${i2}`:i+1} / ${n}`;{const rh=$("rhead").children;rh[0].textContent=CFG.short||CFG.title;rh[1].textContent=sName(p)}$("pgbar").style.width=((i+1)/n*100)+"%";ribbon((cur.k+(i+1)/n)/scenes.length);if(!keep)logRead();
+  $("pgfoot").innerHTML=footHTML(cur.pages,i,mins);{const rh=$("rhead").children;rh[0].textContent=CFG.short||CFG.title;rh[1].textContent=sName(p)}frame(i,n);$("pgbar").style.width=((i+1)/n*100)+"%";ribbon((cur.k+(i+1)/n)/scenes.length);if(!keep)logRead();
   $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
   $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");$("w-sub").classList.toggle("who",!!S.who);
   const r=$("p-range");r.max=n;r.value=i+1;bmState();
@@ -439,10 +463,10 @@ function peekPage(d){
   if(cur.i>0)return {k:cur.k,pages:cur.pages,i:cur.i-1};if(cur.k>0){const ps=paginate(scenes[cur.k-1]);return {k:cur.k-1,pages:ps,i:ps.length-1}}return null}
 function curlPage(html,foot,cls){const w=document.createElement("div");w.className="cpage "+(cls||"");
   const v=document.createElement("div");v.className=vp.className;const g=document.createElement("div");g.className="pg";g.innerHTML=html;v.appendChild(g);w.appendChild(v);
-  const f=document.createElement("div");f.className="pgfoot";f.textContent=foot;w.appendChild(f);return w}
+  const f=document.createElement("div");f.className="pgfoot";f.innerHTML=foot;w.appendChild(f);return w}
 function curlBegin(d,cy){if(CU)curlEnd(true);const pk=peekPage(d);if(!pk)return null;
   const box=$("curl"),W=vp.clientWidth,H=vp.clientHeight;
-  const nowH=pg.innerHTML,nowF=$("pgfoot").textContent,pkH=pk.pages[pk.i].map(b=>blockHTML(b,scenes[pk.k])).join(""),pkF=`${sName(scenes[pk.k])} · ${pk.i+1} / ${pk.pages.length}`;
+  const nowH=pg.innerHTML,nowF=$("pgfoot").innerHTML,pkH=pk.pages[pk.i].map(b=>blockHTML(b,scenes[pk.k])).join(""),pkF=footHTML(pk.pages,pk.i,0);
   const [sh,sf,uh,uf]=d>0?[nowH,nowF,pkH,pkF]:[pkH,pkF,nowH,nowF];
   const under=curlPage(uh,uf),cast=document.createElement("i"),front=curlPage(sh,sf),bw=document.createElement("div"),back=document.createElement("div"),shade=document.createElement("i");
   cast.className="ccast";bw.className="cbw";back.className="cback";shade.className="cshade";
@@ -496,7 +520,7 @@ vp.addEventListener("pointerdown",e=>{if(e.button)return;
   const sp=e.target.closest(".sp");press={x:e.clientX,y:e.clientY,t:Date.now(),sp,tgt:e.target,timer:null,moved:false};
   {const r=vp.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width;press.edge=fx>.82?1:fx<.18?-1:0}
   if(sp){press.pt=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved)sp.classList.add("pressing")},160);
-    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}const h=wordAt(press.x,press.y);if(h&&h.id===+sp.dataset.id)startSel(h);else openTools(+sp.dataset.id,partAt(press.tgt,sp))}},480)}});
+    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}const h=wordAt(press.x,press.y);if(h&&h.id===+sp.dataset.id)startSel(h);else openPill(+sp.dataset.id,partAt(press.tgt,sp),sp)}},480)}});
 vp.addEventListener("pointermove",e=>{if(CU&&CU.drag){curlMove(e.clientX,e.clientY);return}
   if(press&&press.edge&&!SEL&&!pinch){const dx=e.clientX-press.x,dy=e.clientY-press.y;if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2&&Math.sign(dx)===-press.edge&&curlOn()&&curlGrab(press.edge,press.x,press.y)){
     clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");press=null;try{vp.setPointerCapture(e.pointerId)}catch(_){}curlMove(e.clientX,e.clientY);return}}
@@ -520,7 +544,7 @@ function endPress(e,cancel){if(CU&&CU.drag){curlRelease(cancel);return}if(!press
   const mx=P.tgt.closest&&P.tgt.closest("[data-mx]");if(mx){const [id,pi]=mx.dataset.mx.split(":");unfold(+id,+pi);return}
   const kqm=P.tgt.closest&&P.tgt.closest(".kqm[data-kq]");if(kqm){openKQ(+kqm.dataset.kq);return}
   const nt=P.tgt.closest&&P.tgt.closest("[data-note]");if(nt){showPop(nt,"Study note",STUDY.notes[nt.dataset.note]||"");return}
-  const nm=P.tgt.closest&&P.tgt.closest(".nm[data-who]");if(nm){const c=CH[nm.dataset.who];if(c){showPop(nm,title(nm.dataset.who),c.desc,whoLinks(nm.dataset.who),folioMedal(nm.dataset.who,COLORS[nm.dataset.who],"pm"));return}}
+  const nm=P.tgt.closest&&P.tgt.closest(".nm[data-who],.entm[data-who]");if(nm){const c=CH[nm.dataset.who];if(c){showPop(nm,title(nm.dataset.who),c.desc,whoLinks(nm.dataset.who),folioMedal(nm.dataset.who,COLORS[nm.dataset.who],"pm"));return}}
   if(P.sp&&S.mode==="orig"){const pt=P.tgt.closest(".pt");if(pt){if(toolsId!=null)closePanel();unfold(+P.sp.dataset.id,+pt.dataset.p);return}}
   if(P.sp){const pt=P.tgt.closest(".pt")||(P.tgt.closest(".chunk")||P.sp).querySelector(".pt");
     if(pt){const id=+P.sp.dataset.id,pi=+pt.dataset.p;if(partSel&&partSel.id===id&&partSel.pi===pi&&toolsId!=null){closePanel();return}openPart(id,pi,false);return}}
@@ -530,7 +554,7 @@ vp.addEventListener("pointerup",e=>{if(SEL)SEL.drag=false;endPress(e,false)});
 vp.addEventListener("pointercancel",e=>{if(SEL)SEL.drag=false;endPress(e,true)});
 /* iOS: claim the touch for a page drag before Safari takes it as a pan (which would fire pointercancel) */
 vp.addEventListener("touchmove",e=>{if(SEL&&SEL.drag||CU&&CU.drag||press&&press.edge&&e.touches.length===1&&curlOn()&&pg.scrollHeight<=pg.clientHeight+2)e.preventDefault()},{passive:false});
-vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}openTools(+sp.dataset.id,partAt(e.target,sp))});
+vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}openPill(+sp.dataset.id,partAt(e.target,sp),sp)});
 vp.addEventListener("wheel",e=>{const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(d)<25)return;const now=Date.now();if(now-(vp.lw||0)<450)return;vp.lw=now;turn(d>0?1:-1)},{passive:true});
 /* a tap within a few pixels of an underlined word counts as tapping it */
 function nearGloss(tgt,x,y){const d=tgt&&tgt.closest&&tgt.closest("abbr.g");if(d)return d;
@@ -551,6 +575,8 @@ function armChrome(){clearTimeout(chromeT);chromeT=setTimeout(()=>{const a=docum
 function toggleChrome(on){document.body.classList.toggle("chrome",on);if(document.body.classList.contains("chrome")){armChrome();coachDid(3)}else clearTimeout(chromeT)}
 ["pointerdown","input","keydown"].forEach(ev=>["bar","bbar"].forEach(id=>$(id).addEventListener(ev,()=>{if(document.body.classList.contains("chrome"))armChrome()})));
 $("p-prev").onclick=()=>turn(-1,1);$("p-next").onclick=()=>turn(1,1);
+{const de=$("dogear");if(de){let dt=null,held=false;de.addEventListener("pointerdown",e=>{held=false;dt=setTimeout(()=>{held=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}toggleBM()},500)});
+  de.addEventListener("pointerup",()=>{clearTimeout(dt);if(!held)turn(1)});de.addEventListener("pointercancel",()=>clearTimeout(dt));de.addEventListener("contextmenu",e=>e.preventDefault())}}
 function pagePreview(i){const b=cur.pages[i]||[];const f=b.find(x=>x.t==="sp");if(!f)return b.some(x=>x.t==="head")?"Scene opening":"End of scene";
   return `<i style="font-style:normal;color:var(--muted)">${esc(title(f.it.who))}:</i> ${esc(f.it.lines[f.units[f.u0][0]].replace(/^~/,"").slice(0,70))}…`}
 $("p-range").addEventListener("input",e=>{const i=+e.target.value-1;let d=document.querySelector(".scrub");if(!d){d=document.createElement("div");d.className="scrub";document.body.appendChild(d)}
@@ -698,6 +724,25 @@ function openPart(id,pi,all){
   if($("qn-save"))$("qn-save").onclick=()=>{const v=$("qn").value;saveMark(id,{note:v});markPart();toast(v.trim()?"Note saved":"Note removed")};
   addRecent(id,pi);
 }
+/* 4.5 action pill: a long-press floats quick actions over the speech; More opens the full Speech tools */
+const PILLI={note:'<path d="M5 19l1-4L16 5l3 3L9 18z"/><path d="M14 7l3 3"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',mod:'<path d="M4 6h10M4 11h7M4 16h9"/><path d="M15 13l3 3 3-3M18 9v7"/>',more:'<circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/>'};
+function closePill(){const d=$("apill");if(d)d.remove()}
+function openPill(id,pi,el){closePill();hideGloss();pi=pi||0;const sp=speech[id];if(!sp)return;const m=marks[id]||{};
+  const d=document.createElement("div");d.id="apill";d.className="apill";d.setAttribute("role","toolbar");d.setAttribute("aria-label","Speech actions");
+  d.innerHTML=HLC.map(([k,l])=>`<button type="button" class="aph${hlOf(m)===k?" on":""}" data-aph="${k}" aria-pressed="${hlOf(m)===k}" aria-label="Highlight: ${l}"><i class="hlk ${k}"></i></button>`).join("")+'<i class="apsep" aria-hidden="true"></i>'+
+    [["note","Note"],["copy","Copy"],["mod","Modern"],["more","More"]].map(([k,l])=>`<button type="button" data-apa="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${PILLI[k]}</svg><small>${l}</small></button>`).join("");
+  document.body.appendChild(d);el=el||pg.querySelector(`.sp[data-id="${id}"]`);const r=el?el.getBoundingClientRect():{top:innerHeight/2,left:0,width:innerWidth},bw=d.offsetWidth,bh=d.offsetHeight;
+  let y=r.top-bh-8;if(y<10)y=Math.min(innerHeight-bh-10,(r.top>10?r.top:10)+8);d.style.left=Math.max(8,Math.min(innerWidth-bw-8,r.left+r.width/2-bw/2))+"px";d.style.top=y+"px";
+  if(el)el.classList.add("active");
+  d.addEventListener("pointerup",e=>e.stopPropagation());
+  d.querySelectorAll("[data-aph]").forEach(b=>b.onclick=()=>{const k=b.dataset.aph,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});closePill();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
+  d.querySelector('[data-apa="copy"]').onclick=()=>{closePill();const q=partsOf(sp)[pi]||partsOf(sp)[0];copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`)};
+  d.querySelector('[data-apa="mod"]').onclick=()=>{closePill();if(S.mode==="orig")unfold(id,pi);else openPart(id,pi,false)};
+  d.querySelector('[data-apa="note"]').onclick=()=>{closePill();openTools(id,pi);setTimeout(()=>{const t=$("tn");if(t){t.scrollIntoView({block:"center"});t.focus({preventScroll:true})}},60)};
+  d.querySelector('[data-apa="more"]').onclick=()=>{closePill();openTools(id,pi)};
+  setTimeout(()=>{const f=d.querySelector("button");if(f)f.focus({preventScroll:true})},30)}
+document.addEventListener("pointerdown",e=>{const d=$("apill");if(d&&!e.target.closest("#apill")){d.remove();pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"))}},true);
+addEventListener("keydown",e=>{if(e.key==="Escape")closePill()});
 function openTools(id,pi){
   pi=pi||0;toolsId=id;partSel={id,pi};const sp=speech[id];
   pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
@@ -706,9 +751,9 @@ function openTools(id,pi){
 }
 /* tablet portrait (760-1099px): the page narrows beside the open panel instead of running under it */
 function partKey(id,pi){const sp=speech[id],ps=sp&&partsOf(sp);return ps&&ps[pi||0]?id+":"+ps[pi||0][0]:null}
-function fitPanel(on,id,pi){const b=document.body.classList;if(on&&!(innerWidth<1100&&view==="reader"&&cur.k>=0))on=false;if(on===b.contains("tight"))return;
+function fitPanel(on,id,pi){const b=document.body.classList;if(on&&!(wide()&&view==="reader"&&cur.k>=0))on=false;if(on===b.contains("tight"))return;
   b.toggle("tight",on);const key=id!=null?partKey(id,pi):null;if(view==="reader"&&cur.k>=0){openScene(cur.k,key?{key,keep:true}:{key:pos&&pos.key,keep:true});markPart()}}
-function closePanel(){const was=partSel||(toolsId!=null?{id:toolsId,pi:0}:null);$("panel").classList.remove("open");if(document.body.classList.contains("tight")){partSel=null;fitPanel(false,was&&was.id,was&&was.pi)}document.body.classList.remove("tools");toolsId=null;partSel=null;pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"))}
+function closePanel(){const was=partSel||(toolsId!=null?{id:toolsId,pi:0}:null);$("panel").classList.remove("open");if(document.body.classList.contains("tight")&&!document.body.classList.contains("sside")){partSel=null;fitPanel(false,was&&was.id,was&&was.pi)}document.body.classList.remove("tools");toolsId=null;partSel=null;pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"))}
 $("panel-close").onclick=closePanel;
 async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Copied":"Copy didn’t work here. Select the text and copy it yourself.")}}
 
@@ -1750,9 +1795,11 @@ $("sbody").addEventListener("change",e=>{if(e.target.id==="vl-s"){vlSel=+e.targe
 
 /* ---------- sheets ---------- */
 const sheet=$("sheet");let lastFocus=null;
-function openSheet(t,html){if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;const b=sheet.querySelector(".sbox");b.scrollTop=0;b.focus({preventScroll:true})}
-function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
+function openSheet(t,html){closePill();if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;sheet.classList.remove("full");
+  if(wide()&&view==="reader"){document.body.classList.add("sside");if(!$("panel").classList.contains("open"))fitPanel(true)}const b=sheet.querySelector(".sbox");b.scrollTop=0;b.focus({preventScroll:true})}
+function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(document.body.classList.contains("sside")){document.body.classList.remove("sside");if(!$("panel").classList.contains("open"))fitPanel(false)}if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
+{const g=sheet.querySelector(".grab");if(g)g.addEventListener("click",()=>{if(!wide())sheet.classList.toggle("full")})}
 /* pull the sheet down (from the grab bar, the header, or anywhere once scrolled to the top) to close it */
 {const sb=sheet.querySelector(".sbox");let sd=null;
   sb.addEventListener("touchstart",e=>{if(e.touches.length!==1||e.target.closest("input,textarea,select"))return;const head=e.target.closest(".grab,.head");if(!head&&sb.scrollTop>0)return;sd={y:e.touches[0].clientY,t:Date.now(),dy:0,on:false}},{passive:true});
@@ -1787,7 +1834,7 @@ setInterval(()=>{if(/timed$/.test(S.theme))applySettings()},600000);
 let BM=[];try{BM=JSON.parse(LS.get(PFX+"bm")||"[]")}catch(e){}if(!Array.isArray(BM))BM=[];BM=BM.filter(b=>b&&sIdx(b.s)>=0);
 const saveBM=()=>LS.set(PFX+"bm",JSON.stringify(BM));
 const bmHere=()=>pos?BM.findIndex(b=>b.s===pos.s&&b.key===pos.key):-1;
-function bmState(){const b=$("b-bm");if(!b)return;const on=bmHere()>=0;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.setAttribute("aria-label",on?"Remove bookmark":"Bookmark this page")}
+function bmState(){const b=$("b-bm");if(!b)return;const on=bmHere()>=0;pg.classList.toggle("bmk",on);b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.setAttribute("aria-label",on?"Remove bookmark":"Bookmark this page")}
 function keyText(s,key){const [id,ln]=String(key).split(":"),sp=speech[id];return sp?(sp.lines[+ln||0]||sp.lines[0]).replace(/^~/,""):sName(scenes[sIdx(s)])}
 function toggleBM(){if(!pos)return;const i=bmHere();if(i>=0){BM.splice(i,1);toast("Bookmark removed")}else{BM.push({s:pos.s,key:pos.key,t:Date.now(),txt:keyText(pos.s,pos.key)});BM.sort((a,b)=>sIdx(a.s)-sIdx(b.s)||String(a.key).localeCompare(String(b.key),void 0,{numeric:true}));toast("Page bookmarked. Find it in My notes.")}saveBM();bmState()}
 /* my notes: search, filters, print, share */
@@ -1873,6 +1920,14 @@ const SETI=[['<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 
   ['<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/>',/Page turn/],['<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',/Dim/],['<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11"/>',/Exam/],
   ['<path d="M4 20c4-1 4-6 8-7s4-6 8-7"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="6" r="1.6"/>',/beats/i],['<path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/>',/Argument/],['<circle cx="9" cy="8" r="3.5"/><path d="M3 20c1-4 3-6 6-6s5 2 6 6M17 8h4M19 6v4"/>',/Follow/],
   ['<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17v.5"/>',/How to/],['<path d="M12 3v12M7 10l5 5 5-5M4 19h16"/>',/[Bb]ackup/],['<path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/>',/Progress/]];
+let SETTAB="page";
+/* 4.5 Fit verse: the largest size (≥14px) at which about 90% of this play's verse lines fit on one line of the page */
+function fitVerse(){const l=pg.querySelector(".sp.vs .o .l")||measure;const cs=getComputedStyle(l),fs=parseFloat(cs.fontSize)||16;
+  const cv=document.createElement("canvas").getContext("2d");cv.font=`${cs.fontStyle} ${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
+  const ws=[];for(const p of scenes)for(const it of p.items)if(it.t==="sp"&&!PROSE[it.id])for(const x of it.lines)ws.push(cv.measureText(x.replace(/^~/,"")).width);if(!ws.length)return 0;
+  ws.sort((a,b)=>a-b);const w90=ws[Math.floor(ws.length*.9)],body=pg.querySelector(".sp.vs .o .l");
+  const avail=(body?body.clientWidth-parseFloat(getComputedStyle(body).paddingLeft):leafW()*.8)-4;
+  return Math.max(.875,Math.min(1.75,Math.floor(S.scale*avail/w90*100)/100))}
 function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
@@ -1881,7 +1936,7 @@ function openSettings(){
     <div class="opt"><div class="lbl">App mode, for every play</div>${segs("appmode",[["simple","Simple"],["full","Full"]],folioMode())}<small>Simple: three tabs, a journey map, quests and a calmer page. Full: every tool, four tabs, line numbers and study notes.</small></div>
     <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, tap any line and its modern English opens underneath. On a tablet, Both puts the two side by side.</small></div>
     <div class="opt"><div class="lbl">Theme, for every play</div><div class="ttiles" id="s-tiles"></div><button class="tog" id="s-night" role="switch" type="button"><span>Night after 8pm<small>Switches to Night from 8pm to 7am</small></span><i></i></button><small>Paper is a warm, matte page like an e-reader. Night is warm and dim for reading in bed.</small></div>
-    <div class="opt"><div class="lbl">Text size, for every play</div><div class="size"><span style="font-size:15px">A</span><label class="sr" for="s-size">Text size</label><input type="range" id="s-size" min="0" max="3" step="1"><span style="font-size:26px">A</span></div><p class="sprev" id="s-prev"></p></div>
+    <div class="opt"><div class="lbl">Text size, for every play</div><div class="size"><span style="font-size:15px">A</span><label class="sr" for="s-size">Text size</label><input type="range" id="s-size" min="0" max="3" step="1"><span style="font-size:26px">A</span></div><p class="sprev" id="s-prev"></p><button class="golink" type="button" id="s-fit">Fit verse to the page</button><small>Picks the largest size (never under 14px) at which most of this play's verse lines fit on one line.</small></div>
     <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
     <div class="opt"><div class="lbl">Clean page</div>${segs("clean",[["false","Off"],["true","On"]],S.clean)}<small>Hides line numbers, tags and underlines for pure reading. Tapping still works.</small></div>
     <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
@@ -1897,6 +1952,13 @@ function openSettings(){
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="appmode"){folioSetMode(v);$("sheet-body").querySelectorAll(`[data-set="appmode"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));show(view);if(view==="study")renderStudy();if(view==="you")renderYou();if(view==="map")renderMap();cur.sig="";repaginate();toast(v==="simple"?"Simple mode":"Full mode");return}
     if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
     if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="beats")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+  /* 4.5: Settings in four tabs, the live preview pinned on top */
+  {const sb=$("sheet-body"),TABS=[["page","Page"],["type","Type"],["theme","Theme"],["app","App"]],TOF=[["theme",/^Theme/],["type",/^Text size|^Line spacing|^One-hand|^Page turn/],["page",/^On the page|^Clean|^Dim|^Story beats|^The Argument|^Follow/]];
+    sb.querySelectorAll(":scope>.opt,:scope>.box").forEach(o=>{const l=o.querySelector(".lbl,h3"),t=l?l.textContent.trim():"",f=TOF.find(x=>x[1].test(t));o.dataset.stab=f?f[0]:"app"});
+    sb.querySelector(".spv").insertAdjacentHTML("afterend",`<div class="stabs" role="tablist">${TABS.map(([k,l])=>`<button type="button" role="tab" data-stb="${k}" aria-selected="${k===SETTAB}">${l}</button>`).join("")}</div>`);
+    const showT=k=>{SETTAB=k;sb.dataset.st=k;sb.querySelectorAll("[data-stb]").forEach(b=>b.setAttribute("aria-selected",b.dataset.stb===k))};showT(SETTAB);
+    sb.querySelectorAll("[data-stb]").forEach(b=>b.onclick=()=>showT(b.dataset.stb))}
+  $("s-fit").onclick=()=>{const v=fitVerse();if(!v)return;S.scale=v;applySettings();paint();repaginate();toast("Verse fitted: "+Math.round(16*v)+"px")};
   $("sheet-body").querySelectorAll(".opt>.lbl").forEach(l=>{const t=l.textContent,k=SETI.slice(1).find(x=>x[1].test(t));l.insertAdjacentHTML("afterbegin",`<svg class="seti" viewBox="0 0 24 24" aria-hidden="true">${k?k[0]:SETI[0][0]}</svg>`)});
   const TN={paper:"Paper",light:"Light",dark:"Dark",night:"Night"},SZN=["Small","Normal","Large","Extra large"];
   const paint=()=>{const c=folioThemeChosen(),th=c==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):c;

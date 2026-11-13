@@ -4,6 +4,25 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.5.0] — 2026-11-13
+
+### Changed
+- Reader "Folio page" (audit 8), no content changes: every page has a running head (play, act and scene), a centred page number, a catchword (the next page's first word) and the time left in the scene at its foot (#110)
+- Verse turnovers hang indented; Settings › Type gains "Fit verse to the page" (largest size, never under 14px, at which most verse lines fit on one line) (#110)
+- Tablet and desk set speaker names in the left margin as red small-caps rubrics, as in the Folio; line numbers move to the right margin; phones keep the name above (#110)
+- The scene's first letter is a three-line illuminated initial on foliage, with no box (#110)
+- Modern English opens as a parchment slip with a tab under the tapped part; the page reflows so the slip is never clipped, and the reader moves to the page that holds it (#110)
+- Long-press shows a floating pill over the speech (three highlight colours, Note, Copy, Modern, More); More opens the full Speech tools (#110)
+- Phones have one bottom bar (page slider, count and nav) with the ribbon as its top edge (#110)
+- Sheets: one phone height with a tap on the grab bar to go full; on tablet and desk they open as a right panel beside the page, never over it. Settings has tabs (Page, Type, Theme, App) with the live preview pinned on top (#110)
+- Both mode on wide screens (1000px+) shows Shakespeare on the left page and modern English on the facing page (#110)
+- Desk book: the page stack thickens on the left as you read, the ribbon is a short tail at the gutter top, and the menus float as pills off the book (#110)
+- Bookmarked pages show a red ribbon; a dog-ear at the bottom-right corner turns the page (hold it to bookmark) (#110)
+- Story beats sit centred between rules with a fleuron; Enter directions show small cast medallions (tap for who it is); Night uses warm text and a little more line height (#110)
+
+### Fixed
+- Pagination no longer fails on a page index past the scene's end (#110)
+
 ## [4.4.0] — 2026-11-13
 
 ### Changed
