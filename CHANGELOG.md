@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.3.2] — 2026-11-13
+
+### Fixed
+- Shelf Today cards swipe smoothly again: every card shares one height, so the stack no longer resizes mid-swipe (#108)
+
 ## [4.3.1] — 2026-11-13
 
 ### Fixed
