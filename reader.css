@@ -1565,3 +1565,127 @@ body{font-family:var(--f-body)}
 #study .tsec small{order:3;flex:none}
 #study .tsec small+*{order:4}
 .actd summary small{font:400 max(14px,.9rem) var(--f-sc);letter-spacing:.04em}
+
+/* ---------- 4.5 "Folio page" (audit 8, reader only): page frame, verse hanging indent, marginal speakers, illuminated initial,
+   modern English slip, action pill, one phone bar, unified sheets, tabbed Settings, parallel text, desk book II, bookmark ribbon, dog-ear ---------- */
+/* page frame: running head, page number, catchword, time left */
+.viewport{padding-top:calc(env(safe-area-inset-top,0px) + 40px)}
+.rhead{display:flex;justify-content:space-between;gap:12px;position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:1;padding-bottom:3px;border-bottom:1px solid var(--rule);font:400 max(14px,.85rem)/1.2 var(--f-sc);letter-spacing:.08em;color:var(--muted);pointer-events:none;transition:opacity .2s}
+.rhead span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+body.chrome .rhead{opacity:0}
+.pgfoot{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;gap:10px;padding:0 2px}
+.pgfoot .pfl{text-align:left;font:italic 400 max(14px,.8rem) var(--f-old);letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgfoot .pfc{text-align:center;white-space:nowrap}
+.pgfoot .pfr{text-align:right;font:italic 400 max(14px,.85rem) var(--f-old);letter-spacing:0;color:var(--soft);padding-right:34px;white-space:nowrap}
+body.spread .pgfoot .pfr{padding-right:0}
+/* verse: a turnover hangs under its line */
+.sp.vs .o .l{padding-left:1.1em;text-indent:-1.1em}
+.sp.vs .o .song{padding-left:3.3em}
+.sp.dcap .o .pt:first-child .l:nth-child(-n+3){padding-left:0;text-indent:0}
+/* illuminated initial: red letter on gilt-studded foliage, no box, about three lines deep */
+.sp.dcap .o .pt:first-child .l:first-child::first-letter,html.simple .sp.dcap .o .pt:first-child .l:first-child::first-letter{float:left;font:400 3.5em/.9 var(--f-sc);margin:.05em .12em 0 0;padding:.13em .17em .07em;color:var(--accent);border:0;border-radius:0;box-shadow:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%235f7d3a' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M9 34c9-1 14-8 12-22M66 91c1-9 8-14 25-12M91 34c-9-1-14-8-12-22M9 66c9 1 14 8 12 25'/%3E%3C/g%3E%3Cg fill='%235f7d3a'%3E%3Cpath d='M21 12c-6 1-9 6-7 11 5-2 8-6 7-11z'/%3E%3Cpath d='M79 12c6 1 9 6 7 11-5-2-8-6-7-11z'/%3E%3Cpath d='M21 91c-6-1-9-6-7-11 5 2 8 6 7 11z'/%3E%3Cpath d='M91 79c-1 6-6 9-11 7 2-5 6-8 11-7z'/%3E%3C/g%3E%3Cg fill='%23c99a42'%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3Ccircle cx='87' cy='13' r='3'/%3E%3Ccircle cx='13' cy='87' r='3'/%3E%3Ccircle cx='87' cy='87' r='3'/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat}
+/* marginal speakers (tablet and desk): the name as a rubric in the left margin, as in the Folio */
+@media (min-width:760px){
+  body:not(.mode-both) .sp{display:grid;grid-template-columns:6.4em minmax(0,1fr);column-gap:1.1em;align-items:start}
+  body:not(.mode-both) .sp>.beat{grid-column:1/-1}
+  body:not(.mode-both) .sp>.hd{grid-column:1;flex-direction:column;align-items:flex-end;text-align:right;gap:.2em;padding-top:.25em}
+  body:not(.mode-both) .sp>.hd .nm{line-height:1.15}
+  body:not(.mode-both) .sp>.hd .tag{font-size:max(14px,.42em)}
+  body:not(.mode-both) .sp>.who1,body:not(.mode-both) .sp>.body{grid-column:2;min-width:0}
+  body:not(.mode-both) .sp>.body{padding-right:2.4em}
+  body:not(.mode-both) .sp .o .l[data-n]::before{left:auto;right:-2.3em;text-align:right}
+}
+/* modern English slip: parchment with a tab, under the part you tapped */
+.mx{position:relative;margin:1.6em 0 .8em;padding:.6em .85em .55em;border:1px solid color-mix(in srgb,var(--gold) 60%,var(--rule));border-left:1px solid color-mix(in srgb,var(--gold) 60%,var(--rule));border-radius:0 var(--r-s) var(--r-s) var(--r-s);background:linear-gradient(180deg,color-mix(in srgb,#f3e3bd 50%,var(--card)),var(--card));box-shadow:0 8px 16px -12px rgba(60,30,10,.55);font-family:var(--f-body)}
+.mx::before{position:absolute;left:-1px;bottom:100%;margin:0;padding:.15em .75em .05em;border:1px solid color-mix(in srgb,var(--gold) 60%,var(--rule));border-bottom:0;border-radius:6px 6px 0 0;background:color-mix(in srgb,#f3e3bd 50%,var(--card));font-size:max(14px,.62em);line-height:1.3}
+:root[data-theme="dark"] .mx,:root[data-theme="night"] .mx,:root[data-theme="dark"] .mx::before,:root[data-theme="night"] .mx::before{background:color-mix(in srgb,var(--gold) 10%,var(--card))}
+@media (prefers-color-scheme:dark){:root:not([data-theme]) .mx,:root:not([data-theme]) .mx::before{background:color-mix(in srgb,var(--gold) 10%,var(--card))}}
+/* action pill (long-press) */
+.apill{position:fixed;z-index:40;display:flex;align-items:center;gap:2px;padding:5px 6px;border-radius:999px;background:var(--card);border:var(--line) solid var(--rule-strong);box-shadow:0 10px 26px -8px rgba(30,15,5,.45);animation:f43pop .18s ease-out}
+.apill button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:44px;min-height:44px;padding:2px 6px;border:0;border-radius:999px;background:none;color:var(--ink);cursor:pointer}
+.apill button:hover,.apill button:focus-visible{background:var(--hover);outline:none}
+.apill svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.apill small{font:400 max(14px,.72rem) var(--f-sc);letter-spacing:.03em;color:var(--soft)}
+.apill .aph i{width:22px;height:22px;border-radius:50%;display:block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.apill .aph.on i{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--accent)}
+.apill .apsep{width:1px;height:28px;background:var(--rule);margin:0 4px}
+/* phone: the page slider and the nav are one bar; the ribbon is its top edge */
+@media (max-width:759px){
+  body.v-reader .bbar{border-top:0;box-shadow:0 -6px 14px -10px rgba(40,20,5,.35)}
+  body.v-reader .bbar #p-prev,body.v-reader .bbar #p-next{display:none}
+  body.v-reader .bbar .in{padding-block:0;min-height:40px}
+  body.v-reader .bbar input[type=range]{height:36px}
+  body.v-reader .fnav{border-top:0}
+}
+/* sheets: phones get one height (tap the grab bar for full); tablet and desk open them as a panel beside the page */
+@media (max-width:759px){
+  .sheet .sbox{height:76vh;max-height:none;transition:height .2s ease}
+  .sheet.full .sbox{height:94vh}
+  .sheet .grab{cursor:pointer}
+}
+@media (min-width:760px){
+  body.v-reader.sside .sheet{left:auto;width:min(420px,42vw);background:none;align-items:stretch;justify-content:stretch}
+  body.v-reader.sside .sheet .sbox{width:100%;height:100%;max-height:none;border-radius:0!important;border:0!important;border-left:var(--line) solid var(--rule-strong)!important;box-shadow:-14px 0 40px rgba(0,0,0,.14);animation:f45side .24s ease-out}
+  body.v-reader.sside .sheet .grab{display:none}
+  body.tight .viewport{padding-right:calc(min(420px,42vw) + 16px)}
+  body.tight .pgfoot,body.tight .bar,body.tight .bbar,body.tight .fnav{right:min(420px,42vw)}
+}
+@keyframes f45side{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+/* Settings in tabs, the live preview pinned */
+.stabs{display:flex;gap:4px;position:sticky;top:calc(2.6rem + 6px);z-index:1;margin:8px 0 12px;padding:4px;border-radius:999px;background:var(--hover);border:1px solid var(--rule)}
+.stabs button{flex:1;min-height:40px;border:0;border-radius:999px;background:none;color:var(--soft);font:400 max(14px,.95rem) var(--f-sc);letter-spacing:.04em;cursor:pointer}
+.stabs button[aria-selected="true"]{background:var(--card);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+#sheet-body[data-st] [data-stab]{display:none}
+#sheet-body[data-st="page"] [data-stab="page"],#sheet-body[data-st="type"] [data-stab="type"],#sheet-body[data-st="theme"] [data-stab="theme"],#sheet-body[data-st="app"] [data-stab="app"]{display:block}
+#sheet-body[data-st] .spv{position:sticky;top:-8px;z-index:2}
+#s-fit{margin-top:10px}
+/* beats: a centred headpiece with a fleuron */
+.beat{justify-content:center;text-align:center}
+.beat::before,.beat::after{flex:1 1 0;min-width:14px}
+.beat span{max-width:82%}
+.beat span::before{content:"\2767\00a0";font-style:normal;font-family:Georgia,serif}
+/* entrances: a medallion for each character named */
+.blk.sd .ents{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-top:.35em}
+.entm{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
+.entm .em{width:30px;height:30px}
+.entm:focus-visible{outline:2px solid var(--accent)}
+body.clean .ents,html.simple .ents{display:none}
+/* bookmarked page: a ribbon from the top edge; dog-ear corner turns the page (hold to bookmark) */
+.pg{position:relative}
+.pg.bmk::before{content:"";position:absolute;right:1.4em;top:0;width:14px;height:52px;z-index:3;background:linear-gradient(90deg,#8e1b17,#c0342b 50%,#8e1b17);clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 9px),0 100%);box-shadow:0 2px 3px rgba(0,0,0,.3);pointer-events:none}
+.dogear{position:absolute;right:0;bottom:0;z-index:6;width:38px;height:38px;padding:0;border:0;cursor:pointer;background:linear-gradient(315deg,var(--bg) 0 48%,color-mix(in srgb,var(--page) 75%,#000) 49%,color-mix(in srgb,var(--page) 92%,#000) 62%,transparent 63%);opacity:.85;transition:opacity .2s}
+.dogear:hover{opacity:1}
+body.chrome .dogear{opacity:0;pointer-events:none}
+/* Night: warm ivory text, a touch more air */
+:root[data-theme="night"] #reader .o,:root[data-theme="night"] #reader .m{color:#f4e1bf}
+:root[data-theme="night"] #reader .o{--lhw:1.4}
+/* parallel text (Both mode, 1000px+): Shakespeare on the left page, modern English facing it */
+.spread2.facing{grid-template-columns:minmax(0,1fr)}
+body.facing .pg{max-width:min(1320px,calc(100vw - 120px))}
+body.facing .sp .body{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:64px!important}
+body.facing .sp .m{font-size:max(14px,.9em);color:var(--ink);font-family:var(--f-body)}
+body.facing .blk.sd,body.facing .shead,body.facing .sp>.beat,body.facing .sp>.hd,body.facing .sp>.who1{max-width:calc(50% - 32px)}
+body.facing .chunk+.chunk>*{border-top:0!important}
+body.facing .spread2.facing::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:64px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.06) 42%,rgba(0,0,0,.14) 50%,rgba(0,0,0,.06) 58%,transparent);pointer-events:none}
+/* desk book II: the stack moves as you read, a short ribbon at the gutter top, menus float as pills off the book */
+.sribbon{display:none}
+@media (min-width:1200px){
+  body.spread .pg::after{content:none}
+  body.spread .spread2::after{inset:-14px -34px -18px calc(-34px - 2.2em);box-shadow:var(--stack,3px 3px 0 -1px var(--rule)),0 30px 50px -14px rgba(0,0,0,.7)}
+  body.spread .spread2::before{top:-14px;bottom:-18px}
+  body.spread .sribbon{display:block;position:absolute;left:50%;top:0;width:12px;height:92px;margin-left:8px;z-index:3;background:linear-gradient(90deg,#8e1b17,#c0342b 50%,#8e1b17);clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 9px),0 100%);box-shadow:0 2px 3px rgba(0,0,0,.3);pointer-events:none}
+  body.spread .viewport{padding-top:calc(env(safe-area-inset-top,0px) + 66px);padding-bottom:88px}
+  body.spread .rhead{top:calc(env(safe-area-inset-top,0px) + 18px)}
+  body.spread .pgfoot{bottom:40px}
+  body.v-reader.spread .bar{left:50%;right:auto;top:10px;width:min(760px,64vw);transform:translateX(-50%);border:var(--line) solid var(--rule-strong)!important;border-radius:999px;box-shadow:0 10px 26px -10px rgba(0,0,0,.6)!important;padding-top:0}
+  body.v-reader.spread:not(.chrome) .bar{transform:translate(-50%,-150%)}
+  body.v-reader.spread .fnav{left:50%;right:auto;bottom:10px;width:340px;transform:translateX(calc(-100% - 6px));border:var(--line) solid var(--rule-strong);border-radius:999px;padding:2px 8px;box-shadow:0 10px 26px -10px rgba(0,0,0,.6)}
+  body.v-reader.spread:not(.chrome) .fnav{transform:translate(calc(-100% - 6px),160%)}
+  body.v-reader.spread .bbar{left:50%;right:auto;bottom:10px;width:min(520px,38vw);transform:translateX(6px);border:var(--line) solid var(--rule-strong)!important;border-radius:999px;box-shadow:0 10px 26px -10px rgba(0,0,0,.6);overflow:hidden}
+  body.v-reader.spread:not(.chrome) .bbar{transform:translate(6px,160%)}
+  body.v-reader.spread .bbar::before{content:none}
+  body.v-reader.spread .bbar .in{min-height:66px}
+  body.v-reader.spread .prib{position:absolute;left:0;right:0;top:0;height:5px}
+  body.spread .dogear{position:fixed}
+}
+@media (prefers-reduced-motion:reduce){.apill,body.v-reader.sside .sheet .sbox{animation:none}.sheet .sbox,.rhead,.dogear{transition:none}}
