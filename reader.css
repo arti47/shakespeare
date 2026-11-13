@@ -726,7 +726,7 @@ a.btn.primary{color:var(--accent-ink)}
   body.spread .pg{max-width:min(1320px,calc(100vw - 160px));padding-left:2.4em}
   body.spread.tools .pg{transform:none}
 }
-.spread2{display:grid;grid-template-columns:1fr 1fr;gap:64px;height:100%;position:relative}
+.spread2{display:grid;grid-template-columns:1fr 1fr;gap:120px;height:100%;position:relative}
 .spread2::before{content:"";position:absolute;top:-8px;bottom:-8px;left:50%;width:64px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.07) 45%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.07) 55%,transparent);pointer-events:none}
 .spread2 .leaf{min-width:0;overflow:hidden;padding-left:2.2em;margin-left:-2.2em}
 /* desktop: menus show when the pointer nears the top or bottom edge */
@@ -766,7 +766,7 @@ body.clean .kqm{display:none}
 .rhead{display:none}
 @media (min-width:1200px){
   body.spread .viewport{padding-top:calc(env(safe-area-inset-top,0px) + 48px)}
-  body.spread .rhead{display:grid;grid-template-columns:1fr 1fr;gap:64px;position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:50%;transform:translateX(-50%);width:min(1320px,calc(100vw - 160px));padding-left:calc(2.4em * var(--scale));font:400 .95rem var(--f-sc);letter-spacing:.14em;color:var(--muted);text-align:center;pointer-events:none;font-variant:small-caps;text-transform:lowercase}
+  body.spread .rhead{display:grid;grid-template-columns:1fr 1fr;gap:120px;position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:50%;transform:translateX(-50%);width:min(1320px,calc(100vw - 160px));padding-left:calc(2.4em * var(--scale));font:400 .95rem var(--f-sc);letter-spacing:.14em;color:var(--muted);text-align:center;pointer-events:none;font-variant:small-caps;text-transform:lowercase}
   body.spread .rhead span{border-bottom:1px solid var(--rule);padding-bottom:6px}
 }
 /* desktop: a slim, always-there rail of reading tools (1400px+) */
@@ -1815,3 +1815,112 @@ body.facing .spread2.facing::before{content:"";position:absolute;top:0;bottom:0;
   body.mode-both .chunk+.chunk>*{border-top:0}
 }
 @media (prefers-reduced-motion:reduce){body.spread .spread2>.leaf{animation:none!important}.ttabbed [data-tp]{animation:none!important}}
+
+/* ---------- 4.7 "Pocket edition" (audit 10, reader only, no content changes): live verse fit, tighter page, Crimson Pro book serif,
+   scene title pages with woodcut headpieces, act pages, tailpieces, margin marks, slim bars, candlelit Night/Dark, desk spread with the rail in the spine ---------- */
+/* book serif for modern English, notes, intros (reader only; the shelf keeps its own) */
+#reader,#study,#you,.sheet,.panel,.gpop,.apill{--f-body:"Crimson Pro","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+#reader .m,#reader .mx,#reader .who1,.tool .pmod p,.gpop.gslip{font-size-adjust:none}
+.pg .m,.pg .mxt{font-size:max(14px,.8em)}
+body.mode-mod .pg .m{font-size:max(14px,.95em)}
+/* live verse fit: the verse is set just small enough that most lines fit on one line (--fit from reader.js, never under 14px) */
+.pg .sp .o .pt{font-size:max(14px,calc(1em * var(--fit,1)))}
+/* tighter page: less air between speeches; one hairline (the running head) */
+.pg .sp.blk{padding-bottom:.55em}
+.pg .sp+.sp{padding-top:.35em}
+.pg .blk.sd{padding:.1em 0 .55em}
+/* turnovers always hang the same way; the phone initial is a raised capital, so nothing wraps under it */
+@media (max-width:759px){
+  .sp.dcap .o .pt:first-child .l:nth-child(-n+3){padding-left:1.1em;text-indent:-1.1em}
+  .sp.dcap .o .pt:first-child .l:first-child{padding-left:0;text-indent:0}
+  .sp.dcap .o .pt:first-child .l:first-child::first-letter,html.simple .sp.dcap .o .pt:first-child .l:first-child::first-letter{float:none;display:inline;font:400 2.3em/.7 var(--f-sc);margin:0 .04em 0 0;padding:0 .06em;vertical-align:-.04em;background-size:100% 100%}
+}
+/* character intro: one quiet italic line, no second medallion */
+.pg .who1{display:block;margin:.05em 0 .25em;font:italic 400 max(14px,.68em)/1.4 var(--f-body);color:var(--soft)}
+.pg .who1 .wm{display:none}
+/* laid paper: keep the fine laid lines, drop the heavy chain lines */
+:root:not([data-theme="dark"]):not([data-theme="night"]) body.v-reader{--atmo:repeating-linear-gradient(90deg,transparent 0 3px,rgba(120,90,40,.014) 3px 4px)}
+
+/* woodcut ink: line, ornament, hatching (theme colours; gilt on Dark and Night) */
+:root{--orn:var(--accent)}
+.wcut,.tailw,.wreath{color:var(--ink);overflow:visible}
+.wcut .wk,.tailw .wk{fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.wcut .wa,.tailw .wa,.wreath .wa{fill:none;stroke:var(--orn);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.wcut .wf,.tailw .wf,.wreath .wf{fill:var(--orn);stroke:none}
+.wcut .wh{fill:url(#wch);opacity:.55;stroke:none}
+.wcut .wg *{fill:none!important;stroke:currentColor;stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+.tailw{display:block;width:min(150px,42%);height:auto;margin:.6em auto 0}
+
+/* scene title page */
+.blk.tpage{display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;min-height:calc(100% - 4px);padding:.2em 0 .4em}
+.tpage .wcut{display:block;width:100%;max-width:520px;height:auto;margin:0 auto .7em}
+.tpage .tpeb{font:400 max(14px,.72em) var(--f-sc);letter-spacing:.12em;color:var(--orn)}
+.tpage h1{font:400 2.1em/1.05 var(--f-old);margin:.12em 0 .1em;color:var(--ink)}
+.tpage .tploc{font:italic 400 max(14px,.95em)/1.35 var(--f-old);color:var(--soft);max-width:30em}
+.tpage .hbeat{margin:.7em auto 0;max-width:28em;font-size:max(14px,.8em)}
+.tpbill{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 10px;margin:.9em auto 0;padding:.6em 0 0;border-top:1px solid var(--rule);max-width:34em}
+.tpbill .tpc{display:inline-flex;align-items:center;gap:5px;width:auto;height:auto;min-height:40px;padding:2px 4px;border-radius:999px;font:400 max(14px,.66em) var(--f-sc);letter-spacing:.04em;color:var(--soft)}
+.tpbill .tpc .em{width:26px;height:26px;flex:none}
+.tpbill.many .tpc span{display:none}
+.tpbill.many .tpc{min-width:40px;justify-content:center}
+.tpage .recapb{margin-top:.9em}
+.tpage .tailw{margin-top:.9em}
+/* act page */
+.blk.apage{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:calc(100% - 4px);padding:.4em 0}
+.apage .aprule{width:70%;height:5px;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);margin-bottom:1.2em}
+.apemb{position:relative;width:min(190px,48vw);aspect-ratio:1;margin:0 auto .5em}
+.apemb .wreath{position:absolute;inset:0;width:100%;height:100%}
+.apemb .apems{position:absolute;inset:18%;width:64%;height:64%}
+.apage .apla{font:400 max(14px,.85em) var(--f-sc);letter-spacing:.16em;color:var(--orn)}
+.apage .aph{font:400 2.6em/1 var(--f-old);margin:.1em 0 .45em}
+.apsc{list-style:none;margin:0 auto;padding:.5em 0 0;border-top:1px solid var(--rule);min-width:min(320px,80%)}
+.apsc li{display:flex;gap:.8em;justify-content:center;align-items:baseline;padding:.12em 0;font:italic 400 max(14px,.8em) var(--f-old);color:var(--soft)}
+.apsc b{font:400 max(14px,.85em) var(--f-sc);color:var(--orn);min-width:2em;text-align:right}
+/* desk: title and act pages sit on one leaf */
+body.spread .tpage .wcut{max-width:440px}
+
+/* margin marks: a pointing hand for asides, an asterism for soliloquies */
+.sp.aside .o,.sp.solo .o{position:relative}
+.sp.aside .o::before,.sp.solo .o::before{content:"";position:absolute;left:-.62em;top:-.1em;width:.95em;height:.95em;background:var(--orn);-webkit-mask:var(--mk) center/contain no-repeat;mask:var(--mk) center/contain no-repeat;box-shadow:0 0 0 3px var(--page)}
+.sp.aside .o{--mk:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 9h3l2-2h9a1.5 1.5 0 0 1 0 3h-5h9a1.5 1.5 0 0 1 0 3h-4a1.5 1.5 0 0 1 0 3h-2a1.5 1.5 0 0 1 0 3H7l-2-2H2z'/%3E%3C/svg%3E")}
+.sp.solo .o{--mk:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l1.4 3.6L17 7l-3.6 1.4L12 12l-1.4-3.6L7 7l3.6-1.4zM6 12l1.4 3.6L11 17l-3.6 1.4L6 22l-1.4-3.6L1 17l3.6-1.4zM18 12l1.4 3.6L23 17l-3.6 1.4L18 22l-1.4-3.6L13 17l3.6-1.4z'/%3E%3C/svg%3E")}
+body.clean .sp.aside .o::before,body.clean .sp.solo .o::before{display:none}
+
+/* slim bars (reader): no rings round the buttons, one height, the slider sits right on the nav */
+body.v-reader{--navh:calc(56px + env(safe-area-inset-bottom,0px))}
+body.v-reader .bar .in{min-height:46px}
+body.v-reader .bar .icon,body.v-reader .bbar .icon{box-shadow:none;background:none;width:40px;min-width:40px;height:40px}
+body.v-reader .bar .icon:hover{box-shadow:none;background:var(--hover)}
+body.v-reader .bar .bemb{transform:scale(.78)}
+body.v-reader .fnav{height:var(--navh);padding:0 max(8px,env(safe-area-inset-left,0px)) env(safe-area-inset-bottom,0px);box-shadow:none}
+body.v-reader .fnav .in{height:56px;align-items:center}
+body.v-reader .fnav a,body.v-reader .fnav button{min-height:52px;padding:2px 0;gap:1px;font-size:max(14px,.8rem)}
+body.v-reader nav.fnav svg{width:22px;height:22px;padding:2px;box-shadow:none;background:none}
+body.v-reader nav.fnav [aria-current="page"] svg{background:none;box-shadow:none;color:var(--accent)}
+body.v-reader nav.fnav [aria-current="page"]{color:var(--accent)}
+@media (hover:hover){body.v-reader nav.fnav a:hover svg,body.v-reader nav.fnav button:hover svg{background:none}}
+@media (max-width:759px){body.v-reader .bbar{box-shadow:none;border-top:1px solid var(--rule)}body.v-reader .bbar::before{content:none}}
+
+/* candlelit Night and Dark: warm black paper, a glow behind the text, gilt ornaments and a gilt edge */
+:root[data-theme="dark"],:root[data-theme="night"]{--orn:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--orn:var(--gold)}}
+:root[data-theme="dark"] body.v-reader:not(.spread) .viewport,:root[data-theme="night"] body.v-reader:not(.spread) .viewport{background-image:radial-gradient(ellipse 70% 55% at 50% 42%,rgba(255,170,80,.11),transparent 72%),radial-gradient(ellipse 120% 100% at 50% 50%,transparent 58%,rgba(0,0,0,.4));box-shadow:inset 0 0 0 1px rgba(226,182,92,.16)}
+:root[data-theme="dark"] #reader .beat,:root[data-theme="night"] #reader .beat,:root[data-theme="dark"] #reader .hbeat,:root[data-theme="night"] #reader .hbeat{color:var(--gold)}
+:root[data-theme="dark"] .sp.dcap .o .pt:first-child .l:first-child::first-letter,:root[data-theme="night"] .sp.dcap .o .pt:first-child .l:first-child::first-letter{color:var(--gold)}
+:root[data-theme="dark"] #reader .rhead,:root[data-theme="night"] #reader .rhead{border-bottom-color:rgba(226,182,92,.35)}
+:root[data-theme="night"] #reader{background-color:#17110b}
+
+/* desk: a true spread; the rail folds into gilt roundels on the spine (or the desk edge on one leaf); wider pages */
+@media (min-width:1200px){
+  body.spread .pg{max-width:min(1360px,calc(100vw - 150px))}
+  body.spread.tight .pg{max-width:min(820px,calc(100vw - min(420px,42vw) - 150px))}
+  body.v-reader.spread .rail span:not(.aa){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  body.v-reader.spread .rail a,body.v-reader.spread .rail button{width:auto;padding:3px}
+  body.v-reader.spread .rail svg,body.v-reader.spread .rail .aa{width:18px;height:18px;padding:8px}
+  body.v-reader.spread.twol .rail{left:var(--spx,50%);transform:translate(-50%,-50%);z-index:4;gap:10px}
+  body.v-reader.spread.oneleaf .rail{left:max(12px,calc(var(--bkl,80px) - 120px))}
+  body.spread.oneleaf .rhead span{border-bottom:0!important}
+  body.spread.oneleaf .rhead{border-bottom:1px solid color-mix(in srgb,var(--gold) 45%,var(--rule));padding-bottom:6px}
+  body.spread .sp .o .l[data-n]::before{right:-2em}
+}
+@media (prefers-reduced-motion:reduce){.tpage *,.apage *{animation:none!important;transition:none!important}}

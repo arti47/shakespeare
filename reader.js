@@ -10,7 +10,7 @@ const $=id=>document.getElementById(id);
 const PLAY=CFG.id,PFX=CFG.prefix,FSH={};
 /* 4.4: the play's cloth colour for enamel roundels */
 try{if(typeof coverColor==="function")document.documentElement.style.setProperty("--cc",coverColor(PLAY))}catch(e){}
-["lh","clean","onehand","show","size","theme","sumon","turn","beats"].forEach(k=>FSH[PFX+k]=1);
+["lh","clean","onehand","show","size","theme","sumon","turn","beats","fit"].forEach(k=>FSH[PFX+k]=1);
 const LS={key(k){return FSH[k]?"folio-"+k.slice(PFX.length):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
 LS.set("folio-last",PLAY);
 /* before 2.9.0 shared settings from plays whose prefix isn't 4 characters (lear-, tn-) were saved under a wrong key ("folio--theme", "folio-heme"): move them over once */
@@ -68,7 +68,7 @@ function saveMark(id,patch){
 const saveProg=()=>LS.set(PFX+"prog",JSON.stringify(prog));
 
 /* ---------- settings ---------- */
-const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:folioThemeChosen(),sum:LS.get(PFX+"sumon")!=="0",beats:LS.get(PFX+"beats")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
+const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:folioThemeChosen(),sum:LS.get(PFX+"sumon")!=="0",beats:LS.get(PFX+"beats")!=="0",fit:LS.get(PFX+"fit")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
@@ -76,7 +76,7 @@ function applySettings(){
   LS.set(PFX+"theme",S.theme);folioTheme();folioBar();document.documentElement.style.setProperty("--scale",S.scale);
   document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
   LS.set(PFX+"lh",S.lh);LS.set(PFX+"focus",S.focus);LS.set(PFX+"clean",S.clean?"1":"0");LS.set(PFX+"onehand",S.onehand?"1":"0");
-  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"beats",S.beats?"1":"0");LS.set(PFX+"turn",S.turn);
+  LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"beats",S.beats?"1":"0");LS.set(PFX+"fit",S.fit?"1":"0");LS.set(PFX+"turn",S.turn);
 }
 
 /* reading log: minutes and pages per day (this device) */
@@ -247,7 +247,7 @@ let OPEN=new Set(),OPENV=0;
 const lineUnits=c=>Array.from({length:c[1]-c[0]+1},(_,k)=>[c[0]+k,c[0]+k,null]);
 function sceneBlocks(p){
   const b=[];
-  if(!S.who)b.push({t:"head",key:"h"});
+  if(!S.who){if(p.sc===1)b.push({t:"act",key:"a"});b.push({t:"head",key:"h"})}
   p.items.forEach((it,ix)=>{
     if(it.t==="sd"){if(!S.who)b.push({t:"sd",it,key:"d"+ix})}
     else if(!S.who||it.who===S.who){
@@ -315,15 +315,31 @@ const BURST='<svg class="burst" viewBox="0 0 100 100" aria-hidden="true">'+Array
 const TAILP='<svg class="tailp" viewBox="0 0 120 34" aria-hidden="true"><path class="tp1" d="M60 30C52 22 40 20 28 22c6-6 18-8 26-2-4-6-14-8-22-6 8-6 20-4 28 6 8-10 20-12 28-6-8-2-18 0-22 6 8-6 20-4 26 2-12-2-24 0-32 8z"/><circle class="tp2" cx="60" cy="8" r="3"/><circle class="tp2" cx="48" cy="11" r="1.8"/><circle class="tp2" cx="72" cy="11" r="1.8"/><path class="tp3" d="M6 17H22M98 17H114"/></svg>';
 /* 4.5: under an entrance, a medallion for each character the direction names (tap for who they are) */
 const ENTC={};
+/* 4.7 woodcuts: a proscenium headpiece per setting (the play's stage glyph inside an engraved arch, day or night sky),
+   a tailpiece urn, a wreath for act pages. Classes: wk = ink line, wa = ornament line, wf = ornament fill, wh = hatching */
+const WCH='<defs><pattern id="wch" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V3.2" stroke="currentColor" stroke-width="1"/></pattern></defs>';
+function woodcut(p){const k=stageType(p),night=skyOf(p)==="n",st=[[70,34],[98,48],[122,30],[214,44],[300,52],[58,58],[292,30],[150,40]];
+  const sky=night?`<path class="wf" d="M262 30a15 15 0 1 0 9 27a12 12 0 1 1-9-27z"/>`+st.map(([x,y])=>`<path class="wf" d="M${x} ${y-4}l1.1 2.9 2.9 1.1-2.9 1.1-1.1 2.9-1.1-2.9-2.9-1.1 2.9-1.1z"/>`).join("")
+    :`<circle class="wf" cx="262" cy="46" r="10"/>`+Array.from({length:16},(_,i)=>{const a=i*Math.PI/8,r1=14,r2=i%2?19:23;return `<path class="wa" d="M${(262+r1*Math.cos(a)).toFixed(1)} ${(46+r1*Math.sin(a)).toFixed(1)}L${(262+r2*Math.cos(a)).toFixed(1)} ${(46+r2*Math.sin(a)).toFixed(1)}"/>`}).join("")+`<path class="wk" d="M78 48c6-6 16-6 20 0c5-3 12-1 12 4H70c0-3 4-5 8-4z"/>`;
+  return `<svg class="wcut" viewBox="0 0 360 160" aria-hidden="true">${WCH}<rect class="wk" x="4" y="4" width="352" height="152"/><rect class="wk" x="10" y="10" width="340" height="140"/>
+<path class="wh" d="M10 10H350V150H322V70Q322 26 180 26Q38 26 38 70V150H10Z"/>${sky}
+<path class="wk" d="M38 150V70Q38 26 180 26Q322 26 322 70V150"/><path class="wk" d="M30 150V74M46 150V74M314 150V74M330 150V74M26 72H50M310 72H334M28 76H48M312 76H332"/>
+<path class="wa" d="M46 74Q80 96 113 70Q146 96 180 70Q214 96 247 70Q280 96 314 74"/><path class="wa" d="M113 70v10M180 70v10M247 70v10"/><circle class="wf" cx="113" cy="82" r="2"/><circle class="wf" cx="180" cy="82" r="2"/><circle class="wf" cx="247" cy="82" r="2"/>
+<path class="wk" d="M46 132H314M46 138H314M60 150L78 132M106 150L116 132M154 150L158 132M206 150L202 132M254 150L244 132M300 150L282 132"/>
+<svg class="wg" x="136" y="52" width="88" height="88" viewBox="0 0 40 40">${PICS[k]||""}</svg>
+<path class="wa" d="M16 34c2-12 10-18 20-18M16 34c6-2 8-6 6-10M24 22c4 0 6 2 6 6M344 34c-2-12-10-18-20-18M344 34c-6-2-8-6-6-10M336 22c-4 0-6 2-6 6"/><circle class="wf" cx="180" cy="17" r="3"/><path class="wa" d="M150 17h24M186 17h24"/></svg>`}
+const TAILW='<svg class="tailw" viewBox="0 0 160 56" aria-hidden="true"><path class="wk" d="M68 12h24M71 12c0 6-5 9-5 17 0 9 6 13 14 13s14-4 14-13c0-8-5-11-5-17M73 42l-2 5h18l-2-5M66 50h28M73 27c4 4 10 4 14 0"/><path class="wa" d="M80 4c-3 1-3 4 0 6 3-2 3-5 0-6zM66 28C54 22 42 28 30 26c6 6 18 8 28 4M94 28c12-6 24 0 36-2-6 6-18 8-28 4M30 26c-8-2-14 2-22-2M130 26c8-2 14 2 22-2"/><circle class="wf" cx="22" cy="28" r="2"/><circle class="wf" cx="138" cy="28" r="2"/></svg>';
+const WREATH='<svg class="wreath" viewBox="0 0 120 120" aria-hidden="true">'+Array.from({length:18},(_,i)=>{const a=(i/18)*Math.PI*1.7+Math.PI*.65,x=60+50*Math.cos(a),y=60+50*Math.sin(a),r=(a*180/Math.PI+90).toFixed(0);return `<ellipse class="wf" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="3.2" ry="7" transform="rotate(${r} ${x.toFixed(1)} ${y.toFixed(1)})"/>`}).join("")+'<path class="wa" d="M44 108c6 4 26 4 32 0"/></svg>';
 function entWho(t){if(!/^\s*(re-?)?enter\b/i.test(t||""))return [];if(ENTC[t])return ENTC[t];const low=t.toLowerCase(),out=[];
   for(const w of whoSet){if(!CH[w]||/ and |^all$|^both$/i.test(w))continue;const n=title(w).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,"\\$&");if(new RegExp("\\b"+n+"\\b").test(low))out.push([low.search(new RegExp("\\b"+n+"\\b")),w])}
   return ENTC[t]=out.sort((a,b)=>a[0]-b[0]).map(x=>x[1]).slice(0,8)}
 function blockHTML(bk,p){
-  if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
-    const n=onStageWho(p).length;
-    const first=p.sc===1;
-    /* 4.4: a slim headpiece band (stage vignette with its sky, act and scene, place, Before you read); the act strip only at act starts */
-    return `<div class="blk shead sh44${first?" actopen":""}">${first?`<div class="astrip"><span>${AN(p.act)}</span><i>${LAT[p.act]}</i></div>`:""}<div class="hband">${folioStage(PICS[stageType(p)],"","hvig",skyOf(p))}<div class="hbt"><div class="eyebrow">${SL[p.scene]||""}</div><h1>${sName(p)}</h1><div class="loc"><span>${esc(p.loc)}</span></div>${(()=>{const f=p.items.find(x=>x.t==="sp");return S.beats&&!S.who&&f&&BEAT[f.id]?`<div class="hbeat">${beatTxt(BEAT[f.id])}</div>`:""})()}<button class="recapb" data-recap="${p.id}" aria-label="Before you read: ${n} on stage">Before you read<span aria-hidden="true"> ›</span></button></div></div></div>`}
+  if(bk.t==="act"){const ps=scenes.filter(x=>x.act===p.act);
+    /* 4.7 act divider: the play's emblem engraved in a wreath, the act in Latin and English, its scenes */
+    return `<div class="blk apage"><div class="aprule" aria-hidden="true"></div><div class="apemb">${WREATH}${typeof emblemSVG==="function"?emblemSVG(PLAY,"apems"):""}</div><div class="apla">${LAT[p.act]||""}</div><h1 class="aph">${AN(p.act)}</h1><ol class="apsc">${ps.map(x=>`<li><b>${esc(x.scene.toLowerCase())}</b><span>${esc(shortLoc(x))}</span></li>`).join("")}</ol>${TAILW}</div>`}
+  if(bk.t==="head"){const ws=onStageWho(p),f=p.items.find(x=>x.t==="sp");
+    /* 4.7 scene title page: woodcut headpiece of the setting, the scene in Latin and English, the full place, the first beat, a playbill of who speaks */
+    return `<div class="blk tpage">${woodcut(p)}<div class="tpeb">${LAT[p.act]||""} · ${SL[p.scene]||""}</div><h1>${sName(p)}</h1><div class="tploc">${esc(p.loc)}</div>${S.beats&&!S.who&&f&&BEAT[f.id]?`<div class="hbeat">${beatTxt(BEAT[f.id])}</div>`:""}<div class="tpbill${ws.length>8?" many":""}" aria-label="Speaking in this scene">${ws.map(w=>`<button type="button" class="entm tpc" data-who="${esc(w)}" aria-label="${esc(title(w))}">${folioMedal(w,COLORS[w],"em")}<span>${esc(title(w))}</span></button>`).join("")}</div><button class="recapb" data-recap="${p.id}">Before you read<span aria-hidden="true"> ›</span></button>${TAILW}</div>`}
   if(bk.t==="sd"){const ws=entWho(bk.it.text);return `<div class="blk sd">${esc(bk.it.text)}${ws.length?`<span class="ents">${ws.map(w=>`<button type="button" class="entm" data-who="${esc(w)}" aria-label="${esc(title(w))}">${folioMedal(w,COLORS[w],"em")}</button>`).join("")}</span>`:""}</div>`}
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1],part=bk.part||"";
     const po=EX.predict[p.id],g=PRED[p.id];
@@ -331,7 +347,7 @@ function blockHTML(bk,p){
     const fresh=!prog.done[p.id],o=prog.qst[p.id]||{},Q=questsOf(p.id),sl=allSeals()+(fresh?1:0),L=folioLevel(sl);
     const chk=Q.includes("q")?(Array.isArray(o.q)?`<button class="ckb done" data-endact="check:${p.id}">Check: ${esc(o.q[0])} of ${esc(o.q[1])} right · try again</button>`:`<button class="ckb${goal()==="enjoy"?" done":""}" data-endact="check:${p.id}">Check yourself · 3 questions</button>`):"";
     const arg=S.sum&&(STUDY.scenes[p.id]||{}).sum?(wide()?`<div class="sum endsum"><b>The Argument</b>${esc(STUDY.scenes[p.id].sum)}</div>`:`<details class="sum endsum endfold"><summary><b>Read the argument</b><span aria-hidden="true"> ›</span></summary>${esc(STUDY.scenes[p.id].sum)}</details>`):"";
-    const top=`${TAILP}${fresh?BURST:""}${folioSeal(p.scene,o.g?"g":"",fresh?"endseal stamp":"endseal")}<b>End of ${sName(p)}</b><span class="lvl">Scene sealed · ${sl} seal${sl===1?"":"s"} · ${esc(L.name)}</span>${chk}
+    const top=`${TAILW}${fresh?BURST:""}${folioSeal(p.scene,o.g?"g":"",fresh?"endseal stamp":"endseal")}<b>End of ${sName(p)}</b><span class="lvl">Scene sealed · ${sl} seal${sl===1?"":"s"} · ${esc(L.name)}</span>${chk}
       ${n?`<button class="nextsc" data-endact="next:${p.id}"><small>Next</small><b>${sName(n)}</b><span>${esc(shortLoc(n))} ›</span></button>`:`<span class="fin">Finis</span>`}`;
     if(part==="a")return `<div class="blk endblk endcard enda">${top}</div>`;
     return `<div class="blk endblk endcard${part==="b"?" endb":""}">${part==="b"?`<div class="endhd">${sName(p)} · <i>the argument</i></div>`:top}${arg}
@@ -349,7 +365,7 @@ function blockHTML(bk,p){
   const hl=hlOf(m),hc=hl?" hl hl-"+hl:"";
   const dcap=!bk.u0&&p.items.find(x=>x.t==="sp")===it;
   const beat=S.beats&&!bk.u0&&!S.who&&BEAT[it.id]&&!dcap?`<div class="beat" aria-label="Story beat"><span>${beatTxt(BEAT[it.id])}</span></div>`:"";
-  const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1">${folioMedal(it.who,COLORS[it.who],"wm")}<span>${esc(firstSentence(ch.desc))}</span></div>`:"";
+  const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1"><span>${esc(firstSentence(ch.desc))}</span></div>`:"";
   /* 4.6 phones: the name runs in at the start of the first line, as in the Folio (not on the scene's first speech, which has the initial) */
   const runin=!wide()&&S.mode==="orig"&&!dcap;
   if(runin){const tg=tag.replace(/<span class="tag pr">Prose<\/span>/,"");body=body.replace(/(<span class="l[^"]*"[^>]*>)/,`$1<span class="nm ri${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tg||flags?`<span class="rit">${tg}${flags}</span>`:""} `)}
@@ -358,7 +374,7 @@ function blockHTML(bk,p){
 /* ---------- pagination: fill each screen, split long speeches between pages ----------
    Wide screens (1200px+, reader not narrowed by the side panel) show two facing pages like an open Folio: pages are measured at leaf width,
    cur.i is always the left (even) page, and a turn moves two pages. */
-const SPREAD_GAP=64;
+const SPREAD_GAP=120;
 const SIDEW=()=>Math.min(420,innerWidth*.42);
 /* 4.6: the desk stays a book while a sheet or panel is open; with too little room it is one bound leaf */
 const spread=()=>innerWidth>=1200;
@@ -373,10 +389,20 @@ function pageHTML(pages,i,k){const p=scenes[k],h=n=>(pages[n]||[]).map(b=>blockH
   const rib=spread()?'<i class="sribbon" aria-hidden="true"></i>':"";
   return twoLeaves()?`<div class="spread2">${rib}<div class="leaf">${h(i)}</div><div class="leaf">${h(i+1)}</div></div>`:facing()?`<div class="spread2 facing">${rib}<div class="leaf">${h(i)}</div></div>`:spread()?`<div class="spread2 one">${rib}<div class="leaf">${h(i)}</div></div>`:h(i)}
 let cur={k:-1,pages:[],i:0,words:0,sig:""};
+/* 4.7 Pocket edition: verse is set just small enough that ~90% of this play's verse lines fit on one line (never under 14px) */
+let FITC={};
+function fitAuto(){const R2=document.documentElement.style;R2.setProperty("--fit","1");if(!S.fit||S.mode==="mod")return 1;
+  measure.innerHTML=`<article class="blk sp vs"><div class="body"><div class="o"><div class="pt"><span class="l">M</span></div></div></div></article>`;
+  const l=measure.querySelector(".l");if(!l){measure.innerHTML="";return 1}const cs=getComputedStyle(l),A=l.clientWidth-parseFloat(cs.paddingLeft)+parseFloat(cs.textIndent||0),px=parseFloat(cs.fontSize),font=`${cs.fontStyle} ${cs.fontWeight} ${px}px ${cs.fontFamily}`,key=[A,px,cs.fontFamily].join("|");measure.innerHTML="";
+  if(!(key in FITC)){const ctx=(fitAuto.c=fitAuto.c||document.createElement("canvas")).getContext("2d");ctx.font=font;const w=[];
+    for(const p of scenes)for(const it of p.items)if(it.t==="sp"&&!PROSE[it.id])for(const x of it.lines)if(!x.startsWith("~"))w.push(ctx.measureText(x).width);
+    w.sort((a,b)=>a-b);const w90=w[Math.floor(w.length*.9)]||0;FITC[key]=w90?Math.max(14/px,Math.min(1,A/(w90*1.04))):1}
+  const f=FITC[key];R2.setProperty("--fit",f.toFixed(3));return f}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{FITC={};if(typeof repaginate==="function"&&cur.k>=0)repaginate()});
 function paginate(p){
   document.body.classList.toggle("spread",spread());document.body.classList.toggle("facing",facing());
   const blocks=sceneBlocks(p);
-  measure.className="pg";measure.style.width=leafW()+"px";measure.style.maxWidth="none";measure.style.padding=spread()?"0":"";
+  measure.className="pg";measure.style.width=leafW()+"px";measure.style.maxWidth="none";measure.style.padding=spread()?"0":"";fitAuto();
   const H=pg.clientHeight-2,pages=[];let page=[];measure.innerHTML="";
   const fits=()=>measure.scrollHeight<=H;
   const flush=()=>{if(page.length)pages.push(page);page=[];measure.innerHTML=""};
@@ -387,7 +413,7 @@ function paginate(p){
     let bk=bk0,guard=0;
     while(guard++<500){
       const el=add(bk);
-      if(fits()){page.push(bk);break}
+      if(fits()){page.push(bk);if(bk.t==="act"||bk.t==="head")flush();break}
       el.remove();
       if(bk.t==="sp"&&bk.u1-bk.u0>1){
         /* split between parts if possible; split inside a part (at a line) when the part split would leave over a quarter of the page empty */
@@ -404,7 +430,7 @@ function paginate(p){
   flush();measure.innerHTML="";
   return pages.length?pages:[[]];
 }
-const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,OPENV,pg.clientWidth,pg.clientHeight,spread(),facing(),twoLeaves(),wide()].join("|");
+const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,S.fit,OPENV,pg.clientWidth,pg.clientHeight,spread(),facing(),twoLeaves(),wide()].join("|");
 function openScene(k,opts){
   opts=opts||{};const p=scenes[k];if(cur.k!==k&&OPEN.size){OPEN.clear();OPENV++}
   if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
@@ -430,6 +456,9 @@ function footHTML(pages,i,mins){const n=pages.length,i2=Math.min(n,i+step());
   return `<span class="pfl">${mins>0?`${mins} min left in scene`:""}</span><span class="pfc">${i2>i+1?`${i+1}–${i2}`:i+1} of ${n}</span><span class="pfr"></span>`}
 const BOOK={t:56,o:64,b:62};
 function frame(i,n){const r=pg.getBoundingClientRect(),rh=$("rhead"),pf=$("pgfoot"),de=$("dogear");
+  /* 4.7 desk: the rail sits on the spine between two leaves, or at the desk edge beside one */
+  {const B=document.body.classList,two=twoLeaves();B.toggle("twol",two);B.toggle("oneleaf",spread()&&!two&&!facing());const st=document.documentElement.style;
+   if(two){const lv=pg.querySelectorAll(".spread2>.leaf");if(lv.length===2){const a=lv[0].getBoundingClientRect(),b=lv[1].getBoundingClientRect();st.setProperty("--spx",((a.right+b.left)/2)+"px")}}st.setProperty("--bkl",r.left+"px")}
   /* desk (4.6): the running head and foot sit inside the book's top and foot margins (BOOK = the margins in px) */
   rh.style.left=r.left+"px";rh.style.width=r.width+"px";pf.style.left=r.left+"px";pf.style.width=r.width+"px";
   if(spread()){rh.style.top=(r.top-BOOK.t+18)+"px";pf.style.top=(r.bottom+BOOK.b-40)+"px";pf.style.bottom="auto"}else{rh.style.top=pf.style.top=pf.style.bottom=""}
@@ -654,9 +683,9 @@ function toolsHTML(id,pi){
   const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[],nf=FAV.filter(f=>f.id===id).length,th=thOf(m);
   const tabs=[["mod","Modern"],["words","Words"+(gl.length?` <small>${gl.length}</small>`:"")],["note","Note"+(m.note||sn?" <small>•</small>":"")],["mark","Mark"]];
   return `<div class="tool ttabbed" data-tt="${TTAB}">
-    <div class="tpin">${c?folioMedal(sp.who,COLORS[sp.who],"tpm"):""}<div><b class="tpn" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</b><div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div></div></div>
+    <div class="tpin">${c?folioMedal(sp.who,COLORS[sp.who],"tpm"):""}<div><div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div></div></div>
     <div class="ttabs" role="tablist" aria-label="Speech tools">${tabs.map(([k,l])=>`<button type="button" role="tab" data-ttab="${k}" aria-selected="${TTAB===k}">${l}</button>`).join("")}</div>
-    <div data-tp="mod"><div class="modern">${pairHTML(sp,q)}</div>
+    <div data-tp="mod"><div class="modern"><div class="pair"><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div></div>
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}${EX.why[q.i]?`<br><b>Why it matters:</b> ${esc(EX.why[q.i])}`:""}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
     ${EX.irony[id]?`<h3 class="lbl">Dramatic irony</h3><div class="snote">${esc(EX.irony[id])}</div>`:""}
     ${(EX.dev[id]||[]).map(([k,n])=>`<h3 class="lbl">${esc(EX.devices[k])}</h3><div class="snote">${esc(n)}</div>`).join("")}
@@ -1942,12 +1971,6 @@ const SETI=[['<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 
   ['<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17v.5"/>',/How to/],['<path d="M12 3v12M7 10l5 5 5-5M4 19h16"/>',/[Bb]ackup/],['<path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/>',/Progress/]];
 let SETTAB="page";
 /* 4.5 Fit verse: the largest size (≥14px) at which about 90% of this play's verse lines fit on one line of the page */
-function fitVerse(){const l=pg.querySelector(".sp.vs .o .l")||measure;const cs=getComputedStyle(l),fs=parseFloat(cs.fontSize)||16;
-  const cv=document.createElement("canvas").getContext("2d");cv.font=`${cs.fontStyle} ${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
-  const ws=[];for(const p of scenes)for(const it of p.items)if(it.t==="sp"&&!PROSE[it.id])for(const x of it.lines)ws.push(cv.measureText(x.replace(/^~/,"")).width);if(!ws.length)return 0;
-  ws.sort((a,b)=>a-b);const w90=ws[Math.floor(ws.length*.9)],body=pg.querySelector(".sp.vs .o .l");
-  const avail=(body?body.clientWidth-parseFloat(getComputedStyle(body).paddingLeft):leafW()*.8)-4;
-  return Math.max(.875,Math.min(1.75,Math.floor(S.scale*avail/w90*100)/100))}
 function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
@@ -1956,7 +1979,8 @@ function openSettings(){
     <div class="opt"><div class="lbl">App mode, for every play</div>${segs("appmode",[["simple","Simple"],["full","Full"]],folioMode())}<small>Simple: three tabs, a journey map, quests and a calmer page. Full: every tool, four tabs, line numbers and study notes.</small></div>
     <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, tap any line and its modern English opens underneath. On a tablet, Both puts the two side by side.</small></div>
     <div class="opt"><div class="lbl">Theme, for every play</div><div class="ttiles" id="s-tiles"></div><button class="tog" id="s-night" role="switch" type="button"><span>Night after 8pm<small>Switches to Night from 8pm to 7am</small></span><i></i></button><small>Paper is a warm, matte page like an e-reader. Night is warm and dim for reading in bed.</small></div>
-    <div class="opt"><div class="lbl">Text size, for every play</div><div class="size"><span style="font-size:15px">A</span><label class="sr" for="s-size">Text size</label><input type="range" id="s-size" min="0" max="3" step="1"><span style="font-size:26px">A</span></div><p class="sprev" id="s-prev"></p><button class="golink" type="button" id="s-fit">Fit verse to the page</button><small>Picks the largest size (never under 14px) at which most of this play's verse lines fit on one line.</small></div>
+    <div class="opt"><div class="lbl">Text size, for every play</div><div class="size"><span style="font-size:15px">A</span><label class="sr" for="s-size">Text size</label><input type="range" id="s-size" min="0" max="3" step="1"><span style="font-size:26px">A</span></div><p class="sprev" id="s-prev"></p></div>
+    <div class="opt"><div class="lbl">Fit verse lines</div>${segs("fit",[["true","On"],["false","Off"]],S.fit)}<small>Sets Shakespeare's verse just small enough that most lines fit on one line (never under 14px), so the rhythm stays visible. Prose follows the same size.</small></div>
     <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
     <div class="opt"><div class="lbl">Clean page</div>${segs("clean",[["false","Off"],["true","On"]],S.clean)}<small>Hides line numbers, tags and underlines for pure reading. Tapping still works.</small></div>
     <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
@@ -1971,14 +1995,13 @@ function openSettings(){
     <div class="opt"><div class="lbl">Progress</div><button class="btn" id="resetprog">Reset reading progress, quiz scores and flashcards</button><small id="resetmsg"></small></div>`);
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="appmode"){folioSetMode(v);$("sheet-body").querySelectorAll(`[data-set="appmode"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));show(view);if(view==="study")renderStudy();if(view==="you")renderYou();if(view==="map")renderMap();cur.sig="";repaginate();toast(v==="simple"?"Simple mode":"Full mode");return}
     if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
-    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="beats")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+    if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="beats"||k==="fit")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   /* 4.5: Settings in four tabs, the live preview pinned on top */
   {const sb=$("sheet-body"),TABS=[["page","Page"],["type","Type"],["theme","Theme"],["app","App"]],TOF=[["theme",/^Theme/],["type",/^Text size|^Line spacing|^One-hand|^Page turn/],["page",/^On the page|^Clean|^Dim|^Story beats|^The Argument|^Follow/]];
     sb.querySelectorAll(":scope>.opt,:scope>.box").forEach(o=>{const l=o.querySelector(".lbl,h3"),t=l?l.textContent.trim():"",f=TOF.find(x=>x[1].test(t));o.dataset.stab=f?f[0]:"app"});
     sb.querySelector(".spv").insertAdjacentHTML("afterend",`<div class="stabs" role="tablist">${TABS.map(([k,l])=>`<button type="button" role="tab" data-stb="${k}" aria-selected="${k===SETTAB}">${l}</button>`).join("")}</div>`);
     const showT=k=>{SETTAB=k;sb.dataset.st=k;sb.querySelectorAll("[data-stb]").forEach(b=>b.setAttribute("aria-selected",b.dataset.stb===k))};showT(SETTAB);
     sb.querySelectorAll("[data-stb]").forEach(b=>b.onclick=()=>showT(b.dataset.stb))}
-  $("s-fit").onclick=()=>{const v=fitVerse();if(!v)return;S.scale=v;applySettings();paint();repaginate();toast("Verse fitted: "+Math.round(16*v)+"px")};
   $("sheet-body").querySelectorAll(".opt>.lbl").forEach(l=>{const t=l.textContent,k=SETI.slice(1).find(x=>x[1].test(t));l.insertAdjacentHTML("afterbegin",`<svg class="seti" viewBox="0 0 24 24" aria-hidden="true">${k?k[0]:SETI[0][0]}</svg>`)});
   const TN={paper:"Paper",light:"Light",dark:"Dark",night:"Night"},SZN=["Small","Normal","Large","Extra large"];
   const paint=()=>{const c=folioThemeChosen(),th=c==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):c;
