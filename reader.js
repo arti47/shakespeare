@@ -94,6 +94,7 @@ document.addEventListener("touchstart",e=>{const x=e.touches[0].clientX;if((x<24
 /* one app shell: Read / Study / You views share the Folio's bottom nav (Library goes back to the shelf) */
 function show(v){view=v;["you","reader","study","map"].forEach(x=>$(x).hidden=v!==x);closePanel();if(v!=="reader"&&$("coach"))$("coach").remove();
   document.body.classList.remove("v-reader","v-study","v-you","v-map");document.body.classList.add("v-"+v);
+  if(v!=="reader"&&!matchMedia("(prefers-reduced-motion: reduce)").matches){const el=$(v);el.classList.remove("f43in");void el.offsetWidth;el.classList.add("f43in")}
   /* Simple mode has three tabs: Play (map, reader and Study) stands for all three */
   const nv=folioSimple()&&(v==="reader"||v==="study")?"map":v;
   document.querySelectorAll("#fnav [data-nav]").forEach(b=>{if(b.dataset.nav===nv)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
@@ -182,7 +183,7 @@ function renderYou(){
   const done=scenes.filter(p=>prog.done[p.id]).length;
   const qs=Object.entries(prog.quiz).filter(([k])=>k!=="all").map(x=>x[1]);const qc=qs.reduce((a,q)=>a+q[0],0),qt=qs.reduce((a,q)=>a+q[1],0);
   const s7=streak(),w=weekStats(),td=Math.round(((LOG[today()]||{}).s||0)/60),pct=done/scenes.length*100;
-  $("contcard").innerHTML=`<button class="go" id="contbtn"><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span><span class="meter"><i style="width:${pct}%"></i></span></button>
+  $("contcard").innerHTML=`<button class="go yhero" id="contbtn"><span class="yhe" aria-hidden="true">${folioRing(pct/100,"","yring")}<span class="yhm">${typeof emblemSVG==="function"?emblemSVG(PLAY,"yhes"):""}</span></span><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span><span class="meter"><i style="width:${pct}%"></i></span></button>
     <div class="ytiles"><button type="button" data-to="contents"><b>${done}<small>/${scenes.length}</small></b><span>Scenes read ›</span></button><button type="button" data-to="study:quiz"><b>${qt?Math.round(qc/qt*100)+"%":"–"}</b><span>Quiz score ›</span></button><button type="button" data-to="study:cards"><b>${Object.keys(prog.cards).length}<small>/${QUOTES.quotes.length}</small></b><span>Quotes learnt ›</span></button>
     <div><b>${s7}</b><span>Day${s7===1?"":"s"} in a row</span></div><div><b>${td}<small>m</small></b><span>Today</span></div><div><b>${w.min}<small>m</small></b><span>This week</span></div></div>`;
   $("you").querySelector(".sbar h1").textContent=folioSimple()?"Me":"You";
@@ -217,13 +218,13 @@ function contentsHTML(){
       return `<div class="item" data-recent="${esc(r.id)}:${esc(r.pi)}" tabindex="0"><small>${esc(where(sp))}</small><span style="font-family:var(--f-old)">${esc(sp.lines[q[0]].replace(/^~/,""))}…</span></div>`}).join("");
     h+=`<div class="acts-map">`;
     for(const a of ACTS){const ps=scenes.filter(p=>p.act===a);if(!ps.length)continue;const ad=ps.filter(p=>prog.done[p.id]).length;
-      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>${AN(a)} · ${ad}/${ps.length} read</small></summary><div class="srows">`+
+      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span class="anum" aria-hidden="true">${a?R[a]:"❦"}</span><span>${LAT[a]}</span><small>${AN(a)} · ${ad}/${ps.length} read</small></summary><div class="srows">`+
         ps.map(p=>{const q=prog.quiz[p.id];const s=STUDY.scenes[p.id]||{};
-          return `<button class="srow${prog.done[p.id]?" done":""}${here>=0&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="n">${prog.conf[p.id]?`<i class="dot ${esc(prog.conf[p.id])}"></i>`:""}${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${esc(q[0])}/${esc(q[1])}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></details>`}
+          return `<button class="srow${prog.done[p.id]?" done":""}${here>=0&&p.id===pos.s?" here":""}" data-go="${p.id}"><span class="sseal" aria-hidden="true">${folioSeal(p.scene,prog.done[p.id]?((prog.qst[p.id]||{}).g?"g":""):here>=0&&p.id===pos.s?"n":"e")}<svg class="sthumb" viewBox="0 0 40 40">${PICS[stageType(p)]||""}</svg></span><span class="n">${prog.conf[p.id]?`<i class="dot ${esc(prog.conf[p.id])}"></i>`:""}${p.scene.toLowerCase()}</span><span class="loc">${esc(shortLoc(p))}</span><span class="st">${prog.done[p.id]?"✓ read":""}${q?` · quiz ${esc(q[0])}/${esc(q[1])}`:""}</span><span class="sum">${esc(firstSentence(s.sum))}</span></button>`}).join("")+`</div></details>`}
     h+=`</div>`}
   else if(ctab==="beats"){h+=`<p class="hcap">What happens, beat by beat. Tap one to read from there.</p><div class="acts-map">`;
     for(const a of ACTS){const ps=scenes.filter(p=>p.act===a&&BEATS[p.id]);if(!ps.length)continue;
-      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>${AN(a)}</small></summary>`+ps.map(p=>`<div class="bscene${here>=0&&p.id===pos.s?" here":""}"><div class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</div><ol class="beats">${BEATS[p.id].map(([id,t])=>`<li><button data-speech="${id}">${beatTxt(t)}</button></li>`).join("")}</ol></div>`).join("")+`</details>`}
+      h+=`<details class="actd"${a===lp.act?" open":""}><summary><span>${LAT[a]}</span><small>${AN(a)}</small></summary>`+ps.map(p=>`<div class="bscene${here>=0&&p.id===pos.s?" here":""}"><div class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</div><ol class="beats broad">${BEATS[p.id].map(([id,t])=>`<li><button data-speech="${id}">${beatTxt(t)}</button></li>`).join("")}</ol></div>`).join("")+`</details>`}
     h+=`</div>`}
   else if(ctab==="cast"){h+=`<p class="hcap">The Names of the Actors, as the 1623 Folio lists them</p><div class="cast">`+STUDY.chars.map(c=>{const key=c.name.toUpperCase().replace(/^THE /,"").replace(" OF VENICE","");const has=whoSet.has(key);
       return `<div class="castc" style="--c:${COLORS[key]||"var(--ink)"}"><b>${folioMedal(c.name,COLORS[key],"cm")}${esc(c.name)}</b>${has?`<button class="link" data-follow="${esc(key)}">Follow their lines</button>`:"<span></span>"}<p>${esc(c.desc)}</p>${has?`<div class="xrow">${whoLinks(key)}</div>`:""}</div>`}).join("")+`</div>`}
@@ -297,18 +298,23 @@ function onStage(p){const ws=onStageWho(p);
 /* verse or prose */
 const PROSE={};for(const id in speech){const L=speech[id].lines.map(l=>l.replace(/^~/,"").replace(/\[[^\]]*\]\s*/g,""));if(L.length<2)continue;
   const low=L.slice(1).filter(l=>/^[a-z]/.test(l)).length,long=L.filter(l=>l.length>62).length;PROSE[id]=low/(L.length-1)>=.5||long>=Math.max(1,L.length/3)}
+/* 4.3 tailpiece: a printer's fleuron cluster at the end of each scene */
+/* 4.3 celebration: gilt rays behind a seal that has just been stamped */
+const BURST='<svg class="burst" viewBox="0 0 100 100" aria-hidden="true">'+Array.from({length:12},(_,i)=>`<path d="M50 50L${(50+48*Math.cos(i*Math.PI/6-.12)).toFixed(1)} ${(50+48*Math.sin(i*Math.PI/6-.12)).toFixed(1)}L${(50+48*Math.cos(i*Math.PI/6+.12)).toFixed(1)} ${(50+48*Math.sin(i*Math.PI/6+.12)).toFixed(1)}Z"/>`).join("")+'</svg>';
+const TAILP='<svg class="tailp" viewBox="0 0 120 34" aria-hidden="true"><path class="tp1" d="M60 30C52 22 40 20 28 22c6-6 18-8 26-2-4-6-14-8-22-6 8-6 20-4 28 6 8-10 20-12 28-6-8-2-18 0-22 6 8-6 20-4 26 2-12-2-24 0-32 8z"/><circle class="tp2" cx="60" cy="8" r="3"/><circle class="tp2" cx="48" cy="11" r="1.8"/><circle class="tp2" cx="72" cy="11" r="1.8"/><path class="tp3" d="M6 17H22M98 17H114"/></svg>';
 function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
     const n=onStageWho(p).length;
     const first=p.sc===1;
-    return `<div class="blk shead${first?" actopen":""}">${first?folioPlate(LAT[p.act],p.act?R[p.act]:"",AN(p.act),"shplate")+`<div class="eyebrow">${SL[p.scene]||""}</div>`:`<div class="eyebrow">${LAT[p.act]}. ${SL[p.scene]||""}.</div>`}<h1>${sName(p)}</h1>${folioStage(PICS[stageType(p)],"","shstage")}<div class="loc"><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div>`}
+    /* 4.3: a compact stage banner with the act plate (or a small scene plate) set over its foot, then the scene title */
+    return `<div class="blk shead sh43${first?" actopen":""}"><div class="sban">${folioStage(PICS[stageType(p)],"","shstage")}${first?folioPlate(LAT[p.act],p.act?R[p.act]:"",AN(p.act),"shplate"):`<span class="scpl">${LAT[p.act]}. ${SL[p.scene]||""}.</span>`}</div>${first?`<div class="eyebrow">${SL[p.scene]||""}</div>`:""}<h1>${sName(p)}</h1><div class="loc"><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div>`}
   if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
     const po=EX.predict[p.id],g=PRED[p.id];
     /* 4.0 scene-end card: the wax seal stamps, a three-question check, a big Next. Full mode keeps the other end-of-scene tools below. */
     const fresh=!prog.done[p.id],o=prog.qst[p.id]||{},Q=questsOf(p.id),sl=allSeals()+(fresh?1:0),L=folioLevel(sl);
     const chk=Q.includes("q")?(Array.isArray(o.q)?`<button class="ckb done" data-endact="check:${p.id}">Check: ${esc(o.q[0])} of ${esc(o.q[1])} right · try again</button>`:`<button class="ckb${goal()==="enjoy"?" done":""}" data-endact="check:${p.id}">Check yourself · 3 questions</button>`):"";
-    return `<div class="blk endblk endcard">${folioSeal(p.scene,o.g?"g":"",fresh?"endseal stamp":"endseal")}<b>End of ${sName(p)}</b><span class="lvl">Scene sealed · ${sl} seal${sl===1?"":"s"} · ${esc(L.name)}</span>${chk}
+    return `<div class="blk endblk endcard">${TAILP}${fresh?BURST:""}${folioSeal(p.scene,o.g?"g":"",fresh?"endseal stamp":"endseal")}<b>End of ${sName(p)}</b><span class="lvl">Scene sealed · ${sl} seal${sl===1?"":"s"} · ${esc(L.name)}</span>${chk}
       ${n?`<button class="nextsc" data-endact="next:${p.id}"><small>Next</small><b>${sName(n)}</b><span>${esc(shortLoc(n))} ›</span></button>`:`<span class="fin">Finis</span>`}${S.sum&&(STUDY.scenes[p.id]||{}).sum?`<div class="sum endsum"><b>The Argument</b>${esc(STUDY.scenes[p.id].sum)}</div>`:""}
       ${po?`<div class="pred"><p>${g!=null?`Your guess: ${esc(po[g])}. Turn the page to find out.`:"What do you think happens next?"}</p><div class="chips">${po.map((o,i)=>`<button class="chip" data-pred="${p.id}:${i}" aria-pressed="${g===i}">${esc(o)}</button>`).join("")}</div></div>`:""}${folioSimple()?"":endExtras(p)}</div>`}
   const it=bk.it,c=COLORS[it.who],cont=bk.u0>0||it.cont,aside=it.lines.some(l=>/\[Aside/.test(l)),solo=SOLO[it.id];
@@ -324,7 +330,8 @@ function blockHTML(bk,p){
   const hl=hlOf(m),hc=hl?" hl hl-"+hl:"";
   const beat=S.beats&&!bk.u0&&!S.who&&BEAT[it.id]?`<div class="beat" aria-label="Story beat"><span>${beatTxt(BEAT[it.id])}</span></div>`:"";
   const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1">${folioMedal(it.who,COLORS[it.who],"wm")}<span>${esc(firstSentence(ch.desc))}</span></div>`:"";
-  return `<article class="blk sp${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${PROSE[it.id]?"":" vs"}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}">${beat}<div class="hd"><span class="nm${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div>${intro}<div class="body">${body}</div></article>`;
+  const dcap=!bk.u0&&p.items.find(x=>x.t==="sp")===it;
+  return `<article class="blk sp${dcap?" dcap":""}${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${PROSE[it.id]?"":" vs"}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}">${beat}<div class="hd"><span class="nm${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div>${intro}<div class="body">${body}</div></article>`;
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ----------
    Wide screens (1200px+, reader not narrowed by the side panel) show two facing pages like an open Folio: pages are measured at leaf width,
@@ -398,7 +405,7 @@ function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidde
     setTimeout(()=>{const sp=pg.querySelector(".sp[data-id]");if(!sp)return;const l=sp.querySelector(".o .l")||sp.querySelector(".o");st.who=first&&first.t==="sp"?title(first.it.who):"";st.line=l?l.textContent.replace(/^\s*\d+\s*/,"").trim().slice(0,140):"";LS.set("folio-stat-"+PLAY,JSON.stringify(st))},250)}
   if(i+step()>=cur.pages.length&&!prog.done[p.id]){const b4=allSeals();prog.done[p.id]=Date.now();saveProg();syncSeals(b4)}
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140),i2=Math.min(n,i+step());
-  $("pgfoot").textContent=`${sName(p)} · ${i2>i+1?`${i+1}–${i2}`:i+1} / ${n}`;{const rh=$("rhead").children;rh[0].textContent=CFG.short||CFG.title;rh[1].textContent=sName(p)}$("pgbar").style.width=((i+1)/n*100)+"%";if(!keep)logRead();
+  $("pgfoot").textContent=`${sName(p)} · ${i2>i+1?`${i+1}–${i2}`:i+1} / ${n}`;{const rh=$("rhead").children;rh[0].textContent=CFG.short||CFG.title;rh[1].textContent=sName(p)}$("pgbar").style.width=((i+1)/n*100)+"%";ribbon((cur.k+(i+1)/n)/scenes.length);if(!keep)logRead();
   $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
   $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
   const r=$("p-range");r.max=n;r.value=i+1;bmState();
@@ -591,6 +598,10 @@ const thOf=m=>(Array.isArray(m.th)?m.th:[]).filter(x=>QUOTES.themes[x]);
 function pairHTML(sp,q,cur){const og=sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
   return `<div class="pair${cur?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`}
 const partAt=(el,sp)=>{const pt=el&&el.closest&&(el.closest(".pt")||(el.closest(".chunk")||sp).querySelector(".pt"));return pt?+pt.dataset.p:0};
+/* 4.3 chrome: the play's emblem in the top bar, a ribbon of the whole play with a tick at each act in the bottom bar */
+function ribbon(f){const r=$("prib");if(!r)return;if(!r.firstChild){const t=[];let k=0;for(const a of ACTS){const n=scenes.filter(p=>p.act===a).length;if(!n)continue;if(k)t.push(`<b style="left:${(k/scenes.length*100).toFixed(2)}%"></b>`);k+=n}
+  r.innerHTML=`<i></i>${t.join("")}`;const e=$("b-emb");if(e&&typeof emblemSVG==="function")e.innerHTML=emblemSVG(PLAY,"bembs")}
+  r.firstChild.style.width=(Math.max(0,Math.min(1,f))*100).toFixed(2)+"%"}
 function toolsHTML(id,pi){
   const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[],nf=FAV.filter(f=>f.id===id).length,th=thOf(m);
   return `<div class="tool">
@@ -603,11 +614,11 @@ function toolsHTML(id,pi){
     ${(EX.dev[id]||[]).map(([k,n])=>`<h3 class="lbl">${esc(EX.devices[k])}</h3><div class="snote">${esc(n)}</div>`).join("")}
     <div class="trow" role="group" aria-label="Mark and share">
       <div class="hlset" role="group" aria-label="Highlight">${HLC.map(([k,l])=>`<button class="tb hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i><small>${l}</small></button>`).join("")}</div>
-      <button class="tb" id="t-fph"><span>♥</span><small>Phrase${nf?` (${nf})`:""}</small></button>
-      <button class="tb" id="t-focus" aria-pressed="${S.focus===sp.who}"><span>◎</span><small>${S.focus===sp.who?"Undim":"Dim others"}</small></button>
-      <button class="tb" id="t-follow" aria-pressed="${S.who===sp.who}"><span>◐</span><small>${S.who===sp.who?"Everyone":"Only "+esc(title(sp.who))}</small></button>
-      <button class="tb" id="t-copy"><span>⧉</span><small>Copy</small></button>
-      <button class="tb" id="t-img"><span>▣</span><small>Image</small></button>
+      <button class="tb" id="t-fph"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span><small>Phrase${nf?` (${nf})`:""}</small></button>
+      <button class="tb" id="t-focus" aria-pressed="${S.focus===sp.who}"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span><small>${S.focus===sp.who?"Undim":"Dim others"}</small></button>
+      <button class="tb" id="t-follow" aria-pressed="${S.who===sp.who}"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 3.8-6 7-6s6 2 7 6"/></svg></span><small>${S.who===sp.who?"Everyone":"Only "+esc(title(sp.who))}</small></button>
+      <button class="tb" id="t-copy"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></span><small>Copy</small></button>
+      <button class="tb" id="t-img"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg></span><small>Image</small></button>
     </div>
     <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
     <div class="acts"><button class="btn sm" id="t-save">Save note</button></div>
@@ -622,7 +633,7 @@ function wireTools(id,pi){
   $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
   document.querySelectorAll(".tool [data-hl]").forEach(b=>b.onclick=()=>{const k=b.dataset.hl,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});
     document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
-  $("t-focus").onclick=()=>{S.focus=S.focus===sp.who?"":sp.who;applySettings();refreshMarks();markPart();$("t-focus").innerHTML=`<span>◎</span><small>${S.focus===sp.who?"Undim":"Dim others"}</small>`;$("t-focus").setAttribute("aria-pressed",S.focus===sp.who);toast(S.focus?"Dimming everyone except "+title(S.focus):"Showing everyone normally")};
+  $("t-focus").onclick=()=>{S.focus=S.focus===sp.who?"":sp.who;applySettings();refreshMarks();markPart();$("t-focus").innerHTML=`<span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span><small>${S.focus===sp.who?"Undim":"Dim others"}</small>`;$("t-focus").setAttribute("aria-pressed",S.focus===sp.who);toast(S.focus?"Dimming everyone except "+title(S.focus):"Showing everyone normally")};
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
   document.querySelectorAll(".tool [data-tth]").forEach(b=>b.onclick=()=>{const k=b.dataset.tth,th=((marks[id]||{}).th||[]).slice(),i=th.indexOf(k);if(i<0)th.push(k);else th.splice(i,1);saveMark(id,{th});b.setAttribute("aria-pressed",i<0);toast(i<0?"Tagged: "+QUOTES.themes[k][0]:"Tag removed")});
   $("t-img").onclick=()=>{const kq=(QBY[id]||[])[0];openImage(kq?[kq.text]:sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")),title(sp.who),sName(sceneOf(id))+", lines "+(sp.start+q[0])+"–"+(sp.start+q[1]))};
@@ -820,12 +831,17 @@ let SLAST=false;
 let DKN=0;
 function deckHTML(cards,cls,label){if(!cards.length)return "";const id="dk"+(++DKN);
   return `<div class="dwrap${cls?" "+cls:""}"><div class="deck" id="${id}" tabindex="0" role="group" aria-label="${esc(label||"Cards")}: swipe for more">${cards.map(c=>`<div class="dc">${c}</div>`).join("")}</div>${cards.length>1?`<div class="dnav noprint"><button class="dbtn" type="button" data-dk="-1" aria-label="Previous card">‹</button><span class="dn" aria-live="polite">1 / ${cards.length}</span><button class="dbtn" type="button" data-dk="1" aria-label="Next card">›</button></div>`:""}</div>`}
+/* 4.3: a deck is as tall as the card(s) in view, not its tallest card */
+function dkFit(d){const b=d.getBoundingClientRect();let h=0;for(const c of d.children){const r=c.getBoundingClientRect();if(r.right>b.left+8&&r.left<b.right-8)h=Math.max(h,c.offsetHeight)}if(h)d.style.height=(h+12)+"px"}
+let DKF=0;const fitDecks=()=>{cancelAnimationFrame(DKF);DKF=requestAnimationFrame(()=>document.querySelectorAll("#study .deck").forEach(dkFit))};
+new MutationObserver(fitDecks).observe($("sbody"),{childList:true,subtree:true});addEventListener("resize",fitDecks);
+document.addEventListener("click",e=>{const b=e.target.closest("[data-kqall]");if(!b)return;const q=b.previousElementSibling;if(q)q.classList.remove("kqc");b.remove();fitDecks()});
 const dkStep=d=>{const c=d.children[0];return c?c.getBoundingClientRect().width+12:d.clientWidth};
-$("study").addEventListener("scroll",e=>{const d=e.target;if(!d.classList||!d.classList.contains("deck"))return;const n=d.children.length,i=Math.max(0,Math.min(n-1,Math.round(d.scrollLeft/dkStep(d)))),c=d.parentNode.querySelector(".dn");if(c)c.textContent=`${i+1} / ${n}`},true);
+$("study").addEventListener("scroll",e=>{const d=e.target;if(!d.classList||!d.classList.contains("deck"))return;clearTimeout(d._ft);d._ft=setTimeout(()=>dkFit(d),90);const n=d.children.length,i=Math.max(0,Math.min(n-1,Math.round(d.scrollLeft/dkStep(d)))),c=d.parentNode.querySelector(".dn");if(c)c.textContent=`${i+1} / ${n}`},true);
 document.addEventListener("click",e=>{const b=e.target.closest("[data-dk]");if(!b)return;const d=b.closest(".dwrap").querySelector(".deck");d.scrollBy({left:(+b.dataset.dk)*dkStep(d),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})});
 /* a key quote as a card: speaker medallion, the line, themes, note */
 function qCard(q){const sp=speech[q.id];return `<div class="kq" style="--c:${COLORS[sp.who]||"var(--ink)"}"><div class="kqh">${folioMedal(sp.who,COLORS[sp.who],"kqm")}<span><b>${esc(title(sp.who))}</b><small>${sName(sceneOf(q.id))}</small></span></div>
-  <blockquote>“${esc(q.text)}”</blockquote><p class="kqt">${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}</p><p class="kqn">${esc(q.note)}</p>
+  ${q.text.length>260?`<blockquote class="kqc">“${esc(q.text)}”</blockquote><button class="link kqall" type="button" data-kqall>Show all</button>`:`<blockquote>“${esc(q.text)}”</blockquote>`}<p class="kqt">${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}</p><p class="kqn">${esc(q.note)}</p>
   <div class="kqa"><button class="link" type="button" data-speech="${q.id}">Read in context</button>${prog.cards[q.i]?`<span class="kql">Learnt</span>`:""}</div></div>`}
 /* the Study header: a way back, the title, and a ? for the how-to */
 function sHead(back,backL,ttl){$("sgroups").hidden=false;$("stabs").hidden=true;
@@ -1839,10 +1855,20 @@ const HOWTO=[["Turning pages",[["⇆","Swipe left or right","turn the page (arro
   ["Understanding",[["¶","Tap a line","its modern English opens underneath; tap again to fold it"],["⋯","Whole speech","long speeches come in parts; this shows the rest"],["<u>a</u>","Tap an underlined word","its meaning"],["Aa","Tap a character’s name","who they are, with links to Study"],["❦","Tap ❦ or “note”","the key quote or study note for that line"]]],
   ["Marking",[["✎","Press and hold a word","select a phrase; drag to extend, tap another word to move the nearer end"],["◐","Pick a colour","save the phrase as a favourite"],["⚒","Speech tools","in the same bar: meanings, notes, highlights (right-click a speech on a computer)"]]],
   ["Text size",[["⤢","Pinch with two fingers","change the text size (or use Text size above)"]]]];
+/* 4.3 settings icons, picked by each option's label */
+const SETI=[['<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',/./],
+  ['<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',/App mode/],
+  ['<path d="M12 6.5C10 5 7.2 4.5 3.5 4.8v13.4c3.7-.3 6.5.2 8.5 1.8 2-1.6 4.8-2.1 8.5-1.8V4.8C16.8 4.5 14 5 12 6.5zM12 6.5V20"/>',/On the page/],
+  ['<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',/Theme/],['<path d="M4 19 9 5l5 14M6 14h6M15 19l3-8 3 8M16 16.5h4"/>',/Text size/],
+  ['<path d="M4 6h12M4 12h16M4 18h10M20 4v4M18 6h4"/>',/spacing/],['<path d="M5 5h14v14H5z"/><path d="M9 9h6"/>',/Clean/],['<path d="M8 11V5a2 2 0 0 1 4 0v5l5 1a2 2 0 0 1 1.6 2.3L18 20H9l-4-5a1.8 1.8 0 0 1 2.6-2.4z"/>',/One-hand/],
+  ['<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/>',/Page turn/],['<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',/Dim/],['<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11"/>',/Exam/],
+  ['<path d="M4 20c4-1 4-6 8-7s4-6 8-7"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="6" r="1.6"/>',/beats/i],['<path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/>',/Argument/],['<circle cx="9" cy="8" r="3.5"/><path d="M3 20c1-4 3-6 6-6s5 2 6 6M17 8h4M19 6v4"/>',/Follow/],
+  ['<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17v.5"/>',/How to/],['<path d="M12 3v12M7 10l5 5 5-5M4 19h16"/>',/[Bb]ackup/],['<path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/>',/Progress/]];
 function openSettings(){
   const segs=(name,opts,val)=>`<div class="segs" data-set="${name}">`+opts.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join("")+`</div>`;
   const whoOpts=[...whoSet].sort((a,b)=>{const o=Object.keys(COLORS),ia=o.indexOf(a),ib=o.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)});
   openSheet("Settings",`
+    <div class="spv" aria-hidden="true"><div class="spvp"><span class="spvn">${esc(title([...whoSet][0]||""))}</span><span class="spvl">${esc(((scenes[0].items.find(x=>x.t==="sp")||{lines:[""]}).lines[0]||"").replace(/^~/,""))}</span><span class="spvm">Live preview of your page</span></div></div>
     <div class="opt"><div class="lbl">App mode, for every play</div>${segs("appmode",[["simple","Simple"],["full","Full"]],folioMode())}<small>Simple: three tabs, a journey map, quests and a calmer page. Full: every tool, four tabs, line numbers and study notes.</small></div>
     <div class="opt"><div class="lbl">On the page</div>${segs("mode",[["orig","Shakespeare only"],["both","Both"],["mod","Modern only"]],S.mode)}<small>With Shakespeare only, tap any line and its modern English opens underneath. On a tablet, Both puts the two side by side.</small></div>
     <div class="opt"><div class="lbl">Theme, for every play</div><div class="ttiles" id="s-tiles"></div><button class="tog" id="s-night" role="switch" type="button"><span>Night after 8pm<small>Switches to Night from 8pm to 7am</small></span><i></i></button><small>Paper is a warm, matte page like an e-reader. Night is warm and dim for reading in bed.</small></div>
@@ -1862,6 +1888,7 @@ function openSettings(){
   $("sheet-body").querySelectorAll("[data-set] button").forEach(b=>b.onclick=()=>{const k=b.parentNode.dataset.set;let v=b.dataset.v;if(k==="appmode"){folioSetMode(v);$("sheet-body").querySelectorAll(`[data-set="appmode"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));show(view);if(view==="study")renderStudy();if(view==="you")renderYou();if(view==="map")renderMap();cur.sig="";repaginate();toast(v==="simple"?"Simple mode":"Full mode");return}
     if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
     if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="beats")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
+  $("sheet-body").querySelectorAll(".opt>.lbl").forEach(l=>{const t=l.textContent,k=SETI.slice(1).find(x=>x[1].test(t));l.insertAdjacentHTML("afterbegin",`<svg class="seti" viewBox="0 0 24 24" aria-hidden="true">${k?k[0]:SETI[0][0]}</svg>`)});
   const TN={paper:"Paper",light:"Light",dark:"Dark",night:"Night"},SZN=["Small","Normal","Large","Extra large"];
   const paint=()=>{const c=folioThemeChosen(),th=c==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):c;
     $("s-tiles").innerHTML=FOLIO_THEMES.map(t=>`<button class="tt tt-${t}" type="button" data-th="${t}" aria-pressed="${t===th}"><span class="sw2">A<em>a</em></span><span class="tl">${TN[t]}</span></button>`).join("");
@@ -1920,19 +1947,28 @@ sheet.addEventListener("click",e=>{
 document.addEventListener("click",e=>{const q=e.target.closest("#sbody [data-quest],#mapbody [data-quest],#contcard [data-quest]");if(q){const [k,s]=q.dataset.quest.split(":");openQuest(k,s)}});
 /* the journey map: the play as a road of scenes, act plates as gates, a seal at every scene read */
 const MAPX=[50,72,84,70,46,24,14,28];
+/* 4.3 journey map: each act a region of landscape (tint + terrain drawing), act plates set between gate pillars, a pin where you are */
+const TERR=[
+  '<svg class="terr" viewBox="0 0 300 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 120V84Q40 58 80 80T160 72Q200 50 240 74T300 70V120Z"/><path class="t2" d="M0 120V100Q50 86 100 98T200 94Q250 84 300 96V120Z"/><g class="tl"><path d="M40 78v-14M34 70l6-8 6 8M232 74v-14M226 66l6-8 6 8"/></g></svg>',
+  '<svg class="terr" viewBox="0 0 300 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g class="tl"><path d="M20 112l12-30 12 30zM44 112l10-24 10 24zM250 112l12-32 12 32zM272 112l9-22 9 22zM32 112v6M54 112v6M262 112v6M281 112v6"/></g><path class="t2" d="M0 120V112H300V120Z"/></svg>',
+  '<svg class="terr" viewBox="0 0 300 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g class="tl"><path d="M0 96q10-6 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0M0 108q10-6 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0"/><path d="M226 88l18-2-2-20-14 14zM244 66v22M232 92h28l-4 6h-20z"/></g></svg>',
+  '<svg class="terr" viewBox="0 0 300 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path class="t2" d="M0 120V108H300V120Z"/><g class="tl"><path d="M14 108V70h8v-6h6v6h8v-6h6v6h8v38zM28 108V94a4 4 0 0 1 8 0v14M246 108V60h10v-8h6v8h10v48zM256 76h6v8h-6z"/></g></svg>',
+  '<svg class="terr" viewBox="0 0 300 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 120V96L30 70 56 90 90 54 128 92 150 80 170 94H300V120Z"/><g class="tl"><path d="M90 54l-8 10 8-3 8 3zM250 94c0-10 8-16 16-16s16 6 16 16"/></g></svg>'];
+const GATE='<svg class="gpil" viewBox="0 0 20 80" aria-hidden="true"><path class="gp1" d="M3 78V14h14v64zM1 14h18v-4H1zM4 10q6-10 12 0"/><path class="gp2" d="M6 20v52M14 20v52"/><circle class="gp3" cx="10" cy="5" r="3"/></svg>';
+const PIN='<svg class="mpin" viewBox="0 0 30 40" aria-hidden="true"><path class="pn1" d="M15 39C6 26 2 20 2 14a13 13 0 0 1 26 0c0 6-4 12-13 25z"/><circle class="pn2" cx="15" cy="14" r="5.5"/></svg>';
 function renderMap(){const here=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1,lp=here>=0?scenes[here]:scenes[0],done=scenes.filter(p=>prog.done[p.id]).length,all=allSeals(),L=folioLevel(all),gl=goal();
   $("map").querySelector(".sbar h1").textContent=folioSimple()?"Play":"Journey";
-  let h=`<div class="mhead"><span class="memb">${typeof emblemSVG==="function"?emblemSVG(PLAY,"emb"):""}</span><div><p class="eyebrow">${esc(CFG.pre||"")}</p><h2>${esc(CFG.h1||CFG.title)}</h2>${CFG.post?`<p class="mpost">${esc(CFG.post)}</p>`:""}</div></div>
+  let h=`<div class="minfo"><div class="mhead"><span class="memb">${typeof emblemSVG==="function"?emblemSVG(PLAY,"emb"):""}</span><div><p class="eyebrow">${esc(CFG.pre||"")}</p><h2>${esc(CFG.h1||CFG.title)}</h2>${CFG.post?`<p class="mpost">${esc(CFG.post)}</p>`:""}</div></div>
     <button class="go mgo" type="button" data-to="read"><small>${pos?"Continue reading":"Begin the play"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span></button>
     <div class="mprog"><span><b>${done}</b> of ${scenes.length} scenes sealed</span><button class="mlv" type="button" data-to="you">${folioLevelBadge(all)}<span>${esc(L.name)}</span></button></div><div class="mbar" aria-hidden="true"><i style="width:${done/scenes.length*100}%"></i></div>
     <div class="xrow mlinks">${toLink("study",folioSimple()?"Quests &amp; study":"Study")}${toLink("contents","Contents")}</div>
-    <div class="mapw" id="mapw"><svg class="mpath" id="mpath" aria-hidden="true"></svg>`;
-  let j=0;
-  for(const a of ACTS){const ps=scenes.filter(p=>p.act===a);if(!ps.length)continue;
-    h+=folioPlate(LAT[a],a?R[a]:"",`${AN(a)} · ${ps.filter(p=>prog.done[p.id]).length} of ${ps.length} sealed`,"mplate");
+    </div><div class="mapw" id="mapw"><svg class="mpath" id="mpath" aria-hidden="true"></svg>`;
+  let j=0,ri=0;
+  for(const a of ACTS){const ps=scenes.filter(p=>p.act===a);if(!ps.length)continue;const rk=ri++%5;
+    h+=`<section class="mreg rg${rk}">${TERR[rk]}<div class="mgate">${GATE}${folioPlate(LAT[a],a?R[a]:"",`${AN(a)} · ${ps.filter(p=>prog.done[p.id]).length} of ${ps.length} sealed`,"mplate")}${GATE}</div>`;
     h+=`<ol class="stops">`+ps.map(p=>{const k=sIdx(p.id),d=prog.done[p.id],o=prog.qst[p.id]||{},Q=questsOf(p.id),x=MAPX[j++%MAPX.length];
       const pips=d&&Q.length&&gl!=="enjoy"?`<span class="pips" title="Quests">${Q.map(q=>`<i class="${o[q]?"on":""}"></i>`).join("")}<em>${Q.filter(q=>o[q]).length} of ${Q.length} quests</em></span>`:"";
-      return `<li style="--x:${x}"${x>60?` class="r"`:""}><button class="stop${d?" done":""}${k===here?" here":""}" type="button" data-stop="${p.id}">${d?folioSeal(p.scene,o.g?"g":""):folioSeal(p.scene,k===here?"n":"e")}<span class="sl"><b>Scene ${p.scene.toLowerCase()}${k===here?`<em>You are here</em>`:""}</b><small>${esc(shortLoc(p))}</small>${pips}</span></button></li>`}).join("")+`</ol>`}
+      return `<li style="--x:${x}"${x>60?` class="r"`:""}><button class="stop${d?" done":""}${k===here?" here":""}" type="button" data-stop="${p.id}">${k===here?PIN:""}${d?folioSeal(p.scene,o.g?"g":""):folioSeal(p.scene,k===here?"n":"e")}<span class="sl"><b>Scene ${p.scene.toLowerCase()}${k===here?`<em>You are here</em>`:""}</b><small>${esc(shortLoc(p))}</small>${pips}</span></button></li>`}).join("")+`</ol></section>`}
   h+=`<div class="mend">${folioSeal("❦",done===scenes.length?"g":"e","mfin")}<b>Finis</b></div></div>`;
   $("mapbody").innerHTML=h;requestAnimationFrame(drawPath)}
 function drawPath(){const w=$("mapw"),sv=$("mpath");if(!w||!sv||view!=="map")return;const b=w.getBoundingClientRect();
@@ -1960,7 +1996,7 @@ function coach(){const old=$("coach");if(old)old.remove();if(!folioSimple()||coa
 function coachDid(n){if(coachN===n&&folioSimple()&&view==="reader"){coachN++;coachSave();const o=$("coach");if(o)o.remove();setTimeout(coach,900)}}
 /* the level card (You / Me) */
 function levelHTML(){const all=allSeals(),L=folioLevel(all);
-  return `<div class="lvcard">${folioLevelBadge(all,"lvbig")}<div class="lvt"><small>Your level · every play</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><span class="meter"><i style="width:${Math.round(L.frac*100)}%"></i></span><em>${all} seal${all===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}</em></div></div>
+  return `<div class="lvcard"><span class="lvm2">${folioLaurel()}${folioLevelBadge(all,"lvbig")}</span><div class="lvt"><small>Your level · every play</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><span class="meter"><i style="width:${Math.round(L.frac*100)}%"></i></span><em>${all} seal${all===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}</em></div></div>
     <div class="ystrip" aria-label="Seals in this play">${ACTS.map(a=>`<div><small>${AN(a)}</small><span>${scenes.filter(p=>p.act===a).map(p=>`<button type="button" data-stop="${p.id}" aria-label="${sName(p)}">${folioSeal(p.scene,prog.done[p.id]?((prog.qst[p.id]||{}).g?"g":""):"e","mini")}</button>`).join("")}</span></div>`).join("")}</div>`}
 $("you").addEventListener("click",e=>{const s=e.target.closest("[data-stop]");if(s)openStop(s.dataset.stop)});
 

@@ -309,7 +309,7 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .tabs .ns{display:none}html.simple .tabs .nf{display:none}html.simple .tabs .ns{display:inline}
 .today{isolation:isolate;overflow:visible;margin-bottom:12px}
 .today::after{content:"";position:absolute;left:10px;right:10px;bottom:-7px;height:14px;z-index:-1;border:var(--line) solid var(--rule-strong);border-top:0;border-radius:0 0 var(--r-m) var(--r-m);background:var(--card)}
-.stk-in{display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--r-m)}
+.stk-in{display:grid;align-items:start;transition:height .25s;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--r-m)}
 .stk-in::-webkit-scrollbar{display:none}
 .stk-c{scroll-snap-align:start;min-width:0;padding:16px 18px 6px;text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:178px}
 .stk-c .lotd{padding:0}
@@ -391,6 +391,102 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
   .lacts{gap:2px 16px}
   .lotd blockquote{font-size:.82rem}
 }
+
+/* ===== 4.3 "Illuminated folio" shelf: stage hero, illustrated Today, wooden shelves with brass plaques, full-width desktop ===== */
+.hero.h43{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center;padding:18px;overflow:hidden;isolation:isolate;min-height:196px;background:linear-gradient(120deg,var(--card) 40%,color-mix(in srgb,var(--accent-soft) 60%,var(--card)))}
+.hero.h43::before{z-index:1}
+.hbg{position:absolute;right:-4%;top:50%;width:min(470px,78%);transform:translateY(-50%);z-index:-1;opacity:.3;-webkit-mask-image:linear-gradient(90deg,transparent,#000 45%);mask-image:linear-gradient(90deg,transparent,#000 45%)}
+.hbg .stage{margin:0;max-width:none}
+.hst .embl{color:#b8862a;--kc:var(--card)}
+.hcov{position:relative}.hcov .cover{display:block}
+.hcov::after{content:"";position:absolute;left:8%;right:8%;bottom:-8px;height:10px;border-radius:50%;background:radial-gradient(rgba(0,0,0,.35),transparent 70%);z-index:-1}
+.h43 .cover{--cw:clamp(96px,26vw,128px)}
+.h43 h3{font:400 clamp(1.3rem,4.4vw,1.75rem)/1.1 var(--f-old);margin:2px 0 4px;text-wrap:balance}
+.hrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.hring{width:58px;height:58px}
+.h43 .acts{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.btn.wax{background:linear-gradient(180deg,#b72c24,#86170f);border-color:#6c1110;color:#fff6ee;padding:4px 18px 4px 4px;gap:8px;box-shadow:0 3px 8px -3px rgba(80,10,5,.6),inset 0 1px 0 rgba(255,220,200,.3);font-size:max(15px,.82rem)}
+.wxd{display:grid;place-items:center;width:40px;height:40px}
+.wxs{width:40px;height:40px}.wxs .st{font-size:34px}
+.btn.wax:hover{filter:brightness(1.08)}
+/* Today: a parchment scroll, an illuminated initial, a seal per day, a seal for reviews */
+.scroll{position:relative;margin:10px auto 8px;max-width:32ch;padding:12px 18px;background:linear-gradient(180deg,#f6ead0,#efdfba);color:#2a1c08;border-left:1px solid #d6bf8e;border-right:1px solid #d6bf8e;box-shadow:0 4px 10px -6px rgba(60,30,10,.4)}
+.scroll .sr1,.scroll .sr2{position:absolute;left:-10px;right:-10px;height:12px;border-radius:6px;background:linear-gradient(180deg,#e9cf8f,#b98c43 60%,#7d5a24);box-shadow:0 2px 3px rgba(0,0,0,.3)}
+.scroll .sr1{top:-7px}.scroll .sr2{bottom:-7px}
+.scroll blockquote{margin:0 auto;color:#2a1c08}
+.scroll blockquote::first-letter{color:#8e1b17}
+.lotd cite{display:flex;align-items:center;justify-content:center;gap:8px}
+.cembx{width:26px;height:26px;color:#b8862a;--kc:var(--card)}
+.wini{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 2px}
+.ini{display:grid;place-items:center;width:56px;height:56px;flex:none;border-radius:4px;background:radial-gradient(circle at 30% 25%,#b02a22,#7e1510);color:#f6dc94;font:400 2.3rem/1 var(--f-sc);border:2px solid #d9ab4f;box-shadow:inset 0 0 0 3px #7e1510,inset 0 0 0 4px rgba(246,220,148,.6),0 4px 8px -4px rgba(0,0,0,.5)}
+.stk-c.word .wini b{margin:0}
+.wseal{gap:2px!important}
+.wseal .wd{max-width:none;flex:none}
+.wseal .seal{width:38px;height:38px}
+.wseal .seal .st{font-size:34px}
+.stk-c.duec .big{display:flex;justify-content:center;margin:2px 0}
+.dseal{width:76px;height:76px}.dseal .st{font-size:26px}
+/* wooden shelves with brass genre plaques */
+.s43 h3{flex-wrap:wrap;row-gap:6px}
+.s43 h3 em{order:2}
+.s43 h3::after{order:1}
+.s43 .gd{margin-top:8px}
+.case43{position:relative}
+.s43 .rail{padding-bottom:10px}
+.s43 .shelfbase{display:block;height:14px;background:linear-gradient(180deg,var(--wood1),var(--wood2) 60%,var(--wood3));margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));border-radius:0}
+.s43 .rail .cover{box-shadow:0 10px 14px -10px rgba(0,0,0,.7)}
+@media (min-width:1000px){
+  .home{grid-template-columns:minmax(0,1fr);gap:26px}
+  .desk{position:static;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:stretch}
+  .desk .greet{grid-column:1/-1;margin:0}
+  .desk #today{margin:0!important;display:flex;flex-direction:column;justify-content:center}
+  .hero.h43{min-height:100%;padding:24px 26px}
+  .h43 .cover{--cw:150px}
+  .hbg{width:min(560px,70%)}
+  .s43 .shelfbase{display:none}
+  .s43 .rail{--cw:168px;padding:14px 4px 22px;gap:22px 22px;background:repeating-linear-gradient(180deg,transparent 0 252px,var(--wood1) 252px,var(--wood2) 259px,var(--wood3) 266px,transparent 266px 274px);background-position:0 14px}
+}
+
+/* 4.3 You: laurel medallion, seal staircase, icon ledger, wax calendar, seals per play */
+.lvm{position:relative;display:grid;place-items:center;width:112px;height:112px}
+.lvm .laurel{position:absolute;inset:0;width:100%;height:100%}
+.lvc .lvm .seal{width:72px;height:72px}
+.lvc{background:linear-gradient(135deg,var(--card) 55%,color-mix(in srgb,var(--gold) 18%,var(--card)))}
+.stair{gap:0;margin:6px 0 24px}
+.stair li{margin-left:calc(var(--st) * 14px);padding:6px 10px;border-left:2px solid var(--rule);border-bottom:2px solid var(--rule);border-radius:0 0 0 6px}
+.stair li.on{border-color:color-mix(in srgb,var(--gold) 70%,var(--ink))}
+.stair li.at{background:var(--accent-soft);border-radius:0 8px 8px 6px}
+.stair li .seal{width:34px;height:34px}
+.stat{display:grid;justify-items:center;gap:2px;background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--accent-soft) 45%,var(--card)))}
+.sti{width:26px;height:26px;color:#b8862a}
+.heat i{border-radius:50%}
+.heat i.l1,.heat i.l2,.heat i.l3{box-shadow:inset 0 0 0 1.5px rgba(255,220,200,.35)}
+.heat i.l3{background:radial-gradient(circle at 35% 30%,#d4473d,#a5221d 60%,#6c1110)}
+.pseals{display:grid;gap:8px}
+@media (min-width:640px){.pseals{grid-template-columns:1fr 1fr}}
+.psrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border:var(--line) solid var(--rule);border-radius:var(--r-m);background:var(--card);color:inherit;text-decoration:none}
+.psrow:hover{border-color:var(--accent)}
+.psm{min-width:0;flex:1}
+.psm b{display:block;font:400 1.05rem var(--f-old);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.psm small{display:block;color:var(--muted);font-size:max(14px,.6rem)}
+.psl{display:flex;align-items:center;margin-top:4px}
+.psl .seal{width:18px;height:18px;margin-right:-3px}
+.psl em{font:600 14px var(--f-ui);color:var(--accent);margin-left:8px;font-style:normal}
+.gthumb{display:grid;place-items:center;flex:none;width:44px;height:58px;border-radius:2px 6px 6px 2px;background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 18%),var(--c);box-shadow:inset 0 0 0 1.5px rgba(217,171,79,.7),0 3px 6px -3px rgba(0,0,0,.5)}
+.gte{width:34px;height:34px;color:#d9ab4f;--kc:var(--c)}
+/* search: quill field, genre pills, cloth thumbs */
+.sbox input{border-color:color-mix(in srgb,var(--gold) 55%,var(--rule-strong));background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--accent-soft) 30%,var(--card)))}
+.sbox .mg{color:var(--accent)}
+.gchip{display:inline-flex;align-items:center;gap:6px}
+.gchip .gico{width:18px;height:18px}
+.g-Comedies{--gt:#2a6a3e;--gtc:#fff}.g-Histories{--gt:#7a5a12;--gtc:#fff}.g-Tragedies{--gt:#a01b17;--gtc:#fff}
+:root[data-theme="dark"] .gchip[class*="g-"],:root[data-theme="night"] .gchip[class*="g-"]{--gt:var(--accent);--gtc:var(--accent-ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme]) .gchip[class*="g-"]{--gt:var(--accent);--gtc:var(--accent-ink)}}
+.gchip{border-color:color-mix(in srgb,var(--gt,var(--rule)) 60%,var(--rule))}
+.gchip .gico{color:var(--gt)}
+.gchip[aria-pressed="true"]{background:var(--gt,var(--ink));border-color:var(--gt,var(--ink));color:var(--gtc,var(--page))}
+.gchip[aria-pressed="true"] .gico{color:inherit}
+.grp>button .gthumb{width:34px;height:44px}.grp>button .gthumb .gte{width:26px;height:26px}
 </style>
 </head>
 <body>
@@ -418,7 +514,7 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
   <button class="back" id="sback" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Library</button>
   <h2 class="vt">Search the Folio</h2>
   <div class="sbox">
-    <div class="sfield"><svg class="mg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <div class="sfield"><svg class="mg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 3C12 4 7 9 5 17l-1 4 2.5-2.5C9 17 13 15 15 12l-3 .5 4.5-2.5c1.6-2 3-4 3.5-7z"/><path d="M5 17c3-5 7-9 11-11"/></svg>
     <label class="sr" for="q">Search every play</label><input id="q" type="search" placeholder="A word, a line, a character…" autocomplete="off" enterkeyhint="search"></div>
     <div class="sfilt"><span class="chips" id="sgen"></span><label class="sr" for="splay">Play</label><select id="splay"></select></div>
   </div>
@@ -432,6 +528,7 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
   <div class="stats" id="stats"></div>
   <span class="lbl">Last 15 weeks</span>
   <div class="heat" id="heat" aria-label="Days read"></div>
+  <div class="sec"><h3>Your plays</h3><div class="pseals" id="pseals"></div></div>
   <div class="sec">
     <h3>App mode</h3>
     <p>For every play. You can switch at any time; nothing you have saved changes.</p>
@@ -498,6 +595,7 @@ const TABS=["library","search","you"];
 function go(tab){let q=null;if(/^search=/.test(tab||"")){try{q=decodeURIComponent(tab.slice(7))}catch(e){q=tab.slice(7)}tab="search"}
   if(!TABS.includes(tab))tab="library";closeDetail(true);
   TABS.forEach(t=>$("v-"+t).hidden=t!==tab);
+  if(!reduce){const el=$("v-"+tab);el.classList.remove("f43in");void el.offsetWidth;el.classList.add("f43in")}
   document.querySelectorAll(".tabs button").forEach(b=>{if(b.dataset.tab===tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   LS.set("folio-tab",tab);try{history.replaceState(null,"",location.pathname+location.search+(tab==="library"?"":"#"+tab))}catch(e){}
   scrollTo(0,0);$("tabs").classList.remove("away");
@@ -529,17 +627,19 @@ const GENRES=[["Comedies","Love, disguise, mistaken identity and happy endings"]
 function renderLibrary(){
   const h=new Date().getHours(),last=byId[LS.get("folio-last")],ls=last&&J("folio-stat-"+last.id);
   $("greet").textContent=(h<5?"Late at night":h<12?"Good morrow":h<18?"Good afternoon":"Good even")+(ls?". Your place is kept.":". Choose a play to begin.");
-  $("cont").innerHTML=ls?`<div class="hero">${coverA(last,ls)}<div><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
-    <div class="bar" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(2,ls.pct)}%"></i></div>
-    <div class="acts"><a class="btn pri" href="${last.id}/" data-play="${last.id}">Resume · ${Math.round(ls.pct)}%</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div>`:"";
+  /* 4.3 hero: the play on a stage (proscenium backdrop, its emblem as the scenery), cover, gilt progress ring, wax Resume */
+  $("cont").innerHTML=ls?`<div class="hero h43"><div class="hbg" aria-hidden="true">${folioStage(emblemSVG(last.id,"hembs")||"","","hst")}</div>
+    <div class="hcov">${coverA(last,ls)}</div><div class="hbody"><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
+    <div class="hrow"><span role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100">${folioRing(ls.pct/100,Math.round(ls.pct)+"%","hring")}</span>
+    <div class="acts"><a class="btn wax" href="${last.id}/" data-play="${last.id}"><span class="wxd" aria-hidden="true">${folioSeal(last.mono||"❦","","wxs")}</span>Resume</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div></div>`:"";
   renderToday();renderShelves();
 }
 function renderShelves(){
   document.querySelectorAll("#sortc .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===sortBy));
   const ord=orderPlays();
   $("shelves").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=ord.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
-    return `<section class="shelf" aria-label="${g}"><h3>${g}<em>${ps.length} plays${begun?` · ${begun} begun`:""}</em></h3><p class="gd">${esc(d)}</p>
-      <div class="rail" role="list">${ps.map(p=>coverA(p,J("folio-stat-"+p.id))).join("")}</div><div class="shelfbase"></div></section>`}).join("");
+    return `<section class="shelf s43" aria-label="${g}"><h3><span class="plaque">${folioGenreIcon(g)}${g}</span><em>${ps.length} plays${begun?` · ${begun} begun`:""}</em></h3><p class="gd">${esc(d)}</p>
+      <div class="case43"><div class="rail" role="list">${ps.map(p=>coverA(p,J("folio-stat-"+p.id))).join("")}</div><div class="shelfbase wood"></div></div></section>`}).join("");
 }
 /* tap a cover: its detail sheet (Begin / Continue, Contents, Study, Mark as not started) */
 document.addEventListener("click",e=>{const c=e.target.closest("a[data-cover]");if(!c||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();openDetail(c.dataset.cover)});
@@ -569,18 +669,20 @@ function seals(){let n=0;for(const p of PLAYS){const k=folioSealsOf(J(p.prefix+"
 /* Today (4.0): one card stack you swipe: line of the day, word of the day, this week with your level, reviews due */
 function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"}),C=[];
   if(LINES.length){if(li==null)li=(dayNo()*7919)%LINES.length;const L=LINES[li],p=byId[L.play];
-    C.push(["lotd",`<div class="lotd"><p class="eyebrow">Line of the day <span class="ldate">· ${esc(date)}</span></p><blockquote id="lq">${esc(L.text)}</blockquote><cite>${esc(L.who)} · ${esc(p.title)}</cite>
+    C.push(["lotd",`<div class="lotd"><p class="eyebrow">Line of the day <span class="ldate">· ${esc(date)}</span></p><div class="scroll"><i class="sr1" aria-hidden="true"></i><blockquote id="lq">${esc(L.text)}</blockquote><i class="sr2" aria-hidden="true"></i></div><cite><span class="cemb" aria-hidden="true">${emblemSVG(p.id,"cembx")||""}</span>${esc(L.who)} · ${esc(p.title)}</cite>
       <div class="lacts"><button class="lmore" type="button" id="lmore" hidden>Whole line</button><a href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play ›</a><button type="button" id="lnext">Another ›</button></div></div>`,"Line"])}
   const W=WORDS.length?WORDS[(dayNo()*104729)%WORDS.length]:null,wp=W&&byId[W[2]];
-  if(W)C.push(["word",`<p class="eyebrow">Word of the day</p><b>${esc(W[0])}</b><span class="wm">${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span>`,"Word"]);
+  if(W)C.push(["word",`<p class="eyebrow">Word of the day</p><div class="wini"><span class="ini" aria-hidden="true">${esc((W[0].replace(/^[^A-Za-z]+/,"")[0]||"?").toUpperCase())}</span><b>${esc(W[0])}</b></div><span class="wm">${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span>`,"Word"]);
   const days=readDays(),now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
   const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days),n=seals(),Lv=folioLevel(n);
-  C.push(["week",`<p class="eyebrow">This week</p><div class="wdots">${wk.map((d,i)=>`<span class="wd${days[dkey(d)]!=null?" on":""}${i===6?" now":""}"><i></i>${"SMTWTFS"[d.getDay()]}</span>`).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small><button class="lvrow" type="button" id="lvgo">${folioLevelBadge(n)}<span>${esc(Lv.name)} · ${n} seal${n===1?"":"s"}</span></button>`,"Week"]);
+  C.push(["week",`<p class="eyebrow">This week</p><div class="wdots wseal" role="img" aria-label="Read on ${wk.filter(d=>days[dkey(d)]!=null).length} of the last 7 days">${wk.map((d,i)=>{const on=days[dkey(d)]!=null,l="SMTWTFS"[d.getDay()];return `<span class="wd${on?" on":""}${i===6?" now":""}">${folioSeal(l,on?"":i===6?"n":"e")}</span>`}).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small><button class="lvrow" type="button" id="lvgo">${folioLevelBadge(n)}<span>${esc(Lv.name)} · ${n} seal${n===1?"":"s"}</span></button>`,"Week"]);
   const due=dueHTML();if(due)C.push(["duec",due,"Reviews"]);
   if(stI>=C.length)stI=0;
   el.innerHTML=`<div class="stk-in" id="stkin">${C.map(c=>`<div class="stk-c ${c[0]}">${c[1]}</div>`).join("")}</div>${C.length>1?`<div class="stk-dots" role="group" aria-label="Today cards">${C.map((c,i)=>`<button type="button" data-st="${i}" aria-label="${c[2]}" aria-current="${i===stI}"><i></i></button>`).join("")}</div>`:""}`;
   const si=$("stkin");si.scrollLeft=stI*si.clientWidth;
-  si.addEventListener("scroll",()=>{const i=Math.round(si.scrollLeft/Math.max(1,si.clientWidth));if(i!==stI){stI=i;el.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-current",+b.dataset.st===i))}},{passive:true});
+  /* 4.3: the stack is as tall as the card in view */
+  const fit=()=>{const c=si.children[stI];if(c&&innerWidth<1000)si.style.height=c.offsetHeight+"px";else si.style.height=""};requestAnimationFrame(fit);
+  si.addEventListener("scroll",()=>{const i=Math.round(si.scrollLeft/Math.max(1,si.clientWidth));if(i!==stI){stI=i;fit();el.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-current",+b.dataset.st===i))}},{passive:true});
   el.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>si.scrollTo({left:+b.dataset.st*si.clientWidth,behavior:reduce?"auto":"smooth"}));
   {const q=$("lq"),m=$("lmore");if(q&&m){m.hidden=q.scrollHeight<=q.clientHeight+2;m.onclick=()=>{q.classList.add("all");m.hidden=true}}}
   const ln=$("lnext");if(ln)ln.onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;stI=0;renderToday()};
@@ -593,13 +695,13 @@ function dueHTML(){const now=Date.now(),rows=[];let any=false;
   for(const p of PLAYS){const pr=J(p.prefix+"prog")||{},rv=J(p.prefix+"rev")||{},all=[...Object.values(pr.srs||{}),...Object.values((rv&&rv.it)||{})].filter(s=>s&&isFinite(s.d));
     if(all.length)any=true;const n=all.filter(s=>s.d<=now).length;if(n)rows.push([p,n])}
   if(!any||!rows.length)return "";const tot=rows.reduce((a,r)=>a+r[1],0);
-  return `<p class="eyebrow">Daily review</p><div class="big">${tot}</div><span>review item${tot===1?"":"s"} due today</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</span>`}
+  return `<p class="eyebrow">Daily review</p><div class="big">${folioSeal(String(tot),"","dseal")}</div><span>review item${tot===1?"":"s"} due today</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</span>`}
 
 /* ---------- search: genre chips + play picker, results grouped by play ---------- */
 const IDX={};let sg="all",sp="all",loading=null;const openG=new Set();
 const norm=s=>s.toLowerCase().replace(/[’‘]/g,"'").normalize("NFD").replace(/[̀-ͯ]/g,"");
 function initSearch(){
-  $("sgen").innerHTML=["all",...GENRES.map(g=>g[0])].map(g=>`<button class="chip" type="button" data-g="${g}" aria-pressed="${sg===g}">${g==="all"?"All":g}</button>`).join("");
+  $("sgen").innerHTML=["all",...GENRES.map(g=>g[0])].map(g=>`<button class="chip gchip g-${g}" type="button" data-g="${g}" aria-pressed="${sg===g}">${g==="all"?"All":folioGenreIcon(g)+g}</button>`).join("");
   document.querySelectorAll("#sgen .chip").forEach(b=>b.onclick=()=>{sg=b.dataset.g;sp="all";initSearch();runSearch()});
   const ps=PLAYS.filter(p=>sg==="all"||p.group===sg).sort((a,b)=>tkey(a).localeCompare(tkey(b)));
   $("splay").innerHTML=`<option value="all">${sg==="all"?"All 36 plays":"All "+sg.toLowerCase()}</option>`+ps.map(p=>`<option value="${p.id}"${sp===p.id?" selected":""}>${esc(p.title)}</option>`).join("");
@@ -631,7 +733,7 @@ function runSearch(){clearTimeout(stT);stT=setTimeout(async()=>{
   const extra=(nW?`<div class="grp open xg"><div class="xh"><b>Words</b><span>${nW}</span></div><ul class="res">${wds.map(w=>`<li><a href="${w[2]}/#study=explore:glossary:${encodeURIComponent(w[0])}" data-play="${w[2]}"><div class="rm">${esc(byId[w[2]].title)}<i>Glossary</i></div><div class="rt"><b class="gw">${esc(w[0])}</b><span class="gm">${esc(w[1])}</span></div></a></li>`).join("")}</ul>${nW>wds.length?`<button class="btn ghost more" type="button" data-all="w">Show all ${nW}</button>`:""}</div>`:"")+
     (nK?`<div class="grp open xg"><div class="xh"><b>Key quotes</b><span>${nK}</span></div><ul class="res">${kqs.map(L=>`<li><a href="${L.play}/#sp=${encodeURIComponent(L.id)}" data-play="${L.play}"><div class="rm">${esc(L.who)}<i>${esc(byId[L.play].title)}</i></div><div class="rt kq">${mark(L.text,q)}</div></a></li>`).join("")}</ul>${nK>kqs.length?`<button class="btn ghost more" type="button" data-all="k">Show all ${nK}</button>`:""}</div>`:"");
   $("sres").innerHTML=`<p class="count">${tot?`${tot} speech${tot===1?"":"es"} in ${groups.length} play${groups.length===1?"":"s"}`:"No speeches"} for “${esc(raw)}”</p>`+extra+groups.map(([p,hits])=>{const op=one||openG.has(p.id)||(![...openG].some(x=>!/^[wk]\*$/.test(x))&&groups[0][0]===p),all=openG.has(p.id+"*");
-    return `<div class="grp${op?" open":""}"><button type="button" data-grp="${p.id}" aria-expanded="${op}"><b>${esc(p.title)}</b><span>${hits.length}</span>${CHEV}</button>${op?`<ul class="res">${hits.slice(0,all?hits.length:Math.max(SHOW,one?40:SHOW)).map(({x,inO})=>`<li><a href="${p.id}/#sp=${x.id}" data-play="${p.id}"><div class="rm">${esc(x.who)}<i>${esc(x.sc)}${inO?"":" · modern English"}</i></div><div class="rt${inO?"":" mod"}">${inO?mark(x.o,q):mark(x.m,q)}</div></a></li>`).join("")}</ul>${!all&&hits.length>(one?40:SHOW)?`<button class="btn ghost more" type="button" data-all="${p.id}">Show all ${hits.length}</button>`:""}`:""}</div>`}).join("");
+    return `<div class="grp${op?" open":""}"><button type="button" data-grp="${p.id}" aria-expanded="${op}"><span class="gthumb" style="--c:${p.c}" aria-hidden="true">${emblemSVG(p.id,"gte")||""}</span><b>${esc(p.title)}</b><span>${hits.length}</span>${CHEV}</button>${op?`<ul class="res">${hits.slice(0,all?hits.length:Math.max(SHOW,one?40:SHOW)).map(({x,inO})=>`<li><a href="${p.id}/#sp=${x.id}" data-play="${p.id}"><div class="rm">${esc(x.who)}<i>${esc(x.sc)}${inO?"":" · modern English"}</i></div><div class="rt${inO?"":" mod"}">${inO?mark(x.o,q):mark(x.m,q)}</div></a></li>`).join("")}</ul>${!all&&hits.length>(one?40:SHOW)?`<button class="btn ghost more" type="button" data-all="${p.id}">Show all ${hits.length}</button>`:""}`:""}</div>`}).join("");
   document.querySelectorAll("[data-grp]").forEach(b=>b.onclick=()=>{const id=b.dataset.grp;openG.has(id)?openG.delete(id):openG.add(id);runSearch()});
   document.querySelectorAll("[data-all]").forEach(b=>b.onclick=()=>{openG.add(b.dataset.all+"*");runSearch()});
 },140)}
@@ -659,13 +761,17 @@ $("szr").oninput=e=>{LS.set("folio-size",SIZES[+e.target.value]);folioTheme();re
 $("themeb").onclick=()=>{const seq=FOLIO_THEMES,th=shownTheme();setTheme(seq[(seq.indexOf(th)+1)%seq.length])};
 function renderYou(){
   const days=readDays(),tot=Math.round(Object.values(days).reduce((a,b)=>a+b,0)/60),begun=PLAYS.filter(p=>J("folio-stat-"+p.id)).length;
-  $("stats").innerHTML=`<div class="stat"><b>${streak(days)}</b><span>Day streak</span></div><div class="stat"><b>${tot<60?tot+"m":(tot/60).toFixed(1)+"h"}</b><span>Time read</span></div><div class="stat"><b>${begun}/${PLAYS.length}</b><span>Plays begun</span></div>`;
+  const SI=(d)=>`<svg class="sti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  $("stats").innerHTML=`<div class="stat">${SI('<path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-5 1-8.5z"/>')}<b>${streak(days)}</b><span>Day streak</span></div><div class="stat">${SI('<path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/>')}<b>${tot<60?tot+"m":(tot/60).toFixed(1)+"h"}</b><span>Time read</span></div><div class="stat">${SI('<path d="M12 6.5C10 5 7.2 4.5 3.5 4.8v13.4c3.7-.3 6.5.2 8.5 1.8 2-1.6 4.8-2.1 8.5-1.8V4.8C16.8 4.5 14 5 12 6.5zM12 6.5V20"/>')}<b>${begun}/${PLAYS.length}</b><span>Plays begun</span></div>`;
   const now=new Date(),start=new Date(now);start.setDate(now.getDate()-now.getDay()-7*14);const cells=[];
   for(let d=new Date(start);d<=now;d.setDate(d.getDate()+1)){const s=days[dkey(d)];const l=s==null?"":s<300?" l1":s<1200?" l2":" l3";cells.push(`<i class="${l}${dkey(d)===dkey(now)?" t":""}" title="${dkey(d)}"></i>`)}
   $("heat").innerHTML=cells.join("");
   const n=seals(),L=folioLevel(n);
-  $("lvl").innerHTML=`<div class="lvc">${folioLevelBadge(n)}<div><small>Your level</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><div class="bar"><i style="width:${Math.round(L.frac*100)}%"></i></div><em>${n} seal${n===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}. A red seal for each scene you read, a gilt one when its quests are done.</em></div></div>
-    <ul class="lvlist">${FOLIO_LEVELS.map((x,i)=>`<li class="${i<=L.i?"on":""}">${folioSeal(["I","II","III","IV","V"][i],i<=L.i?(i>=3?"g":""):"e")}<span><b>${esc(x[1])}</b> · ${x[0]} seals</span></li>`).join("")}</ul>`;
+  $("lvl").innerHTML=`<div class="lvc"><span class="lvm">${folioLaurel("lvl43")}${folioLevelBadge(n)}</span><div><small>Your level</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><div class="bar"><i style="width:${Math.round(L.frac*100)}%"></i></div><em>${n} seal${n===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}. A red seal for each scene you read, a gilt one when its quests are done.</em></div></div>
+    <ul class="lvlist stair">${FOLIO_LEVELS.map((x,i)=>`<li class="${i<=L.i?"on":""}${i===L.i?" at":""}" style="--st:${i}">${folioSeal(["I","II","III","IV","V"][i],i<=L.i?(i>=3?"g":""):"e")}<span><b>${esc(x[1])}</b> · ${x[0]} seals</span></li>`).join("")}</ul>`;
+  /* 4.3: a shelf of seals per begun play */
+  const bp=PLAYS.map(p=>[p,J("folio-stat-"+p.id),folioSealsOf(J(p.prefix+"prog"))]).filter(x=>x[1]||x[2]).sort((a,b)=>((b[1]&&b[1].t)||0)-((a[1]&&a[1].t)||0));
+  $("pseals").innerHTML=bp.length?bp.map(([p,st,k])=>`<a class="psrow" href="${p.id}/#map" data-play="${p.id}"><span class="gthumb" style="--c:${p.c}" aria-hidden="true">${emblemSVG(p.id,"gte")||""}</span><span class="psm"><b>${esc(p.title)}</b><small>${st?Math.round(st.pct)+"% read · ":""}${k} seal${k===1?"":"s"}</small><span class="psl" aria-hidden="true">${Array.from({length:Math.min(k,12)},(_,i)=>folioSeal("","","ps1")).join("")}${k>12?`<em>+${k-12}</em>`:""}</span></span></a>`).join(""):`<p class="hint">Begin a play and its seals gather here.</p>`;
   document.querySelectorAll("#modes [data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===folioMode()));
   const bk=+LS.get("folio-lastbk");$("bksum").textContent=bk?"Last saved "+ago(bk)+".":"Not saved yet.";
   renderTheme();

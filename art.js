@@ -62,4 +62,18 @@
 
   /* the level badge: a medallion with the level's numeral */
   window.folioLevelBadge=function(n,cls){var L=folioLevel(n);return folioSeal(["I","II","III","IV","V"][L.i],L.i>=3?"g":"",cls||"lvb")};
+  /* 4.3: a laurel wreath (two branches) for the shelf and play You pages */
+  var LW=(function(){var P=function(r,a){return [R(50+r*Math.cos(a*Math.PI/180)),R(50+r*Math.sin(a*Math.PI/180))]},s="";
+    for(var a=110;a<=236;a+=14){var p1=P(48,a),p2=P(40,a+6);s+='<ellipse cx="'+p1[0]+'" cy="'+p1[1]+'" rx="6.2" ry="2.4" transform="rotate('+(a+52)+' '+p1[0]+' '+p1[1]+')"/><ellipse cx="'+p2[0]+'" cy="'+p2[1]+'" rx="5.4" ry="2.1" transform="rotate('+(a+128)+' '+p2[0]+' '+p2[1]+')"/>'}
+    var st=P(44,100),en=P(44,244),br='<g><path class="lst" d="M'+st[0]+' '+st[1]+'A44 44 0 0 1 '+en[0]+' '+en[1]+'"/>'+s+'</g>';return br+'<g transform="matrix(-1 0 0 1 100 0)">'+br+'</g>'})();
+  window.folioLaurel=function(cls){return '<svg class="laurel'+(cls?" "+cls:"")+'" viewBox="0 0 100 100" aria-hidden="true">'+LW+'</svg>'};
+  /* a gilt progress ring (f = 0..1) with a label in the middle */
+  window.folioRing=function(f,label,cls){defs();var C=2*Math.PI*30;f=Math.max(0,Math.min(1,+f||0));
+    return '<svg class="gring'+(cls?" "+cls:"")+'" viewBox="0 0 68 68" aria-hidden="true"><circle class="gr0" cx="34" cy="34" r="30"/>'+(f>0?'<circle class="gr1" cx="34" cy="34" r="30" stroke-dasharray="'+R(f*C)+' '+R(C)+'" transform="rotate(-90 34 34)"/>':"")+
+      '<circle class="gr2" cx="34" cy="34" r="24"/><text x="34" y="35" text-anchor="middle" dominant-baseline="central">'+esc(label)+'</text></svg>'};
+  /* genre icons for the shelf plaques, 24×24 line drawings: masks (Comedies), crown (Histories), dagger and skull (Tragedies) */
+  var GI={Comedies:'<path d="M3 5c3 1.6 6 1.6 9 0 0 6-1.6 10-4.5 10S3 11 3 5z"/><path d="M5.2 8.3h1.6M8.4 8.3H10M5.6 11c1 1 2.8 1 3.8 0"/><path d="M13.5 9.5c2.6 1 5 1 7.5 0 0 5.6-1.5 9-4 9-1.4 0-2.6-1-3.3-2.6"/><path d="M15.4 12.6h1.4M18 12.6h1.4M15.8 16c.8-.8 2.4-.8 3.2 0"/>',
+    Histories:'<path d="M4 18h16l1-10-5 4-4-7-4 7-5-4z"/><path d="M4 21h16"/><circle cx="12" cy="13.5" r="1.2"/>',
+    Tragedies:'<path d="M12 3c-4 0-6.5 2.8-6.5 6.3 0 2.2 1 3.7 2.5 4.6V17h8v-3.1c1.5-.9 2.5-2.4 2.5-4.6C18.5 5.8 16 3 12 3z"/><circle cx="9.3" cy="9.5" r="1.5"/><circle cx="14.7" cy="9.5" r="1.5"/><path d="M12 11.5l-.8 1.6h1.6zM10 17v3M12 17v3M14 17v3"/>'};
+  window.folioGenreIcon=function(g,cls){return '<svg class="gico'+(cls?" "+cls:"")+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'+(GI[g]||GI.Comedies)+'</svg>'};
 })();
