@@ -4,6 +4,16 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.9.0] — 2026-11-13
+
+### Added
+- Study home: a Today hero (pick up where you were, a five-minute plan of three steps, cards due) above the eight topics as illuminated contents rows with progress rings, a one-line preview and live progress (#PR)
+- Topic pages: a live panel for each topic (act ribbon with every scene read, word of the day, practice stats, an exam question to try with its starting quotes) and every tool as a described row in two columns (#PR)
+
+### Changed
+- Study footer: one slim Up next row, the other follow-ons in a More sheet, and Back to the scene you were reading (#PR)
+- Simple mode: the same redesign, trimmed: quests stay on top; the Write topic, critics, essay planner, extract and paragraphs are hidden (#PR)
+
 ## [4.8.0] — 2026-11-13
 
 ### Added

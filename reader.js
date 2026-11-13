@@ -824,8 +824,13 @@ const TLINE={story:"The plot act by act, with the facts behind it",people:"Who's
 /* any Explore part not placed above joins Story */
 EXT.forEach(([k])=>{if(!TOPICS.some(t=>t[2].includes("explore:"+k)))TOPICS[0][2].push("explore:"+k)});
 const topicK=k=>TOPICS.find(t=>t[0]===k)||TOPICS[0];
-const toolOK=s=>{const [a,b]=s.split(":");if(a==="explore")return EXT.some(x=>x[0]===b)&&exHas(b);if(a==="drill")return DRILLS.some(d=>d[0]===b);if(a==="para")return (EX.models||[]).length>0;return TABS.some(t=>t[0]===a)};
+const EXAMT=["explore:critics","plan","extract","para"];
+const topicsNow=()=>folioSimple()?TOPICS.filter(t=>t[0]!=="write"):TOPICS;
+const toolOK=s=>{if(folioSimple()&&EXAMT.includes(s))return false;const [a,b]=s.split(":");if(a==="explore")return EXT.some(x=>x[0]===b)&&exHas(b);if(a==="drill")return DRILLS.some(d=>d[0]===b);if(a==="para")return (EX.models||[]).length>0;return TABS.some(t=>t[0]===a)};
 const toolName=s=>{const [a,b]=s.split(":");if(a==="explore")return b?(EXT.find(x=>x[0]===b)||[,b])[1]:"Explore";if(a==="drill")return b?(DRILLS.find(d=>d[0]===b)||[,b])[1]:"Drills";return (TABS.find(t=>t[0]===a)||[,a])[1]};
+/* 4.9 one-line descriptions for the tool lists (Explore parts and drills describe themselves) */
+const TDESC={review:"Cards due today, spaced out so they stick",explore:"Facts, context, language and more",quotes:"Every key quote, by speaker or theme",cards:"Flip a quote: who said it, and why it matters",part:"Learn a character's lines from their cues",drill:"Quick games with the lines",quiz:"Four questions on each scene, or the whole play",themes:"Trace a theme from start to end, then copy a plan",plan:"Build an essay plan step by step",extract:"Answer on an extract, marked against the AOs",para:"Model paragraphs, taken apart",prof:"Build a character profile in steps",acts:"Each act on a page: what happens and why",revise:"Your marks, scores and quotes on one sheet"};
+const toolDesc=s=>{const [a,b]=s.split(":");if(a==="explore"&&b)return (EXT.find(x=>x[0]===b)||[,,""])[2];if(a==="drill"&&b)return (DRILLS.find(d=>d[0]===b)||[,,""])[2];return TDESC[a]||""};
 const toolNow=()=>S.stab==="explore"?(exSel?"explore:"+exSel:"explore"):S.stab==="drill"?(dr.k?"drill:"+dr.k:"drill"):S.stab;
 const topicOf=s=>{if(TP&&topicK(TP)[2].includes(s))return TP;const t=TOPICS.find(t=>t[2].includes(s));return t?t[0]:s.startsWith("drill")?"practise":s.startsWith("explore")?"story":"revise"};
 /* emblems, 64×64 line drawings in the topic's ink */
@@ -950,10 +955,24 @@ function qCard(q){const sp=speech[q.id];return `<div class="kq" style="--c:${COL
 function sHead(back,backL,ttl){$("sgroups").hidden=false;$("stabs").hidden=true;
   $("sgroups").innerHTML=`<button class="sgback" type="button" data-to="${esc(back)}" aria-label="Back to ${esc(backL)}">${CHEV}<span>${esc(backL)}</span></button><h2 class="sgname">${esc(ttl)}</h2><button class="sgq" id="sgq" type="button" aria-label="How this works" hidden>?</button>`}
 const tTile=(s,tp)=>`<button class="ttool" type="button" data-to="study:${s}${s.includes("?")?"&":"?"}tp=${tp}">${tic(s.split("?")[0])}<span>${esc(toolName(s.split("?")[0]))}</span></button>`;
+/* 4.9 Study home: a Today hero (continue, a five-minute plan, cards due), then the topics as illuminated contents rows */
+const dayN=()=>Math.floor(Date.now()/864e5);
+function wordOfDay(){const ks=Object.keys(G);if(!ks.length)return null;const u=glossUse(),k=ks[dayN()%ks.length];return {k,g:G[k],id:u[k]}}
+function fivePlan(){const d=dueKeys().length,P=[];
+  P.push(d?["study:review",`Review ${d} card${d===1?"":"s"} due`,"2 min"]:["study:cards","Learn 3 new key quotes","2 min"]);
+  const q=scenes.filter(p=>prog.done[p.id]&&!prog.quiz[p.id]).pop();P.push(q?["study:quiz?s="+q.id,`Quiz: ${sName(q)}`,"2 min"]:["study:drill:gap","Fill the gap in a key quote","2 min"]);
+  const w=wordOfDay();if(w)P.push(["study:explore:glossary?w="+encodeURIComponent(w.k),`Word of the day: ${w.k}`,"1 min"]);return P}
+function todayHTML(){const last=SLAST||S.stab?toolNow():"",nx=nextStep(),d=dueKeys().length,pl=fivePlan();
+  const cont=last&&TABS.some(t=>t[0]===S.stab)?[`study:${last}`,"Pick up",toolName(last)]:[nx[0],"Next step · "+nx[2],nx[1]];
+  return `<section class="today48" aria-label="Today"><div class="tdhead"><small>Today</small><b>${esc(CFG.short)}</b></div><div class="tdgrid">
+   <button class="tdc tdcont" type="button" data-to="${esc(cont[0])}"><span class="pkseal" aria-hidden="true">${folioSeal("❧","","pks")}</span><span><small>${esc(cont[1])}</small><b>${esc(cont[2])}</b></span><i aria-hidden="true">›</i></button>
+   <div class="tdc tdplan"><small>Five-minute plan</small><ol>${pl.map(([to,l,m])=>`<li><button type="button" data-to="${esc(to)}"><span>${esc(l)}</span><em>${m}</em></button></li>`).join("")}</ol></div>
+   <button class="tdc tddue" type="button" data-to="study:${d?"review":"cards"}"><b>${d}</b><small>${d===1?"card due":"cards due"}</small><span>${d?"Review now ›":"Learn new cards ›"}</span></button>
+  </div></section>`}
 function renderStudyHome(){SLAST=false;SV=null;$("study").dataset.tp="";$("sgroups").hidden=true;$("stabs").hidden=true;$("srel").innerHTML="";
-  const last=SLAST||S.stab?toolNow():"",nx=nextStep();
-  const top=folioSimple()?questStripHTML():`<div class="pickup">${last&&TABS.some(t=>t[0]===S.stab)?`<button class="pk pkr" data-to="study:${last}"><i class="pkrib" aria-hidden="true"></i><small>Pick up</small><b>${esc(toolName(last))}</b></button>`:""}<button class="pk next pkw" data-to="${nx[0]}"><span class="pkseal" aria-hidden="true">${folioSeal("❧","","pks")}</span><span><small>Next step · ${nx[2]}</small><b>${esc(nx[1])}</b></span></button></div>`;
-  $("sbody").innerHTML=top+`<div class="ttiles4">${TOPICS.map(([k,l])=>{const [f,st]=topicStat(k);return `<button class="ttile tp-${k}" type="button" data-to="study:topic:${k}">${ringEmb(EMB[k],f)}<b>${l}</b><small>${f===0?BEGIN:esc(st)}</small></button>`}).join("")}</div>`}
+  const T=topicsNow();
+  $("sbody").innerHTML=(folioSimple()?questStripHTML():"")+todayHTML()+`<div class="tsec toch"><h3>Contents</h3><small>${T.length} topics</small></div><ol class="toc48">${T.map(([k,l],i)=>{const [f,st]=topicStat(k);
+    return `<li><button class="tocr tp-${k}" type="button" data-to="study:topic:${k}">${ringEmb(EMB[k],f)}<span class="tocn" aria-hidden="true">${["I","II","III","IV","V","VI","VII","VIII"][i]}</span><span class="toct"><b>${l}</b><small>${esc(TLINE[k])}</small><em>${f===0?"Not begun":esc(st)}</em></span><i aria-hidden="true">›</i></button></li>`}).join("")}</ol>`}
 /* Simple mode: the quests for scenes you've read, as a swipeable strip above the tiles */
 function questStripHTML(){const read=scenes.filter(p=>prog.done[p.id]&&questsOf(p.id).length).sort((a,b)=>prog.done[b.id]-prog.done[a.id]),open=read.filter(p=>!(prog.qst[p.id]||{}).g),gilt=read.length-open.length;
   let h=`<div class="qhead">${folioSeal("❦","g","qhs")}<div><h2>Quests</h2><p>${read.length?`${open.length} scene${open.length===1?"":"s"} to finish · ${gilt} gilt`:"Read a scene to unlock its quests"}</p></div></div>`;
@@ -967,10 +986,14 @@ function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   let h=`<div class="thead">${tbanner(EMB[k])}${ringEmb(EMB[k],f,"big")}<div><h2>${T[1]}</h2><p>${esc(TLINE[k])}</p><small>${esc(st)}</small></div></div>`;
   if(k==="people")h+=secH("The characters")+`<div class="wgal">${whoAll().map(w=>`<button class="wmed" type="button" data-to="study:who:${esc(encodeURIComponent(w))}">${folioMedal(w,COLORS[w])}<b>${esc(title(w))}</b>${profStarted(w)?`<small>Profile started</small>`:""}</button>`).join("")}</div>`;
   if(k==="themes")h+=secH("The themes")+`<div class="ttiles4 sm">${Object.entries(QUOTES.themes).map(([t,v])=>{const [a,b]=thLearnt(t);return `<button class="ttile" type="button" data-to="study:theme:${t}">${ringEmb(TEMB[temb(t)],a/Math.max(1,b))}<b>${esc(v[0])}</b><small>${a?`${a} of ${b} quotes`:BEGIN}</small></button>`}).join("")}</div>`;
-  if(k==="story")h+=secH("Act by act")+`<div class="aplates">${ACTS.map(a=>{const ps=scenes.filter(p=>p.act===a);return ps.length?`<button class="apbtn" type="button" data-to="study:acts?a=${a}&tp=story">${folioPlate(LAT[a],a?R[a]:"",`${ps.filter(p=>prog.done[p.id]).length} of ${ps.length} scenes read`)}</button>`:""}).join("")}</div>`;
+  if(k==="story")h+=secH("Act by act")+`<div class="ribbon48">${ACTS.map(a=>{const ps=scenes.filter(p=>p.act===a);return ps.length?`<button class="rbact" type="button" data-to="study:acts?a=${a}&tp=story"><b>${a?R[a]:"Ind."}</b><span class="rbdots">${ps.map(p=>`<i class="${prog.done[p.id]?"d":""}${pos&&pos.s===p.id?" h":""}" title="${esc(sName(p))}"></i>`).join("")}</span><small>${ps.filter(p=>prog.done[p.id]).length}/${ps.length}</small></button>`:""}).join("")}</div>${pos&&sIdx(pos.s)>=0?`<p class="rbnow">You're at ${toLink("scene:"+pos.s,sName(scenes[sIdx(pos.s)]))}</p>`:""}`;
   if(k==="quotes"){const nx=QUOTES.quotes.find(q=>!prog.cards[q.i]);if(nx)h+=secH("One to learn")+`<div class="one">${qCard(nx)}</div>`}
+  if(k==="words"){const w=wordOfDay();if(w)h+=secH("Word of the day")+`<div class="wod48"><b>${esc(w.k)}</b><p>${esc(w.g)}</p>${w.id?chip(w.id):""}</div>`}
+  if(k==="practise"){const d=dueKeys().length,qz=Object.entries(prog.quiz).filter(([q])=>q!=="all"&&sIdx(q)>=0),tot=qz.reduce((a,[,v])=>[a[0]+v[0],a[1]+v[1]],[0,0]);
+    h+=secH("Your practice")+`<div class="stat48">${[[d,"due today","study:review"],[qz.length+"/"+scenes.length,"scenes quizzed","study:quiz"],[tot[1]?Math.round(100*tot[0]/tot[1])+"%":"–","quiz average","study:quiz"]].map(([v,l,to])=>`<button type="button" data-to="${to}?tp=practise"><b>${v}</b><small>${l}</small></button>`).join("")}</div>`}
+  if(k==="write"&&(EX.examq||[]).length){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:plan?tp=write">Plan it ›</button></div>`}
   if(k==="revise"){const d=dueKeys().length;h+=`<div class="pickup"><button class="pk next" data-to="study:${d?"review":"revise"}?tp=revise"><small>${d?"Due today":"Revision sheet"}</small><b>${d?`Review ${d} card${d===1?"":"s"}`:"Copy, print or back up"}</b></button></div>`}
-  return h+secH("Tools")+`<div class="ttools">${T[2].filter(toolOK).map(s=>tTile(s,k)).join("")}</div>`}
+  const ts=T[2].filter(toolOK);return h+secH("Tools",ts.length)+`<div class="tlist48">${ts.map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=${k}">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
 function whoHTML(w){const c=CH[w]||{},qs=QUOTES.quotes.filter(q=>speech[q.id].who===w),sps=Object.values(speech).filter(s=>s.who===w),ln=sps.reduce((a,s)=>a+s.lines.length,0),scn=new Set(sps.map(s=>s.page)).size,an=(EX.analysis||{})[w];
   let h=`<div class="whead" style="--c:${esc(COLORS[w]||"var(--tc)")}">${folioMedal(w,COLORS[w],"wbig")}<div><h2>${esc(title(w))}</h2>${c.desc?`<p>${esc(c.desc)}</p>`:""}<div class="wbgs">${[[ln,"lines"],[sps.length,"speeches"],[scn,"scenes"]].map(([v,l])=>`<span class="wbg"><b>${v}</b><small>${l}</small></span>`).join("")}</div></div></div>`;
   if(qs.length)h+=secH("Their key quotes",qs.length)+deckHTML(qs.map(qCard),"wkq","Key quotes");
@@ -1019,10 +1042,12 @@ function relList(){const T=k=>(TABS.find(x=>x[0]===k)||[,k])[1],W=w=>esc(title(w
     else if(x==="critics"||x==="context")add("study:para",T("para"));
     if(x)add("study:explore","All of Explore");else{add("study:acts","Act summaries");add("study:themes","Themes")}}
   add("read","Back to reading");return R}
-/* one Next card (the best follow-on), the rest folded under More; a line to remember beside it on wide screens */
+/* 4.9 footer: one slim "Up next" row, the rest in a More sheet, and a way back to the scene you were reading */
+let RELM=[];
 function renderRel(){const el=$("srel");if(!el)return;if(SH||SV||view!=="study"){el.innerHTML="";return}
-  const [n,...m]=relList(),q=QUOTES.quotes[Math.floor(Date.now()/864e5)%QUOTES.quotes.length];
-  el.innerHTML=`<button class="nextc" type="button" data-to="${esc(n[0])}"><small>Next</small><b>${n[1]}</b><span class="nxa" aria-hidden="true">›</span></button>${m.length?`<details class="rmore"><summary>More</summary><div>${m.map(([sp,l])=>toLink(sp,l)).join("")}</div></details>`:""}${q?`<div class="sideq"><small>A line to remember</small><blockquote>“${esc(q.text)}”</blockquote><p>${esc(title(speech[q.id].who))} · ${chip(q.id)}</p></div>`:""}`}
+  const hid=x=>folioSimple()&&EXAMT.some(t=>x[0]==="study:"+t||x[0].startsWith("study:"+t+"?")),L=relList().filter(x=>x[0]!=="read"&&!hid(x));if(!L.length)L.push(["study","Study home"]);const [n,...m]=L;RELM=m;const ps=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)]:null;
+  el.innerHTML=`<div class="upn48"><button class="upn" type="button" data-to="${esc(n[0])}"><small>Up next</small><b>${n[1]}</b><i aria-hidden="true">›</i></button>${m.length?`<button class="upm" type="button" data-relmore>More <span>${m.length}</span></button>`:""}</div>${ps?`<button class="upback" type="button" data-to="scene:${ps.id}"><span aria-hidden="true">‹</span> Back to ${esc(sName(ps))}</button>`:`<button class="upback" type="button" data-to="read"><span aria-hidden="true">‹</span> Back to reading</button>`}`}
+document.addEventListener("click",e=>{if(e.target.closest("[data-relmore]"))openSheet("More from here",`<div class="relm48">${RELM.map(([sp,l])=>`<button class="tlr" type="button" data-to="${esc(sp)}">${tic(sp.replace(/^study:/,"").split("?")[0])}<span><b>${l}</b></span><i aria-hidden="true">›</i></button>`).join("")}</div>`)});
 try{new MutationObserver(()=>renderRel()).observe($("sbody"),{childList:true})}catch(e){}
 let SBACK=null;
 function renderStudy(){
