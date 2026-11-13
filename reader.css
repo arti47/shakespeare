@@ -1689,3 +1689,129 @@ body.facing .spread2.facing::before{content:"";position:absolute;top:0;bottom:0;
   body.spread .dogear{position:fixed}
 }
 @media (prefers-reduced-motion:reduce){.apill,body.v-reader.sside .sheet .sbox{animation:none}.sheet .sbox,.rhead,.dogear{transition:none}}
+
+/* ---------- 4.6 "Printed page" (audit 9, reader only): desk page inside the book with book margins, sheets keep the book,
+   run-in speakers on phones, no rules between speeches, tidy opener, tabbed Speech tools, parchment gloss, key quote card,
+   end of scene across an opening, desk leaf turn, empty states, fine type, candlelit page, interlinear Both on tablet portrait ---------- */
+/* no hairline between speeches: space and the name, as on the printed page */
+.sp+.sp{border-top:0;padding-top:.55em}
+/* fine type: old-style figures, ligatures, true small caps only */
+#reader .o,#reader .m,#reader .sd{font-variant-ligatures:common-ligatures;font-kerning:normal}
+#reader .l[data-n]::before,.pgfoot,.rhead,#p-num{font-variant-numeric:oldstyle-nums proportional-nums}
+#reader .nm,#reader .rhead,#reader .pgfoot .pfc{font-synthesis:none}
+/* opener: one band; the scene's first beat sits in it; one Before you read button */
+.hbeat{margin:.35em 0 0;font:italic 400 max(14px,.6em)/1.35 var(--f-old);color:var(--accent)}
+.hbeat::before{content:"\2767\00a0";font-style:normal;font-family:Georgia,serif}
+.sh44 .recapb{display:inline-flex;align-items:center;margin:.45em 0 0;min-height:40px;padding:.15em .95em;border:var(--line) solid color-mix(in srgb,var(--accent) 70%,var(--rule));border-radius:999px;text-decoration:none;font:400 max(14px,.58em) var(--f-sc);letter-spacing:.05em;color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
+/* phones: the speaker's name runs in at the start of the first line */
+.sp.run .ri{display:inline;margin:0 .3em 0 0;padding:0;border:0;background:none;font:400 .84em var(--f-sc);letter-spacing:.05em;color:var(--c,var(--accent));text-indent:0;cursor:pointer;white-space:nowrap}
+:root:not([data-theme="dark"]):not([data-theme="night"]) .sp.run .ri{color:color-mix(in srgb,var(--c,var(--accent)) 82%,#000)}
+.sp.run .ri.cont{opacity:.8}
+.sp.run .rit{display:inline-flex;gap:4px;vertical-align:.12em;margin-right:.35em}
+.sp.run .rit .tag{font-size:max(14px,.55em);padding:0 .35em;line-height:1.4}
+.sp.run .rit .flag{font-size:.7em}
+.sp.run>.who1{margin:0 0 .15em}
+/* desk: a printed page. Running head, folios and time left sit inside the book's margins (top 56, outer 64, foot 62: kept in step with BOOK in reader.js) */
+@media (min-width:1200px){
+  body.spread .viewport{padding-top:calc(env(safe-area-inset-top,0px) + 80px);padding-bottom:86px}
+  body.spread .pg{max-width:min(1180px,calc(100vw - 300px))}
+  body.spread .spread2::after{inset:-56px -64px -62px calc(-64px - 2.2em)}
+  body.spread .spread2::before{top:-56px;bottom:-62px}
+  body.spread .sribbon{top:-56px;height:110px}
+  body.spread .pg.bmk::before{top:-56px;right:-30px;height:70px}
+  body.spread .rhead{transform:none;right:auto;padding-left:2.4em;z-index:2;color:var(--soft);opacity:1}
+  body.spread .rhead span{border-bottom-color:color-mix(in srgb,var(--gold) 45%,var(--rule))}
+  body.spread .pgfoot{display:grid;grid-template-columns:1fr 1fr;column-gap:64px;padding-left:2.4em;right:auto;z-index:2;font-size:max(14px,.85rem)}
+  body.spread .pgfoot .pfa,body.spread .pgfoot .pfb{text-align:center;font:400 max(14px,.9rem) var(--f-sc);letter-spacing:.06em;color:var(--muted)}
+  body.spread .pgfoot .pfa{grid-column:1}
+  body.spread .pgfoot .pfb{grid-column:2}
+  body.spread .pgfoot .pfc{grid-column:1/-1;text-align:center;color:var(--muted)}
+  body.spread .pgfoot .pfr{display:none}
+  body.spread .pgfoot .pfl{position:absolute;left:2.4em;bottom:0;color:var(--soft)}
+  body.spread .spread2.one{grid-template-columns:minmax(0,1fr)}
+  body.spread .pg{overflow:visible!important}
+  body.spread .spread2.one::before{display:none}
+  body.spread .spread2.one .sribbon{left:auto;right:28px;margin-left:0}
+  body.spread:not(.mode-both) .sp{grid-template-columns:5.2em minmax(0,1fr);column-gap:.8em}
+  body.spread:not(.mode-both) .sp>.body{padding-right:1.9em}
+  body.spread:not(.mode-both) .sp .o .l[data-n]::before{right:-1.9em}
+  body.spread.tight .pg{max-width:min(760px,calc(100vw - min(420px,42vw) - 200px))}
+  body.spread.tight .viewport{padding-right:calc(min(420px,42vw) + 24px)}
+  /* the leaf turns over at the gutter */
+  body.spread .spread2.flipF>.leaf:nth-of-type(1){transform-origin:right center;animation:f46flipF .38s cubic-bezier(.25,.7,.3,1)}
+  body.spread .spread2.flipB>.leaf:nth-of-type(2){transform-origin:left center;animation:f46flipB .38s cubic-bezier(.25,.7,.3,1)}
+  body.spread .spread2.flipF>.leaf:nth-of-type(2),body.spread .spread2.flipB>.leaf:nth-of-type(1){animation:f46shade .38s ease-out}
+}
+@keyframes f46flipF{0%{transform:perspective(2200px) rotateY(86deg);filter:brightness(.82)}100%{transform:none;filter:none}}
+@keyframes f46flipB{0%{transform:perspective(2200px) rotateY(-86deg);filter:brightness(.82)}100%{transform:none;filter:none}}
+@keyframes f46shade{0%{filter:brightness(.9)}100%{filter:none}}
+/* Speech tools: one card, the speaker pinned, four tabs */
+.ttabbed .tpin{display:flex;align-items:center;gap:10px;position:sticky;top:-2px;z-index:2;margin:-4px -4px 8px;padding:6px 4px 8px;background:var(--card);border-bottom:1px solid var(--rule)}
+.ttabbed .tpm{width:44px;height:44px;flex:none}
+.ttabbed .tpn{display:block;font:400 max(14px,1.05rem) var(--f-sc);letter-spacing:.05em;color:var(--ink)}
+.ttabbed .tpin .ref{margin:0}
+.ttabs{display:flex;gap:4px;position:sticky;top:60px;z-index:2;margin:0 0 12px;padding:4px;border-radius:999px;background:var(--hover);border:1px solid var(--rule)}
+.ttabs button{flex:1;min-height:40px;border:0;border-radius:999px;background:none;color:var(--soft);font:400 max(14px,.95rem) var(--f-sc);letter-spacing:.04em;cursor:pointer}
+.ttabs button small{font:400 max(14px,.8rem) var(--f-ui);color:var(--accent)}
+.ttabs button[aria-selected="true"]{background:var(--card);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.ttabbed [data-tp]{display:none}
+.ttabbed[data-tt="mod"] [data-tp="mod"],.ttabbed[data-tt="words"] [data-tp="words"],.ttabbed[data-tt="note"] [data-tp="note"],.ttabbed[data-tt="mark"] [data-tp="mark"]{display:block;animation:f43in .2s ease-out}
+.ttabbed .tdl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:0}
+.ttabbed .tdl dt{font:400 max(14px,1rem) var(--f-sc);letter-spacing:.03em;color:var(--accent)}
+.ttabbed .tdl dd{margin:0}
+.ttabbed [data-tp="mark"] .trow{margin-top:0}
+/* gloss: a parchment slip with an arrow to the word */
+.gpop.gslip{background:linear-gradient(180deg,color-mix(in srgb,#f3e3bd 55%,var(--card)),var(--card));color:var(--ink);border:1px solid color-mix(in srgb,var(--gold) 60%,var(--rule));border-radius:6px;box-shadow:0 12px 26px -12px rgba(50,25,5,.6);font-family:var(--f-body)}
+.gpop.gslip b{color:var(--accent);font:400 max(14px,1.1rem) var(--f-sc);letter-spacing:.05em}
+.gpop.gslip .gacts a,.gpop.gslip .gacts .link,.gpop.gslip .golink,.gpop.gslip .golink *{color:var(--accent)}
+.gpop.gslip::after{content:"";position:absolute;left:calc(var(--ax,50%) - 7px);top:100%;width:14px;height:8px;background:var(--card);clip-path:polygon(0 0,100% 0,50% 100%);filter:drop-shadow(0 1px 0 color-mix(in srgb,var(--gold) 60%,var(--rule)))}
+.gpop.gslip.below::after{top:auto;bottom:100%;clip-path:polygon(50% 0,100% 100%,0 100%);background:color-mix(in srgb,#f3e3bd 55%,var(--card))}
+:root[data-theme="dark"] .gpop.gslip,:root[data-theme="night"] .gpop.gslip{background:color-mix(in srgb,var(--gold) 12%,var(--card))}
+@media (prefers-color-scheme:dark){:root:not([data-theme]) .gpop.gslip{background:color-mix(in srgb,var(--gold) 12%,var(--card))}}
+/* key quote: a display card with the speaker's medallion and the theme's emblem */
+.kq46{position:relative;overflow:hidden;padding:22px 18px 16px;border:1px solid color-mix(in srgb,var(--gold) 55%,var(--rule));border-radius:var(--r-m,10px);background:linear-gradient(180deg,color-mix(in srgb,#f3e3bd 45%,var(--card)),var(--card));box-shadow:0 10px 24px -16px rgba(50,25,5,.6)}
+:root[data-theme="dark"] .kq46,:root[data-theme="night"] .kq46{background:color-mix(in srgb,var(--gold) 9%,var(--card))}
+.kq46 .kqemb{position:absolute;right:-8px;top:-6px;width:110px;height:110px;opacity:.12;fill:none;stroke:var(--accent);stroke-width:2}
+.kq46 .kqmk{display:block;font:400 1.6rem Georgia,serif;color:var(--accent);line-height:1}
+.kq46 blockquote{margin:.2em 0 .7em;font:italic 400 clamp(1.3rem,4.6vw,1.75rem)/1.35 var(--f-old);color:var(--ink)}
+.kq46 .kqwho{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.kq46 .kqm2{width:40px;height:40px;flex:none}
+.kq46 .kqwho b{display:block;font:400 max(14px,1rem) var(--f-sc);letter-spacing:.05em;color:var(--ink)}
+.kq46 .kqwho span{font-size:max(14px,.85rem);color:var(--soft)}
+.kq46 .kqth{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.kq46 .kqwhy b{display:block;font:400 max(14px,.9rem) var(--f-sc);letter-spacing:.05em;color:var(--accent)}
+.kqrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:6px;margin-top:12px}
+.kqi{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;padding:6px 4px;border:1px solid var(--rule);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer}
+.kqi svg{width:22px;height:22px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.kqi small{font:400 max(14px,.8rem) var(--f-sc);color:var(--soft)}
+/* end of scene: across a desk opening; the argument folds on phones */
+.endcard.endb{justify-content:flex-start;padding-top:1.2em}
+.endcard .endhd{font:400 max(14px,.9em) var(--f-sc);letter-spacing:.06em;color:var(--muted);text-align:center;margin-bottom:.6em}
+.endcard .endhd i{font-family:var(--f-old)}
+.endcard.endb .endsum{margin-top:0;border-top:0;font-size:max(14px,.78em);color:var(--ink)}
+.endfold{cursor:pointer}
+.endfold summary{list-style:none;text-align:center;min-height:40px;display:flex;align-items:center;justify-content:center}
+.endfold summary::-webkit-details-marker{display:none}
+.endfold summary b{display:inline;margin:0}
+.endfold summary span{color:var(--accent)}
+.endfold[open] summary span{display:none}
+/* empty states */
+.empty46{display:grid;place-items:center;margin:18px 0 6px}
+.empty46 svg{width:140px;height:105px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.empty46 .eq{stroke:var(--ink);stroke-width:1.6;fill:color-mix(in srgb,var(--page) 80%,var(--gold))}
+.empty46 .eq2{stroke:var(--soft);stroke-width:1.3}
+.empty46 .er{fill:var(--accent);stroke:none}
+.empty46 .el{stroke:var(--rule-strong);stroke-width:1.4}
+.emptyp{text-align:center;color:var(--soft);max-width:34em;margin:0 auto}
+/* candlelit page: warmth in the middle, a soft vignette at the edges (Dark and Night) */
+:root[data-theme="dark"] body.v-reader:not(.spread) .viewport,:root[data-theme="night"] body.v-reader:not(.spread) .viewport{background-image:radial-gradient(ellipse 75% 60% at 50% 40%,rgba(255,176,90,.07),transparent 70%),radial-gradient(ellipse 120% 100% at 50% 50%,transparent 62%,rgba(0,0,0,.32))}
+:root[data-theme="dark"] body.spread .spread2::after,:root[data-theme="night"] body.spread .spread2::after{box-shadow:var(--stack,3px 3px 0 -1px var(--rule)),0 30px 50px -14px rgba(0,0,0,.7),inset 0 0 110px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,190,110,.05)}
+/* Both on tablet portrait: modern English under each part, as a slip */
+@media (min-width:760px) and (max-width:999px){
+  body.mode-both .sp .body{display:block}
+  body.mode-both .chunk{display:block}
+  body.mode-both .sp .m{margin:.35em 0 .7em;padding:.5em .8em;border:1px solid color-mix(in srgb,var(--gold) 55%,var(--rule));border-left:3px solid var(--accent);border-radius:0 var(--r-s,6px) var(--r-s,6px) 0;background:color-mix(in srgb,#f3e3bd 35%,var(--card));font-size:max(14px,.88em)}
+  :root[data-theme="dark"] body.mode-both .sp .m,:root[data-theme="night"] body.mode-both .sp .m{background:color-mix(in srgb,var(--gold) 9%,var(--card))}
+  body.mode-both .chunk+.chunk>*{border-top:0}
+}
+@media (prefers-reduced-motion:reduce){body.spread .spread2>.leaf{animation:none!important}.ttabbed [data-tp]{animation:none!important}}
