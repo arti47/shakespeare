@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.3.1] — 2026-11-13
+
+### Fixed
+- Shelf Today cards: a swipe could also scroll the stack up and down on iPhone, cutting off a card's title and leaving a gap below it. The stack now scrolls only sideways, resets to the top of each card and fits again once the fonts load. The stacked edge under the card is a light rule, not a second frame (#107)
+
 ## [4.3.0] — 2026-11-13
 
 ### Changed
