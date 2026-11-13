@@ -4,6 +4,18 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.10.0] — 2026-11-13
+
+### Added
+- Symbol tracker: an act-by-symbol heat strip above the lists; tap a cell for the speeches as preview rows (#116)
+- Critics: a timeline of every dated critic, coloured by theme; tap a dot to jump to the card (#116)
+- Theme pages: "Through the play", a bar per act of the theme's key quotes; tap an act for its quotes (#116)
+- Arcs chart: every scene point is tappable and opens the scene (#116)
+- Glossary: each word shows the line it is first used in, with the word marked, opening the preview slip; the A–Z rail stays at the top while you scroll (#116)
+
+### Changed
+- Context drawers show a one-line preview while closed; Director's choices say "every option is defensible" once instead of under every card (#116)
+
 ## [4.9.0] — 2026-11-13
 
 ### Added
