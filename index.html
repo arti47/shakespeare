@@ -487,6 +487,78 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .gchip[aria-pressed="true"]{background:var(--gt,var(--ink));border-color:var(--gt,var(--ink));color:var(--gtc,var(--page))}
 .gchip[aria-pressed="true"] .gico{color:inherit}
 .grp>button .gthumb{width:34px;height:44px}.grp>button .gthumb .gte{width:26px;height:26px}
+/* ---------- 4.4 "Folio bound" (audit 7): serif voice, enamel hero stage, compact phone hero, Today ticker, search polish,
+   detail sheet, headpieces, welcome deal-in, deckled cards (Light and Paper) ---------- */
+body{font-family:var(--f-body)}
+.res .rt.mod{font-family:var(--f-body)}
+/* hero stage: the play's cloth behind its emblem, gilt with ivory enamel */
+.h44 .hst .embl{color:#e6c06a;--kc:var(--cc)}
+.h44 .hbg{opacity:.34}
+.hcov .cover{transition:transform .25s ease}
+.hcov .cover:active{transform:perspective(700px) rotateY(-14deg) scale(.97)}
+@media (max-width:599px){
+  .hero.h44{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"cov eb ring" "cov tt ring" "cov wh ring" "acts acts acts";gap:0 12px;min-height:0;padding:12px 14px 14px;align-items:center}
+  .h44 .hbody,.h44 .hrow{display:contents}
+  .h44 .hbg{display:none}
+  .h44 .hcov{grid-area:cov}
+  .h44 .cover{--cw:62px}
+  .h44 .cover .plate,.h44 .cover .badge{display:none}
+  .h44 .eyebrow{grid-area:eb;margin:0;font-size:max(14px,.62rem)}
+  .h44 h3{grid-area:tt;font-size:1.3rem;margin:0}
+  .h44 .wh{grid-area:wh;font-size:max(14px,.66rem)}
+  .h44 .hrow>span{grid-area:ring}
+  .h44 .hring{width:52px;height:52px}
+  .h44 .acts{grid-area:acts;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-top:12px}
+  .h44 .btn.wax{justify-content:center;width:100%;min-height:48px}
+  /* Today as a one-line ticker; tap opens the full card */
+  #today:not(.open) .stk-in,#today:not(.open) .stk-dots{display:none}
+  #today:not(.open){margin-bottom:0}
+  #today:not(.open)::after{display:none}
+  .tkr{display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+  .tkr::-webkit-scrollbar{display:none}
+  .tk{scroll-snap-align:start;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;border:0;background:none;text-align:left;color:var(--ink);cursor:pointer;min-width:0}
+  .tk .tkl{flex:none;font:400 max(15px,.8rem) var(--f-sc);letter-spacing:.06em;color:var(--accent)}
+  .tk .tkt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:italic 400 max(15px,.82rem) var(--f-old)}
+  .tk i{flex:none;font-style:normal;color:var(--accent);transition:transform .2s}
+  #today.open .tk i{transform:rotate(90deg)}
+  #today.open .tkr{border-bottom:1px solid var(--rule)}
+}
+@media (min-width:600px){.tkr{display:none}}
+/* search: gilt clear button, pills on one scrolling row, result cards with a gilt rule */
+.sbox input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;width:24px;height:24px;margin-right:2px;cursor:pointer}
+.sbox input::-webkit-search-cancel-button{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%23d9ab4f' stroke='%238a6420'/%3E%3Cpath d='M8 8l8 8M16 8l-8 8' stroke='%232a1c08' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/100% no-repeat}
+.sfilt{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.sfilt::-webkit-scrollbar{display:none}
+#sgen{flex-wrap:nowrap;flex:none}
+#sgen .chip,.sfilt select{flex:none;white-space:nowrap}
+.res a{position:relative;border-left:0;padding:10px 14px 10px 18px;background:var(--card);border-radius:0 var(--r-s) var(--r-s) 0;box-shadow:0 1px 0 var(--rule),0 4px 10px -8px rgba(60,30,10,.4)}
+.res a::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#f3dc9a,#d9ab4f 50%,#a87a2c)}
+.res a:hover{background:var(--hover)}
+.res .rm::before{content:"\2767\00a0";font-family:Georgia,serif}
+/* detail sheet: larger cover with a foil sweep, the blurb as an epigraph, wax bar + ghost pills */
+.dtop .cover{position:relative;overflow:hidden;--cw:clamp(140px,40vw,190px)}
+.dtop .cover::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,236,190,.42),transparent);transform:translateX(-120%) skewX(-18deg);animation:f44sweep 2.8s ease-in-out .35s 1 both;pointer-events:none;z-index:3}
+@media (max-width:599px){.dtop{grid-template-columns:1fr;justify-items:center;text-align:center}.dtop h3{margin:6px 0 4px}}
+.dtop p{font:italic 400 max(15px,.8rem)/1.5 var(--f-old);color:var(--soft);padding:2px 0 2px 12px;border-left:2px solid var(--gold);text-align:left}
+.dtop p::before{content:"\201C"}.dtop p::after{content:"\201D"}
+.dacts{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dacts .pri{background:linear-gradient(180deg,#b72c24,#86170f);border-color:#6c1110;color:#fff6ee;min-height:50px;font-size:max(16px,.86rem);box-shadow:0 4px 10px -4px rgba(80,10,5,.6),inset 0 1px 0 rgba(255,220,200,.3)}
+.dacts .ghost{border-radius:var(--pill);background:transparent;border:var(--line) solid color-mix(in srgb,var(--gold) 60%,var(--rule-strong))}
+/* printer's headpieces on section heads */
+.sec h3{justify-content:center}
+.sec h3::before{content:"";flex:1;height:4px;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong)}
+/* welcome: covers dealt in, a wax Next */
+.wel:not([hidden]) .fan .cover{animation:f44deal .7s cubic-bezier(.2,.9,.3,1.15) both}
+.wel:not([hidden]) .fan .cover:nth-child(1){--dx:-40px;--dr:-24deg;animation-delay:.1s}
+.wel:not([hidden]) .fan .cover:nth-child(2){animation-delay:.25s}
+.wel:not([hidden]) .fan .cover:nth-child(3){--dx:40px;--dr:24deg;animation-delay:.4s}
+#wnext{background:linear-gradient(180deg,#b72c24,#86170f);border-color:#6c1110;color:#fff6ee;min-width:9em;box-shadow:0 4px 10px -4px rgba(80,10,5,.6),inset 0 1px 0 rgba(255,220,200,.3)}
+@media (prefers-reduced-motion:reduce){.wel:not([hidden]) .fan .cover,.dtop .cover::after{animation:none}.dtop .cover::after{display:none}.hcov .cover{transition:none}.hcov .cover:active{transform:none}}
+/* deckled cards in Light and Paper: a hand-cut inner rule */
+:root{--deckle:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M3 2.8 L6 2.5 L9 3.2 L12 2.4 L15 3.1 L18 2.8 L21 2.4 L24 3.0 L27 2.4 L30 2.9 L33 2.4 L36 2.4 L39 2.9 L42 3.5 L45 2.5 L44.6 3 L45.2 6 L45.6 9 L45.1 12 L44.9 15 L45.7 18 L44.4 21 L45.5 24 L44.7 27 L44.5 30 L44.5 33 L44.7 36 L45.4 39 L44.6 42 L45.1 45 L45 45.2 L42 44.8 L39 45.1 L36 44.4 L33 44.4 L30 44.6 L27 45.3 L24 44.9 L21 44.7 L18 45.1 L15 44.9 L12 44.7 L9 45.4 L6 45.3 L3 44.6 L3.1 45 L3.0 42 L3.5 39 L3.3 36 L2.7 33 L3.7 30 L2.5 27 L2.9 24 L3.4 21 L2.5 18 L3.0 15 L2.4 12 L3.2 9 L3.4 6 L3.1 3Z' fill='none' stroke='%23bfa776' stroke-width='1.1'/%3E%3C/svg%3E")}
+:root[data-theme="dark"],:root[data-theme="night"]{--deckle:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--deckle:none}}
+.hero::before,.today::before{border-width:6px;border-style:solid;border-image:var(--deckle) 6 round}
 </style>
 </head>
 <body>
@@ -628,7 +700,7 @@ function renderLibrary(){
   const h=new Date().getHours(),last=byId[LS.get("folio-last")],ls=last&&J("folio-stat-"+last.id);
   $("greet").textContent=(h<5?"Late at night":h<12?"Good morrow":h<18?"Good afternoon":"Good even")+(ls?". Your place is kept.":". Choose a play to begin.");
   /* 4.3 hero: the play on a stage (proscenium backdrop, its emblem as the scenery), cover, gilt progress ring, wax Resume */
-  $("cont").innerHTML=ls?`<div class="hero h43"><div class="hbg" aria-hidden="true">${folioStage(emblemSVG(last.id,"hembs")||"","","hst")}</div>
+  $("cont").innerHTML=ls?`<div class="hero h43 h44" style="--cc:${esc(coverColor(last.id))}"><div class="hbg" aria-hidden="true">${folioStage(emblemSVG(last.id,"hembs")||"","","hst")}</div>
     <div class="hcov">${coverA(last,ls)}</div><div class="hbody"><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
     <div class="hrow"><span role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100">${folioRing(ls.pct/100,Math.round(ls.pct)+"%","hring")}</span>
     <div class="acts"><a class="btn wax" href="${last.id}/" data-play="${last.id}"><span class="wxd" aria-hidden="true">${folioSeal(last.mono||"❦","","wxs")}</span>Resume</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div></div>`:"";
@@ -670,15 +742,15 @@ function seals(){let n=0;for(const p of PLAYS){const k=folioSealsOf(J(p.prefix+"
 function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"}),C=[];
   if(LINES.length){if(li==null)li=(dayNo()*7919)%LINES.length;const L=LINES[li],p=byId[L.play];
     C.push(["lotd",`<div class="lotd"><p class="eyebrow">Line of the day <span class="ldate">· ${esc(date)}</span></p><div class="scroll"><i class="sr1" aria-hidden="true"></i><blockquote id="lq">${esc(L.text)}</blockquote><i class="sr2" aria-hidden="true"></i></div><cite><span class="cemb" aria-hidden="true">${emblemSVG(p.id,"cembx")||""}</span>${esc(L.who)} · ${esc(p.title)}</cite>
-      <div class="lacts"><button class="lmore" type="button" id="lmore" hidden>Whole line</button><a href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play ›</a><button type="button" id="lnext">Another ›</button></div></div>`,"Line"])}
+      <div class="lacts"><button class="lmore" type="button" id="lmore" hidden>Whole line</button><a href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play ›</a><button type="button" id="lnext">Another ›</button></div></div>`,"Line",`“${esc(L.text)}”`])}
   const W=WORDS.length?WORDS[(dayNo()*104729)%WORDS.length]:null,wp=W&&byId[W[2]];
-  if(W)C.push(["word",`<p class="eyebrow">Word of the day</p><div class="wini"><span class="ini" aria-hidden="true">${esc((W[0].replace(/^[^A-Za-z]+/,"")[0]||"?").toUpperCase())}</span><b>${esc(W[0])}</b></div><span class="wm">${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span>`,"Word"]);
+  if(W)C.push(["word",`<p class="eyebrow">Word of the day</p><div class="wini"><span class="ini" aria-hidden="true">${esc((W[0].replace(/^[^A-Za-z]+/,"")[0]||"?").toUpperCase())}</span><b>${esc(W[0])}</b></div><span class="wm">${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span>`,"Word",`<b>${esc(W[0])}</b> · ${esc(W[1])}`]);
   const days=readDays(),now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
   const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days),n=seals(),Lv=folioLevel(n);
-  C.push(["week",`<p class="eyebrow">This week</p><div class="wdots wseal" role="img" aria-label="Read on ${wk.filter(d=>days[dkey(d)]!=null).length} of the last 7 days">${wk.map((d,i)=>{const on=days[dkey(d)]!=null,l="SMTWTFS"[d.getDay()];return `<span class="wd${on?" on":""}${i===6?" now":""}">${folioSeal(l,on?"":i===6?"n":"e")}</span>`}).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small><button class="lvrow" type="button" id="lvgo">${folioLevelBadge(n)}<span>${esc(Lv.name)} · ${n} seal${n===1?"":"s"}</span></button>`,"Week"]);
-  const due=dueHTML();if(due)C.push(["duec",due,"Reviews"]);
+  C.push(["week",`<p class="eyebrow">This week</p><div class="wdots wseal" role="img" aria-label="Read on ${wk.filter(d=>days[dkey(d)]!=null).length} of the last 7 days">${wk.map((d,i)=>{const on=days[dkey(d)]!=null,l="SMTWTFS"[d.getDay()];return `<span class="wd${on?" on":""}${i===6?" now":""}">${folioSeal(l,on?"":i===6?"n":"e")}</span>`}).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small><button class="lvrow" type="button" id="lvgo">${folioLevelBadge(n)}<span>${esc(Lv.name)} · ${n} seal${n===1?"":"s"}</span></button>`,"Week",`${s} day${s===1?"":"s"} in a row · ${esc(Lv.name)}`]);
+  const due=dueHTML();if(due)C.push(["duec",due,"Reviews","Review items due today"]);
   if(stI>=C.length)stI=0;
-  el.innerHTML=`<div class="stk-in" id="stkin">${C.map(c=>`<div class="stk-c ${c[0]}">${c[1]}</div>`).join("")}</div>${C.length>1?`<div class="stk-dots" role="group" aria-label="Today cards">${C.map((c,i)=>`<button type="button" data-st="${i}" aria-label="${c[2]}" aria-current="${i===stI}"><i></i></button>`).join("")}</div>`:""}`;
+  el.innerHTML=`<div class="tkr" id="tkr">${C.map((c,i)=>`<button class="tk" type="button" data-tk="${i}" aria-expanded="false"><span class="tkl">${c[2]}</span><span class="tkt">${c[3]||""}</span><i aria-hidden="true">›</i></button>`).join("")}</div><div class="stk-in" id="stkin">${C.map(c=>`<div class="stk-c ${c[0]}">${c[1]}</div>`).join("")}</div>${C.length>1?`<div class="stk-dots" role="group" aria-label="Today cards">${C.map((c,i)=>`<button type="button" data-st="${i}" aria-label="${c[2]}" aria-current="${i===stI}"><i></i></button>`).join("")}</div>`:""}`;
   const si=$("stkin");si.scrollLeft=stI*si.clientWidth;
   /* 4.3.2: all cards share one height (the tallest), so nothing resizes while you swipe */
   si.addEventListener("scroll",()=>{const i=Math.round(si.scrollLeft/Math.max(1,si.clientWidth));if(i!==stI){stI=i;el.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-current",+b.dataset.st===i))}},{passive:true});
@@ -687,6 +759,8 @@ function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(un
   const ln=$("lnext");if(ln)ln.onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;stI=0;renderToday()};
   const wf=$("wfind");if(wf)wf.onclick=()=>{go("search");$("q").value=W[0].replace(/^'/,"");runSearch()};
   $("lvgo").onclick=()=>go("you");
+  /* 4.4 phones: Today folds to a one-line ticker; a tap opens that card */
+  el.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{const i=+b.dataset.tk,op=!(el.classList.contains("open")&&stI===i);el.classList.toggle("open",op);el.querySelectorAll("[data-tk]").forEach(x=>x.setAttribute("aria-expanded",op&&x===b));if(op){stI=i;si.scrollLeft=i*si.clientWidth;el.querySelectorAll("[data-st]").forEach(x=>x.setAttribute("aria-current",+x.dataset.st===i))}});
 }
 
 /* Daily review: items due in each play (flashcards in <prefix>prog.srs, other review items in <prefix>rev.it) */

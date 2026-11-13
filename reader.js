@@ -7,7 +7,10 @@ const LAT=["Inductio","Actus Primus","Actus Secundus","Actus Tertius","Actus Qua
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const title=w=>String(w||"").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).replace(/(.) (Of|And|The) /g,(m,a,b)=>a+" "+b.toLowerCase()+" ");
 const $=id=>document.getElementById(id);
-const PLAY=CFG.id,PFX=CFG.prefix,FSH={};["lh","clean","onehand","show","size","theme","sumon","turn","beats"].forEach(k=>FSH[PFX+k]=1);
+const PLAY=CFG.id,PFX=CFG.prefix,FSH={};
+/* 4.4: the play's cloth colour for enamel roundels */
+try{if(typeof coverColor==="function")document.documentElement.style.setProperty("--cc",coverColor(PLAY))}catch(e){}
+["lh","clean","onehand","show","size","theme","sumon","turn","beats"].forEach(k=>FSH[PFX+k]=1);
 const LS={key(k){return FSH[k]?"folio-"+k.slice(PFX.length):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
 LS.set("folio-last",PLAY);
 /* before 2.9.0 shared settings from plays whose prefix isn't 4 characters (lear-, tn-) were saved under a wrong key ("folio--theme", "folio-heme"): move them over once */
@@ -178,14 +181,16 @@ function examHTML(){if(!prog.exam)return `<button class="link" id="ex-set" style
   return `<div class="examc"><b>${days} day${days===1?"":"s"}</b> to your exam · ${un.length} scene${un.length===1?"":"s"} left to read<br>${un.length?`Today: read ${un.slice(0,per).map(p=>`<button class="link" data-go="${p.id}">${sName(p)}</button>`).join(", ")}`:"All read. Today: flashcards and an essay plan."} · <button class="link" id="ex-set">Change date</button></div>`}
 function openExamDate(){openSheet("Exam date",`<p class="intro">We'll spread the scenes you haven't read across the days left, leaving the last two days for revision.</p><input type="date" class="sinput" id="ex-d" value="${esc(prog.exam||"")}"><div class="row"><button class="btn primary" id="ex-ok">Save</button>${prog.exam?`<button class="btn" id="ex-clr">Remove date</button>`:""}</div>`);
   $("ex-ok").onclick=()=>{prog.exam=$("ex-d").value;saveProg();closeSheet();renderYou()};if($("ex-clr"))$("ex-clr").onclick=()=>{prog.exam="";saveProg();closeSheet();renderYou()}}
+/* 4.4 ledger icons: scenes, quiz, quotes */
+const YIC={"sc": "<path d=\"M5 4h9l5 5v11H5z\"/><path d=\"M14 4v5h5M8 13h8M8 16.5h6\"/>", "qz": "<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.6M12 16.8v.2\"/>", "qt": "<path d=\"M5 17c0-4 1.5-7 5-9M14 17c0-4 1.5-7 5-9\"/><path d=\"M5 17a2.5 2.5 0 1 0 0-.1M14 17a2.5 2.5 0 1 0 0-.1\"/>"};let YTIME="";
 function renderYou(){
   const lp=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)]:scenes[0];
   const done=scenes.filter(p=>prog.done[p.id]).length;
   const qs=Object.entries(prog.quiz).filter(([k])=>k!=="all").map(x=>x[1]);const qc=qs.reduce((a,q)=>a+q[0],0),qt=qs.reduce((a,q)=>a+q[1],0);
   const s7=streak(),w=weekStats(),td=Math.round(((LOG[today()]||{}).s||0)/60),pct=done/scenes.length*100;
-  $("contcard").innerHTML=`<button class="go yhero" id="contbtn"><span class="yhe" aria-hidden="true">${folioRing(pct/100,"","yring")}<span class="yhm">${typeof emblemSVG==="function"?emblemSVG(PLAY,"yhes"):""}</span></span><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span><span class="meter"><i style="width:${pct}%"></i></span></button>
-    <div class="ytiles"><button type="button" data-to="contents"><b>${done}<small>/${scenes.length}</small></b><span>Scenes read ›</span></button><button type="button" data-to="study:quiz"><b>${qt?Math.round(qc/qt*100)+"%":"–"}</b><span>Quiz score ›</span></button><button type="button" data-to="study:cards"><b>${Object.keys(prog.cards).length}<small>/${QUOTES.quotes.length}</small></b><span>Quotes learnt ›</span></button>
-    <div><b>${s7}</b><span>Day${s7===1?"":"s"} in a row</span></div><div><b>${td}<small>m</small></b><span>Today</span></div><div><b>${w.min}<small>m</small></b><span>This week</span></div></div>`;
+  $("contcard").innerHTML=`<button class="go yhero" id="contbtn"><span class="yhe" aria-hidden="true">${folioRing(pct/100,"","yring")}<span class="yhm enr">${typeof emblemSVG==="function"?emblemSVG(PLAY,"yhes"):""}</span></span><small>${pos?"Continue reading":"Begin reading"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span><span class="meter"><i style="width:${pct}%"></i></span></button>
+    <div class="ytiles yled">${[["contents","sc",`${done}<small>/${scenes.length}</small>`,"Scenes read"],["study:quiz","qz",qt?Math.round(qc/qt*100)+"%":"–","Quiz score"],["study:cards","qt",`${Object.keys(prog.cards).length}<small>/${QUOTES.quotes.length}</small>`,"Quotes learnt"]].map(([to,ic,v,l])=>`<button type="button" data-to="${to}"><span class="ybadge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${YIC[ic]}</svg></span><b>${v}</b><span>${l}<i aria-hidden="true">\u00a0›</i></span></button>`).join("")}</div>`;
+  YTIME=`<p class="ytime"><b>${s7}</b> day${s7===1?"":"s"} in a row · <b>${td}</b> min today · <b>${w.min}</b> min this week</p>`;
   $("you").querySelector(".sbar h1").textContent=folioSimple()?"Me":"You";
   $("contcard").insertAdjacentHTML("beforeend",levelHTML()+(folioSimple()&&goal()==="enjoy"?"":examHTML())+bkRemHTML());if($("ex-set"))$("ex-set").onclick=openExamDate;
   $("contbtn").onclick=goRead;
@@ -273,6 +278,10 @@ function unfold(id,pi){const k=id+":"+pi,sp=speech[id],on=!OPEN.has(k);if(on)OPE
 function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
   return out.map(p=>`<p>${esc(p)}</p>`).join("")}
+/* 4.4: night or day on the stage, from the place, the stage directions and the scene's opening lines */
+const SKYC={},NIGHT=/\b(night|midnight|moon|moonlight|torch(es)?|candles?|tapers?|lanterns?|dark|darkness|stars|bed|bedchamber|sleeps?|asleep)\b/;
+function skyOf(p){if(SKYC[p.id])return SKYC[p.id];let sd=p.loc,ln="",n=0;for(const it of p.items){if(it.t==="sd")sd+=" "+it.text;else if(it.t==="sp"&&n<30){ln+=" "+it.lines.join(" ");n+=it.lines.length}}
+  const m=(ln.toLowerCase().match(new RegExp(NIGHT.source,"g"))||[]).length;return SKYC[p.id]=NIGHT.test(sd.toLowerCase())||m>=2?"n":"d"}
 function stageType(p){const l=p.loc.toLowerCase();const r=EX.stagerules.find(([re])=>new RegExp(re).test(l));return r?r[1]:"street"}
 function stagePic(p){const k=stageType(p);return `<div class="stagepic"><svg viewBox="0 0 40 40" aria-hidden="true">${PICS[k]}</svg>${EX.place[p.id]?esc(EX.place[p.id])+" · ":""}${EX.stage[k]}</div>`}
 function recapHTML(id){const k=sIdx(id);if(k===0)return `<ul>${EX.intro.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
@@ -306,8 +315,8 @@ function blockHTML(bk,p){
   if(bk.t==="head"){const s=STUDY.scenes[p.id]||{};
     const n=onStageWho(p).length;
     const first=p.sc===1;
-    /* 4.3: a compact stage banner with the act plate (or a small scene plate) set over its foot, then the scene title */
-    return `<div class="blk shead sh43${first?" actopen":""}"><div class="sban">${folioStage(PICS[stageType(p)],"","shstage")}${first?folioPlate(LAT[p.act],p.act?R[p.act]:"",AN(p.act),"shplate"):`<span class="scpl">${LAT[p.act]}. ${SL[p.scene]||""}.</span>`}</div>${first?`<div class="eyebrow">${SL[p.scene]||""}</div>`:""}<h1>${sName(p)}</h1><div class="loc"><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div>`}
+    /* 4.4: a slim headpiece band (stage vignette with its sky, act and scene, place, Before you read); the act strip only at act starts */
+    return `<div class="blk shead sh44${first?" actopen":""}">${first?`<div class="astrip"><span>${AN(p.act)}</span><i>${LAT[p.act]}</i></div>`:""}<div class="hband">${folioStage(PICS[stageType(p)],"","hvig",skyOf(p))}<div class="hbt"><div class="eyebrow">${SL[p.scene]||""}</div><h1>${sName(p)}</h1><div class="loc"><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div></div></div>`}
   if(bk.t==="sd")return `<div class="blk sd">${esc(bk.it.text)}</div>`;
   if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
     const po=EX.predict[p.id],g=PRED[p.id];
@@ -382,7 +391,7 @@ function openScene(k,opts){
   else if(typeof opts.page==="number")i=Math.max(0,Math.min(cur.pages.length-1,opts.page));
   if(opts.key!=null){const f=findKey(opts.key);if(f>=0)i=f}
   if(opts.speech!=null){const f=cur.pages.findIndex(pb=>pb.some(b=>b.t==="sp"&&b.it.id===opts.speech));if(f>=0)i=f}
-  $("w-title").textContent=sName(p);
+  $("w-title").innerHTML=`<span class="wl">${sName(p)}</span><span class="ws">${R[p.act]||"Ind"}.${p.scene.toLowerCase()} · ${esc(shortLoc(p))}</span>`;
   renderPage(i,0,opts.keep);
   if(opts.flash&&opts.speech!=null){const el=pg.querySelector(`.sp[data-id="${opts.speech}"]`);if(el){el.classList.add("active");setTimeout(()=>el.classList.remove("active"),1600)}}
 }
@@ -407,7 +416,7 @@ function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidde
   const n=cur.pages.length,mins=Math.ceil(cur.words*(n-1-i)/Math.max(1,n)/140),i2=Math.min(n,i+step());
   $("pgfoot").textContent=`${sName(p)} · ${i2>i+1?`${i+1}–${i2}`:i+1} / ${n}`;{const rh=$("rhead").children;rh[0].textContent=CFG.short||CFG.title;rh[1].textContent=sName(p)}$("pgbar").style.width=((i+1)/n*100)+"%";ribbon((cur.k+(i+1)/n)/scenes.length);if(!keep)logRead();
   $("p-num").textContent=`p. ${i+1} of ${n}${mins>0?` · ${mins} min left`:""}`;
-  $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");
+  $("w-sub").textContent=shortLoc(p).toUpperCase()+(S.who?` · ${title(S.who).toUpperCase()} ONLY`:"");$("w-sub").classList.toggle("who",!!S.who);
   const r=$("p-range");r.max=n;r.value=i+1;bmState();
 }
 const reducedMotion=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -849,7 +858,7 @@ function sHead(back,backL,ttl){$("sgroups").hidden=false;$("stabs").hidden=true;
 const tTile=(s,tp)=>`<button class="ttool" type="button" data-to="study:${s}${s.includes("?")?"&":"?"}tp=${tp}">${tic(s.split("?")[0])}<span>${esc(toolName(s.split("?")[0]))}</span></button>`;
 function renderStudyHome(){SLAST=false;SV=null;$("study").dataset.tp="";$("sgroups").hidden=true;$("stabs").hidden=true;$("srel").innerHTML="";
   const last=SLAST||S.stab?toolNow():"",nx=nextStep();
-  const top=folioSimple()?questStripHTML():`<div class="pickup">${last&&TABS.some(t=>t[0]===S.stab)?`<button class="pk" data-to="study:${last}"><small>Pick up</small><b>${esc(toolName(last))}</b></button>`:""}<button class="pk next" data-to="${nx[0]}"><small>Next step · ${nx[2]}</small><b>${esc(nx[1])}</b></button></div>`;
+  const top=folioSimple()?questStripHTML():`<div class="pickup">${last&&TABS.some(t=>t[0]===S.stab)?`<button class="pk pkr" data-to="study:${last}"><i class="pkrib" aria-hidden="true"></i><small>Pick up</small><b>${esc(toolName(last))}</b></button>`:""}<button class="pk next pkw" data-to="${nx[0]}"><span class="pkseal" aria-hidden="true">${folioSeal("❧","","pks")}</span><span><small>Next step · ${nx[2]}</small><b>${esc(nx[1])}</b></span></button></div>`;
   $("sbody").innerHTML=top+`<div class="ttiles4">${TOPICS.map(([k,l])=>{const [f,st]=topicStat(k);return `<button class="ttile tp-${k}" type="button" data-to="study:topic:${k}">${ringEmb(EMB[k],f)}<b>${l}</b><small>${f===0?BEGIN:esc(st)}</small></button>`}).join("")}</div>`}
 /* Simple mode: the quests for scenes you've read, as a swipeable strip above the tiles */
 function questStripHTML(){const read=scenes.filter(p=>prog.done[p.id]&&questsOf(p.id).length).sort((a,b)=>prog.done[b.id]-prog.done[a.id]),open=read.filter(p=>!(prog.qst[p.id]||{}).g),gilt=read.length-open.length;
@@ -1390,7 +1399,7 @@ function studyProf(){const P=PROF[profSel]=PROF[profSel]||{tr:["","",""],q:["","
 /* act summaries (printable) */
 function actText(a){return `${AN(a).toUpperCase()}\n`+scenes.filter(p=>p.act===a).map(p=>{const s=STUDY.scenes[p.id]||{};return `\n${sName(p)} (${shortLoc(p)})\n${s.sum||""}\n`+(s.key||[]).map(k=>`  - ${k}`).join("\n")}).join("\n")+`\n\nKey quotes:\n`+QUOTES.quotes.filter(q=>sceneOf(q.id).act===a).map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")}
 function sceneCard(p){const s=STUDY.scenes[p.id]||{},d=prog.done[p.id],o=prog.qst[p.id]||{};
-  return `<div class="scc"><div class="scl">${folioStage(PICS[stageType(p)],"","scst")}${d?folioSeal(p.scene,o.g?"g":""):folioSeal(p.scene,"e")}</div><div class="scr"><div class="sch"><span><b>${sName(p)}</b><small>${esc(shortLoc(p))}</small></span></div>
+  return `<div class="scc"><div class="scl">${folioStage(PICS[stageType(p)],"","scst",skyOf(p))}${d?folioSeal(p.scene,o.g?"g":""):folioSeal(p.scene,"e")}</div><div class="scr"><div class="sch"><span><b>${sName(p)}</b><small>${esc(shortLoc(p))}</small></span></div>
    <p class="dc1">${esc(s.sum||"")}</p>${(s.key||[]).length?`<details class="kp"><summary>Key points</summary><ul>${s.key.map(k=>`<li>${esc(k)}</li>`).join("")}</ul></details>`:""}
    <div class="xrow noprint"><button class="golink" type="button" data-go2="${p.id}">Read the scene <span aria-hidden="true">›</span></button>${s.quiz?`<button class="golink" type="button" data-quiz2="${p.id}">Quiz <span aria-hidden="true">›</span></button>`:""}</div></div></div>`}
 function studyActs(){const L=DV==="list",AS=ACTS.filter(a=>scenes.some(p=>p.act===a));
@@ -1658,7 +1667,7 @@ function studyQuiz(){
   $("sbody").innerHTML=`<p class="intro">Test yourself scene by scene, or take 20 random questions from the whole play.</p>
    ${missHTML()}
    <button class="go qall" id="qz-all">${laurelSVG("qal")}${laurelSVG("qar")}<small>Practice test${all?` · last score ${esc(all[0])} of ${esc(all[1])}`:""}</small><b>Whole-play quiz · 20 questions</b></button>
-   ${ACTS.map(a=>`<div class="stage3"><h3>${LAT[a]}</h3><small>${AN(a)}</small></div><div class="qseals">${scenes.filter(p=>p.act===a).map(p=>{const b=prog.quiz[p.id],f=b?b[0]/Math.max(1,b[1]):0,nq=((STUDY.scenes[p.id]||{}).quiz||[]).length;return `<button type="button" class="qsl${b?(f>=1?" gilt":" done"):""}" data-q="${p.id}" aria-label="Scene ${esc(p.scene)}: ${b?`best ${esc(b[0])} of ${esc(b[1])}`:`${nq} questions`}">${ringAround(folioSeal(p.scene,b?(f>=1?"g":""):"e"),f)}<small>${b?`${esc(b[0])} / ${esc(b[1])}`:`${nq} Qs`}</small></button>`}).join("")}</div>`).join("")}`;
+   ${ACTS.map(a=>{const ps=scenes.filter(p=>p.act===a),won=ps.length&&ps.every(p=>{const b=prog.quiz[p.id];return b&&b[0]>=b[1]});return `<div class="stage3${won?" won":""}">${won?folioLaurel("qlau"):""}<h3>${LAT[a]}</h3><small>${AN(a)}${won?" · all full marks":""}</small></div><div class="qseals">${scenes.filter(p=>p.act===a).map(p=>{const b=prog.quiz[p.id],f=b?b[0]/Math.max(1,b[1]):0,nq=((STUDY.scenes[p.id]||{}).quiz||[]).length;return `<button type="button" class="qsl${b?(f>=1?" gilt":" done"):""}" data-q="${p.id}" aria-label="Scene ${esc(p.scene)}: ${b?`best ${esc(b[0])} of ${esc(b[1])}`:`${nq} questions`}">${ringAround(folioSeal(p.scene,b?(f>=1?"g":""):"e"),f)}<small>${b?`${esc(b[0])} / ${esc(b[1])}`:`${nq} to try`}</small></button>`}).join("")}</div>`}).join("")}`;
   $("qz-all").onclick=()=>startQuiz("all");if($("qz-miss"))$("qz-miss").onclick=()=>startQuiz("miss");
   $("sbody").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>startQuiz(b.dataset.q));
 }
@@ -1956,9 +1965,11 @@ const TERR=[
   '<svg class="terr" viewBox="0 0 300 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 120V96L30 70 56 90 90 54 128 92 150 80 170 94H300V120Z"/><g class="tl"><path d="M90 54l-8 10 8-3 8 3zM250 94c0-10 8-16 16-16s16 6 16 16"/></g></svg>'];
 const GATE='<svg class="gpil" viewBox="0 0 20 80" aria-hidden="true"><path class="gp1" d="M3 78V14h14v64zM1 14h18v-4H1zM4 10q6-10 12 0"/><path class="gp2" d="M6 20v52M14 20v52"/><circle class="gp3" cx="10" cy="5" r="3"/></svg>';
 const PIN='<svg class="mpin" viewBox="0 0 30 40" aria-hidden="true"><path class="pn1" d="M15 39C6 26 2 20 2 14a13 13 0 0 1 26 0c0 6-4 12-13 25z"/><circle class="pn2" cx="15" cy="14" r="5.5"/></svg>';
+/* 4.4: seals earned since the map was last drawn (this visit) stamp in */
+let MAPSEEN=null;
 function renderMap(){const here=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1,lp=here>=0?scenes[here]:scenes[0],done=scenes.filter(p=>prog.done[p.id]).length,all=allSeals(),L=folioLevel(all),gl=goal();
   $("map").querySelector(".sbar h1").textContent=folioSimple()?"Play":"Journey";
-  let h=`<div class="minfo"><div class="mhead"><span class="memb">${typeof emblemSVG==="function"?emblemSVG(PLAY,"emb"):""}</span><div><p class="eyebrow">${esc(CFG.pre||"")}</p><h2>${esc(CFG.h1||CFG.title)}</h2>${CFG.post?`<p class="mpost">${esc(CFG.post)}</p>`:""}</div></div>
+  let h=`<div class="minfo"><div class="mhead"><span class="memb enr">${typeof emblemSVG==="function"?emblemSVG(PLAY,"emb"):""}</span><div><p class="eyebrow">${esc(CFG.pre||"")}</p><h2>${esc(CFG.h1||CFG.title)}</h2>${CFG.post?`<p class="mpost">${esc(CFG.post)}</p>`:""}</div></div>
     <button class="go mgo" type="button" data-to="read"><small>${pos?"Continue reading":"Begin the play"}</small><b>${sName(lp)}</b><span>${esc(shortLoc(lp))}</span></button>
     <div class="mprog"><span><b>${done}</b> of ${scenes.length} scenes sealed</span><button class="mlv" type="button" data-to="you">${folioLevelBadge(all)}<span>${esc(L.name)}</span></button></div><div class="mbar" aria-hidden="true"><i style="width:${done/scenes.length*100}%"></i></div>
     <div class="xrow mlinks">${toLink("study",folioSimple()?"Quests &amp; study":"Study")}${toLink("contents","Contents")}</div>
@@ -1968,9 +1979,9 @@ function renderMap(){const here=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1,lp=here>=0?sc
     h+=`<section class="mreg rg${rk}">${TERR[rk]}<div class="mgate">${GATE}${folioPlate(LAT[a],a?R[a]:"",`${AN(a)} · ${ps.filter(p=>prog.done[p.id]).length} of ${ps.length} sealed`,"mplate")}${GATE}</div>`;
     h+=`<ol class="stops">`+ps.map(p=>{const k=sIdx(p.id),d=prog.done[p.id],o=prog.qst[p.id]||{},Q=questsOf(p.id),x=MAPX[j++%MAPX.length];
       const pips=d&&Q.length&&gl!=="enjoy"?`<span class="pips" title="Quests">${Q.map(q=>`<i class="${o[q]?"on":""}"></i>`).join("")}<em>${Q.filter(q=>o[q]).length} of ${Q.length} quests</em></span>`:"";
-      return `<li style="--x:${x}"${x>60?` class="r"`:""}><button class="stop${d?" done":""}${k===here?" here":""}" type="button" data-stop="${p.id}">${k===here?PIN:""}${d?folioSeal(p.scene,o.g?"g":""):folioSeal(p.scene,k===here?"n":"e")}<span class="sl"><b>Scene ${p.scene.toLowerCase()}${k===here?`<em>You are here</em>`:""}</b><small>${esc(shortLoc(p))}</small>${pips}</span></button></li>`}).join("")+`</ol></section>`}
+      return `<li style="--x:${x}"${x>60?` class="r"`:""}><button class="stop${d?" done":""}${k===here?" here":""}" type="button" data-stop="${p.id}">${k===here?PIN:""}${d?folioSeal(p.scene,o.g?"g":"",MAPSEEN&&!MAPSEEN.has(p.id+(o.g?"g":""))?"stamp":""):folioSeal(p.scene,k===here?"n":"e")}<span class="sl"><b>Scene ${p.scene.toLowerCase()}${k===here?`<em>You are here</em>`:""}</b><small>${esc(shortLoc(p))}</small>${pips}</span></button></li>`}).join("")+`</ol></section>`}
   h+=`<div class="mend">${folioSeal("❦",done===scenes.length?"g":"e","mfin")}<b>Finis</b></div></div>`;
-  $("mapbody").innerHTML=h;requestAnimationFrame(drawPath)}
+  $("mapbody").innerHTML=h;MAPSEEN=new Set(scenes.filter(p=>prog.done[p.id]).map(p=>p.id+((prog.qst[p.id]||{}).g?"g":"")));requestAnimationFrame(drawPath)}
 function drawPath(){const w=$("mapw"),sv=$("mpath");if(!w||!sv||view!=="map")return;const b=w.getBoundingClientRect();
   const nodes=[...w.querySelectorAll(".stop .seal,.mfin")],pts=nodes.map(e=>{const r=e.getBoundingClientRect();return [Math.round(r.left+r.width/2-b.left),Math.round(r.top+r.height/2-b.top)]});
   const last=nodes.reduce((m,e,i)=>e.closest(".stop.done")?i:m,-1);
@@ -1982,7 +1993,7 @@ $("mapbody").addEventListener("click",e=>{const s=e.target.closest("[data-stop]"
 $("m-search").onclick=()=>openSearch("");
 /* a stop on the map: the scene's stage, who is in it, read it, and its quests once read */
 function openStop(id){const p=scenes[sIdx(id)];if(!p)return;const d=prog.done[id],k=stageType(p),here=pos&&pos.s===id;
-  openSheet(sName(p),`${folioStage(PICS[k],(EX.place[p.id]?EX.place[p.id]+" · ":"")+(EX.stage[k]||""),"stopstage")}<p class="hcap">${esc(p.loc)}</p>${!d&&preQ(p)?`<div class="preq"><b>Read to find out</b>${esc(preQ(p))}</div>`:""}
+  openSheet(sName(p),`${folioStage(PICS[k],(EX.place[p.id]?EX.place[p.id]+" · ":"")+(EX.stage[k]||""),"stopstage",skyOf(p))}<p class="hcap">${esc(p.loc)}</p>${!d&&preQ(p)?`<div class="preq"><b>Read to find out</b>${esc(preQ(p))}</div>`:""}
     <h3 class="lbl">On stage</h3>${onStage(p)}<div class="row">${here?`<button class="btn primary" type="button" data-to="read">Carry on reading</button>`:`<button class="btn primary" type="button" data-go="${id}">${d?"Read it again":"Read this scene"}</button>`}</div>
     ${d?`<h3 class="lbl">Quests</h3>${questsHTML(id)||`<p class="muted">No quests for this scene.</p>`}`:`<p class="muted">Read the scene to seal it and unlock its quests.</p>`}`)}
 /* first scene, Simple mode: four tips, one at a time, each done when you do it (folio-tips = tips seen; once per app) */
@@ -1996,7 +2007,7 @@ function coach(){const old=$("coach");if(old)old.remove();if(!folioSimple()||coa
 function coachDid(n){if(coachN===n&&folioSimple()&&view==="reader"){coachN++;coachSave();const o=$("coach");if(o)o.remove();setTimeout(coach,900)}}
 /* the level card (You / Me) */
 function levelHTML(){const all=allSeals(),L=folioLevel(all);
-  return `<div class="lvcard"><span class="lvm2">${folioLaurel()}${folioLevelBadge(all,"lvbig")}</span><div class="lvt"><small>Your level · every play</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><span class="meter"><i style="width:${Math.round(L.frac*100)}%"></i></span><em>${all} seal${all===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}</em></div></div>
+  return `<div class="lvcard"><span class="lvm2">${folioLaurel()}${folioLevelBadge(all,"lvbig")}</span><div class="lvt"><small>Your level · every play</small><b>${esc(L.name)}</b><span>${esc(L.line)}</span><span class="meter"><i style="width:${Math.round(L.frac*100)}%"></i></span><em>${all} seal${all===1?"":"s"}${L.next?` · ${L.need} more to ${esc(L.next)}`:""}</em>${YTIME}</div></div>
     <div class="ystrip" aria-label="Seals in this play">${ACTS.map(a=>`<div><small>${AN(a)}</small><span>${scenes.filter(p=>p.act===a).map(p=>`<button type="button" data-stop="${p.id}" aria-label="${sName(p)}">${folioSeal(p.scene,prog.done[p.id]?((prog.qst[p.id]||{}).g?"g":""):"e","mini")}</button>`).join("")}</span></div>`).join("")}</div>`}
 $("you").addEventListener("click",e=>{const s=e.target.closest("[data-stop]");if(s)openStop(s.dataset.stop)});
 
