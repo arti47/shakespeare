@@ -156,6 +156,7 @@ function goTo(spec){const [w,qs]=String(spec).split("?"),P={};(qs||"").split("&"
   if(!b){goStudy();return}
   if(SPAGES.includes(b)){let v=c||"";try{v=decodeURIComponent(v)}catch(e){}goStudy(b,v);return}
   if(b==="quotes")qf={who:P.who||"",th:P.th||""};
+  if(b==="review"&&P.ses)startSession();
   if(b==="themes"&&P.th&&QUOTES.themes[P.th])thSel=P.th;
   if(b==="prof"&&P.who&&P.who!==profSel){profSel=P.who;prStep=null}
   if(b==="part"&&P.who){pt.who=P.who;pt.sid="";pt.run=null}
@@ -959,7 +960,7 @@ const tTile=(s,tp)=>`<button class="ttool" type="button" data-to="study:${s}${s.
 const dayN=()=>Math.floor(Date.now()/864e5);
 function wordOfDay(){const ks=Object.keys(G);if(!ks.length)return null;const u=glossUse(),k=ks[dayN()%ks.length];return {k,g:G[k],id:u[k]}}
 function fivePlan(){const d=dueKeys().length,P=[];
-  P.push(d?["study:review",`Review ${d} card${d===1?"":"s"} due`,"2 min"]:["study:cards","Learn 3 new key quotes","2 min"]);
+  P.push(d?["study:review",`Review ${d} card${d===1?"":"s"} due`,"2 min"]:["study:review?ses=1","A 10-question mixed session","3 min"]);
   const q=scenes.filter(p=>prog.done[p.id]&&!prog.quiz[p.id]).pop();P.push(q?["study:quiz?s="+q.id,`Quiz: ${sName(q)}`,"2 min"]:["study:drill:gap","Fill the gap in a key quote","2 min"]);
   const w=wordOfDay();if(w)P.push(["study:explore:glossary?w="+encodeURIComponent(w.k),`Word of the day: ${w.k}`,"1 min"]);return P}
 function todayHTML(){const last=SLAST||S.stab?toolNow():"",nx=nextStep(),d=dueKeys().length,pl=fivePlan();
@@ -990,7 +991,7 @@ function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   if(k==="quotes"){const nx=QUOTES.quotes.find(q=>!prog.cards[q.i]);if(nx)h+=secH("One to learn")+`<div class="one">${qCard(nx)}</div>`}
   if(k==="words"){const w=wordOfDay();if(w)h+=secH("Word of the day")+`<div class="wod48"><b>${esc(w.k)}</b><p>${esc(w.g)}</p>${w.id?chip(w.id):""}</div>`}
   if(k==="practise"){const d=dueKeys().length,qz=Object.entries(prog.quiz).filter(([q])=>q!=="all"&&sIdx(q)>=0),tot=qz.reduce((a,[,v])=>[a[0]+v[0],a[1]+v[1]],[0,0]);
-    h+=secH("Your practice")+`<div class="stat48">${[[d,"due today","study:review"],[qz.length+"/"+scenes.length,"scenes quizzed","study:quiz"],[tot[1]?Math.round(100*tot[0]/tot[1])+"%":"–","quiz average","study:quiz"]].map(([v,l,to])=>`<button type="button" data-to="${to}?tp=practise"><b>${v}</b><small>${l}</small></button>`).join("")}</div>`}
+    h+=secH("Your practice")+`<div class="stat48">${[[d,"due today","study:review"],["10","mixed session","study:review?ses=1"],[qz.length+"/"+scenes.length,"scenes quizzed","study:quiz"],[tot[1]?Math.round(100*tot[0]/tot[1])+"%":"–","quiz average","study:quiz"]].map(([v,l,to])=>`<button type="button" data-to="${to}${to.includes("?")?"&":"?"}tp=practise"><b>${v}</b><small>${l}</small></button>`).join("")}</div>`}
   if(k==="write"&&(EX.examq||[]).length){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:plan?tp=write">Plan it ›</button></div>`}
   if(k==="revise"){const d=dueKeys().length;h+=`<div class="pickup"><button class="pk next" data-to="study:${d?"review":"revise"}?tp=revise"><small>${d?"Due today":"Revision sheet"}</small><b>${d?`Review ${d} card${d===1?"":"s"}`:"Copy, print or back up"}</b></button></div>`}
   const ts=T[2].filter(toolOK);return h+secH("Tools",ts.length)+`<div class="tlist48">${ts.map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=${k}">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
@@ -1627,9 +1628,10 @@ function itemHTML0(it){const k=it.k,ty=k.split(":")[0];
   if(ty==="pt"){const [,id,pi]=k.split(":"),sp=speech[id],ps=partsOf(sp),q=ps[+pi],p=sceneOf(id),cue=+pi>0?{txt:partLines(sp,ps[pi-1]).join(" ").split(/\s+/).slice(-3).join(" ")}:cueOf(p,+id);
     return `<div class="card" style="--c:${COLORS[sp.who]||"var(--ink)"}"><p class="qn">Learn a part · ${esc(title(sp.who))} · ${sName(p)}</p><p class="muted">${cue?`Cue: <b>… ${esc(cue.txt)}</b>`:"You speak first"}</p>${it.stage==="shown"?`<div class="ptxt">${partLines(sp,q).map(l=>`<span>${esc(l)}</span>`).join("")}</div>`:`<p>Say your line aloud.</p>`}</div>`}
   const q=kq(k),sp=speech[q.id],p=sceneOf(q.id),c=COLORS[sp.who]||"var(--ink)";
-  const ans=`<div class="ans"><b>${esc(title(sp.who))}</b><span>${sName(p)} · ${esc(shortLoc(p))}</span><p>${esc(q.note)}</p></div>`;
-  if(ty==="who")return `<div class="card" style="--c:${c}"><p class="qn">Who said it, and when?</p><blockquote>“${esc(q.text)}”</blockquote>${it.stage==="shown"?ans:""}</div>`;
-  if(ty==="fin"){const f=firstWords(q.text);return `<div class="card" style="--c:${c}"><p class="qn">Finish the quote · ${esc(title(sp.who))}</p><blockquote>“${esc(f.a)} ${it.stage==="shown"?`<span class="fin">${esc(f.b)}</span>”`:"…”"}</blockquote>${it.stage==="shown"?ans:""}</div>`}
+  const j=kqj(q.id),pr=partsOf(sp).find(([a,b])=>j>=a&&j<=b)||[0,0,sp.m];
+  const ans=`<div class="ans">${folioMedal(sp.who,COLORS[sp.who],"cmed")}<b>${esc(title(sp.who))}</b><span>${sName(p)} · ${esc(shortLoc(p))}</span><div class="cmod"><small>In modern English</small><p>${esc(clip(pr[2]||sp.m,220))}</p></div><p>${esc(q.note)}</p></div>`;
+  if(ty==="who")return `<div class="card" style="--c:${c}">${it.stage==="shown"?"":`<span class="cmyst" aria-hidden="true">?</span>`}<p class="qn">Who said it, and when?</p><blockquote>“${esc(q.text)}”</blockquote>${it.stage==="shown"?ans:""}</div>`;
+  if(ty==="fin"){const f=firstWords(q.text);return `<div class="card" style="--c:${c}">${it.stage==="shown"?"":folioMedal(sp.who,COLORS[sp.who],"cmed")}<p class="qn">Finish the quote · ${esc(title(sp.who))}</p><blockquote>“${esc(f.a)} ${it.stage==="shown"?`<span class="fin">${esc(f.b)}</span>”`:"…”"}</blockquote>${it.stage==="shown"?ans:""}</div>`}
   if(ty==="th"){const o=it.o||(it.o=shuf([rnd(q.themes),...shuf(Object.keys(QUOTES.themes).filter(t=>!q.themes.includes(t))).slice(0,3)]));
     return `<div class="qz"><div class="qn">Which theme is this quote about?</div><h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts">${o.map(t=>`<button data-pick="${t}"${it.stage==="shown"?" disabled":""} class="${it.stage==="shown"?(q.themes.includes(t)?"right":t===it.pick?"wrong":""):""}">${esc(QUOTES.themes[t][0])}</button>`).join("")}</div>${it.stage==="shown"?`<p class="muted">${esc(title(sp.who))}, ${sName(p)}. Themes: ${q.themes.map(t=>esc(QUOTES.themes[t][0])).join(", ")}.</p>`:""}</div>`}
   if(ty==="act"){const a=p.act;return `<div class="qz"><div class="qn">Which act is this from?</div><h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts acts5">${ACTS.map(n=>`<button data-pick="${n}"${it.stage==="shown"?" disabled":""} class="${it.stage==="shown"?(n===a?"right":n===+it.pick?"wrong":""):""}">${AN(n)}</button>`).join("")}</div>${it.stage==="shown"?`<p class="muted">${esc(title(sp.who))}, ${sName(p)}.</p>`:""}</div>`}
@@ -1715,13 +1717,26 @@ function reviewPool(){const due=shuf(dueKeys()),seen=new Set(allScheduled()),fre
   return {due,fresh:shuf(fresh)}}
 function startReview(){const P=reviewPool(),items=[...P.due.slice(0,15),...P.fresh.slice(0,Math.max(3,15-P.due.length)).slice(0,5)];
   rv={items:shuf(items).map(k=>({k,stage:"ask"})),i:0,ok:0,pred:null};}
+/* 4.11 session mode: 10 mixed items (who said it, finish, theme, act, scene quiz), due ones first, one of each kind in turn */
+function startSession(){const due=shuf(dueKeys()),used=new Set(),items=[],kinds=["who","th","fin","act","qz"],read=scenes.filter(p=>prog.done[p.id]);
+  due.slice(0,5).forEach(k=>{items.push(k);used.add(k)});let g=0;
+  while(items.length<10&&g++<200){const t=kinds[items.length%kinds.length];let k;
+    if(t==="qz"){const p=rnd(read.length?read:scenes),n=((STUDY.scenes[p.id]||{}).quiz||[]).length;if(!n)continue;k=`qz:${p.id}:${Math.floor(Math.random()*n)}`}else k=t+":"+rnd(QUOTES.quotes).i;
+    if(!used.has(k)&&(t!=="qz"||kQuiz(k))){used.add(k);items.push(k)}}
+  rv={items:shuf(items).map(k=>({k,stage:"ask"})),i:0,ok:0,pred:-1,ses:1}}
+/* the shared frame: progress pips, right so far */
+const rvFrame=()=>`<div class="dfr"><span class="dfl">${rv.ses?"Session":"Review"} · ${rv.i+1} of ${rv.items.length}</span><span class="pips" aria-hidden="true">${rv.items.map((x,j)=>`<i class="${j<rv.i||x.stage==="shown"&&j===rv.i&&x.ok!=null?(x.ok?"ok":"no"):j===rv.i?"cur":""}"></i>`).join("")}</span><span class="dfs">${rv.ok} right</span></div>`;
+/* every missed item, linked to its lines */
+function missedHTML(){const M=rv.items.filter(x=>x.ok===false);if(!M.length)return `<p class="muted">Nothing missed.</p>`;
+  const qs=[...new Set(M.filter(x=>!x.k.startsWith("qz:")).map(x=>kq(x.k).id))],qz=M.filter(x=>x.k.startsWith("qz:")).map(x=>kQuiz(x.k)).filter(Boolean);
+  return `<div class="box miss49"><h3>Look again · ${M.length}</h3>${qs.length?evHTML(qs,"Quotes"):""}${qz.length?`<div class="evl">Quiz questions</div>${qz.map(q=>`<div class="mq"><p>${esc(q.q)}</p><p class="muted">Answer: ${esc(q.o[q.a])}</p>${toLink("scene:"+q.s,"Read "+sName(scenes[sIdx(q.s)]))}</div>`).join("")}`:""}</div>`}
 function studyReview(){
   if(!rv||rv.done&&!rv.show){const P=reviewPool(),n=Math.min(15,P.due.length)+Math.min(P.fresh.length,Math.max(3,15-P.due.length),5),cal=REV.cal.slice(-5);
     $("sbody").innerHTML=`<p class="intro">A few minutes a day beats one long session. Review mixes everything that is due: who said it, finishing quotes, themes, acts and quiz questions from scenes you have read, plus a few new items.</p>
-     ${planHTML(n)}<div class="box rvt"><div class="rvr">${(()=>{const t=today(),dn=[...Object.values(REV.it),...Object.values(prog.srs)].filter(s=>s&&s.ld===t).length;return ringAround(`<span class="rvc"><b>${dn}</b><small>today</small></span>`,dn/Math.max(1,dn+P.due.length),"rvring")})()}<div><h3>Today</h3><p><b>${P.due.length}</b> due${P.fresh.length?` · ${Math.min(P.fresh.length,5)} new`:""}</p>${n?`<button class="btn primary" id="rv-go">Start review · ${n} item${n===1?"":"s"}</button>`:`<p class="muted">Nothing to review yet. Learn some flashcards or finish a scene first.</p>`}</div></div>${days14()}</div>
+     ${planHTML(n)}<button class="go ses49" type="button" id="rv-ses">${laurelSVG("qal")}${laurelSVG("qar")}<small>Session mode · about 5 minutes</small><b>10 mixed questions</b></button><div class="box rvt"><div class="rvr">${(()=>{const t=today(),dn=[...Object.values(REV.it),...Object.values(prog.srs)].filter(s=>s&&s.ld===t).length;return ringAround(`<span class="rvc"><b>${dn}</b><small>today</small></span>`,dn/Math.max(1,dn+P.due.length),"rvring")})()}<div><h3>Today</h3><p><b>${P.due.length}</b> due${P.fresh.length?` · ${Math.min(P.fresh.length,5)} new`:""}</p>${n?`<button class="btn primary" id="rv-go">Start review · ${n} item${n===1?"":"s"}</button>`:`<p class="muted">Nothing to review yet. Learn some flashcards or finish a scene first.</p>`}</div></div>${days14()}</div>
      ${cal.length?`<div class="box"><h3>How well you predict your score</h3><p class="intro">Students often think they know more than they do. Predicting first, then checking, makes you a better judge of what to revise.</p><ul class="cal">${cal.map(([p,g,t,n])=>`<li>${esc(new Date(t).toLocaleDateString())}: predicted ${esc(p)}, got ${esc(g)}${n?` of ${esc(n)}`:""}</li>`).join("")}</ul></div>`:""}
      ${examLeft()>2?`<p class="muted">Your exam is in ${examLeft()} days, so items come back sooner.</p>`:""}`;
-    if($("rv-go"))$("rv-go").onclick=()=>{startReview();studyReview();scrollTo(0,0)};return}
+    if($("rv-go"))$("rv-go").onclick=()=>{startReview();studyReview();scrollTo(0,0)};$("rv-ses").onclick=()=>{startSession();studyReview();scrollTo(0,0)};return}
   if(rv.pred==null){const n=rv.items.length;
     $("sbody").innerHTML=`<div class="qz"><div class="qn">Before you start</div><h3>How many of these ${n} do you think you'll get right?</h3>
      <input type="range" id="rv-p" min="0" max="${n}" value="${Math.round(n*.7)}" class="srange" aria-label="Predicted score"><p class="big" id="rv-pv">${Math.round(n*.7)}</p>
@@ -1729,19 +1744,19 @@ function studyReview(){
     $("rv-p").oninput=e=>$("rv-pv").textContent=e.target.value;
     $("rv-start").onclick=()=>{rv.pred=+$("rv-p").value;studyReview()};$("rv-skip").onclick=()=>{rv.pred=-1;studyReview()};return}
   if(rv.i<rv.items.length){const it=rv.items[rv.i];
-    $("sbody").innerHTML=`<div class="qn rvn">Review · ${rv.i+1} of ${rv.items.length} · ${rv.ok} right${getS(it.k)?"":" · new"}</div><div class="cstack s${Math.max(0,Math.min(3,rv.items.length-rv.i-1))}">${itemHTML(it)}</div><div class="cardbtns">${itemButtons(it)}</div><div class="row"><button class="link" id="rv-quit">Stop review</button></div>`;
+    $("sbody").innerHTML=`${rvFrame()}<div class="cstack s${Math.max(0,Math.min(3,rv.items.length-rv.i-1))}">${itemHTML(it)}</div><div class="cardbtns">${itemButtons(it)}</div><div class="row"><button class="link" id="rv-quit">Stop review</button></div>`;
     $("rv-quit").onclick=()=>{rv=null;studyReview()};return}
   if(!rv.done){rv.done=true;rv.show=true;if(rv.pred>=0){REV.cal.push([rv.pred,rv.ok,Date.now(),rv.items.length]);REV.cal=REV.cal.slice(-20);saveRev()}}
   const n=rv.items.length,d=rv.pred>=0?rv.ok-rv.pred:null;
-  $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">Review finished</div>${wreathHTML(rv.ok,n)}
+  $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">${rv.ses?"Session":"Review"} finished</div>${wreathHTML(rv.ok,n)}
    ${d!=null?`<p>${d===0?"You predicted exactly right.":d>0?`You did ${d} better than you predicted.`:`You predicted ${-d} more than you got. Worth a second look at the ones you missed.`}</p>`:""}
-   <p class="muted">Items you missed come back later today; the rest come back in a few days.</p>${reflHTML()}<div class="row" style="justify-content:center"><button class="btn primary" id="rv-home">Done</button></div></div>`;
-  wireRefl();$("rv-home").onclick=()=>{rv=null;studyReview()};
+   <p class="muted">Items you missed come back later today; the rest come back in a few days.</p></div>${missedHTML()}<div class="qz" style="text-align:center">${reflHTML()}<div class="row" style="justify-content:center"><button class="btn primary" id="rv-home">Done</button><button class="btn" id="rv-again">Another session</button></div></div>`;
+  wireRefl();$("rv-home").onclick=()=>{rv=null;studyReview()};$("rv-again").onclick=()=>{startSession();studyReview();scrollTo(0,0)};
 }
 function reviewAct(a,v){const it=rv&&rv.items[rv.i];if(!it)return;
-  if(a==="pick"){if(it.stage!=="ask")return;it.pick=v;const ok=pickOk(it,v);it.stage="shown";if(ok)rv.ok++;grade(it.k,ok,false);studyReview();return}
+  if(a==="pick"){if(it.stage!=="ask")return;it.pick=v;const ok=pickOk(it,v);it.stage="shown";it.ok=ok;if(ok)rv.ok++;grade(it.k,ok,false);studyReview();return}
   if(a==="sure"||a==="unsure"){it.sure=a==="sure";it.stage="shown";studyReview();return}
-  if(a==="yes"||a==="no"){if(a==="yes")rv.ok++;grade(it.k,a==="yes",it.sure);rv.i++;studyReview();scrollTo(0,0);return}
+  if(a==="yes"||a==="no"){it.ok=a==="yes";if(a==="yes")rv.ok++;grade(it.k,a==="yes",it.sure);rv.i++;studyReview();scrollTo(0,0);return}
   if(a==="next"){rv.i++;studyReview();scrollTo(0,0)}}
 /* ---------- recall prompts: test yourself on a Learn page before rereading it ----------
    Retrieval beats rereading: the page blurs, you write what you remember, then compare. Answers kept per page (REV.rc). */

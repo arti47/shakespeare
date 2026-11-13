@@ -4,6 +4,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.11.0] — 2026-11-13
+
+### Added
+- Session mode: 10 mixed questions (who said it, finish the quote, theme, act, scene quiz; due items first) from Review, the Practise page and the five-minute plan; ends with a laurel score and a Look again page linking every missed quote and quiz question to its lines (#PR)
+- Review and sessions share one frame: progress pips (right, missed, current) and the running score (#PR)
+- Flashcards: Finish the quote shows the speaker's medallion; Who said it shows a blank medallion; the back shows the medallion, scene, the speech in modern English and the note (#PR)
+
 ## [4.10.0] — 2026-11-13
 
 ### Added
