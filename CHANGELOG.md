@@ -4,6 +4,18 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.8.0] — 2026-11-13
+
+### Added
+- Study is linked to the text everywhere: every quote, device, insult, glossary word, drill and flashcard carries a scene chip (act.scene and speaker) instead of "Read in context" (#114)
+- Preview slip: a chip opens the lines in place (original with the line marked, its modern English, key-quote themes) with Open in play; in the reader a "Back to Study" pill returns to the same item, its drawer open (#114)
+- Evidence speeches for all 36 plays: each Context item and each critic has 1-3 speeches from the play (2,137 in all, picked and checked against the text), shown as "Where the play shows it" and "Test it on" rows (#114)
+- Quoted phrases and act/scene mentions in Key facts, Context, Critics, Character analysis, Motifs, Symbols, Contrasts, Insults and Big questions link to their lines (#114)
+- Big questions show their evidence quotes as preview rows with a count on each question (#114)
+
+### Fixed
+- Revision sheet: quotes open with “ instead of a closing mark (#114)
+
 ## [4.7.0] — 2026-11-13
 
 ### Added

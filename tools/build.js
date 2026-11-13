@@ -87,6 +87,11 @@ for (const p of PLAYS) {
       last = id;
     }
   }
+  /* 4.8 evidence speeches: every Context item and critic has 1-3 speeches (EX.ev, tools/newplay/evidence.js). */
+  const EX = constJSON(rd(f), "EX", f), ev = EX.ev || {}, ids = new Set(DATA.filter(b => b.t === "sp").map(b => String(b.id)));
+  const okEv = a => Array.isArray(a) && a.length >= 1 && a.length <= 3 && a.every(i => ids.has(String(i)));
+  EX.context.forEach((c, i) => { if (!okEv((ev.ctx || [])[i])) throw new Error(`${f}: EX.ev.ctx[${i}] needs 1-3 speech ids`); });
+  for (const [k, v] of Object.entries(EX.critics)) v.forEach((c, i) => { if (!okEv(((ev.cr || {})[k] || [])[i])) throw new Error(`${f}: EX.ev.cr.${k}[${i}] needs 1-3 speech ids`); });
 }
 
 /* Every play needs a shelf cover (covers.js: COVER[id] with colour, epigraph, emblem, and M[id] pattern motif). */

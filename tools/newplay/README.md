@@ -92,7 +92,11 @@ Andronicus or Measure for Measure have every field). Speech ids are numbers or n
   `predict` scene → `[guess, what happens]` (all but last scene), `contrast` `[{t, pts, ids}]`, `analysis`
   SPEAKER → paragraphs, `motifs`/`bigq` `[[title, text|points, [quote indexes]]]`, `examq` `[[question, [quote indexes]]]`,
   `check` (essay checklist), `models` `[[quoteIndex, …model paragraph sentences]]`, `lang` `{un:[[id, phrase, gloss]],
-  pun:[[id, phrase, word, kind, note]], st:[[id, line, [[word, note]]]]}`, `dir` `[[id, phrase, question, [[choice, why]]]]`.
+  pun:[[id, phrase, word, kind, note]], st:[[id, line, [[word, note]]]]}`, `dir` `[[id, phrase, question, [[choice, why]]]]`,
+  `ev` (4.8) `{ctx:[[1-3 speech ids] per context item], cr:{themeKey:[[1-3 ids] per critic]}}`: the speeches each Context
+  item and critic is tested on. After assembling, `node tools/newplay/evidence.js <slug>` drafts them (quoted phrases, then
+  key quotes sharing rare words, one per scene); check every pick against the text and correct by hand, then rerun with
+  `--keep` only to fill gaps. `build.js` fails if any item has none.
 
 Ask TY (or the current owner) for the play's step tracker (`iago`) and chart (`arc`) subjects before writing them.
 
