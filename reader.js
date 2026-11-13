@@ -1004,6 +1004,8 @@ function whoHTML(w){const c=CH[w]||{},qs=QUOTES.quotes.filter(q=>speech[q.id].wh
   return h+secH("More on "+esc(title(w)))+`<div class="ttools">${tools.map(([s,l,i])=>`<button class="ttool" type="button" data-to="study:${esc(s)}${s.includes("?")?"&":"?"}tp=people"><svg class="tic" viewBox="0 0 24 24" aria-hidden="true">${TIC[i]}</svg><span>${l}</span></button>`).join("")}</div>`}
 function themeHTML(k){const [nm,desc]=QUOTES.themes[k],[a,b]=thLearnt(k),cr=(EX.critics||{})[k];
   let h=`<div class="thead">${tbanner(TEMB[temb(k)])}${ringEmb(TEMB[temb(k)],a/Math.max(1,b),"big")}<div><h2>${esc(nm)}</h2><p>${esc(desc)}</p><small>${a} of ${b} quotes learnt</small></div></div>`;
+  const pa=ACTS.map(a=>QUOTES.quotes.filter(q=>q.themes.includes(k)&&sceneOf(q.id).act===a).length),pm=Math.max(1,...pa);
+  h+=secH("Through the play")+`<div class="thrib49">${ACTS.map((a,j)=>`<button type="button" data-thact="${k}:${a}" style="--h:${(pa[j]/pm).toFixed(2)}"${pa[j]?"":" disabled"} aria-label="${AN(a)}: ${pa[j]} key quotes"><i></i><b>${pa[j]||""}</b><small>${a?R[a]:"Ind."}</small></button>`).join("")}</div>`;
   h+=`<ol class="road">${themePlan(k).map(([t,s,qs],i)=>`<li><div class="rstop">${folioSeal(["I","II","III"][i],"","rn")}<b>${t}</b><small>${s}</small></div>${qs.length?deckHTML(qs.map(qCard),"",t):`<p class="muted">No key quote for this theme here.</p>`}</li>`).join("")}</ol>`;
   if(cr&&cr.length)h+=`<details class="fold"><summary>What critics say</summary>${cr.map(critHTML).join("")}</details>`;
   const tools=[["themes?th="+k,"Trace it and copy a plan","themes"],["quotes?th="+k,"All its quotes","quotes"],["plan","Plan an essay","plan"]];if(toolOK("explore:motifs"))tools.push(["explore:motifs","Motifs and symbols","motifs"]);if(toolOK("explore:bigq"))tools.push(["explore:bigq","Big questions","bigq"]);
@@ -1114,6 +1116,11 @@ function rich(t){let s=esc(t);
   s=s.replace(/(“|&quot;|‘|(?:^|(?<=[\s(—–]))')([^“”‘’"<>]{8,}?)(”|&quot;|’|'(?=[\s.,;:!?)—–]|$))/g,(m,a,b,c)=>{const h=findPhrase(b);return h?`<button class="qlnk" type="button" data-pv="${h[0]}:${h[1]}">${m}</button>`:m});
   return s.replace(/\b(Act ([1-5]|[IV]+)),? (?:Scene|scene|sc\.) ([0-9]+|[ivxIVX]+)\b/g,(m,x,a,sc)=>{const an=/^\d$/.test(a)?+a:roman[a],sn=/^\d+$/.test(sc)?LR[+sc]:sc.toLowerCase();
     const p=scenes.find(z=>z.act===an&&z.scene.toLowerCase()===sn);return p?`<button class="qlnk sclnk" type="button" data-go2="${p.id}">${m}</button>`:m})}
+/* 4.10 graphics helpers: the symbol heat strip's cells, a glossary word in its first line */
+let HEAT=[];
+function glLine(k,id){const sp=speech[id],w=k.replace(/^'/,"").toLowerCase(),j=Math.max(0,sp.lines.findIndex(l=>l.toLowerCase().includes(w))),l=sp.lines[j].replace(/^~/,"").replace(/\[[^\]]*\]\s*/g,"");
+  const at=l.toLowerCase().indexOf(w),hl=at<0?esc(l):esc(l.slice(0,at))+`<mark>${esc(l.slice(at,at+w.length))}</mark>`+esc(l.slice(at+w.length));
+  return `<button class="gline" type="button" data-pv="${id}:${j}"><q>${hl}</q><small><span class="sca">${scShort(sceneOf(id))}</span>${esc(title(sp.who))} · first use</small></button>`}
 /* the preview slip */
 let PVBACK=null;
 function openPv(v){const [id,jj]=String(v).split(":"),sp=speech[id];if(!sp)return;const p=sceneOf(id),n=sp.lines.length,j=Math.min(n-1,Math.max(0,jj==null?kqj(id):+jj));
@@ -1155,8 +1162,15 @@ function miniRel(w){if(!EX.rel)return "";const M=new Map();Object.values(EX.rel)
   const ed=E.map(([o,k,out])=>{const two=E.some(e=>e[0]===o&&e[2]!==out),[p1,p2]=out?[C,P[o]]:[P[o],C];return relEdge(p1,p2,out?44:S/2+3,out?S/2+7:48,two?22:0,k,"mr")}).join("");
   return `<div class="mapf"><svg class="chart rmap" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title(w))}'s relationships">${`<defs>${relMk("mr")}</defs>`}${ed}${O.map(n=>relNode(n,P[n][0],P[n][1],S,wa)).join("")}${medalAt(w,cx,cy,80)}</svg></div>${relLegend()}`}
 /* a critic as a scroll card: the source, the year as a badge, the reading */
+const crYear=w=>+(String(w).match(/\b(1[5-9]\d\d|20\d\d)(?!\d)/)||[])[1]||0;
+/* 4.10 critics on a timeline: one dot per dated critic, coloured by theme; tap = jump to the card */
+function critLine(){const D=Object.entries(EX.critics).flatMap(([k,v])=>v.map((c,i)=>[crYear(c[0]),k,i,c[0]])).filter(x=>x[0]);if(D.length<2)return "";
+  const a=Math.floor(Math.min(...D.map(d=>d[0]))/50)*50,b=Math.ceil(Math.max(...D.map(d=>d[0]))/50)*50,W=340,x=v=>14+(v-a)*(W-28)/Math.max(1,b-a),th=Object.keys(EX.critics);
+  const lane={};D.sort((p,q)=>p[0]-q[0]);const pos=D.map(d=>{let l=0;while((lane[l]||-99)>x(d[0])-12)l++;lane[l]=x(d[0]);return l});const H=40+Math.max(...pos)*14;
+  const ticks=[];for(let t=a;t<=b;t+=b-a>200?100:50)ticks.push(t);
+  return `<div class="mapf crl"><svg class="chart" viewBox="0 0 ${W} ${H+16}" role="img" aria-label="Critics by year"><path d="M14 ${H}H${W-14}" stroke="var(--rule-strong)"/>${ticks.map(t=>`<path d="M${f1(x(t))} ${H-4}v8" stroke="var(--rule-strong)"/><text x="${f1(x(t))}" y="${H+14}" text-anchor="middle">${t}</text>`).join("")}${D.map((d,j)=>`<circle class="crd" data-crj="${esc(d[1])}:${d[2]}" tabindex="0" role="link" cx="${f1(x(d[0]))}" cy="${H-10-pos[j]*14}" r="6" fill="var(--t-${["story","people","themes","quotes","words","practise","write","revise"][th.indexOf(d[1])%8]})"><title>${esc(d[3])}</title></circle>`).join("")}</svg></div><p class="hcap">Each dot is a critic, coloured by theme. Tap one to read it.</p>`}
 function critHTML([w,x],k,i){const y=(String(w).match(/\b(1[5-9]\d\d|20\d\d)\b/)||[])[1],ev=k!=null?(((EX.ev||{}).cr||{})[k]||[])[i]:null;
-  return `<div class="crit">${y?`<span class="cry">${y}</span>`:""}<small>${embSVG(TEMB.quill,"crq")}${esc(w)}</small><p>${rich(x)}</p>${ev?evHTML(ev,"Test it on"):""}</div>`}
+  return `<div class="crit"${k!=null?` id="cr-${esc(k)}-${i}"`:""}>${y?`<span class="cry">${y}</span>`:""}<small>${embSVG(TEMB.quill,"crq")}${esc(w)}</small><p>${rich(x)}</p>${ev?evHTML(ev,"Test it on"):""}</div>`}
 let mapAct=1;
 function arcSVG(){const W=360,H=214,L=30,T=12,B=36,n=scenes.length,x=i=>L+i*(W-L-10)/Math.max(1,n-1),y=v=>T+(10-v)*(H-T-B)/10,cols=["var(--t-story)","var(--t-practise)"];
   const pts=v=>v.map((a,i)=>f1(x(i))+","+f1(y(a))).join(" ");
@@ -1169,7 +1183,9 @@ function arcSVG(){const W=360,H=214,L=30,T=12,B=36,n=scenes.length,x=i=>L+i*(W-L
    const span=t=>{const w=t.length*7.8;return an==="end"?[tx-w,tx]:an==="start"?[tx,tx+w]:[tx-w/2,tx+w/2]};
    let t=a?"Act "+R[a]:"Ind.";if(span(t)[0]<lastR+4)t=a?R[a]:"Ind.";if(span(t)[0]<lastR+4)t="";if(t)lastR=span(t)[1];
    return `<line x1="${x(i)}" y1="${T}" x2="${x(i)}" y2="${H-B}" stroke="var(--rule)"/>${t?`<text x="${tx}" y="${H-B+20}" text-anchor="${an}">${t}</text>`:""}`}).join("");
-  return `<div class="mapf"><svg class="chart arc" viewBox="0 0 ${W} ${H}" role="img" aria-label="${CFG.chartLabel}">${bands}<path class="agrid" d="M${L} ${f1(y(5))}H${W-10}"/>${ax}<text x="2" y="${y(10)+5}">10</text><text x="8" y="${y(0)+5}">0</text>${ls}</svg></div>
+  const V=Object.values(EX.arc),hit=scenes.map((p,i)=>{const ys=V.map(v=>v[i]).filter(v=>v!=null);if(!ys.length)return "";const lo=Math.min(...ys.map(y)),hi=Math.max(...ys.map(y));
+    return `<rect class="ahit" data-go2="${p.id}" tabindex="0" role="link" aria-label="${esc(sName(p))}: ${Object.keys(EX.arc).map((k,j)=>esc(k)+" "+V[j][i]).join(", ")}" x="${f1(x(i)-7)}" y="${f1(lo-9)}" width="14" height="${f1(hi-lo+18)}" rx="7"><title>${esc(sName(p))}</title></rect>`}).join("");
+  return `<div class="mapf"><svg class="chart arc" viewBox="0 0 ${W} ${H}" role="img" aria-label="${CFG.chartLabel}">${bands}<path class="agrid" d="M${L} ${f1(y(5))}H${W-10}"/>${ax}<text x="2" y="${y(10)+5}">10</text><text x="8" y="${y(0)+5}">0</text>${ls}${hit}</svg></div><p class="hcap">Tap a point to open that scene.</p>
    <div class="legend">${Object.keys(EX.arc).map((k,j)=>`<span><i style="background:${cols[j]};height:4px"></i>${esc(k)}</span>`).join("")}</div><p class="muted" style="font-size:.875rem">Filled dots mark scenes you have read.</p><p class="intro">${esc(EX.arcnote)}</p>`}
 let GLOSSUSE=null;
 function glossUse(){if(GLOSSUSE)return GLOSSUSE;GLOSSUSE={};for(const id in speech)speech[id].lines.join(" ").replace(gre,(m,pre,w)=>{const k=gmap[w.toLowerCase()];if(k&&!GLOSSUSE[k])GLOSSUSE[k]=id;return m});return GLOSSUSE}
@@ -1184,18 +1200,19 @@ function studyExplore(){
   if(exSel==="arcs")h=arcSVG();
   if(exSel==="verse")h=verseExplore();
   if(exSel==="director")h=dirExplore();
-  if(exSel==="context")h=`<p class="intro">The world the play was written in. Open a drawer of the cabinet to read it.</p><div class="cabinet">${EX.context.map(([a,b],i)=>`<details class="cab"><summary>${embSVG(TEMB[pickI(CTXI,a+" "+b,"quill")],"cabi")}<b>${esc(a)}</b><span class="evn">${((EX.ev||{}).ctx||[])[i]?EX.ev.ctx[i].length:""}</span></summary><p class="dc1">${rich(b)}</p>${evHTML(((EX.ev||{}).ctx||[])[i],"Where the play shows it")}</details>`).join("")}</div>`;
-  if(exSel==="critics")h=`<p class="intro">Use one of these in an essay to show you know other readings. "Paraphrased" means it is a summary, not their exact words.</p>`+Object.entries(EX.critics).map(([k,v])=>`<div class="crhead">${embSVG(TEMB[temb(k)],"crem")}<h3>${esc((QUOTES.themes[k]||[k])[0])}</h3></div>`+v.map((c,i)=>critHTML(c,k,i)).join("")).join("");
+  if(exSel==="context")h=`<p class="intro">The world the play was written in. Open a drawer of the cabinet to read it.</p><div class="cabinet">${EX.context.map(([a,b],i)=>`<details class="cab"><summary>${embSVG(TEMB[pickI(CTXI,a+" "+b,"quill")],"cabi")}<b>${esc(a)}</b><small class="cabp">${esc(clip(b,64))}</small><span class="evn">${((EX.ev||{}).ctx||[])[i]?EX.ev.ctx[i].length:""}</span></summary><p class="dc1">${rich(b)}</p>${evHTML(((EX.ev||{}).ctx||[])[i],"Where the play shows it")}</details>`).join("")}</div>`;
+  if(exSel==="critics")h=`<p class="intro">Use one of these in an essay to show you know other readings. "Paraphrased" means it is a summary, not their exact words.</p>`+critLine()+Object.entries(EX.critics).map(([k,v])=>`<div class="crhead">${embSVG(TEMB[temb(k)],"crem")}<h3>${esc((QUOTES.themes[k]||[k])[0])}</h3></div>`+v.map((c,i)=>critHTML(c,k,i)).join("")).join("");
   if(exSel==="devices")h=Object.entries(EX.devices).map(([k,nm])=>{const its=Object.entries(EX.dev).flatMap(([id,arr])=>arr.filter(a=>a[0]===k).map(a=>[id,a]));return its.length?`<div class="stage3"><h3>${esc(nm)}</h3><small>${its.length}</small></div>`+its.map(([id,a])=>`<div class="exitem"><p style="color:var(--ink)">“${esc(a[2])}”: ${esc(a[1])}</p><small>${chip(id)}</small></div>`).join(""):""}).join("");
-  if(exSel==="symbols"){h=Object.entries(EX.symbols).map(([nm,re])=>{const rx=new RegExp(re,"i"),ids=Object.keys(speech).filter(id=>rx.test(speech[id].lines.join(" ")));
+  if(exSel==="symbols"){const SYM=Object.entries(EX.symbols).map(([nm,re])=>{const rx=new RegExp(re,"i");return [nm,ACTS.map(a=>Object.keys(speech).filter(id=>sceneOf(id).act===a&&rx.test(speech[id].lines.join(" "))))]}),mx=Math.max(1,...SYM.flatMap(x=>x[1].map(a=>a.length)));
+    HEAT=SYM;h=`<div class="heat49" style="--na:${ACTS.length}" role="table" aria-label="Mentions by act"><div class="hrow hh" role="row"><span role="columnheader"></span>${ACTS.map(a=>`<span role="columnheader">${a?R[a]:"Ind."}</span>`).join("")}</div>${SYM.map(([nm,per],i)=>`<div class="hrow" role="row"><b role="rowheader">${esc(nm)}</b>${per.map((ids,j)=>`<button type="button" role="cell" class="hc${ids.length/mx>=.5?" dk":""}" data-heat="${i}:${j}" style="--h:${(ids.length/mx).toFixed(2)}" aria-label="${esc(nm)}, ${AN(ACTS[j])}: ${ids.length}"${ids.length?"":" disabled"}>${ids.length||""}</button>`).join("")}</div>`).join("")}</div><p class="hcap">Darker = more mentions. Tap a cell for the lines.</p>`+Object.entries(EX.symbols).map(([nm,re])=>{const rx=new RegExp(re,"i"),ids=Object.keys(speech).filter(id=>rx.test(speech[id].lines.join(" ")));
     const per=[1,2,3,4,5].map(a=>ids.filter(id=>sceneOf(id).act===a).length);
-    return `<details class="exitem"><summary><b>${esc(nm)}</b> <small>${ids.length} speeches · by act: ${per.join(" / ")}</small></summary>${ids.slice(0,60).map(id=>{const sp=speech[id],l=sp.lines.find(x=>rx.test(x))||sp.lines[0];return `<div class="exitem"><div class="o2">${esc(l.replace(/^~/,""))}</div><small>${chip(id)}</small></div>`}).join("")}</details>`}).join("")}
+    return `<details class="exitem"><summary><b>${esc(nm)}</b> <small>${ids.length} speeches</small></summary>${ids.slice(0,60).map(id=>{const sp=speech[id],l=sp.lines.find(x=>rx.test(x))||sp.lines[0];return `<div class="exitem"><div class="o2">${esc(l.replace(/^~/,""))}</div><small>${chip(id)}</small></div>`}).join("")}</details>`}).join("")}
   if(exSel==="contrast")h=EX.contrast.map(c=>`<div class="exitem"><b>${esc(c.t)}</b><ul>${c.pts.map(x=>`<li>${rich(x)}</li>`).join("")}</ul>${c.ids.map(spLine).join("")}</div>`).join("");
   if(exSel==="insults")h=`<p class="intro">${CFG.insultsIntro}</p>`+EX.insults.map(x=>`<div class="exitem"><b>“${esc(x.f.replace(/^#\d+$/,"Devil!"))}”</b> <small>${esc(x.who)}</small><p>${rich(x.n)}</p><small>${chip(x.id)}</small></div>`).join("");
   if(exSel==="pronouns")h=`<p class="intro">"Thou" and "thee" are used to close friends, children and inferiors, or as an insult. "You" is polite and respectful. A switch from one to the other usually means a change in feeling.</p>`+EX.pronouns.map(x=>`<div class="exitem"><b>“${esc(x.f)}”</b><p>${esc(x.n)}</p>${spLine(x.id)}</div>`).join("");
   if(exSel==="glossary"){const u=glossUse(),ks=Object.keys(G).sort((a,b)=>a.toLowerCase().replace(/^'/,"").localeCompare(b.toLowerCase().replace(/^'/,"")));
     const L=[...new Set(ks.map(k=>k.replace(/^'/,"")[0].toUpperCase()))];
-    let gl="";h=`<div class="az">${L.map(l=>`<button data-az="${l}">${l}</button>`).join("")}</div>`+ks.map(k=>{const l=k.replace(/^'/,"")[0].toUpperCase(),ini=l!==gl?(gl=l,`<div class="gini" data-letter="${l}" aria-hidden="true"><span>${l}</span></div>`):"";return ini+`<div class="exitem" data-gw="${esc(k)}" data-letter="${k.replace(/^'/,"")[0].toUpperCase()}"><b>${esc(k)}</b><p>${esc(G[k])}</p>${u[k]?`<small>First used: ${chip(u[k])}</small>`:""}</div>`}).join("")}
+    let gl="";h=`<div class="az">${L.map(l=>`<button data-az="${l}">${l}</button>`).join("")}</div>`+ks.map(k=>{const l=k.replace(/^'/,"")[0].toUpperCase(),ini=l!==gl?(gl=l,`<div class="gini" data-letter="${l}" aria-hidden="true"><span>${l}</span></div>`):"";return ini+`<div class="exitem" data-gw="${esc(k)}" data-letter="${k.replace(/^'/,"")[0].toUpperCase()}"><b>${esc(k)}</b><p>${esc(G[k])}</p>${u[k]?glLine(k,u[k]):""}</div>`}).join("")}
   if(exSel==="compare")h=compareHTML();
   if(exSel==="facts")h=`<div class="playbill"><div class="pbh">${typeof emblemSVG==="function"?`<span class="pbe">${emblemSVG(PLAY,"emb")}</span>`:""}<small>${esc(CFG.pre||"")}</small><h3>${esc(CFG.h1||CFG.title)}</h3><small>${esc(CFG.post||"")}</small></div><div class="orn" aria-hidden="true">❦</div>
     <dl class="pbl">${EX.keyfacts.map(([a,b])=>`<div class="pbr">${embSVG(FICON[pickI(FACTI,a,"fleuron")],"pbi")}<dt>${esc(a)}</dt><dd>${rich(b)}</dd></div>`).join("")}</dl></div>`;
@@ -1304,10 +1321,10 @@ const DIRS=EX.dir||[];
 function dirCard(i){const [id,line,q,opts]=DIRS[i],sp=speech[id],c=DIRC[i]||{},ch=c.c;
   return `<div class="exitem dirc"><small>${esc(where(sp))}</small><h3>${esc(q)}</h3><p class="dline">“${esc(line)}”</p>
    <div class="opts">${opts.map((o,j)=>`<button data-dc="${i}:${j}" class="${ch===j?"right":""}" aria-pressed="${ch===j}"><b>${esc(o[0])}</b>${ch!=null?`<span>${esc(o[1])}</span>`:""}</button>`).join("")}</div>
-   ${ch!=null?`<label class="lbl" for="dw-${i}">Why this choice? Say what the audience should feel.</label><textarea class="sinput" id="dw-${i}" data-dw="${i}" placeholder="I would stage it this way because…">${esc(c.w||"")}</textarea>`:`<p class="muted">Pick how you would stage it. Every option is defensible: the effects appear once you choose.</p>`}
+   ${ch!=null?`<label class="lbl" for="dw-${i}">Why this choice? Say what the audience should feel.</label><textarea class="sinput" id="dw-${i}" data-dw="${i}" placeholder="I would stage it this way because…">${esc(c.w||"")}</textarea>`:""}
    <div class="row">${chip(id)}</div></div>`}
 function dirExplore(){const n=Object.values(DIRC).filter(x=>x&&x.c!=null).length;
-  return `<p class="intro">You are the director. Each moment can be staged more than one way, and each choice changes what the audience feel. Examiners reward "an actor might…" or "a director could…" when you explain the effect. ${n} of ${DIRS.length} decided.</p>`+DIRS.map((_,i)=>dirCard(i)).join("")}
+  return `<p class="intro">You are the director. Each moment can be staged more than one way, and each choice changes what the audience feel. Examiners reward "an actor might…" or "a director could…" when you explain the effect. Every option is defensible: the effects appear once you choose. ${n} of ${DIRS.length} decided.</p>`+DIRS.map((_,i)=>dirCard(i)).join("")}
 function dirTools(id){const ix=DIRS.map((d,i)=>[d,i]).filter(([d])=>+d[0]===+id);if(!ix.length)return "";
   return ix.map(([d,i])=>`<details class="about"><summary>Director's choice: ${esc(d[2])}</summary><ul>${d[3].map((o,j)=>`<li><b>${esc(o[0])}</b>: ${esc(o[1])}${(DIRC[i]||{}).c===j?" <small>(your choice)</small>":""}</li>`).join("")}</ul><button class="btn sm" data-dirgo="1">Decide in Study</button></details>`).join("")}
 function thoughtHTML(sp){return `<details class="about tthink"><summary>Thought track: what is ${esc(title(sp.who))} really thinking?</summary><p class="muted">Actors play the thought under the words. Write it in the first person, then add it to your note.</p><label for="tt" class="sr">Thought track</label><textarea id="tt" placeholder="I…"></textarea><div class="acts"><button class="btn sm" id="tt-add">Add to my note</button></div></details>`}
@@ -1883,6 +1900,9 @@ function studyRevise(){
 }
 $("sbody").addEventListener("click",e=>{
   const pv=e.target.closest("[data-pv]");if(pv){e.preventDefault();openPv(pv.dataset.pv);return}
+  const ht=e.target.closest("[data-heat]");if(ht){const [i,j]=ht.dataset.heat.split(":").map(Number),[nm,per]=HEAT[i]||[];if(nm)openSheet(`${nm} · ${AN(ACTS[j])}`,`<p class="intro">${per[j].length} speech${per[j].length===1?"":"es"} mention it.</p>${evHTML(per[j],"In the play")}`);return}
+  const cj=e.target.closest("[data-crj]");if(cj){const [k,i]=cj.dataset.crj.split(":"),el=document.getElementById(`cr-${k}-${i}`);if(el){el.scrollIntoView({block:"center",behavior:"smooth"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}return}
+  const ta=e.target.closest("[data-thact]");if(ta){const [k,a]=ta.dataset.thact.split(":"),qs=QUOTES.quotes.filter(q=>q.themes.includes(k)&&sceneOf(q.id).act===+a);openSheet(`${QUOTES.themes[k][0]} · ${AN(+a)}`,evHTML(qs.map(q=>q.id),"Key quotes"));return}
   const qw=e.target.closest("[data-qwho]");if(qw){qf.who=qw.dataset.qwho;const y=scrollY;studyQuotes();scrollTo(0,y);return}
   const dv=e.target.closest("[data-dv]");if(dv){DV=dv.dataset.dv;LS.set("folio-deckview",DV);const y=scrollY;renderStudy();scrollTo(0,y);return}
   const aj=e.target.closest("[data-actj]");if(aj){const el=$("act-"+aj.dataset.actj);if(el)el.scrollIntoView({block:"start"});return}

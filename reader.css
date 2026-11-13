@@ -2032,3 +2032,36 @@ button.tdc{cursor:pointer}
 .upback{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:8px;padding:0 4px;border:0;background:none;color:var(--muted);font:400 1rem var(--f-body);cursor:pointer}
 @media (min-width:760px){#study.stool #srel .upn48{flex-direction:column}#study.stool #srel .upm{min-height:44px}}
 @media print{.today48,#srel{display:none!important}}
+/* ---------- 4.10 Study graphics: clean charts for data (arc hit points, symbol heat strip, critics timeline, theme act ribbon), glossary lines, context previews ---------- */
+.chart .ahit{fill:transparent;cursor:pointer}
+.chart .ahit:hover,.chart .ahit:focus-visible{fill:color-mix(in srgb,var(--accent) 14%,transparent);outline:none}
+.hcap{margin:6px 2px 12px;color:var(--muted);font:400 .9rem var(--f-body)}
+.heat49{display:grid;gap:4px;margin:4px 0 0;overflow-x:auto}
+.heat49 .hrow{display:grid;grid-template-columns:minmax(7em,1.4fr) repeat(var(--na),minmax(38px,1fr));gap:4px;align-items:center}
+.heat49 .hh span{text-align:center;font:400 .95rem var(--f-sc);color:var(--tc,var(--accent))}
+.heat49 .hrow>b{font:400 1rem/1.2 var(--f-old);padding-right:6px}
+.hc{min-height:40px;border:1px solid color-mix(in srgb,var(--tc,var(--accent)) 25%,var(--rule));border-radius:6px;background:color-mix(in srgb,var(--tc,var(--accent)) calc(var(--h)*85%),var(--card));color:var(--ink);font:600 .9rem var(--f-ui);cursor:pointer;font-variant-numeric:tabular-nums}
+.hc.dk{color:var(--card)}
+.hc:disabled{cursor:default;background:transparent;border-style:dashed}
+.hc:focus-visible,.thrib49 button:focus-visible{outline:2px solid var(--tc,var(--accent));outline-offset:2px}
+.crl svg text{font:400 11px var(--f-ui);fill:var(--muted)}
+.crl .crd{cursor:pointer;stroke:var(--card);stroke-width:2}
+.crl .crd:hover,.crl .crd:focus-visible{stroke:var(--ink);outline:none}
+.crit{scroll-margin-top:90px}
+#sbody .crit.flash{animation:pvfl 1.6s ease-out}
+.thrib49{display:grid;grid-template-columns:repeat(auto-fit,minmax(48px,1fr));gap:8px;align-items:end;margin:0 0 6px}
+.thrib49 button{display:grid;grid-template-rows:84px auto auto;justify-items:center;gap:2px;padding:6px 4px;border:1px solid color-mix(in srgb,var(--tc) 25%,var(--rule));border-radius:var(--r-m);background:var(--card);color:var(--ink);cursor:pointer}
+.thrib49 button:disabled{cursor:default;opacity:.7}
+.thrib49 i{align-self:end;width:60%;height:calc(var(--h)*100%);min-height:3px;border-radius:4px 4px 0 0;background:linear-gradient(var(--tc),color-mix(in srgb,var(--tc) 55%,var(--card)))}
+.thrib49 b{font:600 .95rem var(--f-ui);color:var(--tc);min-height:1.2em}
+.thrib49 small{font:400 .95rem var(--f-sc);color:var(--muted)}
+.cab>summary .cabp{display:block;color:var(--muted);font:italic 400 .9rem/1.35 var(--f-body)}
+.cab[open]>summary .cabp{display:none}
+.gline{display:grid;gap:3px;width:100%;margin-top:6px;padding:8px 12px;border:1px solid var(--rule);border-left:3px solid var(--tc,var(--accent));border-radius:var(--r-m);background:color-mix(in srgb,var(--tc,var(--accent)) 5%,var(--card));color:var(--ink);text-align:left;cursor:pointer}
+.gline q{font:italic 400 1rem/1.45 var(--f-body);quotes:"“" "”"}
+.gline mark{background:color-mix(in srgb,var(--gold,#c9a227) 40%,transparent);color:inherit;font-style:normal;padding:0 2px;border-radius:3px}
+.gline small{display:flex;align-items:center;gap:8px;color:var(--muted);font:400 .875rem var(--f-ui)}
+.gline .sca{display:inline-grid;place-items:center;min-width:2.6em;padding:2px 7px;border-radius:999px;background:var(--accent);color:var(--card);font:600 .8rem/1.3 var(--f-ui)}
+#sbody .az{position:sticky;top:0;z-index:6;margin:0 -4px 12px;padding:8px 4px;background:var(--page,var(--bg));border-bottom:1px solid var(--rule)}
+#sbody .az{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#sbody .az::-webkit-scrollbar{display:none}
+#sbody .az button{flex:none;min-width:40px;min-height:40px;font:400 1rem var(--f-old)}
