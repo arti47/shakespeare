@@ -414,11 +414,9 @@ function findKey(key){
   let best=-1;for(let i=0;i<cur.pages.length;i++)for(const b of cur.pages[i])if(b.t==="sp"&&String(b.it.id)===sid&&b.units[b.u0][0]<= +ln)best=i;
   return best;
 }
-/* 4.5 Folio page frame: running head, page number, catchword (the next page's first word, as in the 1623 print), time left in the scene */
-function catchword(pages,i){const b=(pages[i]||[])[0];if(!b)return "";const fw=t=>String(t||"").replace(/^~/,"").trim().split(/\s+/)[0]||"";
-  if(b.t==="sp")return fw(b.it.lines[b.units[b.u0][0]]);if(b.t==="sd")return fw(b.it.text);return ""}
+/* 4.5 Folio page frame: running head, page number, time left in the scene (4.5.1: no catchword; the right cell stays empty to keep the number centred) */
 function footHTML(pages,i,mins){const n=pages.length,i2=Math.min(n,i+step());
-  return `<span class="pfl">${mins>0?`${mins} min left in scene`:""}</span><span class="pfc">${i2>i+1?`${i+1}–${i2}`:i+1} of ${n}</span><span class="pfr">${esc(catchword(pages,i+step()))}</span>`}
+  return `<span class="pfl">${mins>0?`${mins} min left in scene`:""}</span><span class="pfc">${i2>i+1?`${i+1}–${i2}`:i+1} of ${n}</span><span class="pfr"></span>`}
 function frame(i,n){const r=pg.getBoundingClientRect(),rh=$("rhead"),pf=$("pgfoot"),de=$("dogear");
   if(!spread()){rh.style.left=r.left+"px";rh.style.width=r.width+"px";pf.style.left=r.left+"px";pf.style.width=r.width+"px"}else{rh.style.left=rh.style.width=pf.style.left=pf.style.width=""}
   /* desk: the page stack moves from right to left as you read the scene */

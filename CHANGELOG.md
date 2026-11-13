@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.5.1] — 2026-11-13
+
+### Removed
+- The catchword (next page's first word) at the reader's page foot (#111)
+
 ## [4.5.0] — 2026-11-13
 
 ### Changed
