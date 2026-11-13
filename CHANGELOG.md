@@ -7,21 +7,21 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.7.0] — 2026-11-13
 
 ### Added
-- Reader "Pocket edition" (audit 10), no content changes: each scene opens on an illustrated title page (woodcut stage vignette by setting, night or day sky, act and scene, full place, first story beat, cast playbill, Before you read); the text starts on the next page (#PR)
-- Act divider pages: the play's emblem in a laurel wreath, the act in Latin and English, and its scenes with places (#PR)
-- Woodcut ornaments: urn tailpieces on title, act and end pages; margin marks for asides (pointing hand) and soliloquies (asterism) (#PR)
-- Crimson Pro (self-hosted, OFL) for modern English, notes and sheets (#PR)
+- Reader "Pocket edition" (audit 10), no content changes: each scene opens on an illustrated title page (woodcut stage vignette by setting, night or day sky, act and scene, full place, first story beat, cast playbill, Before you read); the text starts on the next page (#113)
+- Act divider pages: the play's emblem in a laurel wreath, the act in Latin and English, and its scenes with places (#113)
+- Woodcut ornaments: urn tailpieces on title, act and end pages; margin marks for asides (pointing hand) and soliloquies (asterism) (#113)
+- Crimson Pro (self-hosted, OFL) for modern English, notes and sheets (#113)
 
 ### Changed
-- Verse lines fit the page live on every screen (Settings › Fit verse lines, on by default; never below 14px); prose follows the same size (#PR)
-- Tighter spacing between speeches; raised initial on phones; character intro is one italic line (#PR)
-- Slimmer menus: 56px bottom nav, no icon rings, current tab in red (#PR)
-- Speech tools: speaker named once, Modern tab shows only the modern English (#PR)
-- Dark and Night: candlelit page (warm black, glow, gilt beats, initial and ornaments) (#PR)
-- Desk: wider spread with a wider gutter; the rail folds into roundels on the spine (desk edge on one leaf); one rule under the running head on one leaf (#PR)
+- Verse lines fit the page live on every screen (Settings › Fit verse lines, on by default; never below 14px); prose follows the same size (#113)
+- Tighter spacing between speeches; raised initial on phones; character intro is one italic line (#113)
+- Slimmer menus: 56px bottom nav, no icon rings, current tab in red (#113)
+- Speech tools: speaker named once, Modern tab shows only the modern English (#113)
+- Dark and Night: candlelit page (warm black, glow, gilt beats, initial and ornaments) (#113)
+- Desk: wider spread with a wider gutter; the rail folds into roundels on the spine (desk edge on one leaf); one rule under the running head on one leaf (#113)
 
 ### Fixed
-- Inconsistent indents on wrapped verse; drop cap orphan line; duplicated cast medallions; laid-paper chain lines showing as stripes; place names cut with an ellipsis in the opener (#PR)
+- Inconsistent indents on wrapped verse; drop cap orphan line; duplicated cast medallions; laid-paper chain lines showing as stripes; place names cut with an ellipsis in the opener (#113)
 
 ## [4.6.0] — 2026-11-13
 
