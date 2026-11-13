@@ -323,15 +323,18 @@ function blockHTML(bk,p){
     const n=onStageWho(p).length;
     const first=p.sc===1;
     /* 4.4: a slim headpiece band (stage vignette with its sky, act and scene, place, Before you read); the act strip only at act starts */
-    return `<div class="blk shead sh44${first?" actopen":""}">${first?`<div class="astrip"><span>${AN(p.act)}</span><i>${LAT[p.act]}</i></div>`:""}<div class="hband">${folioStage(PICS[stageType(p)],"","hvig",skyOf(p))}<div class="hbt"><div class="eyebrow">${SL[p.scene]||""}</div><h1>${sName(p)}</h1><div class="loc"><span>${esc(p.loc)}</span></div><button class="recapb" data-recap="${p.id}">${preQ(p)?"Read to find out · ":""}${n} on stage · Before you read<span aria-hidden="true"> ›</span></button></div></div></div>`}
+    return `<div class="blk shead sh44${first?" actopen":""}">${first?`<div class="astrip"><span>${AN(p.act)}</span><i>${LAT[p.act]}</i></div>`:""}<div class="hband">${folioStage(PICS[stageType(p)],"","hvig",skyOf(p))}<div class="hbt"><div class="eyebrow">${SL[p.scene]||""}</div><h1>${sName(p)}</h1><div class="loc"><span>${esc(p.loc)}</span></div>${(()=>{const f=p.items.find(x=>x.t==="sp");return S.beats&&!S.who&&f&&BEAT[f.id]?`<div class="hbeat">${beatTxt(BEAT[f.id])}</div>`:""})()}<button class="recapb" data-recap="${p.id}" aria-label="Before you read: ${n} on stage">Before you read<span aria-hidden="true"> ›</span></button></div></div></div>`}
   if(bk.t==="sd"){const ws=entWho(bk.it.text);return `<div class="blk sd">${esc(bk.it.text)}${ws.length?`<span class="ents">${ws.map(w=>`<button type="button" class="entm" data-who="${esc(w)}" aria-label="${esc(title(w))}">${folioMedal(w,COLORS[w],"em")}</button>`).join("")}</span>`:""}</div>`}
-  if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1];
+  if(bk.t==="end"){const k=sIdx(p.id),n=scenes[k+1],part=bk.part||"";
     const po=EX.predict[p.id],g=PRED[p.id];
     /* 4.0 scene-end card: the wax seal stamps, a three-question check, a big Next. Full mode keeps the other end-of-scene tools below. */
     const fresh=!prog.done[p.id],o=prog.qst[p.id]||{},Q=questsOf(p.id),sl=allSeals()+(fresh?1:0),L=folioLevel(sl);
     const chk=Q.includes("q")?(Array.isArray(o.q)?`<button class="ckb done" data-endact="check:${p.id}">Check: ${esc(o.q[0])} of ${esc(o.q[1])} right · try again</button>`:`<button class="ckb${goal()==="enjoy"?" done":""}" data-endact="check:${p.id}">Check yourself · 3 questions</button>`):"";
-    return `<div class="blk endblk endcard">${TAILP}${fresh?BURST:""}${folioSeal(p.scene,o.g?"g":"",fresh?"endseal stamp":"endseal")}<b>End of ${sName(p)}</b><span class="lvl">Scene sealed · ${sl} seal${sl===1?"":"s"} · ${esc(L.name)}</span>${chk}
-      ${n?`<button class="nextsc" data-endact="next:${p.id}"><small>Next</small><b>${sName(n)}</b><span>${esc(shortLoc(n))} ›</span></button>`:`<span class="fin">Finis</span>`}${S.sum&&(STUDY.scenes[p.id]||{}).sum?`<div class="sum endsum"><b>The Argument</b>${esc(STUDY.scenes[p.id].sum)}</div>`:""}
+    const arg=S.sum&&(STUDY.scenes[p.id]||{}).sum?(wide()?`<div class="sum endsum"><b>The Argument</b>${esc(STUDY.scenes[p.id].sum)}</div>`:`<details class="sum endsum endfold"><summary><b>Read the argument</b><span aria-hidden="true"> ›</span></summary>${esc(STUDY.scenes[p.id].sum)}</details>`):"";
+    const top=`${TAILP}${fresh?BURST:""}${folioSeal(p.scene,o.g?"g":"",fresh?"endseal stamp":"endseal")}<b>End of ${sName(p)}</b><span class="lvl">Scene sealed · ${sl} seal${sl===1?"":"s"} · ${esc(L.name)}</span>${chk}
+      ${n?`<button class="nextsc" data-endact="next:${p.id}"><small>Next</small><b>${sName(n)}</b><span>${esc(shortLoc(n))} ›</span></button>`:`<span class="fin">Finis</span>`}`;
+    if(part==="a")return `<div class="blk endblk endcard enda">${top}</div>`;
+    return `<div class="blk endblk endcard${part==="b"?" endb":""}">${part==="b"?`<div class="endhd">${sName(p)} · <i>the argument</i></div>`:top}${arg}
       ${po?`<div class="pred"><p>${g!=null?`Your guess: ${esc(po[g])}. Turn the page to find out.`:"What do you think happens next?"}</p><div class="chips">${po.map((o,i)=>`<button class="chip" data-pred="${p.id}:${i}" aria-pressed="${g===i}">${esc(o)}</button>`).join("")}</div></div>`:""}${folioSimple()?"":endExtras(p)}</div>`}
   const it=bk.it,c=COLORS[it.who],cont=bk.u0>0||it.cont,aside=it.lines.some(l=>/\[Aside/.test(l)),solo=SOLO[it.id];
   let prevSp=null;for(const x of p.items){if(x===it)break;if(x.t==="sp"&&x.who===it.who)prevSp=x}
@@ -344,25 +347,31 @@ function blockHTML(bk,p){
   else if(whole&&partsOf(it).length<2)body=`<div class="o">${linesHTML(it,0,it.lines.length-1)}</div><div class="m">${paras(it.m)}</div>`;
   else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2])}</div></div>`).join("");
   const hl=hlOf(m),hc=hl?" hl hl-"+hl:"";
-  const beat=S.beats&&!bk.u0&&!S.who&&BEAT[it.id]?`<div class="beat" aria-label="Story beat"><span>${beatTxt(BEAT[it.id])}</span></div>`:"";
-  const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1">${folioMedal(it.who,COLORS[it.who],"wm")}<span>${esc(firstSentence(ch.desc))}</span></div>`:"";
   const dcap=!bk.u0&&p.items.find(x=>x.t==="sp")===it;
-  return `<article class="blk sp${dcap?" dcap":""}${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${PROSE[it.id]?"":" vs"}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}">${beat}<div class="hd"><span class="nm${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div>${intro}<div class="body">${body}</div></article>`;
+  const beat=S.beats&&!bk.u0&&!S.who&&BEAT[it.id]&&!dcap?`<div class="beat" aria-label="Story beat"><span>${beatTxt(BEAT[it.id])}</span></div>`:"";
+  const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1">${folioMedal(it.who,COLORS[it.who],"wm")}<span>${esc(firstSentence(ch.desc))}</span></div>`:"";
+  /* 4.6 phones: the name runs in at the start of the first line, as in the Folio (not on the scene's first speech, which has the initial) */
+  const runin=!wide()&&S.mode==="orig"&&!dcap;
+  if(runin){const tg=tag.replace(/<span class="tag pr">Prose<\/span>/,"");body=body.replace(/(<span class="l[^"]*"[^>]*>)/,`$1<span class="nm ri${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tg||flags?`<span class="rit">${tg}${flags}</span>`:""} `)}
+  return `<article class="blk sp${dcap?" dcap":""}${runin?" run":""}${hc}${solo?" solo":aside?" aside":PROSE[it.id]?" prose":""}${PROSE[it.id]?"":" vs"}${S.focus&&it.who===S.focus?" fwho":""}" data-id="${it.id}" data-key="${it.id}:${bk.u0}">${beat}${runin?"":`<div class="hd"><span class="nm${cont?" cont":""}"${ch?` data-who="${esc(it.who)}"`:""} style="${c?`--c:${c}`:""}">${esc(title(it.who))}${cont?" (cont.)":""}</span>${tag}${flags}</div>`}${intro}<div class="body">${body}</div></article>`;
 }
 /* ---------- pagination: fill each screen, split long speeches between pages ----------
    Wide screens (1200px+, reader not narrowed by the side panel) show two facing pages like an open Folio: pages are measured at leaf width,
    cur.i is always the left (even) page, and a turn moves two pages. */
 const SPREAD_GAP=64;
-const spread=()=>innerWidth>=1200&&!document.body.classList.contains("tight");
+const SIDEW=()=>Math.min(420,innerWidth*.42);
+/* 4.6: the desk stays a book while a sheet or panel is open; with too little room it is one bound leaf */
+const spread=()=>innerWidth>=1200;
+const narrowBook=()=>document.body.classList.contains("tight")&&innerWidth-SIDEW()<1200;
 /* 4.5: Both mode on wide screens (1000px+) is a parallel-text opening: Shakespeare on the left page, modern English facing it, part by part */
 const facing=()=>S.mode==="both"&&innerWidth>=1000&&!document.body.classList.contains("tight");
-const twoLeaves=()=>spread()&&!facing();
+const twoLeaves=()=>spread()&&!facing()&&!narrowBook();
 const leafW=()=>{if(!spread())return pg.clientWidth;const cs=getComputedStyle(pg),w=pg.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);return twoLeaves()?Math.floor((w-SPREAD_GAP)/2):Math.floor(w)};
 const step=()=>twoLeaves()?2:1;
 const even=i=>twoLeaves()?i-i%2:i;
 function pageHTML(pages,i,k){const p=scenes[k],h=n=>(pages[n]||[]).map(b=>blockHTML(b,p)).join("");
   const rib=spread()?'<i class="sribbon" aria-hidden="true"></i>':"";
-  return twoLeaves()?`<div class="spread2">${rib}<div class="leaf">${h(i)}</div><div class="leaf">${h(i+1)}</div></div>`:facing()?`<div class="spread2 facing">${rib}<div class="leaf">${h(i)}</div></div>`:h(i)}
+  return twoLeaves()?`<div class="spread2">${rib}<div class="leaf">${h(i)}</div><div class="leaf">${h(i+1)}</div></div>`:facing()?`<div class="spread2 facing">${rib}<div class="leaf">${h(i)}</div></div>`:spread()?`<div class="spread2 one">${rib}<div class="leaf">${h(i)}</div></div>`:h(i)}
 let cur={k:-1,pages:[],i:0,words:0,sig:""};
 function paginate(p){
   document.body.classList.toggle("spread",spread());document.body.classList.toggle("facing",facing());
@@ -373,7 +382,8 @@ function paginate(p){
   const flush=()=>{if(page.length)pages.push(page);page=[];measure.innerHTML=""};
   const add=bk=>{measure.insertAdjacentHTML("beforeend",blockHTML(bk,p));return measure.lastElementChild};
   for(const bk0 of blocks){
-    if(bk0.t==="end")flush();/* the end-of-scene card gets a page of its own */
+    if(bk0.t==="end"){flush();/* the end-of-scene card gets a page of its own; on a desk opening it fills both leaves */
+      if(twoLeaves()&&pages.length%2===0){pages.push([Object.assign({},bk0,{part:"a"})]);pages.push([Object.assign({},bk0,{part:"b"})]);continue}}
     let bk=bk0,guard=0;
     while(guard++<500){
       const el=add(bk);
@@ -383,7 +393,7 @@ function paginate(p){
         /* split between parts if possible; split inside a part (at a line) when the part split would leave over a quarter of the page empty */
         const fit=pass=>{for(let u=bk.u1-1;u>bk.u0;u--){if(pass&&!bk.starts.has(bk.units[u][0]))continue;const e=add(Object.assign({},bk,{u1:u}));const ok=fits(),h=measure.scrollHeight;e.remove();if(ok)return [u,h]}return [0,0]};
         let [best,bh]=fit(1);
-        if(!best||H-bh>H*.25){const [lb]=fit(0);if(lb>best)best=lb}
+        if(!best||H-bh>H*.1){const [lb]=fit(0);if(lb>best)best=lb}
         if(best){const part=Object.assign({},bk,{u1:best});add(part);page.push(part);flush();bk=Object.assign({},bk,{u0:best,key:bk.it.id+":"+bk.units[best][0]});continue}
       }
       if(page.length){flush();continue}
@@ -394,7 +404,7 @@ function paginate(p){
   flush();measure.innerHTML="";
   return pages.length?pages:[[]];
 }
-const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,OPENV,pg.clientWidth,pg.clientHeight,spread(),facing()].join("|");
+const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,OPENV,pg.clientWidth,pg.clientHeight,spread(),facing(),twoLeaves(),wide()].join("|");
 function openScene(k,opts){
   opts=opts||{};const p=scenes[k];if(cur.k!==k&&OPEN.size){OPEN.clear();OPENV++}
   if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
@@ -416,21 +426,26 @@ function findKey(key){
 }
 /* 4.5 Folio page frame: running head, page number, time left in the scene (4.5.1: no catchword; the right cell stays empty to keep the number centred) */
 function footHTML(pages,i,mins){const n=pages.length,i2=Math.min(n,i+step());
+  if(twoLeaves())return `<span class="pfa">${i+1}</span><span class="pfl">${mins>0?`${mins} min left in scene`:""}</span><span class="pfb">${i2>i+1?i2:""}</span>`;
   return `<span class="pfl">${mins>0?`${mins} min left in scene`:""}</span><span class="pfc">${i2>i+1?`${i+1}–${i2}`:i+1} of ${n}</span><span class="pfr"></span>`}
+const BOOK={t:56,o:64,b:62};
 function frame(i,n){const r=pg.getBoundingClientRect(),rh=$("rhead"),pf=$("pgfoot"),de=$("dogear");
-  if(!spread()){rh.style.left=r.left+"px";rh.style.width=r.width+"px";pf.style.left=r.left+"px";pf.style.width=r.width+"px"}else{rh.style.left=rh.style.width=pf.style.left=pf.style.width=""}
+  /* desk (4.6): the running head and foot sit inside the book's top and foot margins (BOOK = the margins in px) */
+  rh.style.left=r.left+"px";rh.style.width=r.width+"px";pf.style.left=r.left+"px";pf.style.width=r.width+"px";
+  if(spread()){rh.style.top=(r.top-BOOK.t+18)+"px";pf.style.top=(r.bottom+BOOK.b-40)+"px";pf.style.bottom="auto"}else{rh.style.top=pf.style.top=pf.style.bottom=""}
   /* desk: the page stack moves from right to left as you read the scene */
   if(spread()){const f=Math.min(1,(i+step())/Math.max(1,n)),L=1+Math.round(f*4),Rn=1+Math.round((1-f)*4),sh=[];
     for(let j=1;j<=L;j++)sh.push(`${-3*j}px ${3*j}px 0 ${-j}px color-mix(in srgb,var(--page) ${92-j*5}%,#000)`);
     for(let j=1;j<=Rn;j++)sh.push(`${3*j}px ${3*j}px 0 ${-j}px color-mix(in srgb,var(--page) ${92-j*5}%,#000)`);pg.style.setProperty("--stack",sh.join(","))}
-  if(de){if(spread()){de.style.left=(r.right+34-38)+"px";de.style.top=(r.bottom+18-38)+"px";de.style.right=de.style.bottom="auto"}else de.style.left=de.style.top=de.style.right=de.style.bottom=""}}
+  if(de){if(spread()){de.style.left=(r.right+BOOK.o-38)+"px";de.style.top=(r.bottom+BOOK.b-38)+"px";de.style.right=de.style.bottom="auto"}else de.style.left=de.style.top=de.style.right=de.style.bottom=""}}
 function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidden=true}
   document.body.classList.toggle("spread",spread());document.body.classList.toggle("facing",facing());i=even(Math.max(0,Math.min(i|0,cur.pages.length-1)));
   const p=scenes[cur.k];cur.i=i;
   const html=pageHTML(cur.pages,i,cur.k);
   const reduce=noMotion()||noSlide;
   const put=()=>{pg.innerHTML=html;pg.scrollTop=0;pg.style.overflowY=pg.scrollHeight>pg.clientHeight+2?"auto":"hidden"};
-  if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
+  if(dir&&!reduce&&twoLeaves()){put();const s2=pg.querySelector(".spread2");if(s2){s2.classList.add(dir>0?"flipF":"flipB");setTimeout(()=>s2.classList.remove("flipF","flipB"),420)}}
+  else if(dir&&!reduce){pg.classList.add(dir>0?"turnL":"turnR");setTimeout(()=>{put();pg.classList.remove("turnL","turnR")},110)}else put();
   const first=cur.pages[i].find(b=>b.t==="sp")||cur.pages[i][0];
   if(!keep){pos={s:p.id,key:first?first.key:"h"};LS.set(PFX+"pos",JSON.stringify(pos));const st={pct:Math.round((cur.k+(i+1)/cur.pages.length)/scenes.length*1000)/10,where:sName(p),t:Date.now(),sl:ownSeals()};LS.set("folio-stat-"+PLAY,JSON.stringify(st));
     setTimeout(()=>{const sp=pg.querySelector(".sp[data-id]");if(!sp)return;const l=sp.querySelector(".o .l")||sp.querySelector(".o");st.who=first&&first.t==="sp"?title(first.it.who):"";st.line=l?l.textContent.replace(/^\s*\d+\s*/,"").trim().slice(0,140):"";LS.set("folio-stat-"+PLAY,JSON.stringify(st))},250)}
@@ -637,15 +652,21 @@ function ribbon(f){const r=$("prib");if(!r)return;if(!r.firstChild){const t=[];l
   r.firstChild.style.width=(Math.max(0,Math.min(1,f))*100).toFixed(2)+"%"}
 function toolsHTML(id,pi){
   const sp=speech[id],p=sceneOf(id),m=marks[id]||{},ps=partsOf(sp),q=ps[pi]||ps[0],gl=glossList({lines:sp.lines.slice(q[0],q[1]+1)}),sn=STUDY.notes[id],c=CH[sp.who],qs=QBY[id]||[],nf=FAV.filter(f=>f.id===id).length,th=thOf(m);
-  return `<div class="tool">
-    <div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div>
-    <div class="modern">${pairHTML(sp,q)}</div>
-    ${gl.length?`<h3 class="lbl">Word meanings</h3><dl>${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:""}
-    ${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
+  const tabs=[["mod","Modern"],["words","Words"+(gl.length?` <small>${gl.length}</small>`:"")],["note","Note"+(m.note||sn?" <small>•</small>":"")],["mark","Mark"]];
+  return `<div class="tool ttabbed" data-tt="${TTAB}">
+    <div class="tpin">${c?folioMedal(sp.who,COLORS[sp.who],"tpm"):""}<div><b class="tpn" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</b><div class="ref">${sName(p)} · lines ${sp.start+q[0]}–${sp.start+q[1]}${ps.length>1?` · part ${(pi||0)+1} of ${ps.length}`:""}</div></div></div>
+    <div class="ttabs" role="tablist" aria-label="Speech tools">${tabs.map(([k,l])=>`<button type="button" role="tab" data-ttab="${k}" aria-selected="${TTAB===k}">${l}</button>`).join("")}</div>
+    <div data-tp="mod"><div class="modern">${pairHTML(sp,q)}</div>
     ${qs.map(q=>`<h3 class="lbl">Key quote</h3><div class="snote"><i>“${esc(q.text)}”</i><br>${esc(q.note)}${EX.why[q.i]?`<br><b>Why it matters:</b> ${esc(EX.why[q.i])}`:""}<br><small class="muted">${q.themes.map(t=>QUOTES.themes[t][0]).join(" · ")}</small></div>`).join("")}
     ${EX.irony[id]?`<h3 class="lbl">Dramatic irony</h3><div class="snote">${esc(EX.irony[id])}</div>`:""}
     ${(EX.dev[id]||[]).map(([k,n])=>`<h3 class="lbl">${esc(EX.devices[k])}</h3><div class="snote">${esc(n)}</div>`).join("")}
-    <div class="trow" role="group" aria-label="Mark and share">
+    ${c?`<details class="about"><summary>About ${esc(title(sp.who))}</summary><p>${esc(c.desc)}</p></details>`:""}${dirTools(id)}${thoughtHTML(sp)}</div>
+    <div data-tp="words">${gl.length?`<dl class="tdl">${gl.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k])}</dd>`).join("")}</dl>`:`<p class="muted">No glossed words in these lines.</p>`}
+    <details class="about vlabd"><summary>Verse lab: beats, shared lines, punctuation</summary>${verseLabHTML(sp,q[0],q[1])}</details></div>
+    <div data-tp="note">${sn?`<h3 class="lbl">Study note</h3><div class="snote">${esc(sn)}</div>`:""}
+    <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
+    <div class="acts"><button class="btn sm" id="t-save">Save note</button></div></div>
+    <div data-tp="mark"><div class="trow" role="group" aria-label="Mark and share">
       <div class="hlset" role="group" aria-label="Highlight">${HLC.map(([k,l])=>`<button class="tb hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i><small>${l}</small></button>`).join("")}</div>
       <button class="tb" id="t-fph"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span><small>Phrase${nf?` (${nf})`:""}</small></button>
       <button class="tb" id="t-focus" aria-pressed="${S.focus===sp.who}"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span><small>${S.focus===sp.who?"Undim":"Dim others"}</small></button>
@@ -653,16 +674,14 @@ function toolsHTML(id,pi){
       <button class="tb" id="t-copy"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></span><small>Copy</small></button>
       <button class="tb" id="t-img"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg></span><small>Image</small></button>
     </div>
-    <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
-    <div class="acts"><button class="btn sm" id="t-save">Save note</button></div>
-    ${c?`<details class="about"><summary>About ${esc(title(sp.who))}</summary><p>${esc(c.desc)}</p></details>`:""}
-    <details class="about"><summary>Tag themes${th.length?` (${th.length})`:""}</summary><div class="tchips">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" data-tth="${k}" aria-pressed="${th.includes(k)}">${esc(v[0])}</button>`).join("")}</div></details>
-    <details class="about vlabd"><summary>Verse lab: beats, shared lines, punctuation</summary>${verseLabHTML(sp,q[0],q[1])}</details>
-    ${dirTools(id)}${thoughtHTML(sp)}
+    <h3 class="lbl">Tag themes${th.length?` (${th.length})`:""}</h3><div class="tchips">${Object.entries(QUOTES.themes).map(([k,v])=>`<button class="chip" data-tth="${k}" aria-pressed="${th.includes(k)}">${esc(v[0])}</button>`).join("")}</div></div>
   </div>`}
+/* 4.6: Speech tools tabs (session only) */
+let TTAB="mod";
 function wireTools(id,pi){
   const sp=speech[id],ps=partsOf(sp),q=ps[pi]||ps[0];
   wirePerf(id);
+  document.querySelectorAll(".tool [data-ttab]").forEach(b=>b.onclick=()=>{TTAB=b.dataset.ttab;const t=b.closest(".tool");t.dataset.tt=TTAB;t.querySelectorAll("[data-ttab]").forEach(x=>x.setAttribute("aria-selected",x===b));const sc=t.closest(".panel-body,#panel-body,#sheet-body");if(sc)sc.scrollTop=0});
   $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
   document.querySelectorAll(".tool [data-hl]").forEach(b=>b.onclick=()=>{const k=b.dataset.hl,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});
     document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
@@ -676,10 +695,10 @@ function wireTools(id,pi){
 /* tap an underlined word: small pop-up with its meaning (wins over the part tap) */
 let gpop=null;
 function showGloss(el){const w=el.textContent,k=gmap[w.toLowerCase()];if(!k)return;
-  const d=document.createElement("div");d.className="gpop";d.innerHTML=`<b>${esc(k)}</b><span>${esc(G[k])}</span><div class="gacts">${toLink("study:explore:glossary?w="+encodeURIComponent(k),"Glossary")}</div>`;
+  const d=document.createElement("div");d.className="gpop gslip";d.innerHTML=`<b>${esc(k)}</b><span>${esc(G[k])}</span><div class="gacts">${toLink("study:explore:glossary?w="+encodeURIComponent(k),"Glossary")}</div>`;
   document.body.appendChild(d);const r=el.getBoundingClientRect(),bw=d.offsetWidth,bh=d.offsetHeight;
-  let x=Math.max(10,Math.min(innerWidth-bw-10,r.left+r.width/2-bw/2)),y=r.top-bh-10;if(y<10)y=r.bottom+10;
-  d.style.left=x+"px";d.style.top=y+"px";el.classList.add("on");d._el=el;gpop=d;coachDid(1);
+  let x=Math.max(10,Math.min(innerWidth-bw-10,r.left+r.width/2-bw/2)),y=r.top-bh-12;if(y<10){y=r.bottom+12;d.classList.add("below")}
+  d.style.left=x+"px";d.style.top=y+"px";d.style.setProperty("--ax",Math.max(14,Math.min(bw-14,r.left+r.width/2-x))+"px");el.classList.add("on");d._el=el;gpop=d;coachDid(1);
   d.addEventListener("pointerup",e=>e.stopPropagation())}
 document.addEventListener("pointerdown",e=>{if(gpop&&!e.target.closest(".gpop,#vp"))hideGloss()},true);
 function showPop(el,h,txt,acts,icon){hideGloss();const d=document.createElement("div");d.className="gpop"+(icon?" wpop":"");d.innerHTML=`${icon||""}<small>${esc(h)}</small><span>${esc(txt)}</span>${acts?`<div class="gacts">${acts}</div>`:""}`;
@@ -687,9 +706,12 @@ function showPop(el,h,txt,acts,icon){hideGloss();const d=document.createElement(
   let x=Math.max(10,Math.min(innerWidth-bw-10,r.left+r.width/2-bw/2)),y=r.bottom+8;if(y+bh>innerHeight-10)y=r.top-bh-8;
   d.style.left=x+"px";d.style.top=y+"px";gpop=d;d.addEventListener("pointerup",e=>e.stopPropagation())}
 function openKQ(i){const q=QUOTES.quotes[i];if(!q)return;const sp=speech[q.id],p=sceneOf(q.id);hideGloss();
-  openSheet("Key quote",`<div class="qt kqcard" style="--c:${COLORS[sp.who]||"var(--ink)"}"><blockquote>“${esc(q.text)}”</blockquote><div class="meta"><b>${esc(title(sp.who))}</b><span>${sName(p)}</span></div>
-   <p>${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}<br>${esc(q.note)}</p>${EX.why&&EX.why[q.i]?`<p><b>Why it matters:</b> ${esc(EX.why[q.i])}</p>`:""}</div>
-   <div class="xrow">${q.themes.map(t=>toLink("study:themes?th="+t,"Theme: "+esc(QUOTES.themes[t][0]))).join("")}${toLink("study:quotes?who="+sp.who,"All key quotes: "+esc(title(sp.who)))}${toLink("study:cards","Practise as flashcards")}</div>`)}
+  const t0=q.themes[0],emb=t0?TEMB[temb(t0)]||"":"";
+  const ic=(d,l,to)=>`<button type="button" class="kqi" data-to="${to}"><svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg><small>${l}</small></button>`;
+  openSheet("Key quote",`<div class="kq46" style="--c:${COLORS[sp.who]||"var(--ink)"}">${emb?`<svg class="kqemb" viewBox="0 0 64 64" aria-hidden="true">${emb}</svg>`:""}<span class="kqmk" aria-hidden="true">❦</span><blockquote>${esc(q.text)}</blockquote>
+   <div class="kqwho">${CH[sp.who]?folioMedal(sp.who,COLORS[sp.who],"kqm2"):""}<div><b>${esc(title(sp.who))}</b><span>${sName(p)}</span></div></div>
+   <div class="kqth">${q.themes.map(t=>`<span class="th">${esc(QUOTES.themes[t][0])}</span>`).join("")}</div><p>${esc(q.note)}</p>${EX.why&&EX.why[q.i]?`<p class="kqwhy"><b>Why it matters</b>${esc(EX.why[q.i])}</p>`:""}</div>
+   <div class="kqrow">${t0?ic('<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',"Theme","study:themes?th="+t0):""}${ic('<path d="M7 6h10M7 11h10M7 16h6"/><path d="M4 4v16"/>',"All quotes","study:quotes?who="+encodeURIComponent(sp.who))}${ic('<rect x="4" y="6" width="13" height="13" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v11"/>',"Flashcards","study:cards")}${ic('<path d="M5 12h12M13 6l6 6-6 6"/>',"Go to line","speech:"+q.id)}</div>`)}
 function hideGloss(){if(gpop){gpop._el&&gpop._el.classList.remove("on");gpop.remove();gpop=null}}
 function pulseLast(){let lp=null;try{lp=JSON.parse(LS.get(PFX+"lastpart")||"null")}catch(e){}if(!lp)return;
   const el=pg.querySelector(`.sp[data-id="${lp.id}"] .pt[data-p="${lp.pi}"]`);if(el){el.classList.add("pulse");setTimeout(()=>el.classList.remove("pulse"),3400)}}
@@ -736,7 +758,7 @@ function openPill(id,pi,el){closePill();hideGloss();pi=pi||0;const sp=speech[id]
   d.querySelectorAll("[data-aph]").forEach(b=>b.onclick=()=>{const k=b.dataset.aph,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});closePill();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
   d.querySelector('[data-apa="copy"]').onclick=()=>{closePill();const q=partsOf(sp)[pi]||partsOf(sp)[0];copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`)};
   d.querySelector('[data-apa="mod"]').onclick=()=>{closePill();if(S.mode==="orig")unfold(id,pi);else openPart(id,pi,false)};
-  d.querySelector('[data-apa="note"]').onclick=()=>{closePill();openTools(id,pi);setTimeout(()=>{const t=$("tn");if(t){t.scrollIntoView({block:"center"});t.focus({preventScroll:true})}},60)};
+  d.querySelector('[data-apa="note"]').onclick=()=>{closePill();TTAB="note";openTools(id,pi);setTimeout(()=>{const t=$("tn");if(t){t.scrollIntoView({block:"center"});t.focus({preventScroll:true})}},60)};
   d.querySelector('[data-apa="more"]').onclick=()=>{closePill();openTools(id,pi)};
   setTimeout(()=>{const f=d.querySelector("button");if(f)f.focus({preventScroll:true})},30)}
 document.addEventListener("pointerdown",e=>{const d=$("apill");if(d&&!e.target.closest("#apill")){d.remove();pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"))}},true);
@@ -1793,7 +1815,7 @@ $("sbody").addEventListener("change",e=>{if(e.target.id==="vl-s"){vlSel=+e.targe
 
 /* ---------- sheets ---------- */
 const sheet=$("sheet");let lastFocus=null;
-function openSheet(t,html){closePill();if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;sheet.classList.remove("full");
+function openSheet(t,html){closePill();if(spread()&&view==="reader"&&document.body.classList.contains("chrome"))toggleChrome(false);if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;sheet.classList.remove("full");
   if(wide()&&view==="reader"){document.body.classList.add("sside");if(!$("panel").classList.contains("open"))fitPanel(true)}const b=sheet.querySelector(".sbox");b.scrollTop=0;b.focus({preventScroll:true})}
 function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(document.body.classList.contains("sside")){document.body.classList.remove("sside");if(!$("panel").classList.contains("open"))fitPanel(false)}if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
@@ -1854,7 +1876,7 @@ function openNotes(){
   let h=`<p class="muted">Saved on this device. Tap one to go to it.</p>`;
   if(BM.length)h+=`<div class="eyebrow" style="margin:10px 0 0">Bookmarks</div>`+BM.map((b,i)=>`<div class="item" data-bm="${i}" tabindex="0"><small>${esc(sName(scenes[sIdx(b.s)]))} · <button class="link" data-bmdel="${i}">Remove</button></small><span style="font-family:var(--f-old)">${esc(b.txt||"")}</span></div>`).join("");
   const fv=FAV.filter(f=>speech[f.id]);if(fv.length)h+=`<div class="eyebrow" style="margin:14px 0 0">Favourite phrases</div>`+fv.map(f=>`<div class="item" data-fph="${esc(f.t)}" tabindex="0"><small><i class="hlk fc-${fcOk(f.c)}"></i> ${esc(where(speech[f.id]))} · <button class="link" data-fpdel="${esc(f.t)}">Remove</button></small><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}</div>`).join("");
-  if(!all.length)h+=`<p>No notes yet. While reading, press and hold a word to save a favourite phrase, or open Speech tools from that bar to highlight a speech, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
+  if(!all.length)h+=`<div class="empty46"><svg viewBox="0 0 120 90" aria-hidden="true"><path class="eq" d="M86 8c-14 6-30 22-42 44l-6 14 12-9c18-14 32-30 36-49z"/><path class="eq2" d="M44 52l-8 18M50 46c6-2 14-8 20-16"/><path class="er" d="M18 20h10v58l-5-6-5 6z"/><path class="el" d="M8 84h104"/></svg></div><p class="emptyp">No notes yet. While reading, press and hold a word to save a favourite phrase, or open Speech tools from that bar to highlight a speech, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
   else h+=`<div class="eyebrow" style="margin:14px 0 0">Notes and highlights</div><div class="nfilt"><label class="sr" for="nf-q">Search notes</label><input type="search" id="nf-q" placeholder="Search your notes and lines…" value="${esc(nf.q)}">
     <label class="sr" for="nf-c">Colour</label><select id="nf-c"><option value="">Any colour</option>${HLC.map(([k,l])=>`<option value="${k}"${nf.c===k?" selected":""}>${l}</option>`).join("")}<option value="note"${nf.c==="note"?" selected":""}>With a written note</option></select>
     <label class="sr" for="nf-th">Theme</label><select id="nf-th"><option value="">Any theme</option>${Object.entries(QUOTES.themes).map(([k,v])=>`<option value="${k}"${nf.th===k?" selected":""}>${esc(v[0])}</option>`).join("")}</select>

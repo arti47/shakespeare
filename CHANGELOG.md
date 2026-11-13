@@ -4,6 +4,20 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.6.0] — 2026-11-13
+
+### Changed
+- Reader "Printed page" (audit 9), no content changes: on desk the running head, page numbers and time left now sit inside the book's margins, with classic book margins (top, outer, foot) and the dog-ear on the page corner (#112)
+- Desk: opening a sheet or panel keeps the book; it slides beside the panel as two leaves when there is room, otherwise one bound leaf, and the menus stay hidden (#112)
+- Pages fill more fully: a speech part splits at a line when a page would be more than 10% empty (was 25%) (#112)
+- Phones: the speaker's name runs in at the start of the first line in red small caps, as in the Folio (#112)
+- No rules between speeches; the scene opener is one band with the first story beat and a single "Before you read" button (#112)
+- Speech tools is one card with the speaker pinned and four tabs (Modern, Words, Note, Mark) (#112)
+- Word meanings open as a parchment slip pointing at the word; key quotes open as a display card with the speaker's medallion, the theme's emblem and an icon row (#112)
+- End of scene: on desk it spreads across the opening (seal and Next on the left, the Argument and predictions on the right); on phones the Argument folds (#112)
+- Desk page turns flip the leaf at the gutter (off with reduced motion) (#112)
+- Illustrated empty state for My notes; old-style figures and ligatures; candlelit page with a soft vignette in Dark and Night; Both mode on tablet portrait shows the modern English under each part (#112)
+
 ## [4.5.1] — 2026-11-13
 
 ### Removed
