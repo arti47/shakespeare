@@ -113,3 +113,35 @@
 @keyframes stamp{0%{transform:scale(2.2) rotate(-18deg);opacity:0}60%{transform:scale(.92) rotate(4deg);opacity:1}100%{transform:none}}
 .stamp{animation:stamp .6s cubic-bezier(.3,1.4,.5,1) both}
 @media (prefers-reduced-motion:reduce){.stamp{animation:none}}
+
+/* 4.3 "Illuminated folio" everywhere (art.js): gilt rings, laurels, genre icons, wood, shared motion */
+:root{--wood1:#9a6a3a;--wood2:#6e4524;--wood3:#4a2d15;--gilt-ink:#2a1c08}
+:root[data-theme="dark"],:root[data-theme="night"]{--wood1:#6a4526;--wood2:#47291a;--wood3:#2a170c}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--wood1:#6a4526;--wood2:#47291a;--wood3:#2a170c}}
+.gring{display:block;width:64px;height:64px;flex:none}
+.gring .gr0{fill:none;stroke:var(--track);stroke-width:5}
+.gring .gr1{fill:none;stroke:url(#fgl);stroke-width:5;stroke-linecap:round}
+.gring .gr2{fill:var(--card);stroke:var(--rule);stroke-width:1}
+.gring text{font:600 15px var(--f-ui);fill:var(--ink)}
+.laurel{display:block;fill:color-mix(in srgb,var(--gold) 70%,var(--ink))}
+.laurel .lst{fill:none;stroke:color-mix(in srgb,var(--gold) 70%,var(--ink));stroke-width:1.4}
+.gico{display:block;width:22px;height:22px;flex:none}
+.wood{background:linear-gradient(180deg,var(--wood1),var(--wood2) 60%,var(--wood3));box-shadow:0 1px 0 rgba(255,235,200,.25) inset,0 8px 12px -6px rgba(0,0,0,.45)}
+/* a brass plaque: dark ink on gilt, ≥7:1 */
+.plaque{display:inline-flex;align-items:center;gap:8px;padding:5px 16px 5px 12px;border-radius:4px;background:linear-gradient(180deg,#f3dc9a,#e2bb63 55%,#c99a42);color:var(--gilt-ink);box-shadow:0 0 0 1px #8a6420,0 0 0 3px rgba(0,0,0,.08),0 3px 6px -2px rgba(0,0,0,.4);font:400 1.25rem var(--f-sc);letter-spacing:.06em;line-height:1.1;position:relative}
+.plaque::before,.plaque::after{content:"";position:absolute;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#7a5718;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.plaque::before{left:4px}.plaque::after{right:4px}
+.plaque .gico{width:24px;height:24px;margin-left:4px}
+/* shared motion (off with reduced motion) */
+@keyframes f43rise{from{transform:translateY(22px);opacity:0}to{transform:none;opacity:1}}
+@keyframes f43fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes f43pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:none}}
+.f43in{animation:f43fade .32s ease-out both}
+@media (prefers-reduced-motion:reduce){.f43in{animation:none}}
+
+/* 4.3 illuminated nav (shelf .tabs and every play's #fnav): roundel icons, the current tab a wax seal with a gilt rim */
+nav.tabs button svg,nav.fnav svg{width:22px;height:22px;padding:7px;border-radius:50%;box-sizing:content-box;box-shadow:inset 0 0 0 1px var(--rule);background:transparent;transition:transform .2s,background .2s}
+nav.tabs button[aria-current="page"] svg,nav.fnav [aria-current="page"] svg{color:#fbe3d6;background:radial-gradient(circle at 35% 30%,#c8392f,#9a1e19 60%,#6c1110);box-shadow:0 0 0 2px #d9ab4f,0 0 0 3px rgba(0,0,0,.25),0 3px 6px -2px rgba(80,10,5,.55);transform:translateY(-3px)}
+nav.tabs button[aria-current="page"],nav.fnav [aria-current="page"]{color:var(--ink)}
+@media (hover:hover){nav.tabs button:hover svg,nav.fnav a:hover svg,nav.fnav button:hover svg{background:var(--hover)}nav.tabs button[aria-current="page"]:hover svg,nav.fnav [aria-current="page"]:hover svg{background:radial-gradient(circle at 35% 30%,#c8392f,#9a1e19 60%,#6c1110)}}
+@media (prefers-reduced-motion:reduce){nav.tabs button svg,nav.fnav svg{transition:none}}

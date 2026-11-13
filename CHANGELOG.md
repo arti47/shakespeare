@@ -4,6 +4,22 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.3.0] — 2026-11-13
+
+### Changed
+- The whole app now uses the Illuminated folio style. Shelf home: the Continue card puts the play on a stage, with its emblem as the scenery, a gilt progress ring and a wax-seal Resume button. Line of the day sits on a parchment scroll with the play's emblem, Word of the day has an illuminated initial, This week shows a wax seal for each day, and Daily review shows its count on a seal (#106)
+- The shelves are wooden planks with a brass plaque for each genre (masks, crown, skull). On desktop the shelf is full width, with Continue and Today side by side above the bookcase (#106)
+- Shelf You: the level medallion sits in a laurel, the five levels climb as a staircase, the stats carry icons, read days show as wax dots, and a new Your plays list gives each begun play its seals (#106)
+- Search has a quill field, genre pills in each genre's colour with its icon, and a cloth thumbnail with the emblem on each play's results (#106)
+- Journey map: each act is a region of landscape with its own tint and terrain (hills, forest, sea, towers, mountains), its act plate stands between gate pillars, and a pin marks where you are. On tablets and desktops the play's details sit in a left column beside the map (#106)
+- Reader: a compact stage banner opens each scene, with the act plate (or a small scene plate) over its foot. The first speech of a scene starts with a drop cap, and a fleuron tailpiece ends each scene (#106)
+- Reader chrome: the top bar carries the play's emblem and the place in small caps, buttons are round, the bottom bar has a red ribbon for the whole play with a gilt tick at each act, and the long-press tools are a grid of icon buttons (#106)
+- Contents: scene rows show a seal and a stage thumbnail, acts open under plates with a wax numeral, the cast is a grid of medallion cards, and Beats is a road. Settings: each option is a card with an icon, theme swatches look like pages, and a live preview at the top shows your page. Play You/Me: the Continue card carries the emblem in a gilt ring, the level medallion sits in a laurel, the act-by-act seals rest on wooden shelves, and wide screens use two columns (#106)
+- Navigation: tab icons are roundels and the current tab is a wax seal with a gilt rim. Views fade in, sheets rise, and gilt rays burst behind a seal stamped at the end of a scene. All motion is off with reduced motion (#106)
+
+### Fixed
+- Card decks (Key quotes, Act summaries and the others) are as tall as the card in view, not their tallest card, and key quotes over about eight lines are clamped with Show all. The shelf's Today stack also fits the card in view (#106)
+
 ## [4.2.0] — 2026-11-12
 
 ### Changed
