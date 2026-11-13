@@ -4,6 +4,25 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.4.0] — 2026-11-13
+
+### Changed
+- "Folio bound" look (audit 7), no content changes: emblem roundels on the map, top bar and play You now sit on the play's cloth colour with a gilt rim, as on its cover (#109)
+- Reading voice: notes, character intros, modern English and summaries are set in a book serif; upper-case sans tags (Note, Prose, themes, quiz labels) become red small-caps rubrics with a fleuron (#109)
+- Reader scene opener is a slim headpiece band (stage vignette, act and scene, place, Before you read); the act strip shows only at act starts (#109)
+- Stage pictures show a night sky (stars, moon) or a day sun, taken from the place, stage directions and opening lines (#109)
+- Phone top bar shows "I.i · Elsinore" in small caps; the page fades out above the bottom bar so the ribbon never covers a text line (#109)
+- Phone shelf: one-row hero (cover, title, ring) with a full-width wax Resume; Today folds to a one-line ticker you tap to open, so the shelves start on the first screen (#109)
+- Contents rows carry the number in the seal, with slim plate strips for acts; Search has a gilt clear button, genre pills on one scrolling row and gilt-ruled result cards (#109)
+- Play You shows three seal badges (scenes, quiz, quotes) with reading time folded into the level card; quizzes show scene seals (empty, red, gilt) and a laurel for an act at full marks (#109)
+- Study: Pick up is a bookmark-ribbon card and Next step a wax card; section heads are printer's headpieces (#109)
+- Desktop two-page spread sits on a leather desk with page-stack edges, a deeper gutter and a ribbon bookmark; the rail uses roundel buttons (#109)
+- Dark and Night get a warm candle glow and vignette; Light and Paper get faint laid-paper lines and hand-cut card rules (#109)
+- Detail sheet: larger cover with a foil sweep, the blurb as an epigraph, a wax Begin bar and ghost pills; welcome covers are dealt in with a wax Next; seals stamp in on the map when newly earned; press-down feedback on buttons and seals; all motion off with reduced motion (#109)
+
+### Fixed
+- The bottom nav no longer covers the last row of Study topic pages and other views: every view keeps nav height + 24px clear at the bottom (#109)
+
 ## [4.3.2] — 2026-11-13
 
 ### Fixed

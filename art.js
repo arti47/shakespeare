@@ -50,9 +50,12 @@
 
   /* the stage picture, large: a proscenium with curtains, the play's setting drawing (a 40×40 line picture) on the stage */
   var CURT='<path class="cu" d="M10 14H70C64 36 52 64 34 86C26 96 18 108 10 116Z"/><path class="cf" d="M24 16C26 48 22 82 14 110M40 16C40 44 34 70 22 98M56 16C54 38 46 58 34 82"/>';
-  window.folioStage=function(pic,label,cls){var cap=label?'<figcaption>'+esc(label)+'</figcaption>':"";
-    return '<figure class="stage'+(cls?" "+cls:"")+'"><svg viewBox="0 0 320 150" aria-hidden="true">'+
-      '<rect class="sb" x="10" y="12" width="300" height="114"/><path class="fl" d="M10 126H310M40 126L22 146M100 126L94 146M160 126V146M220 126L226 146M280 126L298 146M4 146H316"/>'+
+  /* 4.4: sky = "n" (stars and a moon) or "d" (a sun) behind the scenery; the setting drawing itself is unchanged */
+  var SKYN='<g class="sky"><circle cx="86" cy="42" r="1.3"/><circle cx="97" cy="70" r="1"/><circle cx="124" cy="24" r="1.1"/><circle cx="152" cy="20" r="1.4"/><circle cx="181" cy="27" r="1"/><circle cx="206" cy="21" r="1.2"/><circle cx="226" cy="78" r="1"/><circle cx="74" cy="64" r=".9"/><path class="mo" d="M240 36a12 12 0 1 0 0 24a9.5 9.5 0 1 1 0-24z"/></g>',
+      SKYD='<g class="sky"><circle class="su" cx="234" cy="46" r="8.5"/><path class="sr" d="M234 31v5M234 56v5M219 46h5M244 46h5M223.4 35.4l3.5 3.5M241.1 53.1l3.5 3.5M223.4 56.6l3.5-3.5M241.1 38.9l3.5-3.5"/></g>';
+  window.folioStage=function(pic,label,cls,sky){var cap=label?'<figcaption>'+esc(label)+'</figcaption>':"";
+    return '<figure class="stage'+(cls?" "+cls:"")+(sky==="n"?" sky-n":sky==="d"?" sky-d":"")+'"><svg viewBox="0 0 320 150" aria-hidden="true">'+
+      '<rect class="sb" x="10" y="12" width="300" height="114"/>'+(sky==="n"?SKYN:sky==="d"?SKYD:"")+'<path class="fl" d="M10 126H310M40 126L22 146M100 126L94 146M160 126V146M220 126L226 146M280 126L298 146M4 146H316"/>'+
       '<svg x="110" y="30" width="100" height="100" viewBox="0 0 40 40" class="sp">'+(pic||"")+'</svg>'+
       CURT+'<g transform="matrix(-1 0 0 1 320 0)">'+CURT+'</g>'+
       '<path class="pe" d="M6 6H314V18Q300 26 286 18Q272 26 258 18Q244 26 230 18Q216 26 202 18Q188 26 174 18Q160 26 146 18Q132 26 118 18Q104 26 90 18Q76 26 62 18Q48 26 34 18Q20 26 6 18Z"/>'+

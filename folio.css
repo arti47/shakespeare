@@ -145,3 +145,36 @@ nav.tabs button[aria-current="page"] svg,nav.fnav [aria-current="page"] svg{colo
 nav.tabs button[aria-current="page"],nav.fnav [aria-current="page"]{color:var(--ink)}
 @media (hover:hover){nav.tabs button:hover svg,nav.fnav a:hover svg,nav.fnav button:hover svg{background:var(--hover)}nav.tabs button[aria-current="page"]:hover svg,nav.fnav [aria-current="page"]:hover svg{background:radial-gradient(circle at 35% 30%,#c8392f,#9a1e19 60%,#6c1110)}}
 @media (prefers-reduced-motion:reduce){nav.tabs button svg,nav.fnav svg{transition:none}}
+
+/* 4.4 "Folio bound": enamel roundels on the play's cloth (--cc), a book-serif reading voice (--f-body), red rubrics,
+   day/night stage skies, printer's headpieces, candlelit dark and laid paper, press-down feedback */
+:root{--f-body:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--cc:#3b2a1c;
+  --atmo:repeating-linear-gradient(90deg,transparent 0 3px,rgba(120,90,40,.025) 3px 4px),repeating-linear-gradient(90deg,transparent 0 94px,rgba(120,90,40,.05) 94px 96px)}
+:root[data-theme="dark"],:root[data-theme="night"]{--atmo:radial-gradient(ellipse 70% 38% at 50% -6%,rgba(255,176,90,.13),transparent 72%),radial-gradient(ellipse 120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.42))}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--atmo:radial-gradient(ellipse 70% 38% at 50% -6%,rgba(255,176,90,.13),transparent 72%),radial-gradient(ellipse 120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.42))}}
+:root[data-theme="night"]{--atmo:radial-gradient(ellipse 70% 40% at 50% -6%,rgba(255,150,60,.16),transparent 72%),radial-gradient(ellipse 120% 90% at 50% 45%,transparent 50%,rgba(0,0,0,.5))}
+html body{background-image:var(--atmo);background-attachment:fixed}
+/* an enamel roundel: the play's cloth colour, gilt rim, the emblem in gilt with ivory enamel (as on its cover) */
+.enr{border-radius:50%!important;border:0!important;background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--cc) 70%,#fff),var(--cc) 58%,color-mix(in srgb,var(--cc) 68%,#000))!important;box-shadow:0 0 0 2px #d9ab4f,0 0 0 3.5px color-mix(in srgb,var(--cc) 70%,#000),0 3px 8px -3px rgba(0,0,0,.55)!important;color:#e6c06a;--kc:var(--cc)}
+.enr .embl,.enr svg{color:#e6c06a;--kc:var(--cc)}
+/* day and night skies on the stage */
+.stage .sky circle{fill:#f6e7b4}
+.stage .sky .mo{fill:#f3e2a6}
+.stage.sky-n .sb{fill:#1f2b46}
+.stage.sky-n .sp{stroke:#f3e6c8}
+.stage.sky-d .sb{fill:color-mix(in srgb,#f3dfa8 45%,var(--card))}
+.stage .sky .su{fill:#e7b04a}
+.stage .sky .sr{fill:none;stroke:#c98d2a;stroke-width:1.6;stroke-linecap:round}
+/* red rubric: small caps, a fleuron before */
+.rubric{font:400 max(15px,.9rem) var(--f-sc);letter-spacing:.05em;text-transform:none;color:var(--accent)}
+/* a printer's headpiece: fleuron rule with centred small caps */
+.headp{display:flex;align-items:center;gap:10px;margin:22px 0 10px;font:400 1.15rem var(--f-sc);letter-spacing:.08em;color:var(--accent)}
+.headp::before,.headp::after{content:"";flex:1;height:5px;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);opacity:.6}
+.headp span::before,.headp span::after{content:"\2767";display:inline-block;margin:0 .45em;font-family:Georgia,serif;font-size:.9em}
+.headp span::before{transform:scaleX(-1)}
+/* press-down feedback */
+.press,.btn,.seal,.golink,.chip,nav.tabs button,nav.fnav a,nav.fnav button{transition:transform .12s ease}
+.btn:active,.golink:active,.chip:active,nav.tabs button:active,nav.fnav a:active,nav.fnav button:active,button:active>.seal,a:active>.seal,.press:active{transform:scale(.95)}
+@keyframes f44deal{0%{transform:translate(var(--dx,0),40px) rotate(var(--dr,0deg)) scale(.85);opacity:0}100%{opacity:1}}
+@keyframes f44sweep{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(220%) skewX(-18deg)}}
+@media (prefers-reduced-motion:reduce){.press,.btn,.seal,.golink,.chip,nav.tabs button,nav.fnav a,nav.fnav button{transition:none}.btn:active,.golink:active,.chip:active,nav.tabs button:active,nav.fnav a:active,nav.fnav button:active,button:active>.seal,a:active>.seal,.press:active{transform:none}}

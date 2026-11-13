@@ -1448,3 +1448,120 @@ html.simple .sp.dcap .o .pt:first-child .l:first-child::first-letter{font-size:2
 .kq blockquote.kqc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:8;overflow:hidden}
 .kqall{display:inline-flex;min-height:40px;align-items:center;font-weight:600}
 @media print{.kq blockquote.kqc{display:block;-webkit-line-clamp:unset}.kqall{display:none}.deck{height:auto!important}}
+
+/* ---------- 4.4 "Folio bound" (audit 7): serif reading voice, rubrics, enamel roundels, headpiece band, chrome fit,
+   ledger, quiz seals, Study cards, safe bottom space, book on a desk, candlelit dark / laid paper ---------- */
+body{font-family:var(--f-body)}
+#reader{background-color:var(--page);background-image:var(--atmo)}
+/* sans only for small controls */
+.qsel select,.qbar select{font-family:var(--f-ui)}
+/* reading voice: notes, intros, modern English, summaries */
+.who1{font:italic 400 max(14px,.66em)/1.45 var(--f-body);color:var(--soft)}
+.mx,.tool .pmod p,.stagepic,.onstage,.story small,.dd small,.cry{font-family:var(--f-body)}
+.m{font-family:var(--f-body)}
+/* red rubrics (small caps, no shouting) */
+.lbl,.scrub b,.gpop small,.plan label,.go small,.tag,.about summary,.tool .ptag,.qsel span,.qt .th,.qz .qn,.card .qn,.rvn,.item small,.ptmean .ptag,.preq b,.xwho,.pl>b,.stop .sl b em,.endcard .lvl,.coach .cn,.kq .th,.olr small,.stage figcaption,.wiz-top small,.thead small,.tb small,.qsl small{font-family:var(--f-sc);font-weight:400;text-transform:none;letter-spacing:.05em}
+.lbl,.plan label,.about summary,.tool .ptag,.qsel span,.qz .qn,.card .qn,.rvn{color:var(--accent);font-size:max(15px,.95rem)}
+.tag{font-size:max(15px,.5em);letter-spacing:.04em}
+.tag::before,.kq .th::before,.qt .th::before{content:"\2767\00a0";font-family:Georgia,serif;font-size:.85em}
+.tag.note{border:0;text-decoration:underline dotted;text-underline-offset:3px}
+/* enamel roundels: map head, top bar, play You */
+.bemb.enr{width:40px;height:40px}
+.bemb.enr .bembs,.yhm.enr .yhes,.mhead .memb.enr .emb{color:#e6c06a;--kc:var(--cc)}
+.mhead .memb.enr{padding:14px}
+.yhm.enr{inset:12px;padding:5px}
+/* headpiece band: stage vignette (night or day sky), act and scene, place; the act strip only at act starts */
+.sh44{padding:.1em 0 .5em;margin-bottom:.6em}
+.sh44::after{margin-top:.5em}
+.sh44 .astrip{display:flex;align-items:center;justify-content:center;gap:.6em;margin:0 0 .45em;padding:.2em .6em;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);box-shadow:inset 0 2px 0 var(--page),inset 0 3px 0 var(--rule),inset 0 -2px 0 var(--page),inset 0 -3px 0 var(--rule);font:400 max(14px,.6em) var(--f-sc);letter-spacing:.14em;color:var(--accent)}
+.sh44 .astrip i{font-style:italic;font-family:var(--f-old);letter-spacing:.02em;color:var(--soft)}
+.sh44 .astrip span::before,.sh44 .astrip i::after{content:"\2767";display:inline-block;margin:0 .5em;font-family:Georgia,serif;color:var(--accent);font-style:normal}
+.sh44 .astrip span::before{transform:scaleX(-1)}
+.sh44 .hband{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.7em;align-items:center;text-align:left;max-width:30em;margin:0 auto}
+.sh44 .hvig{width:5.4em;margin:0;max-width:none;align-self:start;margin-top:.3em}
+.sh44 .hvig svg{border-radius:3px}
+.sh44 .hbt{min-width:0}
+.sh44 .eyebrow{font-size:max(14px,.56em);line-height:1.2}
+.sh44 h1{font-size:1.3em;margin:0;line-height:1.05}
+.sh44 .loc{justify-content:flex-start;font-size:max(14px,.72em);margin-top:.1em}
+.sh44 .recapb{display:inline-block;margin:.1em 0 0 -.1em;min-height:40px;padding:.1em .1em;border:0;border-radius:4px;font-size:max(14px,.6em);text-align:left;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 40%,transparent);text-underline-offset:3px}
+.sh44 .loc{white-space:nowrap}
+@media (min-width:760px){.sh44 .hvig{width:8em}.sh44 h1{font-size:1.5em}}
+/* chrome fit: phones show "I.i · Elsinore" in small caps */
+.where .ws{display:none}
+@media (max-width:599px){
+  .where .wl{display:none}
+  .where .ws{display:block;font:400 1.05rem var(--f-sc);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #w-title{display:flex;justify-content:center;align-items:baseline}
+  #w-title::after{flex:none}
+  #w-sub:not(.who){display:none}
+}
+/* the ribbon sits on the bar, with the page fading out above it (never over a text line) */
+.bbar{background:var(--bar)}
+.bbar::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:22px;background:linear-gradient(transparent,var(--bar));pointer-events:none}
+.prib{margin:0;border-bottom:1px solid var(--rule)}
+/* Contents: the seal carries the number; stage thumbnail and place beside it; act headers as slim plate strips */
+.srow{grid-template-columns:minmax(0,1fr) auto!important;padding-left:104px!important}
+.srow .n{position:absolute;left:38px;top:6px;font-size:0;width:auto}
+.srow .n .dot{font-size:14px}
+.srow.here .n::after{content:none}
+.srow .sum{grid-column:1/-1}
+.sseal .seal{width:46px;height:46px}
+.sseal .seal .st{font-size:40px}
+.actd>summary{padding:6px 10px!important;border:0!important;border-top:1px solid var(--rule-strong)!important;border-bottom:1px solid var(--rule-strong)!important;border-radius:0!important;background:linear-gradient(180deg,color-mix(in srgb,var(--accent-soft) 40%,var(--card)),var(--card))!important;box-shadow:inset 0 2px 0 var(--card),inset 0 3px 0 var(--rule),inset 0 -2px 0 var(--card),inset 0 -3px 0 var(--rule)!important}
+.actd>summary .anum{min-width:30px!important;height:30px!important;font-size:1rem!important}
+/* play You ledger: three seal badges */
+.yled{grid-template-columns:repeat(3,minmax(0,1fr))}
+.yled>button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px 10px!important;border-radius:var(--r-l)!important}
+.ybadge{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;color:#fbe3d6;background:radial-gradient(circle at 35% 30%,#c8392f,#9a1e19 60%,#6c1110);box-shadow:0 0 0 2px #d9ab4f,0 3px 6px -2px rgba(0,0,0,.45)}
+.ybadge svg{width:24px;height:24px}
+.yled b{font:600 1.4rem/1.1 var(--f-body)!important;color:var(--ink)!important}
+.yled span:last-child{white-space:nowrap;font-size:max(14px,.84rem)}
+.yled span i{font-style:normal;color:var(--accent)}
+.ytime{margin:6px 0 0;font-size:.9rem;color:var(--soft)}
+.ytime b{font:400 1.05rem var(--f-old);color:var(--accent)}
+/* quizzes: seals, a laurel when the act is all full marks */
+.stage3{position:relative}
+.stage3.won{padding-left:46px}
+.stage3 .qlau{position:absolute;left:0;top:50%;width:38px;height:38px;transform:translateY(-50%)}
+.qsl:not(.done):not(.gilt) .seal.e .se{stroke-dasharray:none;stroke-width:2;stroke:color-mix(in srgb,var(--gold) 70%,var(--ink));fill:color-mix(in srgb,var(--gold) 12%,var(--card))}
+.qsl:not(.done):not(.gilt) .rar .ring{display:none}
+/* Study: Pick up as a bookmark-ribbon card, Next step as a wax card */
+.pk.pkr{position:relative;padding-left:44px;background:linear-gradient(135deg,var(--card) 60%,color-mix(in srgb,var(--gold) 16%,var(--card)))}
+.pkrib{position:absolute;left:14px;top:-4px;width:16px;height:46px;background:linear-gradient(180deg,#c0342b,#8e1b17);clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);box-shadow:0 2px 3px rgba(0,0,0,.3)}
+#study .pk.pkw,.pk.pkw{flex-direction:row;align-items:center;gap:12px;background:linear-gradient(180deg,#b72c24,#86170f)!important;border-color:#6c1110!important;color:#fff6ee!important;box-shadow:0 4px 10px -4px rgba(80,10,5,.6),inset 0 1px 0 rgba(255,220,200,.3)}
+#study .pk.pkw small,.pk.pkw small{color:#f6dc94!important;opacity:1}
+.pkw>span:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pks{width:42px;height:42px;flex:none}
+/* safe bottom space under every view (nav height + 24px) */
+:root{--navh:calc(84px + env(safe-area-inset-bottom,0px))}
+#study,#you{padding-bottom:calc(var(--navh) + 24px)!important}
+#map{padding-bottom:calc(var(--navh) + 24px + env(safe-area-inset-bottom,0px))}
+/* book on a desk (1200px+ spread): leather ground, page-stack edges, gutter shadow, ribbon; rail as roundels */
+@media (min-width:1200px){
+  body.spread #reader{background:radial-gradient(ellipse 80% 70% at 50% 40%,#6a4128,#3e2414 70%,#2a170c);background-color:#3e2414}
+  :root[data-theme="dark"] body.spread #reader,:root[data-theme="night"] body.spread #reader{background:radial-gradient(ellipse 80% 70% at 50% 40%,#3a2416,#22140b 70%,#150b05)}
+  body.spread .spread2{isolation:isolate}
+  body.spread .spread2::after{content:"";position:absolute;inset:-26px -34px -30px calc(-34px - 2.2em);z-index:-1;border-radius:3px 3px 6px 6px;background:var(--page);background-image:var(--atmo);box-shadow:3px 3px 0 -1px color-mix(in srgb,var(--page) 88%,#000),6px 6px 0 -2px color-mix(in srgb,var(--page) 80%,#000),-3px 3px 0 -1px color-mix(in srgb,var(--page) 88%,#000),-6px 6px 0 -2px color-mix(in srgb,var(--page) 80%,#000),0 30px 50px -14px rgba(0,0,0,.7)}
+  body.spread .spread2::before{top:-26px;bottom:-30px;background:linear-gradient(90deg,transparent,rgba(0,0,0,.08) 40%,rgba(0,0,0,.18) 50%,rgba(0,0,0,.08) 60%,transparent)}
+  body.spread .pg{position:relative}
+  body.spread .pg::after{content:"";position:absolute;left:calc(50% + 1.2em + 8px);top:0;width:12px;height:100%;background:linear-gradient(90deg,#8e1b17,#c0342b 50%,#8e1b17);clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 9px),0 100%);z-index:2;pointer-events:none;opacity:.9}
+  body.spread .rhead,body.spread .pgfoot{color:#ecd6a6}
+  body.spread .rhead span{border-color:rgba(236,214,166,.4)}
+}
+@media (min-width:1400px) and (hover:hover){
+  body.v-reader .rail{background:transparent;border:0;gap:8px}
+  .rail a,.rail button{gap:4px}
+  .rail svg,.rail .aa{box-sizing:content-box;width:22px;height:22px;padding:9px;border-radius:50%;background:var(--card);color:var(--accent);box-shadow:0 0 0 1.5px #d9ab4f,0 3px 8px -3px rgba(0,0,0,.5)}
+  .rail .aa{display:grid;place-items:center;font:400 1rem/1 var(--f-old)}
+  body.spread .rail a,body.spread .rail button{color:#ecd6a6}
+  .rail a:hover,.rail button:hover{background:none}
+  .rail a:hover svg,.rail button:hover svg,.rail button:hover .aa{background:var(--accent-soft)}
+}
+/* Study section heads as printer's headpieces: fleuron rule, centred small caps */
+#study .tsec{justify-content:center;align-items:center;background:none;gap:10px}
+#study .tsec::before,#study .tsec::after{content:"";flex:1;height:5px;border-top:1px solid var(--tc);border-bottom:1px solid var(--tc);opacity:.55}
+#study .tsec h3::after{content:"❦";margin-left:.45em;color:var(--accent);font-family:var(--f-old);display:inline-block;transform:scaleX(-1)}
+#study .tsec small{order:3;flex:none}
+#study .tsec small+*{order:4}
+.actd summary small{font:400 max(14px,.9rem) var(--f-sc);letter-spacing:.04em}
