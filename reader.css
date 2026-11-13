@@ -1568,7 +1568,7 @@ body{font-family:var(--f-body)}
 
 /* ---------- 4.5 "Folio page" (audit 8, reader only): page frame, verse hanging indent, marginal speakers, illuminated initial,
    modern English slip, action pill, one phone bar, unified sheets, tabbed Settings, parallel text, desk book II, bookmark ribbon, dog-ear ---------- */
-/* page frame: running head, page number, catchword, time left */
+/* page frame: running head, page number, time left */
 .viewport{padding-top:calc(env(safe-area-inset-top,0px) + 40px)}
 .rhead{display:flex;justify-content:space-between;gap:12px;position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:1;padding-bottom:3px;border-bottom:1px solid var(--rule);font:400 max(14px,.85rem)/1.2 var(--f-sc);letter-spacing:.08em;color:var(--muted);pointer-events:none;transition:opacity .2s}
 .rhead span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
