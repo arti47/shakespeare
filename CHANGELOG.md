@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.15.0] — 2026-11-14
+
+### Changed
+- Act summaries: one act per screen under a sticky act ribbon (I–V with a read-progress bar each), a slim act header and a row of scene seals (day/night dot) that jump to each scene; Previous/Next act at the foot (#PR)
+- Act summaries: each scene has a slim header (woodcut thumbnail, wax seal when read, medallions of who is on stage), opens with its first sentence as a lead line and runs the rest of its summary as a numbered timeline (wording unchanged) (#PR)
+- Act summaries: key points always show as "Why it matters" notes (a margin column on wide cards), and each scene's key quotes sit under it as evidence rows that open the preview slip; quoted phrases link to the text (#PR)
+- Act summaries: Full / Outline replaces Cards / List (Outline = each scene's lead line only; remembered in `folio-actview`); Print shows every act; "Act summary" links from scenes and quizzes open at that scene (#PR)
+
 ## [4.14.0] — 2026-11-14
 
 ### Added

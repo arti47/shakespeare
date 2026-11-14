@@ -168,9 +168,11 @@ function goTo(spec){const [w,qs]=String(spec).split("?"),P={};(qs||"").split("&"
   if(b==="prof"&&P.who&&P.who!==profSel){profSel=P.who;prStep=null}
   if(b==="part"&&P.who){pt.who=P.who;pt.sid="";pt.run=null}
   if(b==="explore"){exSel=c||"";if(P.an)anSel=P.an}
+  if(b==="acts"&&P.a!=null&&isFinite(+P.a))acSel=+P.a;
   goStudy(b,c);
   if(b==="quiz"&&P.s)startQuiz(P.s);
-  const el=P.w?document.querySelector(`#sbody [data-gw="${CSS.escape(P.w)}"]`):P.a?document.getElementById("act-"+P.a):null;
+  if(b==="acts"&&P.s){setTimeout(()=>acScroll(P.s),60);return}
+  const el=P.w?document.querySelector(`#sbody [data-gw="${CSS.escape(P.w)}"]`):null;
   if(el){el.scrollIntoView({block:"center"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-to]");if(!t)return;e.preventDefault();e.stopPropagation();goTo(t.dataset.to)},true);
 /* desktop rail (1400px+): proxies for the reader's own buttons */
@@ -313,7 +315,7 @@ function endAct(v){const [a,s,k]=v.split(":");
   if(a==="quiz"){goStudy("quiz");startQuiz(s);return}
   if(a==="next"){goScene(sIdx(s)+1,{page:0});return}
   if(a==="check"){openCheck(s);return}
-  if(a==="sum"){const x=STUDY.scenes[s]||{},p=scenes[sIdx(s)];openSheet(sName(p),`<p class="hcap">${esc(shortLoc(p))}</p><p>${esc(x.sum||"")}</p>${(x.key||[]).length?`<ul>${x.key.map(k=>`<li>${esc(k)}</li>`).join("")}</ul>`:""}<div class="xrow">${toLink("study:acts?a="+p.act,"Act summary")}${x.quiz?toLink("study:quiz?s="+s,"Quiz this scene"):""}</div>`);return}
+  if(a==="sum"){const x=STUDY.scenes[s]||{},p=scenes[sIdx(s)];openSheet(sName(p),`<p class="hcap">${esc(shortLoc(p))}</p><p>${esc(x.sum||"")}</p>${(x.key||[]).length?`<ul>${x.key.map(k=>`<li>${esc(k)}</li>`).join("")}</ul>`:""}<div class="xrow">${toLink("study:acts?a="+p.act+"&s="+s,"Act summary")}${x.quiz?toLink("study:quiz?s="+s,"Quiz this scene"):""}</div>`);return}
   if(a==="quotes"){const qs=QUOTES.quotes.filter(q=>speech[q.id].page===s);openSheet("Key quotes",qs.length?qs.map(quoteHTML).join(""):`<p class="muted">No key quotes are listed for this scene. Try the Key quotes tab in Study.</p>`);return}
   if(a==="conf"){prog.conf[s]=prog.conf[s]===k?"":k;saveProg();refreshMarks();toast("Saved")}}
 function onStageWho(p){const ws=[];p.items.forEach(i=>{if(i.t==="sp"&&i.who&&!ws.includes(i.who))ws.push(i.who)});return ws}
@@ -1622,21 +1624,47 @@ function studyProf(){const P=PROF[profSel]=PROF[profSel]||{tr:["","",""],q:["","
   $("sbody").querySelectorAll("[data-prstep]").forEach(b=>b.onclick=()=>{prStep=+b.dataset.prstep;studyProf();scrollTo(0,0)});
   if($("pr-copy"))$("pr-copy").onclick=()=>copyText(Object.entries(PROF).map(([w,p])=>`${title(w).toUpperCase()}\n`+p.tr.map((x,i)=>x||p.q[i]!==""?`- ${x}${p.q[i]!==""&&p.q[i]!=null?`: "${QUOTES.quotes[p.q[i]].text}"`:""}`:"").filter(Boolean).join("\n")+(p.sum?`\nChange: ${p.sum}`:"")).join("\n\n"));
 }
-/* act summaries (printable) */
+/* act summaries (4.15 "Act at a glance"): one act per screen under a sticky act ribbon; each scene = slim header (woodcut thumb,
+   seal, cast medallions), lead line + numbered timeline (sumSents() splits the summary's own sentences, wording unchanged),
+   "Why it matters" notes (key points), the scene's key quotes as evidence rows. Outline = lead lines only (folio-actview).
+   Print shows every act. */
 function actText(a){return `${AN(a).toUpperCase()}\n`+scenes.filter(p=>p.act===a).map(p=>{const s=STUDY.scenes[p.id]||{};return `\n${sName(p)} (${shortLoc(p)})\n${s.sum||""}\n`+(s.key||[]).map(k=>`  - ${k}`).join("\n")}).join("\n")+`\n\nKey quotes:\n`+QUOTES.quotes.filter(q=>sceneOf(q.id).act===a).map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")}
-function sceneCard(p){const s=STUDY.scenes[p.id]||{},d=prog.done[p.id],o=prog.qst[p.id]||{};
-  return `<div class="scc"><div class="scl">${folioStage(PICS[stageType(p)],"","scst",skyOf(p))}${d?folioSeal(p.scene,o.g?"g":""):folioSeal(p.scene,"e")}</div><div class="scr"><div class="sch"><span><b>${sName(p)}</b><small>${esc(shortLoc(p))}</small></span></div>
-   <p class="dc1">${esc(s.sum||"")}</p>${(s.key||[]).length?`<details class="kp"><summary>Key points</summary><ul>${s.key.map(k=>`<li>${esc(k)}</li>`).join("")}</ul></details>`:""}
-   <div class="xrow noprint"><button class="golink" type="button" data-go2="${p.id}">Read the scene <span aria-hidden="true">›</span></button>${s.quiz?`<button class="golink" type="button" data-quiz2="${p.id}">Quiz <span aria-hidden="true">›</span></button>`:""}</div></div></div>`}
-function studyActs(){const L=DV==="list",AS=ACTS.filter(a=>scenes.some(p=>p.act===a));
-  $("sbody").innerHTML=`<p class="intro noprint">One act at a time: swipe through its scenes, each with its summary and key points. Switch to a list to print or copy them for revision.</p>
-  <div class="qbar noprint"><div class="chips" role="group" aria-label="Go to act">${AS.map(a=>`<button class="chip" type="button" data-actj="${a}">${a?"Act "+R[a]:"Induction"}</button>`).join("")}</div>${dvToggle()}</div>
-  ${L?`<div class="row noprint"><button class="btn" id="as-print">Print all</button><button class="btn" id="as-copy">Copy all</button></div>`:""}
-  ${AS.map(a=>{const ps=scenes.filter(p=>p.act===a),kq=QUOTES.quotes.filter(q=>sceneOf(q.id).act===a);
-    const kqs=`<div class="lbl" style="margin-top:10px">Key quotes</div>${kq.map(q=>{const w=speech[q.id].who;return `<div class="akq">${folioMedal(w,COLORS[w],"akm")}<p>“${esc(q.text)}” <small class="muted">${esc(title(w))}</small> ${chip(q.id)}</p></div>`}).join("")}`;
-    return `<section class="actd" id="act-${a}"><div class="actban">${folioStage(PICS[stageType(ps[0])],"","abst")}${folioPlate(LAT[a],a?R[a]:"",AN(a),"actpl")}</div>${L?`<div class="box">${ps.map(p=>{const s=STUDY.scenes[p.id]||{};return `<div class="exitem"><b>${sName(p)}</b> <small>${esc(shortLoc(p))}</small><p>${esc(s.sum||"")}</p><ul>${(s.key||[]).map(k=>`<li>${esc(k)}</li>`).join("")}</ul><div class="xrow noprint"><button class="golink" type="button" data-go2="${p.id}">Read the scene <span aria-hidden="true">›</span></button>${s.quiz?`<button class="golink" type="button" data-quiz2="${p.id}">Quiz <span aria-hidden="true">›</span></button>`:""}</div></div>`}).join("")}${kqs}</div>`
-      :deckHTML([...ps.map(sceneCard),...(kq.length?[`<div class="scc kqc">${kqs}</div>`]:[])],"","Scenes of "+AN(a))}</section>`}).join("")}`;
-  if($("as-print"))$("as-print").onclick=()=>window.print();if($("as-copy"))$("as-copy").onclick=()=>copyText(AS.map(actText).join("\n\n"))}
+/* the summary's own sentences; never splits inside a quotation or after Mr./St. (join(" ") gives the text back) */
+function sumSents(t){const out=[];let d=0,s=0,dq=0;t=t||"";
+  for(let i=0;i<t.length;i++){const c=t[i],pv=t[i-1]||" ",nx=t[i+1]||" ";
+    if(c==="“")dq++;else if(c==="”")dq=Math.max(0,dq-1);else if(c==='"')dq=dq?0:1;
+    else if((c==="'"||c==="‘")&&/[\s(—–]/.test(pv)&&/\S/.test(nx))d++;
+    else if((c==="'"||c==="’")&&d&&/[\s.,;:!?)—–]/.test(nx)&&!/\s/.test(pv))d--;
+    if(/[.!?]/.test(c)&&!d&&!dq){let j=i+1;while(/['’"”)]/.test(t[j]||""))j++;
+      if(/\s/.test(t[j]||"")&&/[A-Z‘'"“(]/.test(t[j+1]||"")&&!/\b(Mr|Mrs|Dr|St|Mt|Ld|i\.e|e\.g)\.$/.test(t.slice(s,i+1))){out.push(t.slice(s,j).trim());s=j+1;i=j}}}
+  if(s<t.length)out.push(t.slice(s).trim());return out.filter(Boolean)}
+let AV=LS.get("folio-actview")==="outline"?"outline":"full",acSel=null;
+const actsOf=()=>ACTS.filter(a=>scenes.some(p=>p.act===a));
+const actRead=a=>{const ps=scenes.filter(p=>p.act===a);return [ps.filter(p=>prog.done[p.id]).length,ps.length]};
+function scSeal(p,cls){const o=prog.qst[p.id]||{};return prog.done[p.id]?folioSeal(p.scene,o.g?"g":"",cls):folioSeal(p.scene,"e",cls)}
+function castRow(p){const ws=onStageWho(p),n=6,sh=ws.slice(0,n);
+  return `<div class="cast50" aria-label="On stage: ${esc(ws.map(title).join(", "))}">${sh.map(w=>`<span class="cm50" title="${esc(title(w))}">${folioMedal(w,COLORS[w])}</span>`).join("")}${ws.length>n?`<span class="cmore">+${ws.length-n}</span>`:""}</div>`}
+function scene50(p){const s=STUDY.scenes[p.id]||{},ss=sumSents(s.sum),kq=QUOTES.quotes.filter(q=>speech[q.id].page===p.id),key=s.key||[];
+  const head=`<header class="sch50"><div class="sth50" aria-hidden="true">${woodcut(p)}</div><div class="sci50"><h3>${sName(p)}</h3><small>${esc(shortLoc(p))}</small>${castRow(p)}</div>${scSeal(p,"scs50")}</header>`;
+  if(AV==="outline")return `<article class="sc50 ol50" id="sc-${p.id}"><header class="sch50">${scSeal(p,"scs50")}<div class="sci50"><h3>${sName(p)}</h3><small>${esc(shortLoc(p))}</small></div></header>${ss[0]?`<p class="lead50">${rich(ss[0])}</p>`:""}<button class="golink noprint" type="button" data-acfull="${p.id}">${ss.length>1?`${ss.length-1} more step${ss.length>2?"s":""}`:"Open"}${key.length?` · ${key.length} note${key.length>1?"s":""}`:""} <span aria-hidden="true">›</span></button></article>`;
+  return `<article class="sc50" id="sc-${p.id}">${head}<div class="scg50"><div class="scm50">${ss[0]?`<p class="lead50">${rich(ss[0])}</p>`:""}${ss.length>1?`<ol class="tl50">${ss.slice(1).map((x,i)=>`<li><span class="tn50" aria-hidden="true">${i+1}</span><span>${rich(x)}</span></li>`).join("")}</ol>`:""}</div>
+   ${key.length?`<aside class="why50"><h4>Why it matters</h4><ul>${key.map(k=>`<li>${rich(k)}</li>`).join("")}</ul></aside>`:""}</div>
+   ${kq.length?evHTML(kq.map(q=>q.id),"Key quotes"):""}
+   <div class="xrow noprint"><button class="golink" type="button" data-go2="${p.id}">Read the scene <span aria-hidden="true">›</span></button>${s.quiz?`<button class="golink" type="button" data-quiz2="${p.id}">Quiz <span aria-hidden="true">›</span></button>`:""}</div></article>`}
+function studyActs(){const AS=actsOf();if(acSel==null||!AS.includes(acSel)){const ps=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)].act:AS[0];acSel=AS.includes(ps)?ps:AS[0]}
+  const rib=`<nav class="acrib50 noprint" aria-label="Acts">${AS.map(a=>{const [r,n]=actRead(a);return `<button type="button" data-actj="${a}" aria-pressed="${a===acSel}" aria-label="${AN(a)}, ${r} of ${n} scenes read"><b>${a?R[a]:"Ind"}</b><i style="--f:${n?r/n:0}"></i></button>`}).join("")}</nav>`;
+  const bar=`<div class="acbar50 noprint"><div class="dview" role="group" aria-label="Show as"><button type="button" data-av="full" aria-pressed="${AV==="full"}">Full</button><button type="button" data-av="outline" aria-pressed="${AV==="outline"}">Outline</button></div><button class="btn sm" id="as-print" type="button">Print</button><button class="btn sm" id="as-copy" type="button">Copy</button></div>`;
+  $("sbody").innerHTML=`<p class="intro noprint">Each scene in brief: its gist, then the story step by step. Below come why it matters and its key quotes; tap a quote or a quoted phrase to see it in the play. Outline shows only the gist of each scene.</p>${rib}${bar}`+
+  AS.map((a,i)=>{const ps=scenes.filter(p=>p.act===a),[r,n]=actRead(a),nx=AS[i+1],pv=AS[i-1];
+    return `<section class="act50${a===acSel?"":" off"}${AV==="outline"?" isol":""}" id="act-${a}"><header class="ach50"><span class="acl50">${LAT[a]}</span><h2>${AN(a)}</h2><small>${n} scene${n>1?"s":""} · ${r} read</small></header>
+     <ol class="acst50 noprint" aria-label="Scenes of ${AN(a)}">${ps.map(p=>`<li><button type="button" data-acs="${p.id}" aria-label="${esc(sName(p)+", "+shortLoc(p))}" title="${esc(shortLoc(p))}">${scSeal(p,"ass50")}<span class="asn50">${p.scene.toLowerCase()}</span><small>${esc(shortLoc(p))}</small><i class="sky50 ${skyOf(p)}" aria-hidden="true"></i></button></li>`).join("")}</ol>
+     ${ps.map(scene50).join("")}
+     <nav class="acnx50 noprint">${pv!=null?`<button class="btn" type="button" data-actj="${pv}"><span aria-hidden="true">‹ </span>${AN(pv)}</button>`:"<span></span>"}${nx!=null?`<button class="btn primary" type="button" data-actj="${nx}">Next: ${AN(nx)} <span aria-hidden="true">›</span></button>`:""}</nav></section>`}).join("");
+  const g=document.querySelector("#study .sgroups");$("sbody").style.setProperty("--sgh",(g?g.offsetHeight:0)+"px");
+  $("as-print").onclick=()=>window.print();$("as-copy").onclick=()=>copyText(AS.map(actText).join("\n\n"))}
+function acScroll(id,smooth){const el=$("sc-"+id);if(!el)return;const sb=$("sbody");if(sb.classList.contains("sin")&&sb.getAnimations&&sb.getAnimations().length){sb.addEventListener("animationend",()=>acScroll(id,smooth),{once:true});return}const g=document.querySelector("#study .sgroups"),r=document.querySelector("#sbody .acrib50"),h=(g?g.offsetHeight:0)+(r?r.offsetHeight:0)+8;
+  scrollTo({top:el.getBoundingClientRect().top+scrollY-h,behavior:smooth&&!matchMedia("(prefers-reduced-motion: reduce)").matches?"smooth":"auto"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}
+function actGo(a){acSel=a;studyActs();const r=document.querySelector("#sbody .acrib50");if(r){const y=r.getBoundingClientRect().top+scrollY-(parseFloat(getComputedStyle($("sbody")).getPropertyValue("--sgh"))||0);if(scrollY>y)scrollTo(0,y)}}
 /* ---------- spaced practice: one scheduler for flashcards and Daily review ----------
    Keys: "who:<quote>" (stored in prog.srs[<quote>], the original flashcards), "fin:<quote>" finish the quote,
    "th:<quote>" pick its theme, "act:<quote>" which act, "qz:<scene>:<n>" a scene-quiz question (scenes you have read).
@@ -1895,7 +1923,7 @@ function studyQuiz(){
   if(qz&&qz.i<qz.qs.length){const q=qz.qs[qz.i],p=scenes[sIdx(q.s)];
     $("sbody").innerHTML=`<div class="qz"><div class="qn">${qz.kind==="all"?"Whole play":qz.kind==="miss"?"Mistakes review":sName(p)} · question ${qz.i+1} of ${qz.qs.length}</div><h3>${esc(q.q)}</h3>
       <div class="opts">${q.o.map((o,i)=>`<button data-i="${i}"${qz.ans!=null?" disabled":""} class="${qz.ans!=null?(i===q.a?"right":i===qz.ans?"wrong":""):""}">${esc(o)}</button>`).join("")}</div>
-      <div class="row">${qz.ans!=null?`<button class="btn primary" id="qz-next">${qz.i+1<qz.qs.length?"Next question":"See score"}</button>`:""}<button class="link" id="qz-quit">Stop quiz</button>${qz.kind==="all"?`<span class="muted" style="font-size:.875rem">from ${sName(p)}</span>`:""}</div>${qz.ans!=null?`<div class="xrow">${toLink("scene:"+q.s,qz.ans===q.a?"Read the scene":"Check it in the scene")}${(STUDY.scenes[q.s]||{}).sum?toLink("study:acts?a="+p.act,"Scene summary"):""}</div>`:""}</div>`;
+      <div class="row">${qz.ans!=null?`<button class="btn primary" id="qz-next">${qz.i+1<qz.qs.length?"Next question":"See score"}</button>`:""}<button class="link" id="qz-quit">Stop quiz</button>${qz.kind==="all"?`<span class="muted" style="font-size:.875rem">from ${sName(p)}</span>`:""}</div>${qz.ans!=null?`<div class="xrow">${toLink("scene:"+q.s,qz.ans===q.a?"Read the scene":"Check it in the scene")}${(STUDY.scenes[q.s]||{}).sum?toLink("study:acts?a="+p.act+"&s="+q.s,"Scene summary"):""}</div>`:""}</div>`;
     $("sbody").querySelectorAll(".opts button").forEach(b=>b.onclick=()=>{qz.ans=+b.dataset.i;const M=prog.miss.q,ix=M.findIndex(m=>m.q===q.q);
       if(qz.ans===q.a){qz.ok++;if(ix>=0)M.splice(ix,1)}else if(ix<0)M.push({q:q.q,o:q.o,a:q.a,s:q.s});saveProg();studyQuiz()});
     if($("qz-next"))$("qz-next").onclick=()=>{qz.i++;qz.ans=null;studyQuiz()};
@@ -1969,7 +1997,10 @@ $("sbody").addEventListener("click",e=>{
   const ta=e.target.closest("[data-thact]");if(ta){const [k,a]=ta.dataset.thact.split(":"),qs=QUOTES.quotes.filter(q=>q.themes.includes(k)&&sceneOf(q.id).act===+a);openSheet(`${QUOTES.themes[k][0]} · ${AN(+a)}`,evHTML(qs.map(q=>q.id),"Key quotes"));return}
   const qw=e.target.closest("[data-qwho]");if(qw){qf.who=qw.dataset.qwho;const y=scrollY;studyQuotes();scrollTo(0,y);return}
   const dv=e.target.closest("[data-dv]");if(dv){DV=dv.dataset.dv;LS.set("folio-deckview",DV);const y=scrollY;renderStudy();scrollTo(0,y);return}
-  const aj=e.target.closest("[data-actj]");if(aj){const el=$("act-"+aj.dataset.actj);if(el)el.scrollIntoView({block:"start"});return}
+  const aj=e.target.closest("[data-actj]");if(aj){actGo(+aj.dataset.actj);return}
+  const av=e.target.closest("[data-av]");if(av){AV=av.dataset.av;LS.set("folio-actview",AV);const y=scrollY;renderStudy();scrollTo(0,y);return}
+  const as=e.target.closest("[data-acs],[data-acfull]");if(as){const id=as.dataset.acs||as.dataset.acfull;if(as.dataset.acfull){AV="full";LS.set("folio-actview",AV);renderStudy()}
+    acScroll(id,!as.dataset.acfull);return}
   const dc=e.target.closest("[data-dc]");if(dc){const [i,j]=dc.dataset.dc.split(":").map(Number);DIRC[i]=Object.assign({},DIRC[i],{c:j});saveDir();const y=scrollY;studyExplore();scrollTo(0,y);return}
   const ib=e.target.closest("[data-it]");if(ib){if(S.stab==="review")reviewAct(ib.dataset.it);else cardAct(ib.dataset.it);return}
   const pk=e.target.closest("[data-pick]");if(pk&&!pk.disabled){reviewAct("pick",pk.dataset.pick);return}
@@ -2198,7 +2229,7 @@ function questsHTML(s){const o=prog.qst[s]||{},Q=questsOf(s);if(!Q.length)return
   return `<div class="quests">${Q.map(k=>`<button class="qst${o[k]?" done":""}" type="button" data-quest="${k}:${s}"><span class="qi" aria-hidden="true">${o[k]?"✓":QL[k][2]}</span><span class="qx"><b>${QL[k][0]}</b><small>${k==="q"&&Array.isArray(o.q)?`${esc(o.q[0])} of ${esc(o.q[1])} right`:QL[k][1]}</small></span></button>`).join("")}</div>`}
 function openQuest(k,s){const p=scenes[sIdx(s)];if(!p)return;const x=STUDY.scenes[s]||{};
   if(k==="q"){openCheck(s);return}
-  if(k==="r"){openSheet("Recap",`<p class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</p><p class="recap">${esc(x.sum||"")}</p>${(x.key||[]).length?`<ul>${x.key.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}<div class="row"><button class="btn primary" data-qdone="r:${s}">Got it ✓</button></div><div class="xrow">${toLink("study:acts?a="+p.act,"Act summary")}${toLink("scene:"+s,"Read the scene again")}</div>`);return}
+  if(k==="r"){openSheet("Recap",`<p class="eyebrow">${sName(p)} · ${esc(shortLoc(p))}</p><p class="recap">${esc(x.sum||"")}</p>${(x.key||[]).length?`<ul>${x.key.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}<div class="row"><button class="btn primary" data-qdone="r:${s}">Got it ✓</button></div><div class="xrow">${toLink("study:acts?a="+p.act+"&s="+s,"Act summary")}${toLink("scene:"+s,"Read the scene again")}</div>`);return}
   if(k==="k"){const qs=QUOTES.quotes.filter(q=>speech[q.id].page===s);openSheet("Key quotes",`<p class="eyebrow">${sName(p)}</p>${qs.map(quoteHTML).join("")}<div class="row"><button class="btn primary" data-qdone="k:${s}">I know these ✓</button></div><div class="xrow">${toLink("study:cards","Practise as flashcards")}</div>`)}}
 /* the three-question check, in a sheet (questions from the scene quiz) */
 let ck=null;
