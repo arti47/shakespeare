@@ -1128,7 +1128,27 @@ function renderRel(){const el=$("srel");if(!el)return;if(SH||SV||view!=="study")
   const hid=x=>folioSimple()&&EXAMT.some(t=>x[0]==="study:"+t||x[0].startsWith("study:"+t+"?")),L=relList().filter(x=>x[0]!=="read"&&!hid(x));if(!L.length)L.push(["study","Study home"]);const [n,...m]=L;RELM=m;const ps=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)]:null;
   el.innerHTML=`<div class="upn48"><button class="upn" type="button" data-to="${esc(n[0])}"><small>Up next</small><b>${n[1]}</b><i aria-hidden="true">›</i></button>${m.length?`<button class="upm" type="button" data-relmore>More <span>${m.length}</span></button>`:""}</div>${ps?`<button class="upback" type="button" data-to="scene:${ps.id}"><span aria-hidden="true">‹</span> Back to ${esc(sName(ps))}</button>`:`<button class="upback" type="button" data-to="read"><span aria-hidden="true">‹</span> Back to reading</button>`}`}
 document.addEventListener("click",e=>{if(e.target.closest("[data-relmore]"))openSheet("More from here",`<div class="relm48">${RELM.map(([sp,l])=>`<button class="tlr" type="button" data-to="${esc(sp)}">${tic(sp.replace(/^study:/,"").split("?")[0])}<span><b>${l}</b></span><i aria-hidden="true">›</i></button>`).join("")}</div>`)});
-const focusNow=()=>{const sb=$("sbody");$("study").classList.toggle("inround",view==="study"&&!!sb.querySelector(".pfr")&&!sb.querySelector(".wreath,.dend"))};
+const focusNow=()=>{const sb=$("sbody"),on=view==="study"&&!!sb.querySelector(".pfr")&&!sb.querySelector(".wreath,.dend");$("study").classList.toggle("inround",on);document.body.classList.toggle("focus21",on);tray21()};
+/* 4.21 answer tray: once an item is answered, its verdict, the note and Continue sit in a tray fixed at the bottom of the screen */
+const TRNV=["explain","two","stress"];
+function tray21(){const sb=$("sbody");if(!document.body.classList.contains("focus21")){sb.style.paddingBottom="";return}
+  const btn=sb.querySelector("#dr-next,#qz-next,.cardbtns [data-it=next]");if(!btn){sb.style.paddingBottom="";return}if(btn.closest(".tray21"))return;
+  const row=btn.closest(".row,.cardbtns")||btn;let ok=null,nv=false;
+  if(btn.id==="dr-next"){ok=dr.R&&dr.R.res[dr.R.i];nv=TRNV.includes(dr.k)}else if(btn.id==="qz-next")ok=qz&&qz.res&&qz.res[qz.i];else ok=rv&&rv.items[rv.i]&&rv.items[rv.i].ok;
+  const fb=[];let x=row.previousElementSibling;while(x&&x.matches(".dres,p.muted,.snote")){fb.unshift(x);x=x.previousElementSibling}
+  sb.querySelectorAll(".dres").forEach(d=>{if(!fb.includes(d))fb.unshift(d)});
+  const nx=row.nextElementSibling&&row.nextElementSibling.matches(".xrow")?row.nextElementSibling:null;
+  const t=document.createElement("div");t.className="tray21 "+(nv?"nv":ok?"ok":"no");t.setAttribute("role","status");
+  t.innerHTML=`<div class="tin">${nv?"":`<p class="tv">${ok?`<i aria-hidden="true">✓</i>Right`:`<i aria-hidden="true">✗</i>Not quite`}</p>`}</div>`;const tin=t.firstChild;
+  fb.forEach(e=>tin.appendChild(e));tin.appendChild(row);row.classList.add("trow");if(nx)tin.appendChild(nx);
+  const q=sb.querySelector("#qz-quit");if(q)q.hidden=true;
+  sb.appendChild(t);sb.style.paddingBottom=(t.offsetHeight+16)+"px"}
+/* × in the round frame leaves the round the same way its own Stop button would */
+function xRound(){const s=$("sbody").querySelector("#qz-quit,#rv-quit");if(s){s.click();return}
+  if(S.stab==="part"&&pt.run){pt.run=null;studyPart();scrollTo(0,0);return}
+  if(dr&&dr.R&&dr.go){dr.R=null;dr.go=0;clearInterval(SPT);studyDrill();scrollTo(0,0);return}
+  const b=$("sgroups").querySelector(".sgback");if(b)b.click()}
+document.addEventListener("keydown",e=>{if(e.key!=="Enter"||!document.body.classList.contains("focus21")||/^(TEXTAREA|INPUT|BUTTON|SELECT|A)$/.test(e.target.tagName))return;const b=$("sbody").querySelector(".tray21 .trow .primary");if(b){e.preventDefault();b.click()}});
 try{new MutationObserver(()=>{renderRel();focusNow()}).observe($("sbody"),{childList:true})}catch(e){}
 let SBACK=null;
 function renderStudy(){
@@ -1391,7 +1411,7 @@ const saveDrb=()=>LS.set(PFX+"drb",JSON.stringify(DRB));
 const drBest=k=>{if(k==="ladder"){const n=Object.keys(DRB.lad).filter(i=>QUOTES.quotes[i]).length;return n?[n,QUOTES.quotes.length,0,n]:null}const b=DRB[k];return Array.isArray(b)&&isFinite(b[0])&&isFinite(b[1])&&b[1]>0?b:null};
 /* the frame: label · i of n, pips (a bar past 24 items), right so far and the current streak */
 function pipFrame(lab,res,i,n,right,streak,rw){const pips=n<=24?`<span class="pips" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${res[j]===true?"ok":res[j]===false?"no":j===i?"cur":""}"></i>`).join("")}</span>`:`<span class="pbar" aria-hidden="true"><b style="width:${(100*Math.min(i,n)/Math.max(1,n)).toFixed(1)}%"></b></span>`;
-  return `<div class="dfr pfr"><span class="dfl">${lab?esc(lab)+" · ":""}${Math.min(i+1,n)} of ${n}</span>${pips}<span class="dfs">${right} ${rw||"right"}${streak>1?` · <b class="stk">${streak} in a row</b>`:""}</span></div>`}
+  return `<div class="dfr pfr"><button class="fx21" type="button" data-xround aria-label="Leave this round">×</button><span class="dfl">${lab?esc(lab)+" · ":""}${Math.min(i+1,n)} of ${n}</span>${pips}<span class="dfs">${right} ${rw||"right"}${streak>1?` · <b class="stk">${streak} in a row</b>`:""}</span></div>`}
 const DRN={gap:8,who:8,word:8,order:3,time:3,scene:8,next:8,odd:6,explain:5,two:3,untangle:6,pun:6,stress:5};
 const gapCand=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
 const gw=w=>w.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g,"");
@@ -1523,7 +1543,7 @@ const DK={
 const DRL={stress:"heard"};
 /* 4.19 Sprint: 60 seconds of mixed quick-pick questions (who, scene, odd, word); best = most right */
 const SPRK=["who","scene","odd","word"];let SPT=null;
-const sprintFrame=(R,ok)=>{const left=Math.max(0,60-Math.floor((Date.now()-(R.t0||Date.now()))/1e3));return `<div class="dfr pfr spr"><span class="dfl">Sprint · <b id="spt">${left}</b> s</span><span class="pbar" aria-hidden="true"><b id="spb" style="width:${(left/60*100).toFixed(1)}%"></b></span><span class="dfs">${ok} right${R.streak>1?` · <b class="stk">${R.streak} in a row</b>`:""}</span></div>`};
+const sprintFrame=(R,ok)=>{const left=Math.max(0,60-Math.floor((Date.now()-(R.t0||Date.now()))/1e3));return `<div class="dfr pfr spr"><button class="fx21" type="button" data-xround aria-label="Leave this round">×</button><span class="dfl">Sprint · <b id="spt">${left}</b> s</span><span class="pbar" aria-hidden="true"><b id="spb" style="width:${(left/60*100).toFixed(1)}%"></b></span><span class="dfs">${ok} right${R.streak>1?` · <b class="stk">${R.streak} in a row</b>`:""}</span></div>`};
 function sprintTick(){const R=dr.R;if(!R.t0)R.t0=Date.now();clearInterval(SPT);SPT=setInterval(()=>{const el=$("spt");if(!el||dr.k!=="sprint"||dr.R!==R){clearInterval(SPT);return}
   const left=Math.max(0,60-Math.floor((Date.now()-R.t0)/1e3));el.textContent=left;const b=$("spb");if(b)b.style.width=(left/60*100).toFixed(1)+"%";
   if(left<=0){clearInterval(SPT);R.items=R.items.slice(0,R.res[R.i]!=null?R.i+1:R.i);R.res.length=R.items.length;R.i=R.items.length;studyDrill();scrollTo(0,0)}},250)}
@@ -1541,8 +1561,8 @@ function nextUp(){const L=drillsNow().filter(k=>DK[k]&&k!=="stress"&&k!=="sprint
   const sc=L.map(k=>{const b=drBest(k);return [k,b[0]/b[1],b[2]]}).sort((a,b)=>a[1]-b[1]||a[2]-b[2])[0];return sc?[sc[0],`Your lowest best: ${drBest(sc[0])[0]} of ${drBest(sc[0])[1]}`]:null}
 function rulePrev(){const D=DK[dr.k];if(!D||dr.k==="stress")return "";try{if(!dr.sm)dr.sm=D.make(1)[0];if(!dr.sm)return "";const R0=dr.R;dr.R={items:[dr.sm],i:0,res:[],st:{}};const h=D.view(dr.sm,{},false);dr.R=R0;
   return `<div class="rprev" aria-hidden="true" inert><small>Looks like this</small><div class="rpv">${h}</div></div>`}catch(e){return ""}}
-function drStart(){const D=DK[dr.k];dr.R={items:D.make(DRN[dr.k]||8).filter(Boolean),i:0,res:[],st:{},streak:0}}
-function drAns(ok){const R=dr.R;if(!R||R.res[R.i]!=null)return;const it=R.items[R.i],D=DK[dr.k];R.res[R.i]=!!ok;R.streak=ok?R.streak+1:0;R.fx=ok?"ok":"no";buzz(ok);
+function drStart(){const D=DK[dr.k];dr.R={items:D.make(DRN[dr.k]||8).filter(Boolean),i:0,res:[],st:{},streak:0,bs:0,t0:Date.now()}}
+function drAns(ok){const R=dr.R;if(!R||R.res[R.i]!=null)return;const it=R.items[R.i],D=DK[dr.k];R.res[R.i]=!!ok;R.streak=ok?R.streak+1:0;R.bs=Math.max(R.bs||0,R.streak);R.fx=ok?"ok":"no";buzz(ok);
   const key=D.key&&D.key(it);if(key&&(QUOTES.quotes[+key.split(":")[1]])){if(!ok)grade(key,false,false);else if(isDue(key))grade(key,true,false)}
   studyDrill()}
 const drillsNow=()=>["drill:sprint"].concat(topicK("practise")[2]).concat(topicK("words")[2]).filter(s=>s.startsWith("drill:")&&toolOK(s)).map(s=>s.slice(6)).filter((k,i,a)=>a.indexOf(k)===i);
@@ -1551,9 +1571,11 @@ function drEnd(){const R=dr.R,D0=DRILLS.find(d=>d[0]===dr.k),n=R.items.length,ok
   if(!R.saved){R.saved=1;drLog();R.nb=!!ok&&(!old||(dr.k==="sprint"?ok>old[0]:ok/n>old[0]/old[1]));const pl=((old&&old[3])||0)+1;DRB[dr.k]=R.nb||!old?[ok,n,Date.now(),pl]:[old[0],old[1],old[2],pl];saveDrb()}
   const b=drBest(dr.k),ids=[...new Set(R.items.filter((_,j)=>R.res[j]===false).flatMap(it=>DK[dr.k].ids(it)).filter(x=>x!=null&&speech[x]))],nx=nextDrill(dr.k);
   clearInterval(SPT);return (dr.k==="sprint"?"":pipFrame("",R.res,n,n,ok,0))+`<div class="qz dend">${dr.k==="sprint"?`<div class="wreath${ok>=10?" full":""}">${laurelSVG("wl")}<div class="wrs"><b>${ok}</b> <small>in 60 s</small></div></div>`:wreathHTML(ok,n)}<p class="dmsg">${dr.k==="sprint"?`${ok} right of ${n} answered.`:ok===n?"Full marks.":ok>=n*.7?"A strong round.":"Look again at the lines below, then go again."}</p>
+    ${(()=>{if(!R.t1)R.t1=Date.now();const sec=Math.max(1,Math.round((R.t1-(R.t0||R.t1))/1e3)),an=R.res.filter(x=>x!=null).length;return `<div class="dst21"><span><b>${an?Math.round(100*ok/an):0}%</b><small>accuracy</small></span><span><b>${R.bs||0}</b><small>best streak</small></span><span><b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")}</b><small>time</small></span></div>`})()}
     ${R.nb?`<p class="nbest">${folioSeal("❦","g","nbs")}New best</p>`:b?`<p class="muted">Your best: ${b[0]}${dr.k==="sprint"?"":" of "+b[1]} · played ${b[3]} time${b[3]===1?"":"s"}</p>`:""}
     <div class="row" style="justify-content:center"><button class="btn primary" id="dr-again">Play again</button>${nx?`<button class="btn" type="button" data-to="study:drill:${nx[0]}?tp=practise">Next: ${esc(nx[1])} ›</button>`:""}</div>
-    ${R.res.some(x=>x===false)&&DK[dr.k].key?`<p class="muted" style="text-align:center">Missed quotes join Daily review.</p>`:""}</div>${ids.length?`<div class="box miss49"><h3>Look again · ${ids.length}</h3>${evHTML(ids,"Lines")}</div>`:""}`}
+    ${R.res.some(x=>x===false)&&DK[dr.k].key?`<p class="muted" style="text-align:center">Missed quotes join Daily review.</p>`:""}</div>${(()=>{const okIds=[...new Set(R.items.filter((_,j)=>R.res[j]===true).flatMap(it=>DK[dr.k].ids(it)).filter(x=>x!=null&&speech[x]&&!ids.includes(x)))];
+    return ids.length||okIds.length?`<div class="box miss49 lk21">${ids.length?`<h3>Look again · ${ids.length}</h3>${evHTML(ids,"Missed")}`:""}${okIds.length?`<details class="fold"${ids.length?"":" open"}><summary>Got right · ${okIds.length}</summary>${evHTML(okIds,"Right")}</details>`:""}</div>`:""})()}`}
 /* memory ladder: choose a quote from a searchable list, climb four steps, then type it from memory */
 function ladderHTML(){
   if(dr.i==null){const f=(dr.f||"").toLowerCase(),L=QUOTES.quotes.filter(q=>!f||q.text.toLowerCase().includes(f)||title(speech[q.id].who).toLowerCase().includes(f));
@@ -2161,6 +2183,7 @@ function studyRevise(){
   wireBackup(studyRevise);
 }
 $("sbody").addEventListener("click",e=>{
+  if(e.target.closest("[data-xround]")){xRound();return}
   const pv=e.target.closest("[data-pv]");if(pv){e.preventDefault();openPv(pv.dataset.pv);return}
   const ht=e.target.closest("[data-heat]");if(ht){const [i,j]=ht.dataset.heat.split(":").map(Number),[nm,per]=HEAT[i]||[];if(nm)openSheet(`${nm} · ${AN(ACTS[j])}`,`<p class="intro">${per[j].length} speech${per[j].length===1?"":"es"} mention it.</p>${evHTML(per[j],"In the play")}`);return}
   const cj=e.target.closest("[data-crj]");if(cj){const [k,i]=cj.dataset.crj.split(":"),el=document.getElementById(`cr-${k}-${i}`);if(el){el.scrollIntoView({block:"center",behavior:"smooth"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}return}
