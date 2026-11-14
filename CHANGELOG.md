@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.23.1] — 2026-11-14
+
+### Fixed
+- Quizzes, tragedies (all 12): wrong options rewritten to the same length and pull as the right one, so the longest option is no longer the answer in most questions (now about 1 in 5) (#PR)
+
 ## [4.23.0] — 2026-11-14
 
 ### Changed
