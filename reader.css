@@ -2361,3 +2361,34 @@ mark.mkb{color:inherit;background:linear-gradient(100deg,transparent 0,var(--mk)
 .qz.fx-ok .dres.ok::before,.qz.fx-ok>.dres.ok::before{content:"✓ ";font-weight:700}
 .rulec .rpv h3{margin:4px 0 10px;font:400 1.2rem/1.4 var(--f-old);color:var(--ink);letter-spacing:0;text-transform:none}
 .rulec .rpv p{margin:0 0 8px;font:400 .95rem/1.4 var(--f-body);color:var(--muted)}
+/* ---------- 4.20 Review, Quizzes, Flashcards and Learn a part homes; Explain fold; Cut beats ---------- */
+.rvh19{margin:4px 0 14px;padding:16px;border:2px solid color-mix(in srgb,var(--tc,var(--accent)) 45%,var(--rule));border-radius:var(--r-m);background:var(--card);box-shadow:var(--lift)}
+.rvt19{display:flex;align-items:center;gap:16px}.rvt19 h3{margin:0;font:400 1.5rem var(--f-old)}.rvt19 p{margin:2px 0 0;color:var(--muted)}.rvt19 p b{color:var(--ink)}
+.rva19{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}.rva19 .btn{min-height:48px}.rva19 .btn.primary{flex:1 1 200px}
+.qacts19{display:grid;gap:12px}
+@media (min-width:760px){.qacts19{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.qact19{position:relative;padding:12px 14px;border:1px solid color-mix(in srgb,var(--tc,var(--accent)) 25%,var(--rule));border-radius:var(--r-m);background:var(--card);box-shadow:var(--lift)}
+.qact19.won{border:2px solid color-mix(in srgb,var(--gold) 70%,var(--rule-strong))}
+.qact19 header{display:flex;align-items:center;gap:12px;margin-bottom:8px}.qact19 h3{margin:0;font:400 1.25rem var(--f-sc);letter-spacing:.04em;color:var(--tc,var(--accent))}.qact19 small{color:var(--muted);font-size:.875rem}
+.qact19 .hring{width:48px;height:48px;flex:none}.hring .rn{position:relative;font:400 1rem var(--f-sc);color:var(--tc,var(--accent))}
+.qact19 .qlau{position:absolute;right:10px;top:8px;width:40px;height:40px}
+.qact19 .qseals{margin:0}.qnx19{margin-top:8px}
+.deck19{margin:14px 0 6px}
+.dbar{display:flex;gap:2px;height:12px;border-radius:999px;overflow:hidden;background:var(--rule)}
+.dbar i{flex-basis:0;min-width:0}.dbar .l{background:var(--gold)}.dbar .m{background:color-mix(in srgb,var(--tc,var(--accent)) 45%,var(--card))}.dbar .d{background:var(--tc,var(--accent))}.dbar .n{background:color-mix(in srgb,var(--rule-strong) 50%,var(--card))}
+.dkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0 4px;font-size:.875rem;color:var(--muted)}
+.dkey span{display:inline-flex;align-items:center;gap:5px}.dkey i{width:10px;height:10px;border-radius:50%}
+.dkey .l i{background:var(--gold)}.dkey .m i{background:color-mix(in srgb,var(--tc,var(--accent)) 45%,var(--card))}.dkey .d i{background:var(--tc,var(--accent))}.dkey .n i{background:color-mix(in srgb,var(--rule-strong) 50%,var(--card))}
+.dnow{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
+.pcast19{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:6px}
+@media (min-width:600px){.pcast19{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.pcast19 button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 8px 12px;border:1px solid color-mix(in srgb,var(--c) 35%,var(--rule));border-radius:var(--r-m);background:var(--card);color:var(--ink);box-shadow:var(--lift);text-align:center}
+.pcast19 .hring{width:66px;height:66px}.pcast19 .pcm{position:relative;width:50px;height:50px}
+.pcast19 b{font:400 1.1rem var(--f-old)}.pcast19 small{color:var(--muted);font-size:.875rem}.pcast19 .pst{color:var(--c);font-family:var(--f-sc);letter-spacing:.04em}
+.porig.clamp19{max-height:calc(6 * 1.55em);overflow:hidden;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.cutsc{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px;margin:4px 0 6px;scrollbar-width:thin}
+.cutsc button{flex:none;min-width:48px;min-height:44px;padding:0 10px;border:1px solid var(--rule);border-radius:999px;background:var(--card);font:400 .95rem var(--f-sc);color:var(--ink)}
+.cutsc button[aria-pressed="true"]{background:var(--tc,var(--accent));border-color:var(--tc,var(--accent));color:var(--page)}
+.cutg{margin:0 0 10px}
+.cutgh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--rule)}
+.cutgh b{font:400 1rem var(--f-sc);letter-spacing:.05em;color:var(--tc,var(--accent))}.cutgh span{font-style:italic;color:var(--soft);flex:1 1 140px}.cutgh small{color:var(--muted)}
