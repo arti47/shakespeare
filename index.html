@@ -74,9 +74,6 @@ h2.vt{font:400 1.75rem var(--f-sc);letter-spacing:.04em;margin:2px 0 16px;line-h
 .greet{font:italic 400 1.05rem var(--f-old);color:var(--soft);margin:0 0 14px}
 .greet.nudge{color:var(--accent);transition:color .2s}
 
-/* home layout: one column on phones, two on wide screens (reading desk left, bookcase right) */
-.home{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}.desk,.case{min-width:0}
-@media (min-width:1000px){.home{grid-template-columns:minmax(330px,380px) minmax(0,1fr);gap:40px;align-items:start}.desk{position:sticky;top:16px}}
 
 /* continue reading: hero card */
 .hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding:16px;border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);color:inherit;text-decoration:none;box-shadow:var(--lift);position:relative}
@@ -110,20 +107,6 @@ h2.vt{font:400 1.75rem var(--f-sc);letter-spacing:.04em;margin:2px 0 16px;line-h
 .due b{color:var(--accent)}
 .due .chips{gap:6px}
 
-/* bookcase: three genre shelves */
-.order{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
-.order .lbl{font:400 max(14px,.62rem) var(--f-sc);letter-spacing:.1em;color:var(--muted)}
-.shelf{margin:18px 0 6px}
-.shelf h3{display:flex;align-items:baseline;gap:10px;margin:0;font:400 1.55rem var(--f-sc);letter-spacing:.05em;line-height:1.1}
-.shelf h3 em{font:normal 400 max(14px,.62rem) var(--f-sc);letter-spacing:.1em;color:var(--accent)}
-.shelf h3::after{content:"";flex:1;height:4px;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);align-self:center}
-.shelf p.gd{margin:4px 0 0;font:italic 400 max(14px,.7rem) var(--f-old);color:var(--soft)}
-.rail{--cw:clamp(124px,34vw,156px);display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 max(16px,env(safe-area-inset-left,0px));padding:14px max(16px,env(safe-area-inset-left,0px)) 18px;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));scrollbar-width:none;position:relative}
-.rail::-webkit-scrollbar{display:none}
-.rail::after{content:"";flex:0 0 2px}
-@media (min-width:1000px){.rail{--cw:150px;flex-wrap:wrap;overflow:visible;margin:0;padding:14px 0 20px;scroll-snap-type:none;gap:18px 16px}}
-.shelfbase{height:8px;margin:-10px 0 0;border-radius:2px;background:linear-gradient(var(--rule),var(--track));box-shadow:0 6px 10px -6px rgba(0,0,0,.35)}
-@media (min-width:1000px){.shelfbase{display:none}}
 
 
 /* emblems (covers.js): enamelled gilt badges */
@@ -173,13 +156,8 @@ h2.vt{font:400 1.75rem var(--f-sc);letter-spacing:.04em;margin:2px 0 16px;line-h
 .cover .shine{position:absolute;inset:0;z-index:4;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,244,214,.28) 48%,rgba(255,244,214,.05) 56%,transparent 65%) no-repeat;background-size:250% 100%;background-position:130% 0;mix-blend-mode:screen}
 .cover.on .shine{animation:foil 1.4s .15s ease-out 1}
 @keyframes foil{from{background-position:130% 0}to{background-position:-60% 0}}
-.cover .cp{position:absolute;left:6.5%;right:0;bottom:0;height:5px;background:rgba(0,0,0,.5);z-index:5}
-.cover .cp i{display:block;height:100%;background:var(--gilt)}
-.cover .ribbon{position:absolute;top:-3px;right:7%;width:7cqw;height:26cqw;background:linear-gradient(90deg,#8e1b22,#b8262f 50%,#8e1b22);box-shadow:0 2px 3px rgba(0,0,0,.4);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);z-index:5}
 /* covers on the shelves: always full size; the leather system above is covers.js's */
-.rail .cover,.dsheet .cover,.hero .cover{transform:none;filter:none;scroll-snap-align:start}
-.rail .cover{transition:transform .2s}
-@media (hover:hover){.rail .cover:hover{transform:translateY(-4px)}}
+.bk-rows .cover,.dsheet .cover,.hero .cover{transform:none;filter:none;scroll-snap-align:start}
 
 /* play detail sheet (tap a cover) */
 .dsheet{position:fixed;inset:0;z-index:40;background:var(--shade);display:flex;align-items:flex-end;justify-content:center}
@@ -285,8 +263,6 @@ footer .orn{justify-content:center;margin-bottom:8px}
 .rt .gm{display:block;font:400 max(14px,.66rem)/1.4 var(--f-ui);color:var(--soft)}
 .rt.kq{font-family:var(--f-old);font-style:italic}
 /* 4.0: bigger covers; Today is one card stack you swipe (line, word, week, reviews); Simple hides sort and genre chips; three tabs in Simple */
-.rail{--cw:clamp(150px,42vw,192px);gap:16px}
-@media (min-width:1000px){.rail{--cw:176px;gap:22px 18px}}
 html.simple .order,html.simple #sgen{display:none!important}
 .tabs [data-tab="play"]{display:none}
 html.simple .tabs [data-tab="play"]{display:flex}
@@ -371,7 +347,6 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
   .hero .eyebrow{margin:0}
   .hero .acts .btn{min-height:42px;padding:4px 14px}
   .greet{margin:0 0 10px;font-size:.95rem}
-  .case{display:flex;flex-direction:column}.case .order{order:2;margin-top:6px}
 }
 
 /* ===== 4.3 "Illuminated folio" shelf: stage hero, illustrated Today, wooden shelves with brass plaques, full-width desktop ===== */
@@ -401,25 +376,10 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .wseal .seal .st{font-size:34px}
 .stk-c.duec .big{display:flex;justify-content:center;margin:2px 0}
 .dseal{width:76px;height:76px}.dseal .st{font-size:26px}
-/* wooden shelves with brass genre plaques */
-.s43 h3{flex-wrap:wrap;row-gap:6px}
-.s43 h3 em{order:2}
-.s43 h3::after{order:1}
-.s43 .gd{margin-top:8px}
-.case43{position:relative}
-.s43 .rail{padding-bottom:10px}
-.s43 .shelfbase{display:block;height:14px;background:linear-gradient(180deg,var(--wood1),var(--wood2) 60%,var(--wood3));margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));border-radius:0}
-.s43 .rail .cover{box-shadow:0 10px 14px -10px rgba(0,0,0,.7)}
 @media (min-width:1000px){
-  .home{grid-template-columns:minmax(0,1fr);gap:26px}
-  .desk{position:static;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:stretch}
-  .desk .greet{grid-column:1/-1;margin:0}
-  .desk #today{margin:0!important;display:flex;flex-direction:column;justify-content:center}
   .hero.h43{min-height:100%;padding:24px 26px}
   .h43 .cover{--cw:150px}
   .hbg{width:min(560px,70%)}
-  .s43 .shelfbase{display:none}
-  .s43 .rail{--cw:168px;padding:14px 4px 22px;gap:22px 22px;background:repeating-linear-gradient(180deg,transparent 0 252px,var(--wood1) 252px,var(--wood2) 259px,var(--wood3) 266px,transparent 266px 274px);background-position:0 14px}
 }
 
 /* 4.3 You: laurel medallion, seal staircase, icon ledger, wax calendar, seals per play */
@@ -534,25 +494,101 @@ body{font-family:var(--f-body)}
 :root[data-theme="dark"],:root[data-theme="night"]{--deckle:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme]){--deckle:none}}
 .hero::before,.today::before{border-width:6px;border-style:solid;border-image:var(--deckle) 6 round}
+
+/* ===== 4.13 "Bookcase": search field in the masthead, lectern (Continue + Today), sticky gilt genre tabs + Order menu, one wooden bookcase, ribbons ===== */
+.sfld{flex:0 1 240px;min-width:0;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid color-mix(in srgb,var(--gold) 50%,var(--rule-strong));border-radius:var(--pill);background:var(--card);color:var(--muted);font:400 max(15px,.78rem) var(--f-body);cursor:text;box-shadow:inset 0 1px 2px rgba(0,0,0,.08)}
+.sfld svg{width:18px;height:18px;flex:none;color:var(--accent)}
+.sfld span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sfld:hover{border-color:var(--accent)}
+.mast{gap:10px}
+/* lectern: one wood-framed desk, Continue left, Today right (stacked on phones) */
+.lectern{position:relative;margin:0 0 4px;padding:9px;border-radius:16px;background:linear-gradient(180deg,var(--wood1),var(--wood2) 55%,var(--wood3));box-shadow:inset 0 1px 0 rgba(255,235,200,.3),0 16px 28px -18px rgba(0,0,0,.7)}
+.lectern::after{content:"";position:absolute;inset:4px;border:1px solid rgba(243,220,154,.4);border-radius:12px;pointer-events:none}
+.lec-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr);background:var(--card);border-radius:9px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.lectern .hero{border:0;border-radius:0;box-shadow:none;margin:0;height:100%;box-sizing:border-box}
+.lectern .today{border:0;border-radius:0;margin:0!important;background:transparent;border-top:3px double color-mix(in srgb,var(--gold) 70%,var(--rule-strong))}
+.lectern .hero::before,.lectern .today::before,.lectern .today::after{display:none}
+.lectern.solo #cont{display:none}.lectern.solo .today{border-top:0}
+.lectern .stk-in{border-radius:0}
+@media (min-width:700px){
+  .lec-in{grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr)}
+  .lectern .today{border-top:0;border-left:3px double color-mix(in srgb,var(--gold) 70%,var(--rule-strong));display:flex;flex-direction:column;justify-content:center}
+  .lectern.solo .lec-in{grid-template-columns:minmax(0,1fr)}.lectern.solo .today{border-left:0}
+  .lectern .hero.h43{min-height:100%}
+  .lectern .stk-c{min-height:190px}
+}
+/* sticky shelf bar: three gilt genre tabs, Order menu, search once pinned */
+.gbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;margin:20px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 22px;padding:8px max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--page) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:box-shadow .2s,border-color .2s}
+.gbar.stuck{padding-top:max(8px,env(safe-area-inset-top,0px));border-bottom-color:var(--rule);box-shadow:0 8px 16px -12px rgba(0,0,0,.45)}
+.gtabs{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.gtabs button{min-height:44px;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px;border:1px solid color-mix(in srgb,var(--gold) 55%,var(--rule-strong));border-radius:var(--pill);background:var(--card);color:var(--ink);font:400 max(15px,.8rem) var(--f-sc);letter-spacing:.04em;white-space:nowrap;cursor:pointer;transition:background .2s,color .2s}
+.gtabs button span{overflow:hidden;text-overflow:ellipsis}
+.gtabs .gico{width:20px;height:20px;flex:none}
+.gtabs button[aria-current="true"]{background:linear-gradient(180deg,#f3dc9a,#e2bb63 55%,#c99a42);color:var(--gilt-ink);border-color:#8a6420;box-shadow:inset 0 1px 0 rgba(255,250,230,.7),0 2px 5px -2px rgba(0,0,0,.45)}
+.gtabs button:focus-visible,.obtn:focus-visible,.sfld:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.omenu{position:relative;flex:none}
+.obtn{min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;border:1px solid var(--rule-strong);border-radius:var(--pill);background:var(--card);color:var(--ink);font:400 max(14px,.7rem) var(--f-ui);cursor:pointer}
+.obtn svg{width:18px;height:18px;flex:none}
+.obtn b{font-weight:600}
+.opop{position:absolute;right:0;top:calc(100% + 8px);z-index:30;display:flex;flex-direction:column;gap:4px;min-width:190px;padding:8px;background:var(--page);border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);box-shadow:var(--lift)}
+.opop[hidden]{display:none}
+.opop .chip{justify-content:flex-start;min-height:44px;width:100%}
+.gbar .gsrch{display:none;flex:none}
+.gbar.stuck .gsrch{display:grid}
+@media (max-width:599px){.gtabs .gico{display:none}.obtn{padding:0}.obtn .ol{display:none}.gtabs button{padding:0 4px;letter-spacing:.02em}}
+@media (prefers-reduced-motion:reduce){.gbar,.gtabs button{transition:none}}
+/* the bookcase: one tall wooden case, cornice and plinth, a plank under every row (rows are measured from the cover width) */
+.bookcase{--bk1:color-mix(in srgb,var(--wood3) 78%,#000);--bk2:color-mix(in srgb,var(--wood3) 55%,#000);position:relative;margin:30px 6px 40px;padding:16px 0 4px;color:#f3e6c8;
+  border:12px solid var(--wood2);border-image:linear-gradient(90deg,var(--wood3),var(--wood1) 35%,var(--wood2) 70%,var(--wood3)) 12;
+  background:linear-gradient(90deg,rgba(0,0,0,.45),transparent 5%,transparent 95%,rgba(0,0,0,.45)),repeating-linear-gradient(90deg,rgba(255,235,200,.035) 0 2px,transparent 2px 11px),linear-gradient(180deg,var(--bk1),var(--bk2));
+  box-shadow:0 22px 40px -22px rgba(0,0,0,.75)}
+.bookcase::before,.bookcase::after{content:"";position:absolute;left:-18px;right:-18px;z-index:2;background:linear-gradient(180deg,var(--wood1),var(--wood2) 55%,var(--wood3));box-shadow:inset 0 1px 0 rgba(255,235,200,.3),0 6px 10px -6px rgba(0,0,0,.6)}
+.bookcase::before{top:-30px;height:20px;border-radius:5px 5px 2px 2px;border-bottom:2px solid #c99a42}
+.bookcase::after{bottom:-26px;height:16px;border-radius:2px 2px 5px 5px;border-top:2px solid #c99a42}
+.bk-shelf{scroll-margin-top:72px}
+.bk-shelf+.bk-shelf{margin-top:18px}
+.bk-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 var(--bkp,14px);flex-wrap:wrap}
+.bk-h h3{position:relative;margin:0;font:400 1.35rem/1.1 var(--f-sc);letter-spacing:.05em}
+.bk-n{font:400 max(14px,.66rem) var(--f-sc);letter-spacing:.1em;color:#f3dc9a}
+.bk-shelf .gd{margin:6px 0 0;padding:0 var(--bkp,14px);font:italic 400 max(14px,.72rem) var(--f-old);color:#e9dcc0}
+.bk-grid{container-type:inline-size;margin-top:2px}
+.bk-rows{--n:3;--g:10px;--pt:16px;--pl:14px;--px:var(--bkp,14px);display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));column-gap:var(--g);padding:0 var(--px);
+  --rh:calc(var(--pt) + var(--pl) + 1.5 * (100cqw - 2 * var(--px) - (var(--n) - 1) * var(--g)) / var(--n));
+  background:repeating-linear-gradient(180deg,transparent 0 calc(var(--rh) - var(--pl)),#c99a42 calc(var(--rh) - var(--pl)),var(--wood1) calc(var(--rh) - var(--pl) + 2px),var(--wood2) calc(var(--rh) - var(--pl) / 2),var(--wood3) calc(var(--rh) - 1px),rgba(0,0,0,.6) calc(var(--rh) - 1px) var(--rh))}
+.bk-rows>.cover{--cw:100%;width:100%;margin:var(--pt) 0 var(--pl);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset -2px 0 0 rgba(0,0,0,.35),0 10px 12px -8px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.3);transition:transform .2s}
+@media (hover:hover){.bk-rows>.cover:hover{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){.bk-rows>.cover{transition:none}.bk-rows>.cover:hover{transform:none}}
+@media (min-width:600px){.bookcase{--bkp:20px}.bk-rows{--n:4;--g:16px;--pt:20px}.bk-h h3{font-size:1.55rem}}
+@media (min-width:1000px){.bookcase{--bkp:28px;margin-inline:10px}.bk-rows{--n:6;--g:22px;--pt:24px;--pl:16px}}
+/* ribbons: % read on begun covers, gilt when finished (hidden on the Continue card, which has its ring) */
+.cover .cbm{position:absolute;top:-2px;right:9%;z-index:5;min-width:max(28px,19cqw);display:flex;flex-direction:column;align-items:center;padding:max(5px,3cqw) 3px max(12px,9cqw);line-height:1;background:linear-gradient(90deg,#7e1520,#c02a33 50%,#7e1520);color:#fff3e0;clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - max(8px,6cqw)),0 100%)}
+.cover .cbm b{font:700 max(14px,8.5cqw)/1 var(--f-ui)}
+.cover .cbm small{font:600 14px/1 var(--f-ui);opacity:.9}
+.cover .cbm.done{background:linear-gradient(90deg,#a87a2c,#f3dc9a 50%,#a87a2c);color:var(--gilt-ink)}
+.hero .cbm{display:none}
+/* narrow covers (3-up phone shelves): the title plate keeps only the title so the emblem shows; the full title is in the detail sheet */
+@container (max-width:130px){.bk-rows .cover .plate .pre,.bk-rows .cover .plate .yr{display:none}.bk-rows .cover .plate{padding:2.5cqw 2.5cqw 2cqw}.bk-rows .cover .t,.bk-rows .cover .t.long,.bk-rows .cover .t.xl{font-size:14px;line-height:1.05;letter-spacing:0}}
+.mast .wm,.mast .wm small{white-space:nowrap}
+.mast .wm{flex:0 1 auto;min-width:0;margin-right:auto}
+@media (max-width:599px){.gtabs{gap:4px}.gtabs button{font:400 16px var(--f-body);letter-spacing:0;padding:0 2px}.gbar{gap:6px}.sfld{flex:1 1 44px;padding:0 12px}}
+/* Word of the day initial: ".word span" (clamped meaning text) was overriding it, leaving a blank red tile */
+.word .ini{display:grid;place-items:center;overflow:visible;-webkit-line-clamp:unset;font:400 2.3rem/1 var(--f-sc);color:#f6dc94;padding-top:.08em;box-sizing:border-box}
+.gbar:not(.stuck){background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
 </style>
 </head>
 <body>
 
 <!-- LIBRARY -->
 <main class="view" id="v-library">
-  <div class="mast"><span class="wm">The <b>Folio</b><small>Comedies, Histories &amp; Tragedies</small></span><button class="ib" id="searchb" type="button" aria-label="Search every play" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button><button class="ib" id="themeb" type="button" title="Theme"></button></div>
+  <div class="mast"><span class="wm">The <b>Folio</b><small>Comedies, Histories &amp; Tragedies</small></span><button class="sfld" id="searchb" type="button" aria-label="Search every play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Search</span></button><button class="ib" id="themeb" type="button" title="Theme"></button></div>
   <div class="mrule"></div>
-  <div class="home">
-    <div class="desk">
-      <p class="greet" id="greet"></p>
-      <div id="cont"></div>
-      <section class="today" id="today" aria-label="Today" style="margin-top:18px"></section>
-    </div>
-    <div class="case">
-      <div class="order" role="group" aria-label="Order the shelves"><span class="lbl">Order</span><span class="chips" id="sortc"><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></span></div>
-      <div id="shelves"></div>
-    </div>
-  </div>
+  <p class="greet" id="greet"></p>
+  <section class="lectern" id="lect" aria-label="Your desk"><div class="lec-in"><div id="cont"></div><section class="today" id="today" aria-label="Today"></section></div></section>
+  <nav class="gbar" id="gbar" aria-label="Shelves"><div class="gtabs" id="gtabs"></div>
+    <div class="order omenu"><button class="obtn" id="obtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sortc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="ol">Order · <b id="olbl"></b></span></button>
+      <div class="opop" id="sortc" role="group" aria-label="Order the shelves" hidden><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></div></div>
+    <button class="ib gsrch" id="gsearch" type="button" aria-label="Search every play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button></nav>
+  <div class="bookcase" id="shelves"></div>
   <footer><div class="orn">❦</div>Mr. William Shakespeares Comedies, Histories, &amp; Tragedies · London, 1623</footer>
 </main>
 
@@ -669,7 +705,13 @@ function orderPlays(){const last=LS.get("folio-last"),a=PLAYS.slice();
   if(sortBy==="date")return a.sort((x,y)=>ck(x)-ck(y)||yr(x)-yr(y)||tkey(x).localeCompare(tkey(y)));
   return a.sort((a,b)=>{const sa=J("folio-stat-"+a.id),sb=J("folio-stat-"+b.id);
   if(a.id===last)return -1;if(b.id===last)return 1;return (sb?sb.t:0)-(sa?sa.t:0)})}
-document.querySelectorAll("#sortc .chip").forEach(b=>b.onclick=()=>{sortBy=b.dataset.sort;LS.set("folio-sort",sortBy);renderShelves();document.querySelectorAll(".rail").forEach(r=>r.scrollLeft=0)});
+const SORTN={recent:"Recent",date:"Date written",az:"A–Z"};
+/* 4.13 Order menu in the sticky shelf bar (hidden in Simple) */
+function omenu(open){const b=$("obtn"),m=$("sortc");m.hidden=!open;b.setAttribute("aria-expanded",open);if(open)(m.querySelector('[aria-pressed="true"]')||m.querySelector("button")).focus({preventScroll:true})}
+$("obtn").onclick=e=>{e.stopPropagation();omenu($("sortc").hidden)};
+document.addEventListener("click",e=>{if(!$("sortc").hidden&&!e.target.closest(".omenu"))omenu(false)});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sortc").hidden){omenu(false);$("obtn").focus()}});
+document.querySelectorAll("#sortc .chip").forEach(b=>b.onclick=()=>{sortBy=b.dataset.sort;LS.set("folio-sort",sortBy);omenu(false);renderShelves()});
 const GENRES=[["Comedies","Love, disguise, mistaken identity and happy endings"],["Histories","The kings of England and the wars for the crown"],["Tragedies","Ambition, jealousy and the fall of the great"]];
 function renderLibrary(){
   const h=new Date().getHours(),last=byId[LS.get("folio-last")],ls=last&&J("folio-stat-"+last.id);
@@ -679,15 +721,29 @@ function renderLibrary(){
     <div class="hcov">${coverA(last,ls)}</div><div class="hbody"><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
     <div class="hrow"><span role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100">${folioRing(ls.pct/100,Math.round(ls.pct)+"%","hring")}</span>
     <div class="acts"><a class="btn wax" href="${last.id}/" data-play="${last.id}"><span class="wxd" aria-hidden="true">${folioSeal(last.mono||"❦","","wxs")}</span>Resume</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div></div>`:"";
+  $("lect").classList.toggle("solo",!ls);
   renderToday();renderShelves();
 }
 function renderShelves(){
   document.querySelectorAll("#sortc .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===sortBy));
   const ord=orderPlays();
   $("shelves").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=ord.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
-    return `<section class="shelf s43" aria-label="${g}"><h3><span class="plaque">${folioGenreIcon(g)}${g}</span><em>${ps.length} plays${begun?` · ${begun} begun`:""}</em></h3><p class="gd">${esc(d)}</p>
-      <div class="case43"><div class="rail" role="list">${ps.map(p=>coverA(p,J("folio-stat-"+p.id))).join("")}</div><div class="shelfbase wood"></div></div></section>`}).join("");
+    return `<section class="bk-shelf" id="shelf-${g}" aria-label="${g}"><header class="bk-h"><h3 class="plaque">${folioGenreIcon(g)}${g}</h3><span class="bk-n">${ps.length} plays${begun?` · ${begun} begun`:""}</span></header><p class="gd">${esc(d)}</p>
+      <div class="bk-grid"><div class="bk-rows" role="list">${ps.map(p=>coverA(p,J("folio-stat-"+p.id))).join("")}</div></div></section>`}).join("");
+  $("olbl").textContent=SORTN[sortBy];$("obtn").setAttribute("aria-label","Order the shelves: "+SORTN[sortBy]);
+  $("gtabs").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g])=>`<button type="button" data-g="${g}" aria-controls="shelf-${g}">${folioGenreIcon(g)}<span>${g}</span></button>`).join("");
+  gspy();
 }
+/* 4.13 sticky gilt genre tabs: tap scrolls to the shelf; the shelf in view is marked; .stuck once the bar pins */
+const gTop=()=>$("gbar").offsetHeight+8;
+$("gtabs").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(!b)return;const sec=$("shelf-"+b.dataset.g);if(!sec)return;
+  scrollTo({top:sec.getBoundingClientRect().top+scrollY-gTop(),behavior:reduce?"auto":"smooth"})});
+function gspy(){const bar=$("gbar");if(!bar||$("v-library").hidden)return;bar.classList.toggle("stuck",bar.getBoundingClientRect().top<=.5&&scrollY>0);
+  const lim=gTop()+40;let cur=null;document.querySelectorAll(".bk-shelf").forEach(s=>{if(s.getBoundingClientRect().top<=lim)cur=s.id.slice(6)});
+  if(!cur){const f=document.querySelector(".bk-shelf");cur=f&&f.id.slice(6)}
+  document.querySelectorAll("#gtabs [data-g]").forEach(b=>b.setAttribute("aria-current",b.dataset.g===cur?"true":"false"))}
+let gRaf=0;addEventListener("scroll",()=>{if(!gRaf)gRaf=requestAnimationFrame(()=>{gRaf=0;gspy()})},{passive:true});
+$("gsearch").onclick=()=>go("search");
 /* tap a cover: its detail sheet (Begin / Continue, Contents, Study, Mark as not started) */
 document.addEventListener("click",e=>{const c=e.target.closest("a[data-cover]");if(!c||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();openDetail(c.dataset.cover)});
 let dOpen=null,dFocus=null;

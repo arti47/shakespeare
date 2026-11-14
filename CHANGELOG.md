@@ -4,15 +4,29 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.13.0] — 2026-11-14
+
+### Added
+- Library "Bookcase": the three Folio shelves stand in one wooden bookcase (cornice, plinth, a plank under every row); every play is on show, three across on phones, four on tablets, six on desktops (#123)
+- Sticky gilt genre tabs (Comedies, Histories, Tragedies) under the masthead: tap to jump to a shelf, the shelf in view is lit; Order (Recent, Date written, A–Z) is a menu in the same bar (Full mode); a search button joins the bar once it pins (#123)
+- Begun plays wear a red bookmark ribbon with their % read on the shelf; finished plays a gilt ribbon (#123)
+
+### Changed
+- Library top: Continue reading and Today share one wood-framed lectern (side by side from tablet width; Today alone when nothing is begun); the masthead has a visible Search field (#123)
+- Narrow phone covers show the title alone on the plate so the emblem stays in view; the full title is on the detail sheet (#123)
+
+### Fixed
+- Word of the day: the illuminated initial showed as a blank red tile (#123)
+
+## [4.12.4] — 2026-11-14
+
+### Fixed
+- Tablet and desk: Northumberland's name in the left margin no longer runs into the verse; very long single-word names are set slightly smaller (#122)
+
 ## [4.12.3] — 2026-11-14
 
 ### Removed
-- Library home: the Line of the day card (and its "Line" strip on phones) is gone; Today keeps Word of the day, This week and Daily review (#122)
-
-## [4.12.3] — 2026-11-14
-
-### Fixed
-- Tablet and desk: Northumberland's name in the left margin no longer runs into the verse; very long single-word names are set slightly smaller (#121)
+- Library home: the Line of the day card (and its "Line" strip on phones) is gone; Today keeps Word of the day, This week and Daily review (#121)
 
 ## [4.12.2] — 2026-11-14
 

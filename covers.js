@@ -181,6 +181,8 @@ window.coverHTML=(p,st)=>{defs();const t=p.title||"",n=t.length;
   <span class="med">${svgE(p.id,"emb")||'<span class="o">❦</span>'}</span>
   <span class="plate"><span class="pre">${esc(p.pre||"")}</span><span class="t${n>20?" xl":n>12?" long":""}">${esc(t)}</span><span class="yr">${esc(p.year||"")}</span></span>
   <span class="shine" aria-hidden="true"></span>
-  ${st?'<span class="ribbon" aria-hidden="true"></span>':""}
-  ${st?`<span class="cp"><i style="width:${Math.max(2,Math.min(100,+st.pct||0))}%"></i></span>`:""}`};
+  ${st?ribbonHTML(st):""}`};
+/* 4.13: a begun play wears a red bookmark ribbon with its % read; a finished one a gilt ribbon */
+function ribbonHTML(st){const v=Math.max(0,Math.min(100,Math.round(+st.pct||0)));
+  return v>=100?'<span class="cbm done" aria-hidden="true"><b>❦</b></span>':`<span class="cbm" aria-hidden="true"><b>${v}</b><small>%</small></span>`}
 })();
