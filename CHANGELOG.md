@@ -4,6 +4,22 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.16.0] — 2026-11-14
+
+### Added
+- Practise: a Practice hall opens the topic: one big Session card, Daily review (gold when items are due) and the next scene quiz, then every drill as a tile with a best-score ring, then Flashcards, Learn a part and Quizzes (#PR)
+- Drills: every drill now runs as a round (8 quotes, 8 words, 5 passages, 3 order sets, 3 scenes…) under one frame with progress pips, score and a streak, and ends on a wreath with your best score, a New best seal and the lines you missed to look at again (#PR)
+- Drills: quotes missed in Fill the gap, Who said it? and Memory ladder join Daily review (#PR)
+
+### Changed
+- Quizzes, Learn a part, Review and Session use the same pip frame, pinned while you scroll (#PR)
+- Fill the gap: a dash under every missing letter, a First letters hint, and a second try that keeps the words you got right (#PR)
+- Who said it?: four character medallions to choose from (#PR)
+- Put it in order: placed events sit in numbered slots and can be dragged to a new place or tapped back; the answer shows as a timeline with each event's scene and where you put it (#PR)
+- Memory ladder: choose a quote from a searchable list (seals mark quotes typed word for word and quotes learnt) instead of a drop-down; the four steps show as pips (#PR)
+- Explain this line and Two-line scene: rate yourself after comparing; Tone and stress counts the readings you've heard (#PR)
+- Practise topic: the ring shows overall mastery (quiz scores, quotes learnt, drill bests) (#PR)
+
 ## [4.15.1] — 2026-11-14
 
 ### Fixed
