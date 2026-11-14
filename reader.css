@@ -2307,3 +2307,21 @@ mark.mkb{color:inherit;background:linear-gradient(100deg,transparent 0,var(--mk)
 .oddl button.right{border-color:var(--ok);border-width:2px;background:color-mix(in srgb,var(--ok) 8%,var(--card))}
 .oddl button.wrong{border-color:var(--bad);border-width:2px}
 .oddl button.in{opacity:.75}
+/* ---------- 4.18 Cut the scene overview, character map act stepping, practise tools full width on tablets ---------- */
+.cutbar i{position:relative}.cutbar i em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5}
+.cutmap{display:flex;gap:1px;overflow:hidden;height:44px;margin:10px 0 6px;padding:3px;border:1px solid var(--rule);border-radius:8px;background:var(--card)}
+.cutmap button{flex-basis:0;min-width:1px;padding:0;border:0;border-radius:2px;background:var(--c);position:relative}
+.cutmap button.cut{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--c) 30%,transparent) 0 2px,transparent 2px 5px);outline:1px solid color-mix(in srgb,var(--c) 40%,transparent);outline-offset:-1px}
+.cutmap button.kq::after{content:"";position:absolute;left:50%;top:-6px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 1.5px var(--card)}
+.cutkey{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 0 12px;font-size:.875rem;color:var(--muted)}
+.cutkey span{display:inline-flex;align-items:center;gap:5px}.cutkey i{width:10px;height:10px;border-radius:2px;background:var(--c)}.cutkey .kqk i{border-radius:50%;background:var(--gold)}
+.mstep{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin:0 0 8px}
+.mstep .btn{min-width:44px;min-height:44px;font-size:1.3rem}
+.mstx{display:flex;flex-direction:column;align-items:center;gap:4px}.mstx b{font:400 1.3rem var(--f-sc);letter-spacing:.05em;color:var(--tc,var(--accent))}
+.mdots{display:flex;gap:5px}.mdots i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--rule-strong)}.mdots i.on{background:var(--tc,var(--accent));border-color:var(--tc,var(--accent))}
+.mdiff{margin-top:10px}.mdiff ul{margin:4px 0 8px;padding-left:20px}.mdiff s{color:var(--muted)}
+@media (min-width:760px) and (max-width:1199px){
+  #study.stool.sprac:not([hidden]){display:block}
+  #study.sprac>#sbody{max-width:680px;margin:0 auto}
+  #study.sprac>#srel{max-width:680px;margin:16px auto 0;position:static}
+}

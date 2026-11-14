@@ -4,6 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.18.0] — 2026-11-14
+
+### Added
+- Cut the scene: the whole scene as a strip, one block per speech sized by its lines and coloured by speaker, with gold dots on key quotes; tap a block to cut it. The lines-kept bar marks the halfway target (#PR)
+- Character map: step act by act with ‹ › and act dots; below the map, what changed since the act before (relationships that changed, are new or have gone) (#PR)
+
+### Changed
+- Tablets (760–1199px): drills, Quizzes, Review, Flashcards and Learn a part use one centred column, with Up next below it, instead of a half-empty two-column page (#PR)
+
 ## [4.17.0] — 2026-11-14
 
 ### Added
