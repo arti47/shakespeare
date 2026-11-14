@@ -9,6 +9,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Removed
 - Library home: the Line of the day card (and its "Line" strip on phones) is gone; Today keeps Word of the day, This week and Daily review (#121)
 
+## [4.12.3] — 2026-11-14
+
+### Fixed
+- Tablet and desk: Northumberland's name in the left margin no longer runs into the verse; very long single-word names are set slightly smaller (#121)
+
 ## [4.12.2] — 2026-11-14
 
 ### Fixed
