@@ -2130,3 +2130,4 @@ mark.mkb{color:inherit;background:linear-gradient(100deg,transparent 0,var(--mk)
 .card .cmod small{font:400 .9rem var(--f-sc);letter-spacing:.06em;color:var(--accent)}
 .card .cmod p{margin:4px 0 0;font:400 1rem/1.5 var(--f-body)}
 @media (max-width:599px){.dfr{grid-template-columns:minmax(0,1fr) auto;border-radius:var(--r-m)}.dfr .pips{grid-column:1/-1;grid-row:2;justify-content:flex-start}}
+.mkr .mkwhy{display:block;font:400 max(14px,.8rem) var(--f-ui);color:var(--muted);margin-top:2px}
