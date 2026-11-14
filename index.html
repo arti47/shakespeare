@@ -93,16 +93,6 @@ h2.vt{font:400 1.75rem var(--f-sc);letter-spacing:.04em;margin:2px 0 16px;line-h
 .tfoot{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule)}
 .tfoot>*{padding:12px 16px;min-width:0;border:0;background:none;text-align:left;color:inherit}
 .tfoot>*+*{border-left:1px solid var(--rule)}
-.week .wdots{display:flex;gap:4px;margin:6px 0 4px}
-.week .wd{flex:1;text-align:center;font-size:14px;color:var(--muted);max-width:22px}
-.week .wd i{display:block;width:14px;height:14px;margin:0 auto 2px;border-radius:50%;border:1.5px solid var(--rule)}
-.week .wd.on i{background:var(--accent);border-color:var(--accent)}
-.week .wd.now{color:var(--ink);font-weight:600}
-.week small{display:block;font-size:max(14px,.6rem);color:var(--soft)}
-.week small b{font:600 1rem var(--f-ui);color:var(--ink)}
-.due{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--rule);font-size:max(14px,.64rem)}
-.due b{color:var(--accent)}
-.due .chips{gap:6px}
 
 
 
@@ -265,20 +255,6 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .tabs .ns{display:none}html.simple .tabs .nf{display:none}html.simple .tabs .ns{display:inline}
 .today{isolation:isolate;overflow:visible;margin-bottom:12px}
 .today::after{content:"";position:absolute;left:10px;right:10px;bottom:-7px;height:14px;z-index:-1;border:1px solid var(--rule);border-top:0;border-radius:0 0 var(--r-m) var(--r-m);background:var(--card)}
-.stk-in{display:grid;align-items:stretch;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--r-m)}
-.stk-in::-webkit-scrollbar{display:none}
-.stk-c{scroll-snap-align:start;min-width:0;padding:16px 18px 6px;text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:178px}
-.stk-c.week .wdots{justify-content:center;margin:8px auto 6px}
-.stk-c.week small{display:block;font-size:max(14px,.64rem);color:var(--soft)}
-.stk-c.week small b{font:600 1rem var(--f-ui);color:var(--ink)}
-.stk-c .lvrow{display:inline-flex;align-items:center;gap:8px;margin:10px auto 0;font:400 1rem var(--f-old);border:0;background:none;color:var(--ink);cursor:pointer;min-height:44px}
-.stk-c .lvrow .seal{width:36px;height:36px}
-.stk-c.duec .chips{justify-content:center;margin-top:8px}
-.stk-c.duec .big{font:400 2rem var(--f-sc);color:var(--accent)}
-.stk-dots{display:flex;justify-content:center;gap:2px;padding:0 0 6px}
-.stk-dots button{border:0;background:none;width:30px;height:30px;display:grid;place-items:center;cursor:pointer;padding:0}
-.stk-dots button i{width:8px;height:8px;border-radius:50%;background:var(--rule);transition:all .2s}
-.stk-dots button[aria-current="true"] i{background:var(--accent);width:20px;border-radius:4px}
 /* level card (You) */
 .lvc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);padding:16px;margin:0 0 18px;box-shadow:var(--lift)}
 .lvc .seal{width:84px;height:84px}
@@ -330,7 +306,7 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .wdots{display:flex;gap:6px}
 .wdots i{width:8px;height:8px;border-radius:50%;background:var(--rule);transition:all .2s}
 .wdots i.on{background:var(--accent);width:20px;border-radius:4px}
-@media (prefers-reduced-motion:reduce){.stk-dots button i,.wdots i{transition:none}}
+@media (prefers-reduced-motion:reduce){.wdots i{transition:none}}
 @media (max-width:600px){
   .hero{padding:12px 14px;gap:14px}
   .hero h3{font-size:1.2rem;margin:0 0 2px}
@@ -357,12 +333,6 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .wxs{width:40px;height:40px}.wxs .st{font-size:34px}
 .btn.wax:hover{filter:brightness(1.08)}
 /* Today: a seal per day, a seal for reviews */
-.wseal{gap:2px!important}
-.wseal .wd{max-width:none;flex:none}
-.wseal .seal{width:38px;height:38px}
-.wseal .seal .st{font-size:34px}
-.stk-c.duec .big{display:flex;justify-content:center;margin:2px 0}
-.dseal{width:76px;height:76px}.dseal .st{font-size:26px}
 @media (min-width:1000px){
   .hero.h43{min-height:100%;padding:24px 26px}
   .h43 .cover{--cw:150px}
@@ -432,20 +402,7 @@ body{font-family:var(--f-body)}
   .h44 .hring{width:52px;height:52px}
   .h44 .acts{grid-area:acts;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-top:12px}
   .h44 .btn.wax{justify-content:center;width:100%;min-height:48px}
-  /* Today as a one-line ticker; tap opens the full card */
-  #today:not(.open) .stk-in,#today:not(.open) .stk-dots{display:none}
-  #today:not(.open){margin-bottom:0}
-  #today:not(.open)::after{display:none}
-  .tkr{display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
-  .tkr::-webkit-scrollbar{display:none}
-  .tk{scroll-snap-align:start;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;border:0;background:none;text-align:left;color:var(--ink);cursor:pointer;min-width:0}
-  .tk .tkl{flex:none;font:400 max(15px,.8rem) var(--f-sc);letter-spacing:.06em;color:var(--accent)}
-  .tk .tkt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:italic 400 max(15px,.82rem) var(--f-old)}
-  .tk i{flex:none;font-style:normal;color:var(--accent);transition:transform .2s}
-  #today.open .tk i{transform:rotate(90deg)}
-  #today.open .tkr{border-bottom:1px solid var(--rule)}
 }
-@media (min-width:600px){.tkr{display:none}}
 /* search: gilt clear button, pills on one scrolling row, result cards with a gilt rule */
 .sbox input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;width:24px;height:24px;margin-right:2px;cursor:pointer}
 .sbox input::-webkit-search-cancel-button{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%23d9ab4f' stroke='%238a6420'/%3E%3Cpath d='M8 8l8 8M16 8l-8 8' stroke='%232a1c08' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/100% no-repeat}
@@ -496,13 +453,11 @@ body{font-family:var(--f-body)}
 .lectern .today{border:0;border-radius:0;margin:0!important;background:transparent;border-top:3px double color-mix(in srgb,var(--gold) 70%,var(--rule-strong))}
 .lectern .hero::before,.lectern .today::before,.lectern .today::after{display:none}
 .lectern.solo #cont{display:none}.lectern.solo .today{border-top:0}
-.lectern .stk-in{border-radius:0}
 @media (min-width:700px){
   .lec-in{grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr)}
   .lectern .today{border-top:0;border-left:3px double color-mix(in srgb,var(--gold) 70%,var(--rule-strong));display:flex;flex-direction:column;justify-content:center}
   .lectern.solo .lec-in{grid-template-columns:minmax(0,1fr)}.lectern.solo .today{border-left:0}
   .lectern .hero.h43{min-height:100%}
-  .lectern .stk-c{min-height:190px}
 }
 /* sticky shelf bar: three gilt genre tabs, Order menu, search once pinned */
 .gbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;margin:20px calc(-1 * max(16px,env(safe-area-inset-left,0px))) 22px;padding:8px max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--page) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:box-shadow .2s,border-color .2s}
@@ -559,13 +514,83 @@ body{font-family:var(--f-body)}
 .mast .wm{flex:0 1 auto;min-width:0;margin-right:auto}
 @media (max-width:599px){.gtabs{gap:4px}.gtabs button{font:400 16px var(--f-body);letter-spacing:0;padding:0 2px}.gbar{gap:6px}.sfld{flex:1 1 44px;padding:0 12px}}
 .gbar:not(.stuck){background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* ===== 4.14 "Bookcase II": lectern only for Continue / due reviews, sun-moon theme toggle, pull-out covers, shelf seal rows, desk sidebar ===== */
+.lectern[hidden],.lectern [hidden]{display:none!important}
+.duer{display:flex;align-items:center;gap:14px;padding:12px 16px;text-align:left}
+.dwax{flex:none;display:grid;place-items:center}
+.dws{width:56px;height:56px}.dws .st{font-size:22px}
+.dtx{min-width:0;display:flex;flex-direction:column;gap:2px}
+.dtx .eyebrow{margin:0}
+.dtt{font:400 max(15px,.8rem) var(--f-body);color:var(--ink)}
+.duer .chips{gap:6px;margin-top:6px}
+@media (min-width:700px){.lectern .today{justify-content:center}.lectern .duer{flex-direction:column;text-align:center}.lectern .duer .chips{justify-content:center}.lectern .dtx{align-items:center}}
+/* theme toggle */
+.thw{position:relative;flex:none}
+.thb{width:auto;min-width:44px;gap:6px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center}
+.thb svg{width:22px;height:22px;flex:none}
+.thb .thl{display:none;font:400 max(14px,.66rem) var(--f-ui);color:var(--soft)}
+@media (min-width:600px){.thb{border:1px solid var(--rule);border-radius:var(--pill);min-height:44px}.thb .thl{display:inline}}
+.thpop{position:absolute;right:0;top:calc(100% + 8px);z-index:40;display:flex;flex-direction:column;gap:4px;min-width:150px;padding:8px;background:var(--page);border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);box-shadow:var(--lift)}
+.thpop[hidden]{display:none}
+.thpop .chip{min-height:44px;width:100%;justify-content:flex-start}
+/* pull-out covers */
+.bk-rows>.cover{transform-origin:50% 100%;will-change:transform}
+.bk-rows>.cover.pull{position:relative;z-index:3;transform:perspective(700px) translateY(-10px) rotateX(9deg) scale(1.05);box-shadow:0 26px 30px -14px rgba(0,0,0,.85),0 0 0 1px rgba(235,201,108,.55);transition:transform .14s ease-out,box-shadow .14s}
+.bk-rows>.cover.pull .shine{animation:foil .7s ease-out 1}
+.bk-rows>.cover:focus-visible{outline:3px solid #f3dc9a;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.bk-rows>.cover.pull{transform:none;box-shadow:0 0 0 3px #f3dc9a;transition:none}.bk-rows>.cover.pull .shine{animation:none}}
+/* shelf seal row: one seal per play (gilt = begun, wax = finished) */
+.bk-c{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.bk-sl{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;max-width:220px}
+.bk-sl i{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(243,220,154,.55)}
+.bk-sl i.on{background:radial-gradient(circle at 35% 30%,#fbecc0,#d9ab4f 60%,#a87a2c);box-shadow:0 0 0 1px #8a6420}
+.bk-sl i.dn{background:radial-gradient(circle at 35% 30%,#d8443c,#8e1b17 70%);box-shadow:0 0 0 1.5px #e2bb63}
+@media (max-width:599px){.bk-c{align-items:flex-start;width:100%}.bk-sl{justify-content:flex-start;max-width:none}}
+/* desk 1200px+: a sticky sidebar (masthead, lectern, vertical genre tabs, Order) beside the bookcase */
+.libside{display:contents}
+@media (min-width:1200px){
+  #v-library{max-width:1480px;display:grid;grid-template-columns:330px minmax(0,1fr);column-gap:36px;align-items:start}
+  .libside{display:flex;flex-direction:column;position:sticky;top:0;max-height:calc(100vh - var(--navh,84px));overflow-y:auto;padding:max(14px,env(safe-area-inset-top,0px)) 4px 24px;margin-top:calc(-1 * max(14px,env(safe-area-inset-top,0px)));scrollbar-width:thin;grid-row:1/span 2}
+  #v-library>.bookcase{grid-column:2;margin-top:34px}
+  #v-library>footer{grid-column:2}
+  .libside .mast{flex-wrap:wrap}
+  .libside .sfld{order:3;flex:1 1 100%;margin-top:10px}
+  .libside .lec-in{grid-template-columns:minmax(0,1fr)}
+  .libside .lectern .today{border-left:0;border-top:3px double color-mix(in srgb,var(--gold) 70%,var(--rule-strong))}
+  .libside .lectern.solo .today{border-top:0}
+  .libside .hero.h44{min-height:0;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"cov eb ring" "cov tt ring" "cov wh ring" "acts acts acts";gap:0 12px;padding:16px;align-items:center}
+  .libside .h44 .hbody,.libside .h44 .hrow{display:contents}
+  .libside .h44 .hbg{display:none}
+  .libside .h44 .hcov{grid-area:cov}
+  .libside .h44 .cover{--cw:68px}
+  .libside .h44 .cover .plate,.libside .h44 .cover .badge{display:none}
+  .libside .h44 .eyebrow{grid-area:eb;margin:0}
+  .libside .h44 h3{grid-area:tt;font-size:1.45rem;margin:0}
+  .libside .h44 .wh{grid-area:wh}
+  .libside .h44 .hrow>span{grid-area:ring}
+  .libside .h44 .hring{width:54px;height:54px}
+  .libside .h44 .acts{grid-area:acts;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-top:14px;align-items:center}
+  .libside .h44 .btn.wax{justify-content:center;width:100%;min-height:48px}
+  .libside .duer{flex-direction:row;text-align:left}.libside .dtx{align-items:flex-start}.libside .duer .chips{justify-content:flex-start}
+  .libside .gbar{position:static;flex-direction:column;align-items:stretch;margin:22px 0 0;padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;border:0;box-shadow:none;gap:10px}
+  .libside .gtabs{grid-template-columns:minmax(0,1fr);gap:8px}
+  .libside .gtabs button{justify-content:flex-start;padding:0 18px;min-height:48px}
+  .libside .gbar .gsrch{display:none!important}
+  .libside .omenu{align-self:stretch}
+  .libside .obtn{width:100%;justify-content:flex-start;padding:0 18px}
+  .libside .obtn .ol{display:inline}
+  .libside .opop{left:0;right:auto;top:auto;bottom:calc(100% + 8px)}
+  .bk-rows{--n:5}
+}
 </style>
 </head>
 <body>
 
 <!-- LIBRARY -->
 <main class="view" id="v-library">
-  <div class="mast"><span class="wm">The <b>Folio</b><small>Comedies, Histories &amp; Tragedies</small></span><button class="sfld" id="searchb" type="button" aria-label="Search every play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Search</span></button><button class="ib" id="themeb" type="button" title="Theme"></button></div>
+  <aside class="libside">
+  <div class="mast"><span class="wm">The <b>Folio</b><small>Comedies, Histories &amp; Tragedies</small></span><button class="sfld" id="searchb" type="button" aria-label="Search every play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Search</span></button><span class="thw"><button class="ib thb" id="themeb" type="button" title="Theme · hold for all themes"></button><span class="thpop" id="thpop" role="group" aria-label="Theme" hidden></span></span></div>
   <div class="mrule"></div>
   <p class="greet" id="greet"></p>
   <section class="lectern" id="lect" aria-label="Your desk"><div class="lec-in"><div id="cont"></div><section class="today" id="today" aria-label="Today"></section></div></section>
@@ -573,6 +598,7 @@ body{font-family:var(--f-body)}
     <div class="order omenu"><button class="obtn" id="obtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sortc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="ol">Order · <b id="olbl"></b></span></button>
       <div class="opop" id="sortc" role="group" aria-label="Order the shelves" hidden><button class="chip" type="button" data-sort="recent">Recent</button><button class="chip" type="button" data-sort="date">Date written</button><button class="chip" type="button" data-sort="az">A–Z</button></div></div>
     <button class="ib gsrch" id="gsearch" type="button" aria-label="Search every play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button></nav>
+  </aside>
   <div class="bookcase" id="shelves"></div>
   <footer><div class="orn">❦</div>Mr. William Shakespeares Comedies, Histories, &amp; Tragedies · London, 1623</footer>
 </main>
@@ -705,29 +731,34 @@ function renderLibrary(){
     <div class="hcov">${coverA(last,ls)}</div><div class="hbody"><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
     <div class="hrow"><span role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100">${folioRing(ls.pct/100,Math.round(ls.pct)+"%","hring")}</span>
     <div class="acts"><a class="btn wax" href="${last.id}/" data-play="${last.id}"><span class="wxd" aria-hidden="true">${folioSeal(last.mono||"❦","","wxs")}</span>Resume</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div></div>`:"";
-  $("lect").classList.toggle("solo",!ls);
-  renderToday();renderShelves();
+  seals();const due=renderDue();$("lect").hidden=!ls&&!due;$("lect").classList.toggle("solo",!ls);
+  renderShelves();
 }
 function renderShelves(){
   document.querySelectorAll("#sortc .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===sortBy));
   const ord=orderPlays();
   $("shelves").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=ord.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
-    return `<section class="bk-shelf" id="shelf-${g}" aria-label="${g}"><header class="bk-h"><h3 class="plaque">${folioGenreIcon(g)}${g}</h3><span class="bk-n">${ps.length} plays${begun?` · ${begun} begun`:""}</span></header><p class="gd">${esc(d)}</p>
+    return `<section class="bk-shelf" id="shelf-${g}" aria-label="${g}"><header class="bk-h"><h3 class="plaque">${folioGenreIcon(g)}${g}</h3><span class="bk-c"><span class="bk-n">${ps.length} plays${begun?` · ${begun} begun`:""}</span><span class="bk-sl" aria-hidden="true">${ps.map(p=>{const st=J("folio-stat-"+p.id);return `<i class="${st?(+st.pct>=100?"dn":"on"):""}"></i>`}).join("")}</span></span></header><p class="gd">${esc(d)}</p>
       <div class="bk-grid"><div class="bk-rows" role="list">${ps.map(p=>coverA(p,J("folio-stat-"+p.id))).join("")}</div></div></section>`}).join("");
   $("olbl").textContent=SORTN[sortBy];$("obtn").setAttribute("aria-label","Order the shelves: "+SORTN[sortBy]);
   $("gtabs").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g])=>`<button type="button" data-g="${g}" aria-controls="shelf-${g}">${folioGenreIcon(g)}<span>${g}</span></button>`).join("");
   gspy();
 }
 /* 4.13 sticky gilt genre tabs: tap scrolls to the shelf; the shelf in view is marked; .stuck once the bar pins */
-const gTop=()=>$("gbar").offsetHeight+8;
+const DESK=matchMedia("(min-width:1200px)");
+const gTop=()=>DESK.matches?16:$("gbar").offsetHeight+8;
 $("gtabs").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(!b)return;const sec=$("shelf-"+b.dataset.g);if(!sec)return;
   scrollTo({top:sec.getBoundingClientRect().top+scrollY-gTop(),behavior:reduce?"auto":"smooth"})});
-function gspy(){const bar=$("gbar");if(!bar||$("v-library").hidden)return;bar.classList.toggle("stuck",bar.getBoundingClientRect().top<=.5&&scrollY>0);
+function gspy(){const bar=$("gbar");if(!bar||$("v-library").hidden)return;bar.classList.toggle("stuck",!DESK.matches&&bar.getBoundingClientRect().top<=.5&&scrollY>0);
   const lim=gTop()+40;let cur=null;document.querySelectorAll(".bk-shelf").forEach(s=>{if(s.getBoundingClientRect().top<=lim)cur=s.id.slice(6)});
   if(!cur){const f=document.querySelector(".bk-shelf");cur=f&&f.id.slice(6)}
   document.querySelectorAll("#gtabs [data-g]").forEach(b=>b.setAttribute("aria-current",b.dataset.g===cur?"true":"false"))}
 let gRaf=0;addEventListener("scroll",()=>{if(!gRaf)gRaf=requestAnimationFrame(()=>{gRaf=0;gspy()})},{passive:true});
 $("gsearch").onclick=()=>go("search");
+/* 4.14 pull-out: a pressed shelf cover lifts and tilts toward you, with a foil sweep */
+document.addEventListener("pointerdown",e=>{const c=e.target.closest(".bk-rows>.cover");if(!c)return;c.classList.add("pull");
+  const off=()=>{setTimeout(()=>c.classList.remove("pull"),reduce?0:160);["pointerup","pointercancel","pointerleave"].forEach(ev=>c.removeEventListener(ev,off))};
+  ["pointerup","pointercancel","pointerleave"].forEach(ev=>c.addEventListener(ev,off))});
 /* tap a cover: its detail sheet (Begin / Continue, Contents, Study, Mark as not started) */
 document.addEventListener("click",e=>{const c=e.target.closest("a[data-cover]");if(!c||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();openDetail(c.dataset.cover)});
 let dOpen=null,dFocus=null;
@@ -749,33 +780,17 @@ function unstart(p){try{localStorage.removeItem("folio-stat-"+p.id);localStorage
   const pr=J(p.prefix+"prog");if(pr&&pr.done){pr.done={};LS.set(p.prefix+"prog",JSON.stringify(pr))}
   if(LS.get("folio-last")===p.id){const nx=PLAYS.filter(q=>q.id!==p.id).map(q=>[q.id,J("folio-stat-"+q.id)]).filter(x=>x[1]).sort((a,b)=>(b[1].t||0)-(a[1].t||0))[0];nx?LS.set("folio-last",nx[0]):localStorage.removeItem("folio-last")}}catch(e){}}
 
-/* ---------- today: this week, daily review ---------- */
-let stI=0;
+/* ---------- lectern foot: daily review, shown only when items are due (4.14; This week lives on You) ---------- */
 /* seals across every play (art.js), and each play's count kept in its folio-stat-<id>.sl so a play page can add up the others */
 function seals(){let n=0;for(const p of PLAYS){const k=folioSealsOf(J(p.prefix+"prog"));n+=k;const st=J("folio-stat-"+p.id);if(st&&st.sl!==k){st.sl=k;LS.set("folio-stat-"+p.id,JSON.stringify(st))}}return n}
-/* Today (4.0): one card stack you swipe: this week with your level, reviews due */
-function renderToday(){const el=$("today"),C=[];
-  const days=readDays(),now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
-  const mins=Math.round(wk.reduce((a,d)=>a+(days[dkey(d)]||0),0)/60),s=streak(days),n=seals(),Lv=folioLevel(n);
-  C.push(["week",`<p class="eyebrow">This week</p><div class="wdots wseal" role="img" aria-label="Read on ${wk.filter(d=>days[dkey(d)]!=null).length} of the last 7 days">${wk.map((d,i)=>{const on=days[dkey(d)]!=null,l="SMTWTFS"[d.getDay()];return `<span class="wd${on?" on":""}${i===6?" now":""}">${folioSeal(l,on?"":i===6?"n":"e")}</span>`}).join("")}</div><small><b>${s}</b> day${s===1?"":"s"} in a row${mins?` · ${mins} min`:""}</small><button class="lvrow" type="button" id="lvgo">${folioLevelBadge(n)}<span>${esc(Lv.name)} · ${n} seal${n===1?"":"s"}</span></button>`,"Week",`${s} day${s===1?"":"s"} in a row · ${esc(Lv.name)}`]);
-  const due=dueHTML();if(due)C.push(["duec",due,"Reviews","Review items due today"]);
-  if(stI>=C.length)stI=0;
-  el.innerHTML=`<div class="tkr" id="tkr">${C.map((c,i)=>`<button class="tk" type="button" data-tk="${i}" aria-expanded="false"><span class="tkl">${c[2]}</span><span class="tkt">${c[3]||""}</span><i aria-hidden="true">›</i></button>`).join("")}</div><div class="stk-in" id="stkin">${C.map(c=>`<div class="stk-c ${c[0]}">${c[1]}</div>`).join("")}</div>${C.length>1?`<div class="stk-dots" role="group" aria-label="Today cards">${C.map((c,i)=>`<button type="button" data-st="${i}" aria-label="${c[2]}" aria-current="${i===stI}"><i></i></button>`).join("")}</div>`:""}`;
-  const si=$("stkin");si.scrollLeft=stI*si.clientWidth;
-  /* 4.3.2: all cards share one height (the tallest), so nothing resizes while you swipe */
-  si.addEventListener("scroll",()=>{const i=Math.round(si.scrollLeft/Math.max(1,si.clientWidth));if(i!==stI){stI=i;el.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-current",+b.dataset.st===i))}},{passive:true});
-  el.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>si.scrollTo({left:+b.dataset.st*si.clientWidth,behavior:reduce?"auto":"smooth"}));
-  $("lvgo").onclick=()=>go("you");
-  /* 4.4 phones: Today folds to a one-line ticker; a tap opens that card */
-  el.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{const i=+b.dataset.tk,op=!(el.classList.contains("open")&&stI===i);el.classList.toggle("open",op);el.querySelectorAll("[data-tk]").forEach(x=>x.setAttribute("aria-expanded",op&&x===b));if(op){stI=i;si.scrollLeft=i*si.clientWidth;el.querySelectorAll("[data-st]").forEach(x=>x.setAttribute("aria-current",+x.dataset.st===i))}});
-}
+function renderDue(){const h=dueHTML();$("today").innerHTML=h;$("today").hidden=!h;return !!h}
 
 /* Daily review: items due in each play (flashcards in <prefix>prog.srs, other review items in <prefix>rev.it) */
 function dueHTML(){const now=Date.now(),rows=[];let any=false;
   for(const p of PLAYS){const pr=J(p.prefix+"prog")||{},rv=J(p.prefix+"rev")||{},all=[...Object.values(pr.srs||{}),...Object.values((rv&&rv.it)||{})].filter(s=>s&&isFinite(s.d));
     if(all.length)any=true;const n=all.filter(s=>s.d<=now).length;if(n)rows.push([p,n])}
   if(!any||!rows.length)return "";const tot=rows.reduce((a,r)=>a+r[1],0);
-  return `<p class="eyebrow">Daily review</p><div class="big">${folioSeal(String(tot),"","dseal")}</div><span>review item${tot===1?"":"s"} due today</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</span>`}
+  return `<div class="duer"><span class="dwax" aria-hidden="true">${folioSeal(String(tot),"","dws")}</span><div class="dtx"><p class="eyebrow">Daily review</p><span class="dtt">${tot} review item${tot===1?"":"s"} due today</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · ${n}</a>`).join("")}</span></div></div>`}
 
 /* ---------- search: genre chips + play picker, results grouped by play ---------- */
 const IDX={};let sg="all",sp="all",loading=null;const openG=new Set();
@@ -822,15 +837,15 @@ $("q").addEventListener("input",()=>{openG.clear();runSearch()});
 /* ---------- you ---------- */
 const THN={paper:"Paper",light:"Light",dark:"Dark",night:"Night"};
 const ICON={light:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
- dark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
- paper:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6M9 18h4"/></svg>',
- night:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 21h6M10 21v-9h4v9M12 12V9"/><path d="M12 3c1.6 1.8 2 3 1.2 4.3-.5.8-1.9.8-2.4 0C10 6 10.4 4.8 12 3z" fill="currentColor"/></svg>'};
+ dark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>'};
 const SIZES=[1.15,1.3,1.5,1.75],SZN=["Small","Normal","Large","Extra large"];
 /* Auto (never chosen) shows as Light or Dark, whichever the device is using */
 const shownTheme=()=>{const t=folioThemeChosen();return t==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):t};
 function setTheme(t){LS.set("folio-theme",t);folioTheme();folioBar();renderTheme()}
 function renderTheme(){const th=shownTheme(),now=folioThemeNow(),sz=parseFloat(LS.get("folio-size"))||1.3;
-  $("themeb").innerHTML=ICON[now==="auto"?th:now]||ICON.light;$("themeb").setAttribute("aria-label","Theme: "+(THN[th]||"Light")+". Tap to change");
+  /* 4.14: sun for Light/Paper, moon for Dark/Night, with the theme's name beside it from 600px; hold (or right-click) for all four */
+  const dk=th==="dark"||th==="night";$("themeb").innerHTML=(dk?ICON.dark:ICON.light)+`<span class="thl">${THN[th]||"Light"}</span>`;$("themeb").setAttribute("aria-label","Theme: "+(THN[th]||"Light")+". Tap to change, hold for all themes");
+  $("thpop").innerHTML=FOLIO_THEMES.map(t=>`<button class="chip" type="button" data-thp="${t}" aria-pressed="${t===th}">${THN[t]}</button>`).join("");
   $("ttiles").innerHTML=FOLIO_THEMES.map(t=>`<button class="tt tt-${t}" type="button" data-th="${t}" aria-pressed="${t===th}"><span class="sw2">A<em>a</em></span><span class="tl">${THN[t]}</span></button>`).join("");
   $("ttiles").querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>setTheme(b.dataset.th));
   $("nightauto").setAttribute("aria-checked",folioNightAuto());
@@ -838,7 +853,14 @@ function renderTheme(){const th=shownTheme(),now=folioThemeNow(),sz=parseFloat(L
   $("sprev").innerHTML=`<b>${SZN[bi]}.</b> Now is the winter of our discontent`}
 $("nightauto").onclick=()=>{LS.set("folio-nightauto",folioNightAuto()?"0":"1");folioTheme();folioBar();renderTheme()};
 $("szr").oninput=e=>{LS.set("folio-size",SIZES[+e.target.value]);folioTheme();renderTheme()};
-$("themeb").onclick=()=>{const seq=FOLIO_THEMES,th=shownTheme();setTheme(seq[(seq.indexOf(th)+1)%seq.length])};
+let thHold=0,thHeld=false;const thPop=o=>{$("thpop").hidden=!o;if(o){const b=$("thpop").querySelector('[aria-pressed="true"]')||$("thpop").querySelector("button");b&&b.focus({preventScroll:true})}};
+$("themeb").addEventListener("pointerdown",()=>{thHeld=false;clearTimeout(thHold);thHold=setTimeout(()=>{thHeld=true;thPop(true)},500)});
+["pointerup","pointerleave","pointercancel"].forEach(ev=>$("themeb").addEventListener(ev,()=>clearTimeout(thHold)));
+$("themeb").addEventListener("contextmenu",e=>{e.preventDefault();thHeld=true;thPop(true)});
+$("themeb").onclick=()=>{if(thHeld){thHeld=false;return}const seq=FOLIO_THEMES,th=shownTheme();setTheme(seq[(seq.indexOf(th)+1)%seq.length])};
+$("thpop").addEventListener("click",e=>{const b=e.target.closest("[data-thp]");if(!b)return;setTheme(b.dataset.thp);thPop(false);$("themeb").focus()});
+document.addEventListener("click",e=>{if(!$("thpop").hidden&&!e.target.closest(".thw"))thPop(false)});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("thpop").hidden){thPop(false);$("themeb").focus()}});
 function renderYou(){
   const days=readDays(),tot=Math.round(Object.values(days).reduce((a,b)=>a+b,0)/60),begun=PLAYS.filter(p=>J("folio-stat-"+p.id)).length;
   const SI=(d)=>`<svg class="sti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
