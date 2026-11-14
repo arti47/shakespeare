@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.36.0] — 2026-11-14
+
+### Added
+- Language drills, tragedies: Untangle, Pun hunt and Tone and stress raised to 12+ items each in all 12 tragedies (about 330 new items chosen from the text), so a round no longer repeats (#150)
+
+### Fixed
+- Tone and stress items that could never finish (a stressed word that was not a single word of the line, or two options on the same word) in Julius Caesar, Measure for Measure, Henry V, Macbeth and Hamlet; Pun hunt items whose word was not in the line in Cymbeline and Richard III (#150)
+
 ## [4.35.0] — 2026-11-14
 
 ### Changed
