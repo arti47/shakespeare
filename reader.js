@@ -1426,10 +1426,15 @@ const drBest=k=>{if(k==="ladder"){const n=Object.keys(DRB.lad).filter(i=>QUOTES.
 function pipFrame(lab,res,i,n,right,streak,rw){const pips=n<=24?`<span class="pips" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${res[j]===true?"ok":res[j]===false?"no":j===i?"cur":""}"></i>`).join("")}</span>`:`<span class="pbar" aria-hidden="true"><b style="width:${(100*Math.min(i,n)/Math.max(1,n)).toFixed(1)}%"></b></span>`;
   return `<div class="dfr pfr"><button class="fx21" type="button" data-xround aria-label="Leave this round">×</button><span class="dfl">${lab?esc(lab)+" · ":""}${Math.min(i+1,n)} of ${n}</span>${pips}<span class="dfs">${right} ${rw||"right"}${streak>1?` · <b class="stk">${streak} in a row</b>`:""}</span></div>`}
 const DRN={gap:8,who:8,word:8,order:3,time:3,scene:8,next:8,odd:6,explain:5,two:3,untangle:6,pun:6,stress:5};
-const gapCand=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
+/* 4.23 function words never become blanks (a quote made only of them keeps its old candidates) */
+const GSW=new Set("that this with what have will thou thee they them their there then than when your from shall were been more some such like upon into most which would could should come make very well here these those thy thine hath doth does dost were wert whose where while unto onto both each mine yours ours hers itself myself thyself himself herself being even only ever also much many must might shalt wilt canst didst just know said says said".split(" "));
+const gapCand=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));const c=ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]));const f=c.filter(x=>!GSW.has(x[0]));return f.length?f:c};
 const gw=w=>w.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g,"");
 const gnorm=w=>w.toLowerCase().replace(/[’]/g,"'").replace(/[^a-z']/g,"");
 const dQ=it=>QUOTES.quotes[it.qi];
+/* 4.23 a line from a scene that has no key quote, so Which scene? covers every scene: one 6-14 word line that ends a clause */
+const sQ=it=>it.qi!=null?QUOTES.quotes[it.qi]:{id:it.gid,text:it.gt,note:""};
+function scLine(p){const C=[];p.items.forEach(x=>{if(x.t==="sp")x.lines.forEach(l=>{const t=l.replace(/^~/,"").replace(/\[[^\]]*\]/g,"").trim(),n=t.split(/\s+/).length;if(n>=6&&n<=14&&/[.!?;:]$/.test(t)&&!t.toLowerCase().includes(x.who.toLowerCase()))C.push({id:x.id,text:t.replace(/[,;:]$/,""),gen:1})})});return C.length?rnd(C):null}
 const selfRate=(a,b)=>`<div class="srate"><span class="muted">How close were you?</span><button class="btn" data-dans="0">${a}</button><button class="btn primary" data-dans="1">${b}</button></div>`;
 const nextBtn=()=>{const R=dr.R;return `<button class="btn primary" id="dr-next">${R.i+1<R.items.length?"Next ›":"See score ›"}</button>`};
 /* ordering drills (Put it in order, Quote timeline): it.e = entries in the right order, it.show = the order they're dealt */
@@ -1468,7 +1473,8 @@ const DK={
       if($("gap-show"))$("gap-show").onclick=()=>drAns(false);
       if(!st.tries&&!st.hint&&ins[0]&&!matchMedia("(pointer:coarse)").matches)ins[0].focus({preventScroll:true})}},
   who:{make:n=>{const pool=[...new Set([...(CFG.drillCast||[]),...QUOTES.quotes.map(x=>speech[x.id].who)])];
-      return shuf(QUOTES.quotes.filter(q=>!q.text.toLowerCase().includes(speech[q.id].who.toLowerCase()))).slice(0,n).map(q=>{const w=speech[q.id].who;return {qi:q.i,o:shuf([w,...shuf(pool.filter(x=>x!==w)).slice(0,3)])}})},
+      const cap=Math.max(2,Math.ceil(n/4)),per={},pick=[];for(const q of shuf(QUOTES.quotes.filter(q=>!q.text.toLowerCase().includes(speech[q.id].who.toLowerCase())))){const w=speech[q.id].who;if((per[w]||0)>=cap)continue;per[w]=(per[w]||0)+1;pick.push(q);if(pick.length>=n)break}
+      return pick.map(q=>{const w=speech[q.id].who;return {qi:q.i,o:shuf([w,...shuf(pool.filter(x=>x!==w)).slice(0,3)])}})},
     ids:it=>[dQ(it).id],key:it=>"who:"+it.qi,
     view(it,st,done){const q=dQ(it),w=speech[q.id].who,p=sceneOf(q.id);
       return `<div class="qz who16"><h3 class="dq">“${esc(q.text)}”</h3><div class="wopts">${it.o.map(o=>`<button data-dpick="${esc(o)}"${done?" disabled":""} class="${done?(o===w?"right":o===st.pick?"wrong":""):""}" style="--c:${esc(COLORS[o]||"var(--ink)")}">${folioMedal(o,COLORS[o],"wom")}<b>${esc(title(o))}</b></button>`).join("")}</div>
@@ -1487,14 +1493,15 @@ const DK={
   time:{make:n=>{const Q=QUOTES.quotes.filter(q=>speech[q.id]);if(Q.length<8)return [];return Array.from({length:n},()=>{const pick=[];const sc=new Set();for(const q of shuf(Q)){const p=speech[q.id].page;if(!sc.has(p)){sc.add(p);pick.push(q)}if(pick.length===4)break}
       return ordItem(pick.sort((a,b)=>+a.id-+b.id).map(q=>({t:"“"+q.text+"”",s:speech[q.id].page,id:q.id,who:speech[q.id].who})))})},
     ids:it=>it.e.map(e=>e.id),view:(it,st,done)=>ordView(it,st,done,"Put the quotes in the order they're spoken in the play."),wire:ordWire},
-  scene:{make:n=>{const sc=scenes.filter(p=>QUOTES.quotes.some(q=>speech[q.id].page===p.id));return shuf(QUOTES.quotes).slice(0,n).map(q=>{const p=sceneOf(q.id),k=sIdx(p.id),near=shuf(scenes.filter(x=>x.id!==p.id&&Math.abs(sIdx(x.id)-k)<=4)),far=shuf(sc.filter(x=>x.id!==p.id));
-      const o=[p.id];for(const x of [...near.slice(0,2),...far])if(!o.includes(x.id)&&o.length<4)o.push(x.id);return {qi:q.i,o:shuf(o)}})},
-    ids:it=>[dQ(it).id],key:it=>"act:"+it.qi,
-    view(it,st,done){const q=dQ(it),sp=speech[q.id],p=sceneOf(q.id);
+  scene:{make:n=>{const sc=scenes.filter(p=>QUOTES.quotes.some(q=>speech[q.id].page===p.id)),gen=shuf(scenes.filter(p=>!sc.includes(p))).map(scLine).filter(Boolean).slice(0,Math.ceil(n/4));
+    return shuf([...shuf(QUOTES.quotes).slice(0,n-gen.length),...gen]).map(q=>{const p=sceneOf(q.id),k=sIdx(p.id),near=shuf(scenes.filter(x=>x.id!==p.id&&Math.abs(sIdx(x.id)-k)<=4)),far=shuf(sc.filter(x=>x.id!==p.id));
+      const o=[p.id];for(const x of [...near.slice(0,2),...far])if(!o.includes(x.id)&&o.length<4)o.push(x.id);return q.gen?{gid:q.id,gt:q.text,o:shuf(o)}:{qi:q.i,o:shuf(o)}})},
+    ids:it=>[sQ(it).id],key:it=>it.qi!=null?"act:"+it.qi:null,
+    view(it,st,done){const q=sQ(it),sp=speech[q.id],p=sceneOf(q.id);
       return `<div class="qz"><p class="intro">Which scene is this from?</p><h3 class="dq">“${esc(q.text)}”</h3><p class="gsrc">${folioMedal(sp.who,COLORS[sp.who],"gmed")}<span>${esc(title(sp.who))}</span></p>
        <div class="opts sopts sg22">${it.o.map(id=>{const x=scenes[sIdx(id)];return `<button data-dpick="${id}"${done?" disabled":""} class="${done?(id===p.id?"right":id===st.pick?"wrong":""):""}" aria-label="${sName(x)}, ${esc(shortLoc(x))}"><span class="ss22" aria-hidden="true"><b>${x.act?R[x.act]:"Ind."}</b><i>${esc(x.scene.toLowerCase())}</i></span><small>${esc(shortLoc(x))}</small></button>`}).join("")}</div>
-       ${done?`<p class="muted">${esc(q.note)}</p><div class="row">${nextBtn()}${chip(q.id)}</div>`:""}</div>`},
-    pick:(it,v)=>v===sceneOf(dQ(it).id).id},
+       ${done?`<p class="muted">${q.note?esc(q.note):`${esc(title(sp.who))}, ${sName(p)}: ${esc(shortLoc(p))}.`}</p><div class="row">${nextBtn()}${chip(q.id)}</div>`:""}</div>`},
+    pick:(it,v)=>v===sceneOf(sQ(it).id).id},
   next:{make:n=>{const C=[];scenes.forEach(p=>{const sps=p.items.filter(x=>x.t==="sp"),cast=[...new Set(sps.map(x=>x.who))];if(cast.length<3)return;
       for(let j=0;j+1<sps.length;j++){const a=sps[j],b=sps[j+1];if(a.who!==b.who&&a.lines.length>=2&&b.who.length<30)C.push({id:a.id,nx:b.id,cast})}});
       return shuf(C).slice(0,n).map(c=>{const w=speech[c.nx].who;return {id:c.id,nx:c.nx,o:shuf([w,...shuf(c.cast.filter(x=>x!==w&&x!==speech[c.id].who)).slice(0,3)])}})},
