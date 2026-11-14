@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.15.1] — 2026-11-14
+
+### Fixed
+- Act summaries: Print and Copy did nothing in the iPhone home-screen app. One Share button now opens the system share sheet with every act's summaries as text (Notes, Mail, Copy, Print); where sharing isn't available it reads Copy all; Print shows only where the browser can print (#PR)
+
 ## [4.15.0] — 2026-11-14
 
 ### Changed
