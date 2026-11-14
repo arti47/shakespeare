@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.13.1] — 2026-11-14
 
 ### Removed
-- Library: the Word of the day card (and its "Word" row on phones) is gone; Today keeps This week and Daily review (#PR)
+- Library: the Word of the day card (and its "Word" row on phones) is gone; Today keeps This week and Daily review (#124)
 
 ## [4.13.0] — 2026-11-14
 
