@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.12.1] — 2026-11-14
 
 ### Fixed
-- My notes: every speech row now has Remove (with Undo), so a speech you only theme-tagged in Speech tools can be cleared; such rows say "Theme tag from Speech tools"; empty saved records are dropped on load; removing a phrase also offers Undo (#PR)
+- My notes: every speech row now has Remove (with Undo), so a speech you only theme-tagged in Speech tools can be cleared; such rows say "Theme tag from Speech tools"; empty saved records are dropped on load; removing a phrase also offers Undo (#119)
 
 ## [4.12.0] — 2026-11-14
 
