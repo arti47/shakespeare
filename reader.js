@@ -1123,7 +1123,7 @@ try{new MutationObserver(()=>renderRel()).observe($("sbody"),{childList:true})}c
 let SBACK=null;
 function renderStudy(){
   if(!TABS.some(t=>t[0]===S.stab))S.stab="quotes";
-  INTROS.length=0;$("study").classList.toggle("shome",SH);$("study").classList.toggle("stool",!SH&&!SV);
+  INTROS.length=0;$("study").classList.toggle("shome",SH);$("study").classList.toggle("stool",!SH&&!SV);$("study").classList.toggle("sprac",!SH&&!SV&&["drill","quiz","review","part","cards"].includes(S.stab));
   if(SH){renderStudyHome();return}
   if(SV){renderSPage();return}
   const tn=toolNow(),tp=SBACK?(SBACK.k==="topic"?SBACK.x:SBACK.k==="who"?"people":"themes"):topicOf(tn);TP=tp;SLAST=true;$("study").dataset.tp=tp;
@@ -1240,6 +1240,14 @@ function critLine(){const D=Object.entries(EX.critics).flatMap(([k,v])=>v.map((c
   return `<div class="mapf crl"><svg class="chart" viewBox="0 0 ${W} ${H+16}" role="img" aria-label="Critics by year"><path d="M14 ${H}H${W-14}" stroke="var(--rule-strong)"/>${ticks.map(t=>`<path d="M${f1(x(t))} ${H-4}v8" stroke="var(--rule-strong)"/><text x="${f1(x(t))}" y="${H+14}" text-anchor="middle">${t}</text>`).join("")}${D.map((d,j)=>`<circle class="crd" data-crj="${esc(d[1])}:${d[2]}" tabindex="0" role="link" cx="${f1(x(d[0]))}" cy="${H-10-pos[j]*14}" r="6" fill="var(--t-${["story","people","themes","quotes","words","practise","write","revise"][th.indexOf(d[1])%8]})"><title>${esc(d[3])}</title></circle>`).join("")}</svg></div><p class="hcap">Each dot is a critic, coloured by theme. Tap one to read it.</p>`}
 function critHTML([w,x],k,i){const y=(String(w).match(/\b(1[5-9]\d\d|20\d\d)\b/)||[])[1],ev=k!=null?(((EX.ev||{}).cr||{})[k]||[])[i]:null;
   return `<div class="crit"${k!=null?` id="cr-${esc(k)}-${i}"`:""}>${y?`<span class="cry">${y}</span>`:""}<small>${embSVG(TEMB.quill,"crq")}${esc(w)}</small><p>${rich(x)}</p>${ev?evHTML(ev,"Test it on"):""}</div>`}
+/* 4.18 character map: step act by act; under the map, what changed since the act before */
+function mapStep(MA){const i=MA.indexOf(mapAct),pv=MA[i-1],nx=MA[i+1];
+  return `<div class="mstep"><button class="btn sm" type="button" data-mapact="${pv}"${pv==null?" disabled":""} aria-label="Previous act">‹</button><div class="mstx"><b>${AN(mapAct)}</b><span class="mdots" aria-hidden="true">${MA.map(a=>`<i class="${a===mapAct?"on":""}"></i>`).join("")}</span></div><button class="btn sm" type="button" data-mapact="${nx}"${nx==null?" disabled":""} aria-label="Next act">›</button></div>`}
+function mapDiff(MA){const i=MA.indexOf(mapAct);if(i<1)return `<p class="muted mdiff">Step through the acts to watch the relationships change.</p>`;
+  const key=e=>e[0]+"|"+e[1],A=new Map(EX.rel[MA[i-1]].map(e=>[key(e),e])),B=new Map(EX.rel[mapAct].map(e=>[key(e),e])),row=(e,t)=>`<li>${esc(title(e[0]))} → ${esc(title(e[1]))}: ${t}</li>`;
+  const add=[...B.values()].filter(e=>!A.has(key(e))).map(e=>row(e,`<b>${esc(e[2])}</b>`)),gone=[...A.values()].filter(e=>!B.has(key(e))).map(e=>row(e,`<s>${esc(e[2])}</s>`)),ch=[...B.values()].filter(e=>A.has(key(e))&&A.get(key(e))[2]!==e[2]).map(e=>row(e,`${esc(A.get(key(e))[2])} → <b>${esc(e[2])}</b>`));
+  if(!add.length&&!gone.length&&!ch.length)return `<p class="muted mdiff">No change since ${AN(MA[i-1])}.</p>`;
+  return `<div class="box mdiff"><h3>Since ${AN(MA[i-1])}</h3>${ch.length?`<div class="evl">Changed</div><ul>${ch.join("")}</ul>`:""}${add.length?`<div class="evl">New</div><ul>${add.join("")}</ul>`:""}${gone.length?`<div class="evl">Gone</div><ul>${gone.join("")}</ul>`:""}</div>`}
 let mapAct=1;
 function arcSVG(){const W=360,H=214,L=30,T=12,B=36,n=scenes.length,x=i=>L+i*(W-L-10)/Math.max(1,n-1),y=v=>T+(10-v)*(H-T-B)/10,cols=["var(--t-story)","var(--t-practise)"];
   const pts=v=>v.map((a,i)=>f1(x(i))+","+f1(y(a))).join(" ");
@@ -1264,7 +1272,7 @@ function studyExplore(){
   const hereK=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1;
   if(exSel==="timeline"){let la=null;h=`<ol class="troad">`+EX.timeline.map((e,i)=>{const p=scenes[sIdx(e.s)],gate=p&&p.act!==la?(la=p.act,`<li class="tgate">${folioPlate(LAT[p.act],p.act?R[p.act]:"",AN(p.act),"tgp")}</li>`):"";
     return gate+`<li class="tev">${folioSeal(String(i+1),p&&prog.done[p.id]?"":"e","tsl")}<small>${p?sName(p):""}</small><b>${esc(e.t)}</b>${spLine(e.id)}</li>`}).join("")+`</ol>`}
-  if(exSel==="map")h=`<div class="chips" style="margin-bottom:6px">${ACTS.filter(a=>EX.rel[a]).map(a=>`<button class="chip" data-mapact="${a}" aria-pressed="${mapAct===a}">${AN(a)}</button>`).join("")}</div>${relSVG(mapAct)}`;
+  if(exSel==="map"){const MA=ACTS.filter(a=>EX.rel[a]);if(!MA.includes(mapAct))mapAct=MA[0];h=mapStep(MA)+relSVG(mapAct)+mapDiff(MA)}
   if(exSel==="iago")h=`<p class="intro">Steps are ticked once you've read past that scene.</p>`+EX.iago.map(([s,st],i)=>{const k=sIdx(s),done=prog.done[s]||k<hereK;return `<div class="exitem"><span class="tick">${done?"✓":"○"}</span> <small>${sName(scenes[k])}</small><p style="margin-top:2px;color:var(--ink)">${i+1}. ${esc(st)}</p><div class="xrow">${toLink("scene:"+s,"Read "+sName(scenes[k]))}</div></div>`}).join("");
   if(exSel==="arcs")h=arcSVG();
   if(exSel==="verse")h=verseExplore();
@@ -1543,7 +1551,9 @@ function cutHTML(){if(!dr.c){const ok=scenes.map((s,i)=>[s,i]).filter(([s])=>s.i
   const lost=C.chk?sps.filter(x=>C.cut[x.id]&&(QBY[x.id]||EX.irony[x.id]||STUDY.notes[x.id])):[];
   return `<p class="intro">Directors often cut Shakespeare. Cut this scene to half its lines or less, and keep the story clear. Tap a speech to cut it; tap again to keep it.</p>
    <label class="lbl" for="cut-s">Scene</label><select class="sinput" id="cut-s">${scenes.map((x,i)=>x.items.filter(it=>it.t==="sp").length>=10?`<option value="${i}"${i===C.k?" selected":""}>${sName(x)} · ${esc(shortLoc(x))}</option>`:"").join("")}</select>
-   <div class="cutbar"><b>${kept}</b> of ${tot} lines kept (${pc}%)<i><b style="width:${pc}%;background:${pc<=50?"var(--ok)":"var(--accent)"}"></b></i></div>
+   <div class="cutbar"><b>${kept}</b> of ${tot} lines kept (${pc}%)<i><b style="width:${pc}%;background:${pc<=50?"var(--ok)":"var(--tc,var(--accent))"}"></b><em style="left:50%" aria-hidden="true"></em></i></div>
+   <div class="cutmap" role="group" aria-label="The scene at a glance: one block per speech, sized by its lines">${sps.map(x=>`<button type="button" data-cut="${x.id}" class="${C.cut[x.id]?"cut":""}${QBY[x.id]?" kq":""}" style="flex-grow:${x.lines.length};--c:${esc(COLORS[x.who]||"var(--muted)")}" title="${esc(title(x.who))} · ${x.lines.length} line${x.lines.length===1?"":"s"}" aria-label="${esc(title(x.who))}, ${x.lines.length} line${x.lines.length===1?"":"s"}${C.cut[x.id]?", cut":""}"></button>`).join("")}</div>
+   <div class="cutkey">${[...new Set(sps.map(x=>x.who))].map(w=>`<span style="--c:${esc(COLORS[w]||"var(--muted)")}"><i></i>${esc(title(w))}</span>`).join("")}<span class="kqk"><i></i>Key quote</span></div>
    <div class="cuts">${sps.map(x=>`<button data-cut="${x.id}" class="${C.cut[x.id]?"cut":""}" aria-pressed="${!!C.cut[x.id]}"><small>${esc(title(x.who))} · ${x.lines.length} line${x.lines.length===1?"":"s"}${QBY[x.id]&&C.chk?" · key quote":""}</small><span>${esc(lineOf(x.lines[0]).slice(0,90))}${x.lines.length>1||lineOf(x.lines[0]).length>90?"…":""}</span></button>`).join("")}</div>
    <div class="row"><button class="btn primary" id="cut-chk">${C.chk?"Check again":"Check my cut"}</button><button class="btn" id="cut-reset">Start again</button></div>
    ${C.chk?`<div class="box"><h3>${pc<=50?"Within the target.":"Still over half: keep cutting."}</h3>${lost.length?`<p>You cut ${lost.length} speech${lost.length===1?"":"es"} the notes flag as important:</p><ul>${lost.map(x=>`<li>${esc(title(x.who))}: “${esc(lineOf(x.lines[0]).slice(0,70))}…”${QBY[x.id]?" (key quote)":EX.irony[x.id]?" (dramatic irony)":" (study note)"}</li>`).join("")}</ul>`:"<p>You kept every speech the notes flag as important.</p>"}
