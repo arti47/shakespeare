@@ -267,7 +267,7 @@ function sceneBlocks(p){
 }
 /* breathing space: long speeches get a small gap after each full sentence; modern English is split into short paragraphs */
 const endsSentence=l=>/[.?!]["'’”)\]]*\s*$/.test(l.replace(/\s*\[[^\]]*\]\s*$/,""));
-function lineHTML(l,num,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l,ik=id!=null?lineInk(id,j):"";return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}${id!=null?` data-j="${j}"`:""}>${ik?`<i class="mt fc-${ik}" aria-hidden="true"></i>`:""}${favLine(t,id,j)}${id!=null&&KQL[id+":"+j]?`<button class="kqm" type="button" data-kq="${KQL[id+":"+j][0]}" aria-label="Key quote">❦</button>`:""}</span>`}
+function lineHTML(l,num,id,j,np){const song=l.startsWith("~"),t=song?l.slice(1):l,ik=id!=null&&!(np&&!song)?lineInk(id,j):"";return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}${id!=null?` data-j="${j}"`:""}>${ik?`<i class="mt fc-${ik}" aria-hidden="true"></i>`:""}${favLine(t,id,j)}${id!=null&&KQL[id+":"+j]?`<button class="kqm" type="button" data-kq="${KQL[id+":"+j][0]}" aria-label="Key quote">❦</button>`:""}</span>`}
 /* 4.12 marks on the page: a speech mark bands every word of the speech (lowest), saved phrases over it, the selection drawn last so it wins.
    Each is a <mark class="fph …">; a marked line also gets a tick in the margin (lineInk) */
 function lineInk(id,j){if(!FAV.length&&!marks[id])return "";let k="";for(const f of FAV)if(f.id===id&&j>=f.a[0]&&j<=f.b[0])k=fcOk(f.c);return k||inkOf(marks[id]||{})}
@@ -279,7 +279,9 @@ function favLine(t,id,j){const sk=id!=null&&!(SEL&&SEL.whole&&SEL.id===id)&&mark
   const flush=()=>{if(!buf)return;h+=g?`<mark class="fph${g.sel?" fsel":" fc-"+g.c}${g.sp?" fsp":""}"${!g.sel&&!g.sp&&g.k!==""?` data-fp="${esc(g.k)}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
   for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];let top=null;cov.forEach(c=>{if(c.s<=a&&c.e>=b)top=c});if(top!==g){flush();g=top}buf+=t.slice(a,b)}flush();return h}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
-function linesHTML(it,a,b){let h="";const ps=partsOf(it);ps.forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,it.id,j);
+function linesHTML(it,a,b){let h="";const ps=partsOf(it);ps.forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";const pr=!!PROSE[it.id];let pk="";for(let j=s;j<=e;j++){x+=lineHTML(it.lines[j],it.start+j,it.id,j,pr);if(pr&&!pk&&!it.lines[j].startsWith("~"))pk=lineInk(it.id,j)}
+  /* prose runs on inline, so a per-line tick would land mid-text: one tick spans the marked part in the margin */
+  if(pk)x=`<i class="mt mtp fc-${pk}" aria-hidden="true"></i>`+x;
   const op=S.mode==="orig"&&OPEN.has(it.id+":"+i)&&e===p[1];h+=`<div class="pt${op?" open":""}" data-p="${i}">${x}</div>`;
   if(op)h+=`<div class="mx" data-mx="${it.id}:${i}"><div class="mxt">${paras(p[2])}</div><div class="mxa">${ps.length>1?`<button data-mxa="whole:${it.id}:${i}">Whole speech <small>${i+1}/${ps.length}</small></button>`:""}<button data-mxa="tools:${it.id}:${i}">Meanings &amp; notes</button></div></div>`});return h}
 function unfold(id,pi){const k=id+":"+pi,sp=speech[id],on=!OPEN.has(k);if(on)OPEN.add(k);else OPEN.delete(k);OPENV++;hideGloss();

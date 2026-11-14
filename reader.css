@@ -1679,7 +1679,9 @@ body.facing .spread2.facing::before{content:"";position:absolute;top:0;bottom:0;
 .sp.run .ri{display:inline;margin:0 .3em 0 0;padding:0;border:0;background:none;font:400 .84em var(--f-sc);letter-spacing:.05em;color:var(--c,var(--accent));text-indent:0;cursor:pointer;white-space:nowrap}
 :root:not([data-theme="dark"]):not([data-theme="night"]) .sp.run .ri{color:color-mix(in srgb,var(--c,var(--accent)) 82%,#000)}
 .sp.run .ri.cont{opacity:.8}
-.sp.run .rit{display:inline-flex;gap:4px;vertical-align:.12em;margin-right:.35em}
+/* tags after a run-in name: inline so they wrap with the line; each chip resets the verse hanging indent it would otherwise inherit (it drew the chips back over the name) */
+.sp.run .rit{display:inline;text-indent:0;margin-right:.1em}
+.sp.run .rit>*{display:inline-block;text-indent:0;margin-right:.3em;vertical-align:.12em;white-space:nowrap}
 .sp.run .rit .tag{font-size:max(14px,.55em);padding:0 .35em;line-height:1.4}
 .sp.run .rit .flag{font-size:.7em}
 .sp.run>.who1{margin:0 0 .15em}
@@ -2056,6 +2058,13 @@ button.tdc{cursor:pointer}
 .mkh.nohit i{pointer-events:none}
 body.mk-ticks .pg mark.fph:not(.fsel),body.mk-off .pg mark.fph:not(.fsel){background:none;padding:0;margin:0}
 body.mk-off .o .l>.mt{display:none}
+/* prose: one tick per marked part, in the margin (lines run on inline, so per-line ticks would sit mid-text) */
+.sp:not(.vs) .o .pt{position:relative}
+.o .pt>.mtp{position:absolute;left:-10px;top:.3em;bottom:.3em;width:3px;border-radius:2px;background:var(--fci);pointer-events:none}
+body.mk-off .o .pt>.mtp{display:none}
+/* soliloquy / aside: the speech already has a rule down the margin, so a marked line inks that rule (no second column of ticks beside it) */
+.sp.solo .o .l>.mt,.sp.aside .o .l>.mt,.sp.solo .o .pt>.mtp,.sp.aside .o .pt>.mtp{left:calc(-.55em - 3px);top:0;bottom:0;height:auto;border-radius:0}
+.sp.solo .o::before,.sp.aside .o::before{z-index:1}
 /* ink swatches and dots */
 .hlk[class*="fc-"]{background:var(--fc);box-shadow:inset 0 0 0 1.5px var(--fci);border-color:transparent}
 .sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--fci);background:var(--fc);cursor:pointer;padding:0;flex:none}
@@ -2131,3 +2140,11 @@ mark.mkb{color:inherit;background:linear-gradient(100deg,transparent 0,var(--mk)
 .card .cmod p{margin:4px 0 0;font:400 1rem/1.5 var(--f-body)}
 @media (max-width:599px){.dfr{grid-template-columns:minmax(0,1fr) auto;border-radius:var(--r-m)}.dfr .pips{grid-column:1/-1;grid-row:2;justify-content:flex-start}}
 .mkr .mkwhy{display:block;font:400 max(14px,.8rem) var(--f-ui);color:var(--muted);margin-top:2px}
+/* ---------- 4.12.2 badges stay clear of the speaker's name ---------- */
+/* tags that carry their own glyph (◔ Irony, ✦ device) drop the fleuron, so a chip shows one ornament */
+.tag.pop::before{content:none}
+/* the phones' raised initial stands above its line: keep it off the name row and notes above it */
+@media (max-width:759px){.sp.dcap .o .pt:first-child .l:first-child{padding-top:.32em}}
+/* prose runs on, so a key-quote fleuron sits mid-sentence: keep it tight to the words (a wider invisible tap area stays) */
+.sp:not(.vs) .o .l:not(.song)>.kqm{min-width:0;min-height:0;margin:0 .1em 0 .2em;padding:0 .05em;position:relative}
+.sp:not(.vs) .o .l:not(.song)>.kqm::after{content:"";position:absolute;inset:-10px -6px}
