@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.34.0] — 2026-11-14
+
+### Changed
+- Key quote notes, tragedies: 462 quotes rewritten so each note says who speaks, to whom and what happens (all now 25+ characters), and Why notes that only repeated the note rewritten to say why the line matters (Othello, Antony and Cleopatra, King Lear, Hamlet, Macbeth, Julius Caesar, Romeo and Juliet, Titus Andronicus, Troilus and Cressida, Timon of Athens, Coriolanus, Cymbeline) (#148)
+
 ## [4.33.0] — 2026-11-14
 
 ### Added
