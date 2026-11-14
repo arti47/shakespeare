@@ -1128,7 +1128,20 @@ function renderRel(){const el=$("srel");if(!el)return;if(SH||SV||view!=="study")
   const hid=x=>folioSimple()&&EXAMT.some(t=>x[0]==="study:"+t||x[0].startsWith("study:"+t+"?")),L=relList().filter(x=>x[0]!=="read"&&!hid(x));if(!L.length)L.push(["study","Study home"]);const [n,...m]=L;RELM=m;const ps=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)]:null;
   el.innerHTML=`<div class="upn48"><button class="upn" type="button" data-to="${esc(n[0])}"><small>Up next</small><b>${n[1]}</b><i aria-hidden="true">›</i></button>${m.length?`<button class="upm" type="button" data-relmore>More <span>${m.length}</span></button>`:""}</div>${ps?`<button class="upback" type="button" data-to="scene:${ps.id}"><span aria-hidden="true">‹</span> Back to ${esc(sName(ps))}</button>`:`<button class="upback" type="button" data-to="read"><span aria-hidden="true">‹</span> Back to reading</button>`}`}
 document.addEventListener("click",e=>{if(e.target.closest("[data-relmore]"))openSheet("More from here",`<div class="relm48">${RELM.map(([sp,l])=>`<button class="tlr" type="button" data-to="${esc(sp)}">${tic(sp.replace(/^study:/,"").split("?")[0])}<span><b>${l}</b></span><i aria-hidden="true">›</i></button>`).join("")}</div>`)});
-const focusNow=()=>{const sb=$("sbody"),on=view==="study"&&!!sb.querySelector(".pfr")&&!sb.querySelector(".wreath,.dend");$("study").classList.toggle("inround",on);document.body.classList.toggle("focus21",on);tray21()};
+/* 4.22 cards: drag sideways to answer (right = sure / knew it, left = not sure / not yet); tap an unturned card to turn it */
+function swipe22(){const sb=$("sbody"),c=sb.querySelector(".cstack>.card:not([data-sw])"),bb=sb.querySelector(".cardbtns");if(!c||!bb)return;
+  const Y=bb.querySelector("[data-it=sure],[data-it=yes]"),N=bb.querySelector("[data-it=unsure],[data-it=no]");if(!Y||!N)return;c.dataset.sw=1;const ask=!!bb.querySelector("[data-it=sure]");
+  c.classList.add("sw22");c.insertAdjacentHTML("beforeend",`<span class="swk n" aria-hidden="true">${ask?"Not sure":"Not yet"}</span><span class="swk y" aria-hidden="true">${ask?"Sure":"Knew it"}</span>`);
+  if(!bb.nextElementSibling||!bb.nextElementSibling.matches(".swh22"))bb.insertAdjacentHTML("afterend",`<p class="swh22">Swipe the card: right ${ask?"sure":"knew it"} · left ${ask?"not sure":"not yet"}${ask?" · tap to turn":""}</p>`);
+  const rm=matchMedia("(prefers-reduced-motion:reduce)").matches,go=(b,dx)=>{if(rm){b.click();return}c.style.transition="transform .2s ease-in,opacity .2s";c.style.transform=`translateX(${dx>0?"":"-"}120vw) rotate(${dx>0?14:-14}deg)`;c.style.opacity="0";setTimeout(()=>b.click(),190)};
+  c.onpointerdown=e=>{if(e.button>0||e.target.closest("a,button,[data-speech]"))return;const x0=e.clientX,y0=e.clientY;let dx=0,dg=false;
+    c.onpointermove=m=>{dx=m.clientX-x0;const dy=m.clientY-y0;if(!dg&&Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)){dg=true;try{c.setPointerCapture(e.pointerId)}catch(_){}c.classList.add("drag22")}
+      if(dg){c.style.transform=`translateX(${dx}px) rotate(${dx/22}deg)`;c.style.setProperty("--swy",Math.max(0,Math.min(1,dx/90)));c.style.setProperty("--swn",Math.max(0,Math.min(1,-dx/90)))}};
+    c.onpointerup=c.onpointercancel=u=>{c.onpointermove=c.onpointerup=c.onpointercancel=null;c.classList.remove("drag22");
+      if(dg&&u.type==="pointerup"&&Math.abs(dx)>90){go(dx>0?Y:N,dx);return}
+      c.style.transform="";c.style.setProperty("--swy",0);c.style.setProperty("--swn",0);
+      if(!dg&&u.type==="pointerup"&&ask){if(rm){N.click();return}c.classList.add("flipout22");setTimeout(()=>N.click(),170)}}}}
+const focusNow=()=>{swipe22();const sb=$("sbody"),on=view==="study"&&!!sb.querySelector(".pfr")&&!sb.querySelector(".wreath,.dend");$("study").classList.toggle("inround",on);document.body.classList.toggle("focus21",on);tray21()};
 /* 4.21 answer tray: once an item is answered, its verdict, the note and Continue sit in a tray fixed at the bottom of the screen */
 const TRNV=["explain","two","stress"];
 function tray21(){const sb=$("sbody");if(!document.body.classList.contains("focus21")){sb.style.paddingBottom="";return}
@@ -1421,21 +1434,20 @@ const selfRate=(a,b)=>`<div class="srate"><span class="muted">How close were you
 const nextBtn=()=>{const R=dr.R;return `<button class="btn primary" id="dr-next">${R.i+1<R.items.length?"Next ›":"See score ›"}</button>`};
 /* ordering drills (Put it in order, Quote timeline): it.e = entries in the right order, it.show = the order they're dealt */
 const ordItem=e=>({e,show:shuf(e.map((_,i)=>i))});
-function ordView(it,st,done,intro){const P=st.pk=st.pk||[],full=P.length===it.e.length,E=it.e,sc=x=>x.s&&sIdx(x.s)>=0?scenes[sIdx(x.s)]:null;
+function ordView(it,st,done,intro){const P=st.pk=st.pk||it.show.slice(),E=it.e,sc=x=>x.s&&sIdx(x.s)>=0?scenes[sIdx(x.s)]:null;
   if(done){const n=P.filter((i,j)=>i===j).length;
     return `<div class="qz"><p class="dres ${st.right?"ok":"no"}">${n} of ${E.length} in the right place.</p><ol class="otl">${E.map((x,j)=>{const u=P.indexOf(j),p=sc(x);return `<li class="${u===j?"ok":"no"}"><i aria-hidden="true">${u===j?"✓":u+1}</i><div><b>${esc(x.t)}</b>${p?`<small>${x.who?esc(title(x.who))+" · ":""}${sName(p)}</small>`:""}${u!==j?`<small class="ow">You put it ${u+1}${["st","nd","rd","th","th","th"][u]}</small>`:""}</div>${x.id!=null&&speech[x.id]?chip(x.id):""}</li>`}).join("")}</ol><div class="row">${nextBtn()}</div></div>`}
-  return `<div class="qz ord16"><p class="intro">${intro} Drag a placed one to move it; tap it to take it back.</p>
-   <div class="opool">${it.show.map(i=>P.includes(i)?"":`<button data-opk="${i}">${esc(E[i].t)}</button>`).join("")||`<p class="muted">All placed. Check your order, or drag to change it.</p>`}</div>
-   <ol class="oslots">${E.map((_,j)=>P[j]!=null?`<li class="ofill" data-osl="${j}"><i aria-hidden="true">${j+1}</i><span>${esc(E[P[j]].t)}</span><b class="ogrip" aria-hidden="true">⋮⋮</b></li>`:`<li class="oempty"><i aria-hidden="true">${j+1}</i><span></span></li>`).join("")}</ol>
-   <div class="row"><button class="btn primary" id="ord-chk"${full?"":" disabled"}>Check</button>${P.length?`<button class="link" id="ord-clr">Clear</button>`:""}</div></div>`}
-function ordWire(it,st){const P=st.pk;$("sbody").querySelectorAll("[data-opk]").forEach(b=>b.onclick=()=>{P.push(+b.dataset.opk);studyDrill()});
-  if($("ord-clr"))$("ord-clr").onclick=()=>{P.length=0;studyDrill()};
+  const n=E.length;return `<div class="qz ord21"><p class="intro">${intro}</p>
+   <ol class="osort21">${P.map((ei,j)=>`<li data-osl="${j}"><i aria-hidden="true">${j+1}</i><span>${esc(E[ei].t)}</span><span class="omv"><button type="button" data-omv="${j}:-1" aria-label="Move up"${j?"":" disabled"}>▲</button><button type="button" data-omv="${j}:1" aria-label="Move down"${j<n-1?"":" disabled"}>▼</button></span><b class="ogrip" aria-hidden="true">⋮⋮</b></li>`).join("")}</ol>
+   <div class="row"><button class="btn primary" id="ord-chk">Check order</button></div></div>`}
+/* drag a card up or down (pointer events, so touch works), or use ▲ ▼ */
+function ordWire(it,st){const P=st.pk,mv=(j,to)=>{to=Math.max(0,Math.min(P.length-1,to));if(to===j)return;const [x]=P.splice(j,1);P.splice(to,0,x);st.mv=to;studyDrill()};
   if($("ord-chk"))$("ord-chk").onclick=()=>{st.right=P.every((i,j)=>i===j);drAns(st.right)};
-  /* drag a placed entry to a new slot (pointer events, so it works with touch); a tap sends it back to the pool */
-  $("sbody").querySelectorAll("[data-osl]").forEach(li=>{li.onpointerdown=e=>{if(e.button>0)return;const j=+li.dataset.osl,y0=e.clientY,h=li.offsetHeight+6;let moved=false;li.setPointerCapture(e.pointerId);
+  $("sbody").querySelectorAll("[data-omv]").forEach(b=>b.onclick=e=>{e.stopPropagation();const [j,d]=b.dataset.omv.split(":").map(Number);mv(j,j+d);const nb=$("sbody").querySelector(`[data-omv="${st.mv}:${d}"]`)||$("sbody").querySelector(`[data-omv^="${st.mv}:"]`);if(nb)nb.focus()});
+  if(st.mv!=null){const li=$("sbody").querySelector(`[data-osl="${st.mv}"]`);if(li)li.classList.add("moved");st.mv=null}
+  $("sbody").querySelectorAll("[data-osl]").forEach(li=>{li.onpointerdown=e=>{if(e.button>0||e.target.closest("button"))return;const j=+li.dataset.osl,y0=e.clientY,h=li.offsetHeight+6;let moved=false;li.setPointerCapture(e.pointerId);
     li.onpointermove=m=>{const dy=m.clientY-y0;if(Math.abs(dy)>6){moved=true;li.classList.add("drag");li.style.transform=`translateY(${dy}px)`}};
-    li.onpointerup=li.onpointercancel=u=>{li.onpointermove=li.onpointerup=li.onpointercancel=null;if(!moved){if(u.type==="pointerup")P.splice(j,1);studyDrill();return}
-      const to=Math.max(0,Math.min(P.length-1,j+Math.round((u.clientY-y0)/h)));const [x]=P.splice(j,1);P.splice(to,0,x);studyDrill()}}})}
+    li.onpointerup=li.onpointercancel=u=>{li.onpointermove=li.onpointerup=li.onpointercancel=null;li.classList.remove("drag");li.style.transform="";if(moved)mv(j,j+Math.round((u.clientY-y0)/h))}}})}
 /* each drill: make(n) → items; view(it,st,done) → html; ids(it) → speeches for Look again; key(it) → Daily review key */
 const DK={
   gap:{make:n=>shuf(QUOTES.quotes.filter(q=>gapCand(q).length)).slice(0,n).map(q=>({qi:q.i,pick:shuf(gapCand(q)).slice(0,2).map(x=>x[1]).sort((a,b)=>a-b)})),
@@ -1471,16 +1483,16 @@ const DK={
        ${done?`<p class="muted"><b>${esc(it.k)}</b>: ${esc(G[it.k])}</p><div class="row">${nextBtn()}${chip(it.id)}</div>`:""}</div>`},
     pick:(it,v)=>v===it.k},
   order:{make:n=>{const T=(EX.timeline||[]).map(e=>({t:e.t,s:e.s,id:e.id}));if(T.length<5)return [];return Array.from({length:n},()=>ordItem(shuf(T.map((_,i)=>i)).slice(0,5).sort((a,b)=>a-b).map(i=>T[i])))},
-    ids:it=>it.e.map(e=>e.id).filter(x=>x!=null),view:(it,st,done)=>ordView(it,st,done,"Tap the events in the order they happen."),wire:ordWire},
+    ids:it=>it.e.map(e=>e.id).filter(x=>x!=null),view:(it,st,done)=>ordView(it,st,done,"Put the events in the order they happen."),wire:ordWire},
   time:{make:n=>{const Q=QUOTES.quotes.filter(q=>speech[q.id]);if(Q.length<8)return [];return Array.from({length:n},()=>{const pick=[];const sc=new Set();for(const q of shuf(Q)){const p=speech[q.id].page;if(!sc.has(p)){sc.add(p);pick.push(q)}if(pick.length===4)break}
       return ordItem(pick.sort((a,b)=>+a.id-+b.id).map(q=>({t:"“"+q.text+"”",s:speech[q.id].page,id:q.id,who:speech[q.id].who})))})},
-    ids:it=>it.e.map(e=>e.id),view:(it,st,done)=>ordView(it,st,done,"Tap the quotes in the order they're spoken in the play."),wire:ordWire},
+    ids:it=>it.e.map(e=>e.id),view:(it,st,done)=>ordView(it,st,done,"Put the quotes in the order they're spoken in the play."),wire:ordWire},
   scene:{make:n=>{const sc=scenes.filter(p=>QUOTES.quotes.some(q=>speech[q.id].page===p.id));return shuf(QUOTES.quotes).slice(0,n).map(q=>{const p=sceneOf(q.id),k=sIdx(p.id),near=shuf(scenes.filter(x=>x.id!==p.id&&Math.abs(sIdx(x.id)-k)<=4)),far=shuf(sc.filter(x=>x.id!==p.id));
       const o=[p.id];for(const x of [...near.slice(0,2),...far])if(!o.includes(x.id)&&o.length<4)o.push(x.id);return {qi:q.i,o:shuf(o)}})},
     ids:it=>[dQ(it).id],key:it=>"act:"+it.qi,
     view(it,st,done){const q=dQ(it),sp=speech[q.id],p=sceneOf(q.id);
       return `<div class="qz"><p class="intro">Which scene is this from?</p><h3 class="dq">“${esc(q.text)}”</h3><p class="gsrc">${folioMedal(sp.who,COLORS[sp.who],"gmed")}<span>${esc(title(sp.who))}</span></p>
-       <div class="opts sopts">${it.o.map(id=>{const x=scenes[sIdx(id)];return `<button data-dpick="${id}"${done?" disabled":""} class="${done?(id===p.id?"right":id===st.pick?"wrong":""):""}"><b>${sName(x)}</b><small>${esc(shortLoc(x))}</small></button>`}).join("")}</div>
+       <div class="opts sopts sg22">${it.o.map(id=>{const x=scenes[sIdx(id)];return `<button data-dpick="${id}"${done?" disabled":""} class="${done?(id===p.id?"right":id===st.pick?"wrong":""):""}" aria-label="${sName(x)}, ${esc(shortLoc(x))}"><span class="ss22" aria-hidden="true"><b>${x.act?R[x.act]:"Ind."}</b><i>${esc(x.scene.toLowerCase())}</i></span><small>${esc(shortLoc(x))}</small></button>`}).join("")}</div>
        ${done?`<p class="muted">${esc(q.note)}</p><div class="row">${nextBtn()}${chip(q.id)}</div>`:""}</div>`},
     pick:(it,v)=>v===sceneOf(dQ(it).id).id},
   next:{make:n=>{const C=[];scenes.forEach(p=>{const sps=p.items.filter(x=>x.t==="sp"),cast=[...new Set(sps.map(x=>x.who))];if(cast.length<3)return;
@@ -1946,7 +1958,9 @@ function studyPart(){
       return `<button type="button" data-ptwho="${esc(w)}" style="--c:${esc(COLORS[w]||"var(--ink)")}">${hring(ok/sc.length,folioMedal(w,COLORS[w],"pcm"))}<b>${esc(title(w))}</b><small>${n} speeches · ${sc.length} scenes</small><small class="pst">${ok?`${ok} word perfect`:tr?`${tr} tried`:"Not started"}</small></button>`}).join("")}</div>`;return}
   const back=`<div class="exh"><button class="btn sm" data-ptback="${pt.sid?"scene":"who"}">‹ ${pt.sid?"Scenes":"All parts"}</button><h2>${esc(title(pt.who))}</h2></div>`;
   if(!pt.sid){const sc=partScenes(pt.who);
-    $("sbody").innerHTML=back+`<p class="intro">Pick a scene. Your best score for each is kept.</p><div class="qlist">${sc.map(p=>{const n=p.items.filter(x=>x.t==="sp"&&x.who===pt.who).length,b=REV.pp[pt.who+"|"+p.id];return `<button class="${b&&b[0]===b[1]?"done":""}" data-ptsid="${p.id}"><b>${sName(p)}</b><span>${n} speech${n===1?"":"es"}${b?` · best ${esc(b[0])} of ${esc(b[1])}`:""}</span></button>`}).join("")}</div>
+    const lines=p=>p.items.filter(x=>x.t==="sp"&&x.who===pt.who).reduce((a,x)=>a+x.lines.length,0),mx=Math.max(1,...sc.map(lines));
+    $("sbody").innerHTML=back+`<p class="intro">Pick a scene. Your best score for each is kept; the bar shows how many lines you speak.</p>${ACTS.filter(a=>sc.some(p=>p.act===a)).map(a=>`<section class="pacts22"><h3>${LAT[a]}</h3><div class="psc22">${sc.filter(p=>p.act===a).map(p=>{const n=p.items.filter(x=>x.t==="sp"&&x.who===pt.who).length,ln=lines(p),b=REV.pp[pt.who+"|"+p.id],f=b?b[0]/Math.max(1,b[1]):0;
+      return `<button type="button" class="${b?(f>=1?"gilt":"tried"):""}" data-ptsid="${p.id}" style="--c:${esc(COLORS[pt.who]||"var(--ink)")}"><span class="psl22" aria-hidden="true">${b?(f>=1?"✓":esc(b[0])+"/"+esc(b[1])):esc(p.scene.toLowerCase())}</span><span class="pst22"><b>${sName(p)}</b><small>${esc(shortLoc(p))} · ${n} speech${n===1?"":"es"} · ${ln} line${ln===1?"":"s"}</small><i class="pbar22"><i style="width:${(100*ln/mx).toFixed(1)}%"></i></i></span></button>`}).join("")}</div></section>`).join("")}
      <label class="ptsw"><input type="checkbox" id="pt-sw"${pt.showWho?" checked":""}> Show who gives each cue <small class="muted">(original cue scripts didn't)</small></label>`;
     $("pt-sw").onchange=e=>{pt.showWho=e.target.checked;LS.set(PFX+"ptwho",pt.showWho?"1":"0")};return}
   const p=scenes[sIdx(pt.sid)];
@@ -1980,7 +1994,7 @@ function reviewPool(){const due=shuf(dueKeys()),seen=new Set(allScheduled()),fre
   scenes.forEach(p=>{if(prog.done[p.id])((STUDY.scenes[p.id]||{}).quiz||[]).forEach((_,n)=>{const k=`qz:${p.id}:${n}`;if(!seen.has(k))fresh.push(k)})});
   return {due,fresh:shuf(fresh)}}
 function startReview(){const P=reviewPool(),items=[...P.due.slice(0,15),...P.fresh.slice(0,Math.max(3,15-P.due.length)).slice(0,5)];
-  rv={items:shuf(items).map(k=>({k,stage:"ask"})),i:0,ok:0,pred:null};}
+  rv={items:shuf(items).map(k=>({k,stage:"ask"})),i:0,ok:0,pred:-1,ask:items.length>=3};}
 /* 4.11 session mode: 10 mixed items (who said it, finish, theme, act, scene quiz), due ones first, one of each kind in turn */
 function startSession(){const due=shuf(dueKeys()),used=new Set(),items=[],kinds=["who","th","fin","act","qz"],read=scenes.filter(p=>prog.done[p.id]);
   due.slice(0,5).forEach(k=>{items.push(k);used.add(k)});let g=0;
@@ -2004,14 +2018,9 @@ function studyReview(){
      ${cal.length?`<div class="box"><h3>How well you predict your score</h3><p class="intro">Students often think they know more than they do. Predicting first, then checking, makes you a better judge of what to revise.</p><ul class="cal">${cal.map(([p,g,t,n])=>`<li>${esc(new Date(t).toLocaleDateString())}: predicted ${esc(p)}, got ${esc(g)}${n?` of ${esc(n)}`:""}</li>`).join("")}</ul></div>`:""}
      ${examLeft()>2?`<p class="muted">Your exam is in ${examLeft()} days, so items come back sooner.</p>`:""}`;
     if($("rv-go"))$("rv-go").onclick=()=>{startReview();studyReview();scrollTo(0,0)};$("rv-ses").onclick=()=>{startSession();studyReview();scrollTo(0,0)};return}
-  if(rv.pred==null){const n=rv.items.length;
-    $("sbody").innerHTML=`<div class="qz"><div class="qn">Before you start</div><h3>How many of these ${n} do you think you'll get right?</h3>
-     <input type="range" id="rv-p" min="0" max="${n}" value="${Math.round(n*.7)}" class="srange" aria-label="Predicted score"><p class="big" id="rv-pv">${Math.round(n*.7)}</p>
-     <div class="row"><button class="btn primary" id="rv-start">Start</button><button class="link" id="rv-skip">Skip</button></div></div>`;
-    $("rv-p").oninput=e=>$("rv-pv").textContent=e.target.value;
-    $("rv-start").onclick=()=>{rv.pred=+$("rv-p").value;studyReview()};$("rv-skip").onclick=()=>{rv.pred=-1;studyReview()};return}
   if(rv.i<rv.items.length){const it=rv.items[rv.i];
-    $("sbody").innerHTML=`${rvFrame()}<div class="cstack s${Math.max(0,Math.min(3,rv.items.length-rv.i-1))}">${itemHTML(it)}</div><div class="cardbtns">${itemButtons(it)}</div><div class="row"><button class="link" id="rv-quit">Stop review</button></div>`;
+    $("sbody").innerHTML=`${rvFrame()}${rv.ask&&rv.i===0&&it.stage==="ask"?predChips(rv.items.length,rv.pred,"rvp"):""}<div class="cstack s${Math.max(0,Math.min(3,rv.items.length-rv.i-1))}">${itemHTML(it)}</div><div class="cardbtns">${itemButtons(it)}</div><div class="row"><button class="link" id="rv-quit">Stop review</button></div>`;
+    $("sbody").querySelectorAll("[data-rvp]").forEach(b=>b.onclick=()=>{rv.pred=rv.pred===+b.dataset.rvp?-1:+b.dataset.rvp;studyReview()});
     $("rv-quit").onclick=()=>{rv=null;studyReview()};return}
   if(!rv.done){rv.done=true;rv.show=true;if(rv.pred>=0){REV.cal.push([rv.pred,rv.ok,Date.now(),rv.items.length]);REV.cal=REV.cal.slice(-20);saveRev()}}
   const n=rv.items.length,d=rv.pred>=0?rv.ok-rv.pred:null;
@@ -2096,6 +2105,9 @@ function missHTML(){const nq=prog.miss.q.length,cs=Object.keys(prog.miss.c||{}).
 function coverageHTML(){return `<div class="lbl">Your coverage: quotes learnt and notes made, by theme</div><div class="cov">${Object.entries(QUOTES.themes).map(([k,v])=>{const qs=QUOTES.quotes.filter(q=>q.themes.includes(k)),kn=qs.filter(q=>prog.cards[q.i]).length,
   nt=Object.keys(marks).filter(id=>speech[id]&&((marks[id].th||[]).includes(k)||(QBY[id]||[]).some(q=>q.themes.includes(k)))).length;
   return `<span>${esc(v[0])}</span><div class="cbar"><i style="width:${qs.length?kn/qs.length*100:0}%"></i></div><small>${kn}/${qs.length} · ${nt} note${nt===1?"":"s"}</small>`}).join("")}</div>`}
+/* 4.22 an optional guess at your score: one tap on a chip, tap again to clear; never a gate */
+const predVals=n=>n<=6?Array.from({length:n+1},(_,i)=>i):[...new Set([.5,.6,.7,.8,.9,1].map(f=>Math.round(n*f)))];
+const predChips=(n,v,attr)=>`<div class="pred22" role="group" aria-label="Guess your score (optional)"><small>Guess your score <i>(optional)</i></small><div class="pc22">${predVals(n).map(x=>`<button type="button" class="chip" data-${attr}="${x}" aria-pressed="${v===x}">${x}</button>`).join("")}<span>of ${n}</span></div></div>`;
 /* quizzes: one question at a time */
 let qz=null;
 function startQuiz(kind){
@@ -2104,19 +2116,17 @@ function startQuiz(kind){
   else if(kind==="miss")qs=prog.miss.q.map(q=>Object.assign({},q));
   else qs=((STUDY.scenes[kind]||{}).quiz||[]).map(q=>Object.assign({s:kind},q));
   qs=qs.map(q=>{const ix=shuf(q.o.map((_,i)=>i));return Object.assign({},q,{o:ix.map(i=>q.o[i]),a:ix.indexOf(q.a)})});
-  qz={kind,qs,i:0,ok:0,ans:null,pred:kind==="miss"||qs.length<3?-1:null};studyQuiz();scrollTo(0,0);
+  qz={kind,qs,i:0,ok:0,ans:null,pred:-1,ask:kind!=="miss"&&qs.length>=3};studyQuiz();scrollTo(0,0);
 }
 function studyQuiz(){
-  if(qz&&qz.pred==null){const n=qz.qs.length,v=Math.round(n*.7);
-    $("sbody").innerHTML=`<div class="qz"><div class="qn">Before you start</div><h3>How many of these ${n} questions do you think you'll get right?</h3><input type="range" id="qp" min="0" max="${n}" value="${v}" class="srange" aria-label="Predicted score"><p class="big" id="qpv">${v}</p><div class="row"><button class="btn primary" id="qp-go">Start</button><button class="link" id="qp-skip">Skip</button></div></div>`;
-    $("qp").oninput=e=>$("qpv").textContent=e.target.value;$("qp-go").onclick=()=>{qz.pred=+$("qp").value;studyQuiz()};$("qp-skip").onclick=()=>{qz.pred=-1;studyQuiz()};return}
   if(qz&&qz.i<qz.qs.length){const q=qz.qs[qz.i],p=scenes[sIdx(q.s)];
     qz.res=qz.res||[];let qk=0;for(let j=qz.i-(qz.ans!=null?0:1);j>=0&&qz.res[j]===true;j--)qk++;
-    $("sbody").innerHTML=`${pipFrame(qz.kind==="all"?"Whole play":qz.kind==="miss"?"Mistakes review":sName(p),qz.res,qz.i,qz.qs.length,qz.ok,qk)}<div class="qz"><h3>${esc(q.q)}</h3>
+    $("sbody").innerHTML=`${pipFrame(qz.kind==="all"?"Whole play":qz.kind==="miss"?"Mistakes review":sName(p),qz.res,qz.i,qz.qs.length,qz.ok,qk)}${qz.ask&&qz.i===0&&qz.ans==null?predChips(qz.qs.length,qz.pred,"qzp"):""}<div class="qz"><h3>${esc(q.q)}</h3>
       <div class="opts">${q.o.map((o,i)=>`<button data-i="${i}"${qz.ans!=null?" disabled":""} class="${qz.ans!=null?(i===q.a?"right":i===qz.ans?"wrong":""):""}">${esc(o)}</button>`).join("")}</div>
       <div class="row">${qz.ans!=null?`<button class="btn primary" id="qz-next">${qz.i+1<qz.qs.length?"Next question":"See score"}</button>`:""}<button class="link" id="qz-quit">Stop quiz</button>${qz.kind==="all"?`<span class="muted" style="font-size:.875rem">from ${sName(p)}</span>`:""}</div>${qz.ans!=null?`<div class="xrow">${toLink("scene:"+q.s,qz.ans===q.a?"Read the scene":"Check it in the scene")}${(STUDY.scenes[q.s]||{}).sum?toLink("study:acts?a="+p.act+"&s="+q.s,"Scene summary"):""}</div>`:""}</div>`;
     $("sbody").querySelectorAll(".opts button").forEach(b=>b.onclick=()=>{qz.ans=+b.dataset.i;qz.res[qz.i]=qz.ans===q.a;const M=prog.miss.q,ix=M.findIndex(m=>m.q===q.q);
       if(qz.ans===q.a){qz.ok++;if(ix>=0)M.splice(ix,1)}else if(ix<0)M.push({q:q.q,o:q.o,a:q.a,s:q.s});saveProg();studyQuiz()});
+    $("sbody").querySelectorAll("[data-qzp]").forEach(b=>b.onclick=()=>{qz.pred=qz.pred===+b.dataset.qzp?-1:+b.dataset.qzp;studyQuiz()});
     if($("qz-next"))$("qz-next").onclick=()=>{qz.i++;qz.ans=null;studyQuiz()};
     $("qz-quit").onclick=()=>{qz=null;studyQuiz()};return}
   if(qz){const k=qz.kind,old=prog.quiz[k];if(qz.pred>=0&&!qz.logged){qz.logged=1;REV.cal.push([qz.pred,qz.ok,Date.now(),qz.qs.length]);REV.cal=REV.cal.slice(-20);saveRev()}if(k!=="miss"&&(k==="all"||!old||qz.ok>=old[0])){prog.quiz[k]=[qz.ok,qz.qs.length];saveProg()}
