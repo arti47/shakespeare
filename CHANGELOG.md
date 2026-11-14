@@ -7,15 +7,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.20.0] — 2026-11-14
 
 ### Changed
-- Review: a new home card with a progress ring, Start review and a 10-item Session side by side, the 14-day calendar under them (#PR)
-- Quizzes: one card per act with a progress ring, scene seals, a laurel once the act is won, and a Next or Retry button for the scene to do now (#PR)
-- Flashcards: a segmented bar shows learnt, learning, due and new cards; how cards come back folds away (#PR)
-- Learn a part: a cast grid of medallions with speeches and scenes, and a ring of scenes learnt word for word (#PR)
-- Explain this line: passages over six lines fold, with Show all to open them (#PR)
-- Cut the scene: pick the scene from a row of chips; speeches are grouped into beats at entrances and exits, each with Cut all / Keep all (#PR)
+- Review: a new home card with a progress ring, Start review and a 10-item Session side by side, the 14-day calendar under them (#133)
+- Quizzes: one card per act with a progress ring, scene seals, a laurel once the act is won, and a Next or Retry button for the scene to do now (#133)
+- Flashcards: a segmented bar shows learnt, learning, due and new cards; how cards come back folds away (#133)
+- Learn a part: a cast grid of medallions with speeches and scenes, and a ring of scenes learnt word for word (#133)
+- Explain this line: passages over six lines fold, with Show all to open them (#133)
+- Cut the scene: pick the scene from a row of chips; speeches are grouped into beats at entrances and exits, each with Cut all / Keep all (#133)
 
 ### Fixed
-- Review: the oversized empty laurel on the Session button is gone (#PR)
+- Review: the oversized empty laurel on the Session button is gone (#133)
 
 ## [4.19.0] — 2026-11-14
 
