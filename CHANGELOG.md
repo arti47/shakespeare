@@ -4,6 +4,20 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.12.0] — 2026-11-14
+
+### Changed
+- Reader highlighting is one Marks system: five named inks (Evidence, Favourite, Confusing, Theme, Language) for whole speeches and for words; rename an ink by pressing and holding it (applies to every play); existing highlights and favourite phrases keep their colours (#118)
+- Marks look like a soft hand-drawn marker band behind the words, with a small tick in the margin; tuned for Light, Paper, Dark and Night (#118)
+- Selecting: press and hold a word, then drag or use the ink-drop handles (word by word, across lines); press and hold a speaker's name to select the whole speech; right-click works on a computer (#118)
+- A floating pill by the selection replaces the selection bar and the speech pill: one tap on an ink saves (Undo in the message), the same ink again removes; Note, Copy, Speech/Modern and More (Speech tools) (#118)
+- My notes lists speech marks and marked words together in play order, with ink filter chips and counts and a Has note chip; Copy, Print and the revision sheet name each ink (#118)
+
+### Added
+- Settings › Marks on the page: Full, Ticks only or Off, for every play (#118)
+
+### Fixed
+- Pressing and holding a run-in speaker name on a phone no longer selects the first word of the line; My notes no longer shows "undefined" for a phrase saved without its text (#118)
 ## [4.11.0] — 2026-11-13
 
 ### Added
