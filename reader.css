@@ -2017,7 +2017,7 @@ button.tdc{cursor:pointer}
 .wod48 p,.wq48 p{margin:4px 0 8px;line-height:1.5}
 .wq48 p{font:400 1.15rem/1.4 var(--f-old)}
 .wq48 .evr{margin:6px 0 12px}
-.stat48{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat48{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}@media (min-width:600px){.stat48{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .stat48 button{display:grid;place-items:center;gap:2px;min-height:84px;padding:8px;border:1px solid color-mix(in srgb,var(--tc) 30%,var(--rule));border-radius:var(--r-m);background:var(--card);color:var(--ink);cursor:pointer}
 .stat48 b{font:400 1.7rem/1 var(--f-old);color:var(--tc);font-variant-numeric:lining-nums}
 .stat48 small{color:var(--muted);font:400 .875rem var(--f-ui);text-align:center}
@@ -2065,3 +2065,23 @@ button.tdc{cursor:pointer}
 #sbody .az{position:sticky;top:0;z-index:6;margin:0 -4px 12px;padding:8px 4px;background:var(--page,var(--bg));border-bottom:1px solid var(--rule)}
 #sbody .az{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#sbody .az::-webkit-scrollbar{display:none}
 #sbody .az button{flex:none;min-width:40px;min-height:40px;font:400 1rem var(--f-old)}
+/* ---------- 4.11 Session mode and flashcards: shared frame with progress pips, missed-items page, medallion cards with modern English ---------- */
+.dfr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin:0 0 12px;padding:8px 12px;border:1px solid var(--rule);border-radius:999px;background:var(--card)}
+.dfl,.dfs{font:400 .95rem var(--f-sc);letter-spacing:.06em;color:var(--tc,var(--accent));white-space:nowrap}
+.dfs{color:var(--muted)}
+.pips{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.pips i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--rule-strong);background:transparent}
+.pips i.cur{border-color:var(--tc,var(--accent));box-shadow:0 0 0 3px color-mix(in srgb,var(--tc,var(--accent)) 30%,transparent)}
+.pips i.ok{background:var(--tc,var(--accent));border-color:var(--tc,var(--accent))}
+.pips i.no{background:repeating-linear-gradient(45deg,var(--muted) 0 2px,transparent 2px 4px);border-color:var(--muted)}
+.ses49{margin:0 0 14px}
+.miss49{margin-top:14px}
+.miss49 .mq{padding:10px 0;border-top:1px dashed var(--rule)}
+.miss49 .mq p{margin:0 0 4px}
+.card .cmed,.card .cmyst{width:64px;height:64px;align-self:center;flex:none}
+.card .cmyst{display:grid;place-items:center;border:2px dashed color-mix(in srgb,var(--c) 60%,var(--rule));border-radius:50%;color:var(--c);font:400 2rem/1 var(--f-old)}
+.card .ans{display:flex;flex-direction:column;align-items:center;gap:4px}
+.card .cmod{width:100%;margin:8px 0 2px;padding:10px 12px;border-left:3px solid var(--c);border-radius:0 8px 8px 0;background:color-mix(in srgb,var(--c) 7%,var(--card));text-align:left}
+.card .cmod small{font:400 .9rem var(--f-sc);letter-spacing:.06em;color:var(--accent)}
+.card .cmod p{margin:4px 0 0;font:400 1rem/1.5 var(--f-body)}
+@media (max-width:599px){.dfr{grid-template-columns:minmax(0,1fr) auto;border-radius:var(--r-m)}.dfr .pips{grid-column:1/-1;grid-row:2;justify-content:flex-start}}
