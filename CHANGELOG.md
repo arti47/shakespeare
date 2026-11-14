@@ -4,7 +4,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
-## [4.11.0] — 2026-11-14
+## [4.12.0] — 2026-11-14
 
 ### Changed
 - Reader highlighting is one Marks system: five named inks (Evidence, Favourite, Confusing, Theme, Language) for whole speeches and for words; rename an ink by pressing and holding it (applies to every play); existing highlights and favourite phrases keep their colours (#118)
@@ -18,6 +18,12 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ### Fixed
 - Pressing and holding a run-in speaker name on a phone no longer selects the first word of the line; My notes no longer shows "undefined" for a phrase saved without its text (#118)
+## [4.11.0] — 2026-11-13
+
+### Added
+- Session mode: 10 mixed questions (who said it, finish the quote, theme, act, scene quiz; due items first) from Review, the Practise page and the five-minute plan; ends with a laurel score and a Look again page linking every missed quote and quiz question to its lines (#117)
+- Review and sessions share one frame: progress pips (right, missed, current) and the running score (#117)
+- Flashcards: Finish the quote shows the speaker's medallion; Who said it shows a blank medallion; the back shows the medallion, scene, the speech in modern English and the note (#117)
 
 ## [4.10.0] — 2026-11-13
 
