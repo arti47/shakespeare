@@ -4,6 +4,20 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.13.0] — 2026-11-14
+
+### Added
+- Library "Bookcase": the three Folio shelves stand in one wooden bookcase (cornice, plinth, a plank under every row); every play is on show, three across on phones, four on tablets, six on desktops (#PR)
+- Sticky gilt genre tabs (Comedies, Histories, Tragedies) under the masthead: tap to jump to a shelf, the shelf in view is lit; Order (Recent, Date written, A–Z) is a menu in the same bar (Full mode); a search button joins the bar once it pins (#PR)
+- Begun plays wear a red bookmark ribbon with their % read on the shelf; finished plays a gilt ribbon (#PR)
+
+### Changed
+- Library top: Continue reading and Today share one wood-framed lectern (side by side from tablet width; Today alone when nothing is begun); the masthead has a visible Search field (#PR)
+- Narrow phone covers show the title alone on the plate so the emblem stays in view; the full title is on the detail sheet (#PR)
+
+### Fixed
+- Word of the day: the illuminated initial showed as a blank red tile (#PR)
+
 ## [4.12.3] — 2026-11-14
 
 ### Removed
