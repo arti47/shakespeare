@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.27.0] — 2026-11-14
+
+### Added
+- Quizzes, histories (all 10): every scene now has 5 questions, 438 new ones, written to a spread of thinking skills (cause, inference, point of view, implication, evaluation) rather than recall, each checked against the text; the answer is the longest option in 21–27% of each play's questions (#141)
+
 ## [4.26.0] — 2026-11-14
 
 ### Added
