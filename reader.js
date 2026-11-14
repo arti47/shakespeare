@@ -10,13 +10,13 @@ const $=id=>document.getElementById(id);
 const PLAY=CFG.id,PFX=CFG.prefix,FSH={};
 /* 4.4: the play's cloth colour for enamel roundels */
 try{if(typeof coverColor==="function")document.documentElement.style.setProperty("--cc",coverColor(PLAY))}catch(e){}
-["lh","clean","onehand","show","size","theme","sumon","turn","beats","fit"].forEach(k=>FSH[PFX+k]=1);
+["lh","clean","onehand","show","size","theme","sumon","turn","beats","fit","mkview"].forEach(k=>FSH[PFX+k]=1);
 const LS={key(k){return FSH[k]?"folio-"+k.slice(PFX.length):k},get(k){try{const v=localStorage.getItem(LS.key(k));return v!==null?v:localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(LS.key(k),v)}catch(e){}}};
 LS.set("folio-last",PLAY);
 /* before 2.9.0 shared settings from plays whose prefix isn't 4 characters (lear-, tn-) were saved under a wrong key ("folio--theme", "folio-heme"): move them over once */
 if(PFX.length!==4)try{for(const k in FSH){const bad="folio-"+k.slice(4),good=LS.key(k),v=localStorage.getItem(bad);if(v!==null&&bad!==good){if(localStorage.getItem(good)===null)localStorage.setItem(good,v);localStorage.removeItem(bad)}}}catch(e){}
 const wide=()=>innerWidth>=760;
-function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
+function toast(t,undo){const el=$("toast");el.textContent=t;if(undo){const b=document.createElement("button");b.type="button";b.className="tundo";b.textContent="Undo";b.onclick=()=>{el.hidden=true;undo()};el.appendChild(b)}el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,undo?5000:2200)}
 
 /* ---------- data ---------- */
 const scenes=[], speech={}, whoSet=new Set();
@@ -56,8 +56,14 @@ let FAV=[];try{FAV=JSON.parse(LS.get(PFX+"fav")||"[]")}catch(e){}if(!Array.isArr
 FAV=FAV.filter(f=>f&&Array.isArray(f.a)&&Array.isArray(f.b)&&f.a.length===2&&f.b.length===2&&[...f.a,...f.b].every(Number.isInteger));
 const saveFav=()=>LS.set(PFX+"fav",JSON.stringify(FAV));
 const favSort=()=>FAV.sort((x,y)=>x.id-y.id||x.a[0]-y.a[0]||x.a[1]-y.a[1]||x.b[0]-y.b[0]||x.b[1]-y.b[1]);
-const FC=[["r","Rose"],["y","Yellow"],["g","Green"],["b","Blue"],["v","Violet"]],fcOk=c=>FC.some(x=>x[0]===c)?c:"r";
-let SEL=null;/* phrase being selected on the page: {id,a,b,anc,drag,edit,c,note} */
+/* 4.11 Marks: five inks shared by speech marks (marks[id].hl) and phrases (FAV[].c). Names are renameable for every play (folio-inks) */
+const INK=["y","r","b","g","v"],INKC={y:"Yellow",r:"Rose",b:"Blue",g:"Green",v:"Violet"},INKD={y:"Evidence",r:"Favourite",b:"Confusing",g:"Theme",v:"Language"};
+let INKN={};try{const o=JSON.parse(LS.get("folio-inks")||"{}");if(o&&typeof o==="object")for(const k of INK)if(typeof o[k]==="string"&&o[k].trim())INKN[k]=o[k].trim().slice(0,20)}catch(e){}
+const inkName=k=>INKN[k]||INKD[k]||"",fcOk=c=>INK.includes(c)?c:"r";
+const HL2INK={ev:"y",fav:"r",cf:"b",th:"g",lg:"v"},INK2HL={y:"ev",r:"fav",b:"cf",g:"th",v:"lg"};
+/* stored values come from this device or an imported backup: only known keys reach the page */
+const hlOf=m=>{const h=m.hl===true?"ev":m.hl;return HL2INK[h]?h:""},inkOf=m=>HL2INK[hlOf(m)]||"";
+let SEL=null;/* words being selected on the page: {id,a,b,anc,drag,edit,whole,hd} */
 const lineWords=l=>String(l).replace(/^~/,"").split(/\s+/).filter(Boolean);
 function favText(id,a,b){const sp=speech[id];if(!sp)return "";const out=[];for(let l=a[0];l<=b[0];l++){const w=lineWords(sp.lines[l]||"");out.push(w.slice(l===a[0]?a[1]:0,l===b[0]?b[1]+1:w.length).join(" "))}return out.filter(Boolean).join(" / ")}
 try{prog=Object.assign(prog,JSON.parse(LS.get(PFX+"prog")||"{}"));prog.cards=prog.cards||{}}catch(e){}
@@ -68,7 +74,7 @@ function saveMark(id,patch){
 const saveProg=()=>LS.set(PFX+"prog",JSON.stringify(prog));
 
 /* ---------- settings ---------- */
-const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:folioThemeChosen(),sum:LS.get(PFX+"sumon")!=="0",beats:LS.get(PFX+"beats")!=="0",fit:LS.get(PFX+"fit")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",who:"",stab:LS.get(PFX+"stab")||"quotes"};
+const S={lh:parseFloat(LS.get(PFX+"lh"))||1.55,focus:LS.get(PFX+"focus")||"",clean:LS.get(PFX+"clean")==="1",onehand:LS.get(PFX+"onehand")==="1",mode:LS.get(PFX+"show")||"orig",scale:parseFloat(LS.get(PFX+"size"))||1.3,theme:folioThemeChosen(),sum:LS.get(PFX+"sumon")!=="0",beats:LS.get(PFX+"beats")!=="0",fit:LS.get(PFX+"fit")!=="0",turn:["slide","instant"].includes(LS.get(PFX+"turn"))?LS.get(PFX+"turn"):"curl",mkview:["ticks","off"].includes(LS.get(PFX+"mkview"))?LS.get(PFX+"mkview"):"full",who:"",stab:LS.get(PFX+"stab")||"quotes"};
 function applySettings(){
   const b=document.body.classList;b.remove("mode-orig","mode-mod","mode-both");b.add("mode-"+S.mode);
   document.documentElement.style.setProperty("--scale",S.scale);
@@ -77,6 +83,7 @@ function applySettings(){
   document.documentElement.style.setProperty("--lh",S.lh);b.toggle("focusing",!!S.focus);b.toggle("clean",S.clean);
   LS.set(PFX+"lh",S.lh);LS.set(PFX+"focus",S.focus);LS.set(PFX+"clean",S.clean?"1":"0");LS.set(PFX+"onehand",S.onehand?"1":"0");
   LS.set(PFX+"show",S.mode);LS.set(PFX+"size",S.scale);LS.set(PFX+"theme",S.theme);LS.set(PFX+"sumon",S.sum?"1":"0");LS.set(PFX+"beats",S.beats?"1":"0");LS.set(PFX+"fit",S.fit?"1":"0");LS.set(PFX+"turn",S.turn);
+  b.toggle("mk-ticks",S.mkview==="ticks");b.toggle("mk-off",S.mkview==="off");LS.set(PFX+"mkview",S.mkview);
 }
 
 /* reading log: minutes and pages per day (this device) */
@@ -259,13 +266,16 @@ function sceneBlocks(p){
 }
 /* breathing space: long speeches get a small gap after each full sentence; modern English is split into short paragraphs */
 const endsSentence=l=>/[.?!]["'’”)\]]*\s*$/.test(l.replace(/\s*\[[^\]]*\]\s*$/,""));
-function lineHTML(l,num,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l;return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}${id!=null?` data-j="${j}"`:""}>${favLine(t,id,j)}${id!=null&&KQL[id+":"+j]?`<button class="kqm" type="button" data-kq="${KQL[id+":"+j][0]}" aria-label="Key quote">❦</button>`:""}</span>`}
-/* saved phrases (and the one being selected, drawn last so it wins) are wrapped in <mark class="fph fc-…"> */
-function favLine(t,id,j){if(id==null||!FAV.length&&!SEL)return gloss(t);const ws=[];t.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return gloss(t);const cov=[];
-  const add=(a,b,k,c,sel)=>{if(j<a[0]||j>b[0])return;const s=j===a[0]?a[1]:0,e=Math.min(ws.length-1,j===b[0]?b[1]:ws.length-1);if(s>=ws.length||e<s)return;cov.push({s:ws[s][0],e:ws[e][1],k,c:fcOk(c),sel})};
+function lineHTML(l,num,id,j){const song=l.startsWith("~"),t=song?l.slice(1):l,ik=id!=null?lineInk(id,j):"";return `<span class="l${song?" song":""}"${num%5===0?` data-n="${num}"`:""}${id!=null?` data-j="${j}"`:""}>${ik?`<i class="mt fc-${ik}" aria-hidden="true"></i>`:""}${favLine(t,id,j)}${id!=null&&KQL[id+":"+j]?`<button class="kqm" type="button" data-kq="${KQL[id+":"+j][0]}" aria-label="Key quote">❦</button>`:""}</span>`}
+/* 4.11 marks on the page: a speech mark bands every word of the speech (lowest), saved phrases over it, the selection drawn last so it wins.
+   Each is a <mark class="fph …">; a marked line also gets a tick in the margin (lineInk) */
+function lineInk(id,j){if(!FAV.length&&!marks[id])return "";let k="";for(const f of FAV)if(f.id===id&&j>=f.a[0]&&j<=f.b[0])k=fcOk(f.c);return k||inkOf(marks[id]||{})}
+function favLine(t,id,j){const sk=id!=null&&!(SEL&&SEL.whole&&SEL.id===id)&&marks[id]?inkOf(marks[id]):"";if(id==null||!FAV.length&&!SEL&&!sk)return gloss(t);const ws=[];t.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return gloss(t);const cov=[];
+  const add=(a,b,k,c,sel,sp)=>{if(j<a[0]||j>b[0])return;const s=j===a[0]?a[1]:0,e=Math.min(ws.length-1,j===b[0]?b[1]:ws.length-1);if(s>=ws.length||e<s)return;cov.push({s:ws[s][0],e:ws[e][1],k,c:fcOk(c),sel,sp})};
+  if(sk)add([j,0],[j,1e9],"",sk,false,true);
   FAV.forEach(f=>{if(f.id===id&&!(SEL&&SEL.edit===f.t))add(f.a,f.b,f.t,f.c,false)});if(SEL&&SEL.id===id)add(SEL.a,SEL.b,SEL.edit||"",SEL.c,true);
   if(!cov.length)return gloss(t);const P=[...new Set([0,t.length,...cov.flatMap(c=>[c.s,c.e])])].sort((a,b)=>a-b);let h="",g=null,buf="";
-  const flush=()=>{if(!buf)return;h+=g?`<mark class="fph fc-${g.c}${g.sel?" fsel":""}"${g.k!==""?` data-fp="${esc(g.k)}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
+  const flush=()=>{if(!buf)return;h+=g?`<mark class="fph${g.sel?" fsel":" fc-"+g.c}${g.sp?" fsp":""}"${!g.sel&&!g.sp&&g.k!==""?` data-fp="${esc(g.k)}"`:""}>${gloss(buf)}</mark>`:gloss(buf);buf=""};
   for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];let top=null;cov.forEach(c=>{if(c.s<=a&&c.e>=b)top=c});if(top!==g){flush();g=top}buf+=t.slice(a,b)}flush();return h}
 /* long speeches are grouped into whole-thought parts (tap a part for its modern English) */
 function linesHTML(it,a,b){let h="";const ps=partsOf(it);ps.forEach((p,i)=>{const s=Math.max(a,p[0]),e=Math.min(b,p[1]);if(s>e)return;let x="";for(let j=s;j<=e;j++)x+=lineHTML(it.lines[j],it.start+j,it.id,j);
@@ -277,9 +287,9 @@ function unfold(id,pi){const k=id+":"+pi,sp=speech[id],on=!OPEN.has(k);if(on)OPE
   if(on){addRecent(id,pi);coachDid(0);
     /* 4.5: a tall part is laid out line by line, so its slip may land on a later page: show that page */
     if(!pg.querySelector(`.mx[data-mx="${id}:${pi}"]`)){const ln=partsOf(sp)[pi][1],j=cur.pages.findIndex(pp=>pp.some(b=>b.t==="sp"&&b.it&&b.it.id===id&&b.units&&b.units.slice(b.u0,b.u1).some(u=>u[1]===ln)));if(j>=0&&j!==cur.i)renderPage(j,0,true)}}}
-function paras(t){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
+function paras(t,ink){const ss=String(t||"").match(/[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g)||[t];const out=[];let curp="",n=0;
   ss.forEach(x=>{curp+=x;n++;if(n>=2||curp.length>200){out.push(curp.trim());curp="";n=0}});if(curp.trim())out.push(curp.trim());
-  return out.map(p=>`<p>${esc(p)}</p>`).join("")}
+  return out.map(p=>ink?`<p><mark class="fph ${ink==="sel"?"fsel":"fsp fc-"+ink}">${esc(p)}</mark></p>`:`<p>${esc(p)}</p>`).join("")}
 /* 4.4: night or day on the stage, from the place, the stage directions and the scene's opening lines */
 const SKYC={},NIGHT=/\b(night|midnight|moon|moonlight|torch(es)?|candles?|tapers?|lanterns?|dark|darkness|stars|bed|bedchamber|sleeps?|asleep)\b/;
 function skyOf(p){if(SKYC[p.id])return SKYC[p.id];let sd=p.loc,ln="",n=0;for(const it of p.items){if(it.t==="sd")sd+=" "+it.text;else if(it.t==="sp"&&n<30){ln+=" "+it.lines.join(" ");n+=it.lines.length}}
@@ -359,10 +369,11 @@ function blockHTML(bk,p){
   const m=marks[it.id]||{},flags=(STUDY.notes[it.id]&&!bk.u0?`<span class="tag note" data-note="${it.id}">note</span>`:"")+(m.note?`<span class="flag" title="Your note">✎</span>`:"");
   const us=bk.units.slice(bk.u0,bk.u1),whole=bk.u0===0&&bk.u1===bk.units.length;
   let body;
+  const mk=SEL&&SEL.whole&&SEL.id===it.id?"sel":inkOf(m);
   if(S.mode==="orig")body=`<div class="o">${linesHTML(it,us[0][0],us[us.length-1][1])}</div>`;
-  else if(whole&&partsOf(it).length<2)body=`<div class="o">${linesHTML(it,0,it.lines.length-1)}</div><div class="m">${paras(it.m)}</div>`;
-  else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2])}</div></div>`).join("");
-  const hl=hlOf(m),hc=hl?" hl hl-"+hl:"";
+  else if(whole&&partsOf(it).length<2)body=`<div class="o">${linesHTML(it,0,it.lines.length-1)}</div><div class="m">${paras(it.m,mk)}</div>`;
+  else body=us.map(u=>`<div class="chunk"><div class="o">${linesHTML(it,u[0],u[1])}</div><div class="m">${paras(u[2],mk)}</div></div>`).join("");
+  const hc="";
   const dcap=!bk.u0&&p.items.find(x=>x.t==="sp")===it;
   const beat=S.beats&&!bk.u0&&!S.who&&BEAT[it.id]&&!dcap?`<div class="beat" aria-label="Story beat"><span>${beatTxt(BEAT[it.id])}</span></div>`:"";
   const ch=CH[it.who],intro=ch&&!bk.u0&&!S.who&&FIRSTSP[it.who]===it.id?`<div class="who1"><span>${esc(firstSentence(ch.desc))}</span></div>`:"";
@@ -460,14 +471,16 @@ function frame(i,n){const r=pg.getBoundingClientRect(),rh=$("rhead"),pf=$("pgfoo
   {const B=document.body.classList,two=twoLeaves();B.toggle("twol",two);B.toggle("oneleaf",spread()&&!two&&!facing());const st=document.documentElement.style;
    if(two){const lv=pg.querySelectorAll(".spread2>.leaf");if(lv.length===2){const a=lv[0].getBoundingClientRect(),b=lv[1].getBoundingClientRect();st.setProperty("--spx",((a.right+b.left)/2)+"px")}}st.setProperty("--bkl",r.left+"px")}
   /* desk (4.6): the running head and foot sit inside the book's top and foot margins (BOOK = the margins in px) */
-  rh.style.left=r.left+"px";rh.style.width=r.width+"px";pf.style.left=r.left+"px";pf.style.width=r.width+"px";
+  /* 4.11 phones: the page box reaches into the gutter for the margin tick; head and foot keep to the text */
+  const gl=parseFloat(getComputedStyle(pg).paddingLeft)&&!spread()?parseFloat(getComputedStyle(pg).paddingLeft):0;
+  rh.style.left=(r.left+gl)+"px";rh.style.width=(r.width-gl)+"px";pf.style.left=(r.left+gl)+"px";pf.style.width=(r.width-gl)+"px";
   if(spread()){rh.style.top=(r.top-BOOK.t+18)+"px";pf.style.top=(r.bottom+BOOK.b-40)+"px";pf.style.bottom="auto"}else{rh.style.top=pf.style.top=pf.style.bottom=""}
   /* desk: the page stack moves from right to left as you read the scene */
   if(spread()){const f=Math.min(1,(i+step())/Math.max(1,n)),L=1+Math.round(f*4),Rn=1+Math.round((1-f)*4),sh=[];
     for(let j=1;j<=L;j++)sh.push(`${-3*j}px ${3*j}px 0 ${-j}px color-mix(in srgb,var(--page) ${92-j*5}%,#000)`);
     for(let j=1;j<=Rn;j++)sh.push(`${3*j}px ${3*j}px 0 ${-j}px color-mix(in srgb,var(--page) ${92-j*5}%,#000)`);pg.style.setProperty("--stack",sh.join(","))}
   if(de){if(spread()){de.style.left=(r.right+BOOK.o-38)+"px";de.style.top=(r.bottom+BOOK.b-38)+"px";de.style.right=de.style.bottom="auto"}else de.style.left=de.style.top=de.style.right=de.style.bottom=""}}
-function renderPage(i,dir,keep){if(SEL){SEL=null;const d=$("fsbar");if(d)d.hidden=true}
+function renderPage(i,dir,keep){if(SEL){SEL=null;selHide()}
   document.body.classList.toggle("spread",spread());document.body.classList.toggle("facing",facing());i=even(Math.max(0,Math.min(i|0,cur.pages.length-1)));
   const p=scenes[cur.k];cur.i=i;
   const html=pageHTML(cur.pages,i,cur.k);
@@ -562,7 +575,7 @@ vp.addEventListener("pointerdown",e=>{if(e.button)return;
   const sp=e.target.closest(".sp");press={x:e.clientX,y:e.clientY,t:Date.now(),sp,tgt:e.target,timer:null,moved:false};
   {const r=vp.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width;press.edge=fx>.82?1:fx<.18?-1:0}
   if(sp){press.pt=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved)sp.classList.add("pressing")},160);
-    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}const h=wordAt(press.x,press.y);if(h&&h.id===+sp.dataset.id)startSel(h);else openPill(+sp.dataset.id,partAt(press.tgt,sp),sp)}},480)}});
+    press.timer=setTimeout(()=>{if(press&&press.sp===sp&&!press.moved){sp.classList.remove("pressing");swallow=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}const h=wordAt(press.x,press.y);if(h&&h.id===+sp.dataset.id)startSel(h);else selSpeech(+sp.dataset.id)}},480)}});
 vp.addEventListener("pointermove",e=>{if(CU&&CU.drag){curlMove(e.clientX,e.clientY);return}
   if(press&&press.edge&&!SEL&&!pinch){const dx=e.clientX-press.x,dy=e.clientY-press.y;if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2&&Math.sign(dx)===-press.edge&&curlOn()&&curlGrab(press.edge,press.x,press.y)){
     clearTimeout(press.timer);clearTimeout(press.pt);if(press.sp)press.sp.classList.remove("pressing");press=null;try{vp.setPointerCapture(e.pointerId)}catch(_){}curlMove(e.clientX,e.clientY);return}}
@@ -593,10 +606,12 @@ function endPress(e,cancel){if(CU&&CU.drag){curlRelease(cancel);return}if(!press
   if(toolsId!=null&&wide()){closePanel();return}
   toggleChrome()}
 vp.addEventListener("pointerup",e=>{if(SEL)SEL.drag=false;endPress(e,false)});
+/* a long-press drag can end anywhere (over a handle, off the page): then show the pill */
+document.addEventListener("pointerup",()=>{if(SEL&&SEL.drag){SEL.drag=false;selPlace()}},true);
 vp.addEventListener("pointercancel",e=>{if(SEL)SEL.drag=false;endPress(e,true)});
 /* iOS: claim the touch for a page drag before Safari takes it as a pan (which would fire pointercancel) */
 vp.addEventListener("touchmove",e=>{if(SEL&&SEL.drag||CU&&CU.drag||press&&press.edge&&e.touches.length===1&&curlOn()&&pg.scrollHeight<=pg.clientHeight+2)e.preventDefault()},{passive:false});
-vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}openPill(+sp.dataset.id,partAt(e.target,sp),sp)});
+vp.addEventListener("contextmenu",e=>{e.preventDefault();const sp=e.target.closest(".sp");if(!sp)return;if(press){clearTimeout(press.timer);clearTimeout(press.pt);swallow=true}const h=wordAt(e.clientX,e.clientY);if(h&&h.id===+sp.dataset.id)startSel(h,false);else selSpeech(+sp.dataset.id)});
 vp.addEventListener("wheel",e=>{const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(d)<25)return;const now=Date.now();if(now-(vp.lw||0)<450)return;vp.lw=now;turn(d>0?1:-1)},{passive:true});
 /* a tap within a few pixels of an underlined word counts as tapping it */
 function nearGloss(tgt,x,y){const d=tgt&&tgt.closest&&tgt.closest("abbr.g");if(d)return d;
@@ -625,52 +640,103 @@ $("p-range").addEventListener("input",e=>{const i=+e.target.value-1;let d=docume
   d.innerHTML=`<b>Page ${i+1} of ${cur.pages.length}</b><span>${pagePreview(i)}</span>`});
 $("p-range").addEventListener("change",e=>{const d=document.querySelector(".scrub");if(d)d.remove();renderPage(+e.target.value-1,0)});
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"&&SEL&&!e.target.closest("#fsbar textarea")){clearSel();return}
+  if(e.key==="Escape"&&SEL&&!e.target.closest("#mkpill textarea,#mkpill input")){clearSel();return}
   if(e.key==="Escape"&&gpop){hideGloss();return}
   if(e.key==="Escape"){if(!$("sheet").hidden)closeSheet();else if(toolsId!=null)closePanel();else toggleChrome(false);return}
   if(view!=="reader"||!$("sheet").hidden||e.target.closest("input,textarea,select"))return;
   if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();turn(1)}
   if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();turn(-1)}});
 
-/* ---------- select a phrase on the page: long-press a word, drag to extend, tap a word to move the nearer end ---------- */
+/* ---------- 4.11 Marks: one system for speech marks and phrases. Long-press a word (or right-click it) to select it; drag, or drag the ink-drop handles,
+   to adjust; tap a word to move the nearer end. Long-press anywhere else in a speech selects the whole speech. A pill floats by the selection:
+   one tap on an ink saves (Undo in the toast), the same ink again removes; long-press an ink to rename it (folio-inks, every play). ---------- */
 const wlt=(x,y)=>x[0]<y[0]||x[0]===y[0]&&x[1]<y[1];
 const wlin=(id,w)=>{const sp=speech[id];let n=0;for(let l=0;l<w[0];l++)n+=lineWords(sp.lines[l]).length;return n+w[1]};
-function wordAt(x,y){const el=document.elementFromPoint(x,y),l=el&&el.closest&&el.closest(".o .l[data-j]");if(!l)return null;const sp=l.closest(".sp[data-id]");if(!sp)return null;
+/* the word under a point: only the speech's own words count (not a run-in name, its tags or the key-quote mark) */
+function wordAt(x,y){const el=document.elementFromPoint(x,y);if(!el||!el.closest||el.closest(".nm,.rit,.kqm,.mkh,#mkpill"))return null;const l=el.closest(".o .l[data-j]");if(!l)return null;const sp=l.closest(".sp[data-id]");if(!sp)return null;
   let node=null,off=0;if(document.caretPositionFromPoint){const c=document.caretPositionFromPoint(x,y);if(c){node=c.offsetNode;off=c.offset}}else if(document.caretRangeFromPoint){const r=document.caretRangeFromPoint(x,y);if(r){node=r.startContainer;off=r.startOffset}}
-  if(!node||!l.contains(node))return null;const r=document.createRange();r.setStart(l,0);r.setEnd(node,off);const n=r.toString().length;
-  const ws=[];l.textContent.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return null;let i=ws.findIndex(w=>n<w[1]);if(i<0)i=ws.length-1;
+  if(!node||!l.contains(node))return null;const r=document.createRange();r.setStart(l,0);r.setEnd(node,off);
+  const tw=document.createTreeWalker(l,NodeFilter.SHOW_TEXT,{acceptNode:t=>t.parentElement&&t.parentElement.closest(".nm,.rit,.kqm")?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  let txt="",n=-1;for(let t;(t=tw.nextNode());){if(n<0){if(t===node)n=txt.length+off;else if(r.comparePoint(t,0)>0)n=txt.length}txt+=t.data}if(n<0)n=Math.max(0,txt.length-1);
+  const ws=[];txt.replace(/\S+/g,(m,i)=>{ws.push([i,i+m.length]);return m});if(!ws.length)return null;let i=ws.findIndex(w=>n<w[1]);if(i<0)i=ws.length-1;
   return {id:+sp.dataset.id,w:[+l.dataset.j,i]}}
-function startSel(h,drag=true){if(toolsId!=null)closePanel();hideGloss();SEL={id:h.id,a:h.w,b:h.w,anc:h.w,drag,edit:0,c:fcOk(LS.get(PFX+"fc")),note:""};selPaint(true)}
-function editSel(f){hideGloss();if(toolsId!=null)closePanel();SEL={id:f.id,a:f.a.slice(),b:f.b.slice(),anc:f.a.slice(),drag:false,edit:f.t,c:fcOk(f.c),note:f.note||""};selPaint(true)}
-function selMove(w){if(wlt(w,SEL.a))SEL.a=w;else if(wlt(SEL.b,w))SEL.b=w;else if(wlin(SEL.id,w)-wlin(SEL.id,SEL.a)<=wlin(SEL.id,SEL.b)-wlin(SEL.id,w))SEL.a=w;else SEL.b=w;SEL.anc=SEL.a;selPaint()}
-function clearSel(){if(!SEL)return;SEL=null;const d=$("fsbar");if(d)d.hidden=true;refreshMarks()}
-function selPaint(build){refreshMarks();let d=$("fsbar");
-  if(build||!d||d.hidden){if(!d){d=document.createElement("div");d.id="fsbar";d.className="fsbar";d.setAttribute("role","dialog");d.setAttribute("aria-label","Favourite phrase");$("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.addEventListener("pointerdown",e=>e.stopPropagation())}
-    d.innerHTML=`<div class="fs-txt" id="fs-txt"></div>
-      <div class="fs-row"><span class="fs-sw" role="group" aria-label="Highlight colour">${FC.map(([k,l])=>`<button class="sw fc-${k}${SEL.c===k?" on":""}" data-fc="${k}" aria-label="${l}" aria-pressed="${SEL.c===k}"></button>`).join("")}</span><button class="btn sm" id="fs-nt" aria-expanded="${!!SEL.note}">Note</button></div>
-      <div id="fs-nw"${SEL.note?"":" hidden"}><label class="sr" for="fs-note">Note</label><textarea id="fs-note" rows="2" placeholder="Why this phrase? (optional)">${esc(SEL.note)}</textarea></div>
-      <div class="fs-row"><button class="btn sm primary" id="fs-save">${SEL.edit?"Save":"Save favourite"}</button>${SEL.edit?`<button class="btn sm" id="fs-del">Remove</button>`:""}<button class="btn sm" id="fs-tools">Speech tools</button><button class="btn sm" id="fs-x" aria-label="Cancel">✕</button></div>`;
-    d.hidden=false;
-    d.querySelectorAll("[data-fc]").forEach(b=>b.onclick=()=>{SEL.c=b.dataset.fc;d.querySelectorAll("[data-fc]").forEach(x=>{const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)});refreshMarks()});
-    $("fs-nt").onclick=()=>{const w=$("fs-nw");w.hidden=!w.hidden;$("fs-nt").setAttribute("aria-expanded",!w.hidden);if(!w.hidden)$("fs-note").focus()};
-    $("fs-note").oninput=e=>SEL.note=e.target.value;
-    $("fs-save").onclick=saveSel;$("fs-x").onclick=clearSel;
-    if($("fs-del"))$("fs-del").onclick=()=>{const t=SEL.edit;FAV=FAV.filter(f=>f.t!==t);saveFav();clearSel();toast("Phrase removed")};
-    $("fs-tools").onclick=()=>{const id=SEL.id,sp=speech[id],ps=partsOf(sp),l=SEL.a[0],pi=Math.max(0,ps.findIndex(q=>l>=q[0]&&l<=q[1]));clearSel();openTools(id,pi)}}
-  $("fs-txt").textContent="“"+favText(SEL.id,SEL.a,SEL.b)+"”";
-  /* keep the bar off the selected words: move it to the top when they sit low on the screen */
-  const mk=pg.querySelectorAll("mark.fsel");if(mk.length){const t=mk[0].getBoundingClientRect().top,b=mk[mk.length-1].getBoundingClientRect().bottom,bh=d.offsetHeight+28,low=b>innerHeight-bh,high=t<bh;
-    if(d.classList.contains("top")){if(high&&!low)d.classList.remove("top")}else if(low&&!high)d.classList.add("top")}}
-function saveSel(){if(!SEL)return;const {id,a,b,c}=SEL,note=(SEL.note||"").trim(),txt=favText(id,a,b);
-  let f=SEL.edit?FAV.find(x=>x.t===SEL.edit):FAV.find(x=>x.id===id&&x.a+""===a+""&&x.b+""===b+"");
-  if(f)Object.assign(f,{a,b,txt,note,c});else FAV.push({id,a,b,txt,note,c,t:Date.now()});
-  LS.set(PFX+"fc",c);favSort();saveFav();const ed=SEL.edit;clearSel();toast(ed?"Phrase updated":"Phrase saved. Find it in My notes.")}
+const lastW=id=>{const sp=speech[id],L=sp.lines.length-1;return [L,Math.max(0,lineWords(sp.lines[L]).length-1)]};
+const inkLast=()=>{const k=LS.get(PFX+"fc");return INK.includes(k)?k:"y"};
+function selPre(){hideGloss();if(toolsId!=null)closePanel()}
+function startSel(h,drag=true){selPre();SEL={id:h.id,a:h.w,b:h.w,anc:h.w,drag,edit:0,whole:false};selPaint(true)}
+function selSpeech(id){if(!speech[id])return;selPre();SEL={id,a:[0,0],b:lastW(id),anc:[0,0],drag:false,edit:0,whole:true};selPaint(true)}
+function editSel(f){selPre();SEL={id:f.id,a:f.a.slice(),b:f.b.slice(),anc:f.a.slice(),drag:false,edit:f.t,whole:false};selPaint(true)}
+function selMove(w){SEL.whole=false;if(wlt(w,SEL.a))SEL.a=w;else if(wlt(SEL.b,w))SEL.b=w;else if(wlin(SEL.id,w)-wlin(SEL.id,SEL.a)<=wlin(SEL.id,SEL.b)-wlin(SEL.id,w))SEL.a=w;else SEL.b=w;SEL.anc=SEL.a;selPaint()}
+function selHide(){["mkpill","mkh-a","mkh-b"].forEach(i=>{const d=$(i);if(d)d.hidden=true})}
+function clearSel(){if(!SEL)return;SEL=null;selHide();refreshMarks()}
+/* the phrase this selection edits (or one saved with exactly these words), and its ink */
+function selFav(){if(!SEL||SEL.whole)return null;return SEL.edit?FAV.find(x=>x.t===SEL.edit):FAV.find(x=>x.id===SEL.id&&x.a+""===SEL.a+""&&x.b+""===SEL.b+"")}
+function selInk(){if(!SEL)return "";if(SEL.whole)return inkOf(marks[SEL.id]||{});const f=selFav();return f?fcOk(f.c):""}
+function selPart(){const ps=partsOf(speech[SEL.id]),l=SEL.a[0];return Math.max(0,ps.findIndex(q=>l>=q[0]&&l<=q[1]))}
+const PILLI={note:'<path d="M5 19l1-4L16 5l3 3L9 18z"/><path d="M14 7l3 3"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',mod:'<path d="M4 6h10M4 11h7M4 16h9"/><path d="M15 13l3 3 3-3M18 9v7"/>',more:'<circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/>',sp:'<path d="M5 5h14M5 9.5h14M5 14h14M5 18.5h9"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>'};
+function selPaint(build){refreshMarks();let d=$("mkpill");
+  if(!d){d=document.createElement("div");d.id="mkpill";d.className="mkpill";d.setAttribute("role","dialog");d.setAttribute("aria-label","Mark");document.body.appendChild(d);["pointerdown","pointerup"].forEach(ev=>d.addEventListener(ev,e=>e.stopPropagation()));build=true}
+  if(build||d.hidden||d.dataset.w!==String(SEL.whole))pillBuild(d);else{const on=selInk();d.querySelectorAll("[data-ink]").forEach(b=>{b.classList.toggle("on",b.dataset.ink===on);b.setAttribute("aria-pressed",b.dataset.ink===on)})}
+  d.hidden=false;selPlace()}
+function pillBuild(d){const on=selInk(),f=selFav(),m=marks[SEL.id]||{},note=SEL.whole?(m.note||""):(f&&f.note||"");d.dataset.w=String(SEL.whole);
+  d.innerHTML=`<div class="mkinks" role="group" aria-label="Inks (press and hold one to rename it)">${INK.map(k=>`<button type="button" class="mki fc-${k}${on===k?" on":""}" data-ink="${k}" aria-pressed="${on===k}"><i aria-hidden="true"></i><small>${esc(inkName(k))}</small></button>`).join("")}</div>
+    <div class="mkacts">${[["note",note?"Note •":"Note"],["copy","Copy"],SEL.whole?["mod","Modern"]:["sp","Speech"],["more","More"]].map(([k,l])=>`<button type="button" data-mka="${k}"${k==="sp"?' aria-label="Select the whole speech"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${PILLI[k]}</svg><small>${l}</small></button>`).join("")}<button type="button" class="mkx" data-mka="x" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true">${PILLI.x}</svg></button></div>
+    <div class="mkcard" id="mk-nw" hidden><label class="sr" for="mk-note">Note</label><textarea id="mk-note" rows="3" placeholder="${SEL.whole?"Your note on this speech…":"Why these words? (optional)"}">${esc(note)}</textarea><div class="mkrow"><button type="button" class="btn sm primary" id="mk-ns">Save note</button></div></div>
+    <div class="mkcard" id="mk-rw" hidden></div>`;
+  d.querySelectorAll("[data-ink]").forEach(b=>{let t=0,held=false;
+    b.addEventListener("pointerdown",()=>{held=false;clearTimeout(t);t=setTimeout(()=>{held=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}inkRename(b.dataset.ink)},550)});
+    ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(t)));
+    b.addEventListener("contextmenu",e=>{e.preventDefault();clearTimeout(t);held=true;inkRename(b.dataset.ink)});
+    b.onclick=()=>{if(held){held=false;return}inkTap(b.dataset.ink)}});
+  const A=k=>d.querySelector(`[data-mka="${k}"]`);
+  A("note").onclick=()=>{const w=$("mk-nw");w.hidden=!w.hidden;$("mk-rw").hidden=true;A("note").setAttribute("aria-expanded",!w.hidden);if(!w.hidden)$("mk-note").focus({preventScroll:true});selPlace()};
+  $("mk-ns").onclick=noteSave;
+  A("copy").onclick=()=>{const sp=speech[SEL.id],t=SEL.whole?sp.lines.map(l=>l.replace(/^~/,"")).join("\n"):favText(SEL.id,SEL.a,SEL.b);copyText(t+`\n— ${title(sp.who)}, ${sName(sceneOf(SEL.id))}`);clearSel()};
+  if(A("sp"))A("sp").onclick=()=>selSpeech(SEL.id);
+  if(A("mod"))A("mod").onclick=()=>{const id=SEL.id,pi=selPart();clearSel();if(S.mode==="orig")unfold(id,pi);else openPart(id,pi,false)};
+  A("more").onclick=()=>{const id=SEL.id,pi=selPart();clearSel();openTools(id,pi)};
+  A("x").onclick=clearSel}
+/* keep the pill off the selected words: above them (room for the start handle), else below, else at the bottom of the screen */
+function selPlace(){const d=$("mkpill");if(!SEL||!d||d.hidden)return;const mk=[...pg.querySelectorAll("mark.fsel")],rs=mk.flatMap(m=>[...m.getClientRects()]).filter(r=>r.width);
+  if(!rs.length){selHide();return}
+  const ro=[...pg.querySelectorAll(".o mark.fsel")].flatMap(m=>[...m.getClientRects()]).filter(r=>r.width),hd=S.mode!=="mod"&&ro.length;
+  if(hd){const a=ro[0],b=ro[ro.length-1];hdl("a",a.left,a.top,a.bottom);hdl("b",b.right,b.top,b.bottom);["a","b"].forEach(k=>$("mkh-"+k).classList.toggle("nohit",!!SEL.drag))}else["mkh-a","mkh-b"].forEach(i=>{const h=$(i);if(h)h.hidden=true});
+  d.classList.toggle("hid",!!(SEL.drag||SEL.hd));
+  const top=Math.min(...rs.map(r=>r.top)),bot=Math.max(...rs.map(r=>r.bottom)),cx=(Math.min(...rs.map(r=>r.left))+Math.max(...rs.map(r=>r.right)))/2,bw=d.offsetWidth,bh=d.offsetHeight,
+    st=10+(document.body.classList.contains("chrome")?60:0);
+  let y=top-bh-30;if(y<st){y=bot+34;if(y+bh>innerHeight-10)y=Math.max(st,innerHeight-10-bh)}
+  d.style.left=Math.max(8,Math.min(innerWidth-bw-8,cx-bw/2))+"px";d.style.top=y+"px"}
+/* ink-drop handles: a stem the height of the line, a drop above the first word and below the last; drag one to move that end (word by word, across lines) */
+function hdl(k,x,t,b){let h=$("mkh-"+k);
+  if(!h){h=document.createElement("div");h.id="mkh-"+k;h.className="mkh mkh-"+k;h.innerHTML=`<i role="slider" aria-label="${k==="a"?"Start":"End"} of selection"></i>`;document.body.appendChild(h);
+    h.addEventListener("pointerdown",e=>{if(!SEL)return;e.preventDefault();e.stopPropagation();try{h.setPointerCapture(e.pointerId)}catch(_){}const r=h.getBoundingClientRect();
+      SEL.hd=k;SEL.anc=k==="a"?SEL.b:SEL.a;SEL.dx=r.left-e.clientX+(k==="a"?3:-3);SEL.dy=r.top+r.height/2-e.clientY;h.classList.add("drag");selPlace()});
+    h.addEventListener("pointermove",e=>{if(!SEL||SEL.hd!==k)return;const w=wordAt(e.clientX+SEL.dx,e.clientY+SEL.dy);if(!w||w.id!==SEL.id)return;const an=SEL.anc,[a,b]=wlt(w.w,an)?[w.w,an]:[an,w.w];
+      if(a+""!==SEL.a+""||b+""!==SEL.b+""){SEL.a=a;SEL.b=b;SEL.whole=false;selPaint()}});
+    const up=()=>{h.classList.remove("drag");if(SEL&&SEL.hd){SEL.hd=null;SEL.anc=SEL.a;selPaint()}};h.addEventListener("pointerup",up);h.addEventListener("pointercancel",up)}
+  h.hidden=false;h.style.left=x+"px";h.style.top=t+"px";h.style.height=Math.max(12,b-t)+"px"}
+function undoToast(msg,snap){toast(msg,()=>{try{FAV=JSON.parse(snap.fav)}catch(e){}saveFav();if(snap.mk)marks[snap.id]=JSON.parse(snap.mk);else delete marks[snap.id];LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks();toast("Undone")})}
+const selSnap=id=>({id,fav:JSON.stringify(FAV),mk:marks[id]?JSON.stringify(marks[id]):null});
+function inkTap(k){if(!SEL)return;const id=SEL.id,snap=selSnap(id);let msg;
+  if(SEL.whole){const was=inkOf(marks[id]||{});saveMark(id,{hl:was===k?false:INK2HL[k]});msg=was===k?"Mark removed":"Speech marked: "+inkName(k)}
+  else{const f=selFav(),{a,b}=SEL,txt=favText(id,a,b);
+    if(f&&fcOk(f.c)===k&&f.a+""===a+""&&f.b+""===b+""){FAV=FAV.filter(x=>x!==f);msg="Mark removed"}
+    else{if(f)Object.assign(f,{a,b,txt,c:k});else FAV.push({id,a,b,txt,note:"",c:k,t:Date.now()});msg="Marked: "+inkName(k)}
+    favSort();saveFav()}
+  LS.set(PFX+"fc",k);SEL=null;selHide();refreshMarks();undoToast(msg,snap)}
+function noteSave(){if(!SEL)return;const v=$("mk-note").value.trim(),id=SEL.id,snap=selSnap(id);
+  if(SEL.whole)saveMark(id,{note:v});
+  else{const f=selFav(),{a,b}=SEL,txt=favText(id,a,b);if(f)Object.assign(f,{a,b,txt,note:v});else if(v)FAV.push({id,a,b,txt,note:v,c:inkLast(),t:Date.now()});favSort();saveFav()}
+  SEL=null;selHide();refreshMarks();undoToast(v?"Note saved":"Note removed",snap)}
+function inkRename(k){const w=$("mk-rw");if(!w)return;$("mk-nw").hidden=true;w.hidden=false;
+  w.innerHTML=`<label for="mk-rn" class="mkl">Rename the ${INKC[k]} ink, for every play</label><input id="mk-rn" maxlength="20" autocomplete="off" value="${esc(inkName(k))}"><div class="mkrow"><button type="button" class="btn sm primary" id="mk-rs">Save</button><button type="button" class="btn sm" id="mk-rr">Reset to ${esc(INKD[k])}</button></div>`;
+  const i=$("mk-rn");i.focus({preventScroll:true});i.select();
+  const set=v=>{const n=Object.assign({},INKN);v=String(v||"").trim().slice(0,20);if(v&&v!==INKD[k])n[k]=v;else delete n[k];INKN=n;LS.set("folio-inks",JSON.stringify(n));selPaint(true);toast("Ink renamed: "+inkName(k))};
+  $("mk-rs").onclick=()=>set(i.value);$("mk-rr").onclick=()=>set("");i.onkeydown=e=>{if(e.key==="Enter")set(i.value)};selPlace()}
+document.addEventListener("pointerdown",e=>{if(SEL&&!e.target.closest("#mkpill,.mkh,#vp,#toast"))clearSel()},true);
 
 /* ---------- speech tools: side panel (wide) or sheet (phone) ---------- */
 let toolsId=null;
-const HLC=[["ev","Evidence"],["fav","Favourite"],["cf","Confusing"]];
-/* stored values come from this device or an imported backup: only known highlight keys and theme ids reach the page */
-const hlOf=m=>{const h=m.hl===true?"ev":m.hl;return HLC.some(x=>x[0]===h)?h:""};
 const thOf=m=>(Array.isArray(m.th)?m.th:[]).filter(x=>QUOTES.themes[x]);
 function pairHTML(sp,q,cur){const og=sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("");
   return `<div class="pair${cur?" cur":""}"><div class="ptag">Shakespeare</div><div class="porig">${og}</div><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>`}
@@ -696,8 +762,8 @@ function toolsHTML(id,pi){
     <h3 class="lbl">My note</h3><label for="tn" class="sr">My note</label><textarea id="tn" placeholder="Your thoughts on these lines…">${esc(m.note||"")}</textarea>
     <div class="acts"><button class="btn sm" id="t-save">Save note</button></div></div>
     <div data-tp="mark"><div class="trow" role="group" aria-label="Mark and share">
-      <div class="hlset" role="group" aria-label="Highlight">${HLC.map(([k,l])=>`<button class="tb hlb${hlOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${hlOf(m)===k}"><i class="hlk ${k}"></i><small>${l}</small></button>`).join("")}</div>
-      <button class="tb" id="t-fph"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span><small>Phrase${nf?` (${nf})`:""}</small></button>
+      <div class="hlset" role="group" aria-label="Mark the whole speech">${INK.map(k=>`<button class="tb hlb${inkOf(m)===k?" on":""}" data-hl="${k}" aria-pressed="${inkOf(m)===k}"><i class="hlk fc-${k}"></i><small>${esc(inkName(k))}</small></button>`).join("")}</div>
+      <button class="tb" id="t-fph"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span><small>Mark words${nf?` (${nf})`:""}</small></button>
       <button class="tb" id="t-focus" aria-pressed="${S.focus===sp.who}"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span><small>${S.focus===sp.who?"Undim":"Dim others"}</small></button>
       <button class="tb" id="t-follow" aria-pressed="${S.who===sp.who}"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 3.8-6 7-6s6 2 7 6"/></svg></span><small>${S.who===sp.who?"Everyone":"Only "+esc(title(sp.who))}</small></button>
       <button class="tb" id="t-copy"><span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></span><small>Copy</small></button>
@@ -712,13 +778,13 @@ function wireTools(id,pi){
   wirePerf(id);
   document.querySelectorAll(".tool [data-ttab]").forEach(b=>b.onclick=()=>{TTAB=b.dataset.ttab;const t=b.closest(".tool");t.dataset.tt=TTAB;t.querySelectorAll("[data-ttab]").forEach(x=>x.setAttribute("aria-selected",x===b));const sc=t.closest(".panel-body,#panel-body,#sheet-body");if(sc)sc.scrollTop=0});
   $("t-save").onclick=()=>{const v=$("tn").value;saveMark(id,{note:v});toast(v.trim()?"Note saved":"Note removed")};
-  document.querySelectorAll(".tool [data-hl]").forEach(b=>b.onclick=()=>{const k=b.dataset.hl,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});
-    document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
+  document.querySelectorAll(".tool [data-hl]").forEach(b=>b.onclick=()=>{const k=b.dataset.hl,on=inkOf(marks[id]||{})!==k;saveMark(id,{hl:on?INK2HL[k]:false});
+    document.querySelectorAll(".tool [data-hl]").forEach(x=>{const a=on&&x===b;x.classList.toggle("on",a);x.setAttribute("aria-pressed",a)});markPart();toast(on?"Speech marked: "+inkName(k):"Mark removed")});
   $("t-focus").onclick=()=>{S.focus=S.focus===sp.who?"":sp.who;applySettings();refreshMarks();markPart();$("t-focus").innerHTML=`<span><svg class="tbi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span><small>${S.focus===sp.who?"Undim":"Dim others"}</small>`;$("t-focus").setAttribute("aria-pressed",S.focus===sp.who);toast(S.focus?"Dimming everyone except "+title(S.focus):"Showing everyone normally")};
   $("t-follow").onclick=()=>{S.who=S.who===sp.who?"":sp.who;closePanel();closeSheet();cur.sig="";openScene(sIdx(sp.page),{speech:id});toast(S.who?"Showing only "+title(S.who):"Showing everyone")};
   document.querySelectorAll(".tool [data-tth]").forEach(b=>b.onclick=()=>{const k=b.dataset.tth,th=((marks[id]||{}).th||[]).slice(),i=th.indexOf(k);if(i<0)th.push(k);else th.splice(i,1);saveMark(id,{th});b.setAttribute("aria-pressed",i<0);toast(i<0?"Tagged: "+QUOTES.themes[k][0]:"Tag removed")});
   $("t-img").onclick=()=>{const kq=(QBY[id]||[])[0];openImage(kq?[kq.text]:sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")),title(sp.who),sName(sceneOf(id))+", lines "+(sp.start+q[0])+"–"+(sp.start+q[1]))};
-  $("t-fph").onclick=()=>{const w=[q[0],0];closeSheet();closePanel();showPartPage(id,pi);startSel({id,w},false);toast("Tap a word to extend the phrase")};
+  $("t-fph").onclick=()=>{const w=[q[0],0];closeSheet();closePanel();showPartPage(id,pi);startSel({id,w},false);toast("Drag a handle or tap a word to take in more")};
   $("t-copy").onclick=()=>copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`);
 }
 /* tap an underlined word: small pop-up with its meaning (wins over the part tap) */
@@ -773,25 +839,6 @@ function openPart(id,pi,all){
   if($("qn-save"))$("qn-save").onclick=()=>{const v=$("qn").value;saveMark(id,{note:v});markPart();toast(v.trim()?"Note saved":"Note removed")};
   addRecent(id,pi);
 }
-/* 4.5 action pill: a long-press floats quick actions over the speech; More opens the full Speech tools */
-const PILLI={note:'<path d="M5 19l1-4L16 5l3 3L9 18z"/><path d="M14 7l3 3"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',mod:'<path d="M4 6h10M4 11h7M4 16h9"/><path d="M15 13l3 3 3-3M18 9v7"/>',more:'<circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/>'};
-function closePill(){const d=$("apill");if(d)d.remove()}
-function openPill(id,pi,el){closePill();hideGloss();pi=pi||0;const sp=speech[id];if(!sp)return;const m=marks[id]||{};
-  const d=document.createElement("div");d.id="apill";d.className="apill";d.setAttribute("role","toolbar");d.setAttribute("aria-label","Speech actions");
-  d.innerHTML=HLC.map(([k,l])=>`<button type="button" class="aph${hlOf(m)===k?" on":""}" data-aph="${k}" aria-pressed="${hlOf(m)===k}" aria-label="Highlight: ${l}"><i class="hlk ${k}"></i></button>`).join("")+'<i class="apsep" aria-hidden="true"></i>'+
-    [["note","Note"],["copy","Copy"],["mod","Modern"],["more","More"]].map(([k,l])=>`<button type="button" data-apa="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${PILLI[k]}</svg><small>${l}</small></button>`).join("");
-  document.body.appendChild(d);el=el||pg.querySelector(`.sp[data-id="${id}"]`);const r=el?el.getBoundingClientRect():{top:innerHeight/2,left:0,width:innerWidth},bw=d.offsetWidth,bh=d.offsetHeight;
-  let y=r.top-bh-8;if(y<10)y=Math.min(innerHeight-bh-10,(r.top>10?r.top:10)+8);d.style.left=Math.max(8,Math.min(innerWidth-bw-8,r.left+r.width/2-bw/2))+"px";d.style.top=y+"px";
-  if(el)el.classList.add("active");
-  d.addEventListener("pointerup",e=>e.stopPropagation());
-  d.querySelectorAll("[data-aph]").forEach(b=>b.onclick=()=>{const k=b.dataset.aph,on=hlOf(marks[id]||{})!==k;saveMark(id,{hl:on?k:false});closePill();toast(on?"Marked: "+HLC.find(x=>x[0]===k)[1]:"Highlight removed")});
-  d.querySelector('[data-apa="copy"]').onclick=()=>{closePill();const q=partsOf(sp)[pi]||partsOf(sp)[0];copyText(sp.lines.slice(q[0],q[1]+1).map(l=>l.replace(/^~/,"")).join("\n")+`\n— ${title(sp.who)}, ${sName(sceneOf(id))}`)};
-  d.querySelector('[data-apa="mod"]').onclick=()=>{closePill();if(S.mode==="orig")unfold(id,pi);else openPart(id,pi,false)};
-  d.querySelector('[data-apa="note"]').onclick=()=>{closePill();TTAB="note";openTools(id,pi);setTimeout(()=>{const t=$("tn");if(t){t.scrollIntoView({block:"center"});t.focus({preventScroll:true})}},60)};
-  d.querySelector('[data-apa="more"]').onclick=()=>{closePill();openTools(id,pi)};
-  setTimeout(()=>{const f=d.querySelector("button");if(f)f.focus({preventScroll:true})},30)}
-document.addEventListener("pointerdown",e=>{const d=$("apill");if(d&&!e.target.closest("#apill")){d.remove();pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"))}},true);
-addEventListener("keydown",e=>{if(e.key==="Escape")closePill()});
 function openTools(id,pi){
   pi=pi||0;toolsId=id;partSel={id,pi};const sp=speech[id];
   pg.querySelectorAll(".pt.cur").forEach(x=>x.classList.remove("cur"));pg.querySelectorAll(".sp.active").forEach(x=>x.classList.remove("active"));markPart();
@@ -1851,16 +1898,16 @@ function studyQuiz(){
 function revisionText(){
   let t=`${CFG.title.toUpperCase()}: REVISION SHEET\n${new Date().toLocaleDateString()}\n\n`;
   const ids=Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b);
-  t+=`MY HIGHLIGHTS AND NOTES (${ids.length})\n`;
-  if(!ids.length)t+="None yet. While reading, press and hold a speech to highlight it or add a note.\n";
+  t+=`MY MARKED SPEECHES AND NOTES (${ids.length})\n`;
+  if(!ids.length)t+="None yet. While reading, press and hold a speaker’s name to mark the whole speech or add a note.\n";
   let ls="";ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k);if(p.id!==ls){t+=`\n${sName(p)} (${shortLoc(p)})\n`;ls=p.id}
-    t+=`  ${title(sp.who)}${m.hl?" ★":""}: ${sp.lines.map(l=>l.replace(/^~/,"")).join(" / ")}\n`;if(m.note)t+=`    My note: ${m.note.replace(/\n/g," ")}\n`});
+    t+=`  ${title(sp.who)}${inkOf(m)?" ["+inkName(inkOf(m))+"]":""}: ${sp.lines.map(l=>l.replace(/^~/,"")).join(" / ")}\n`;if(m.note)t+=`    My note: ${m.note.replace(/\n/g," ")}\n`});
   const qs=Object.entries(prog.quiz).filter(([k])=>k!=="all"&&sIdx(k)>=0).sort((a,b)=>sIdx(a[0])-sIdx(b[0]));
   t+=`\nQUIZ SCORES\n`+(qs.length?qs.map(([k,v])=>`  ${sName(scenes[sIdx(k)])}: ${v[0]}/${v[1]}`).join("\n"):"  None yet")+(prog.quiz.all?`\n  Whole-play quiz (last): ${prog.quiz.all[0]}/${prog.quiz.all[1]}`:"")+"\n";
   const kn=QUOTES.quotes.filter(q=>prog.cards[q.i]),un=QUOTES.quotes.filter(q=>!prog.cards[q.i]);
   t+=`\nQUOTES STILL TO LEARN (${un.length})\n`+un.map(q=>`  "${q.text}" (${title(speech[q.id].who)}, ${sName(sceneOf(q.id))})`).join("\n")+"\n";
   t+=`\nQUOTES LEARNT (${kn.length})\n`+(kn.map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")||"  None yet")+"\n";
-  const fv=FAV.filter(f=>speech[f.id]);t+=`\nFAVOURITE PHRASES (${fv.length})\n`+(fv.map(f=>`  "${f.txt}" (${title(speech[f.id].who)}, ${sName(sceneOf(f.id))})${f.note?`\n    My note: ${f.note.replace(/\n/g," ")}`:""}`).join("\n")||"  None yet")+"\n";
+  const fv=FAV.filter(f=>speech[f.id]);t+=`\nMARKED WORDS (${fv.length})\n`+(fv.map(f=>`  [${inkName(fcOk(f.c))}] "${favText(f.id,f.a,f.b)||f.txt||""}" (${title(speech[f.id].who)}, ${sName(sceneOf(f.id))})${f.note?`\n    My note: ${f.note.replace(/\n/g," ")}`:""}`).join("\n")||"  None yet")+"\n";
   return t}
 function download(name,text,type){try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
   toast("Downloading. If nothing appears, use Copy instead.")}
@@ -1930,7 +1977,7 @@ $("sbody").addEventListener("change",e=>{if(e.target.id==="vl-s"){vlSel=+e.targe
 
 /* ---------- sheets ---------- */
 const sheet=$("sheet");let lastFocus=null;
-function openSheet(t,html){closePill();if(spread()&&view==="reader"&&document.body.classList.contains("chrome"))toggleChrome(false);if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;sheet.classList.remove("full");
+function openSheet(t,html){clearSel();if(spread()&&view==="reader"&&document.body.classList.contains("chrome"))toggleChrome(false);if(sheet.hidden)lastFocus=document.activeElement;$("sheet-title").textContent=t;$("sheet-body").innerHTML=html;sheet.hidden=false;sheet.classList.remove("full");
   if(wide()&&view==="reader"){document.body.classList.add("sside");if(!$("panel").classList.contains("open"))fitPanel(true)}const b=sheet.querySelector(".sbox");b.scrollTop=0;b.focus({preventScroll:true})}
 function closeSheet(){if(sheet.hidden)return;sheet.hidden=true;if(document.body.classList.contains("sside")){document.body.classList.remove("sside");if(!$("panel").classList.contains("open"))fitPanel(false)}if(!wide())closePanel();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
 $("sheet-close").onclick=closeSheet;
@@ -1975,38 +2022,45 @@ const bmHere=()=>pos?BM.findIndex(b=>b.s===pos.s&&b.key===pos.key):-1;
 function bmState(){const b=$("b-bm");if(!b)return;const on=bmHere()>=0;pg.classList.toggle("bmk",on);b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.setAttribute("aria-label",on?"Remove bookmark":"Bookmark this page")}
 function keyText(s,key){const [id,ln]=String(key).split(":"),sp=speech[id];return sp?(sp.lines[+ln||0]||sp.lines[0]).replace(/^~/,""):sName(scenes[sIdx(s)])}
 function toggleBM(){if(!pos)return;const i=bmHere();if(i>=0){BM.splice(i,1);toast("Bookmark removed")}else{BM.push({s:pos.s,key:pos.key,t:Date.now(),txt:keyText(pos.s,pos.key)});BM.sort((a,b)=>sIdx(a.s)-sIdx(b.s)||String(a.key).localeCompare(String(b.key),void 0,{numeric:true}));toast("Page bookmarked. Find it in My notes.")}saveBM();bmState()}
-/* my notes: search, filters, print, share */
+/* my notes (4.11): speech marks and marked words in one list in play order; ink chips with counts, search, theme and character filters, print, share */
 let nf={q:"",th:"",who:"",c:""};
-function notesIds(){const q=nf.q.trim().toLowerCase();
-  return Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b).filter(k=>{const sp=speech[k],m=marks[k];
+function notesRows(){const rows=[];Object.keys(marks).forEach(k=>{if(speech[k])rows.push({s:+k,o:-1,m:marks[k]})});FAV.forEach(f=>{if(speech[f.id])rows.push({s:f.id,o:f.a[0]*1e4+f.a[1],f})});return rows.sort((x,y)=>x.s-y.s||x.o-y.o)}
+const rowInk=r=>r.f?fcOk(r.f.c):inkOf(r.m),rowNote=r=>String((r.f?r.f.note:r.m.note)||"").trim(),rowTxt=r=>r.f?(favText(r.f.id,r.f.a,r.f.b)||r.f.txt||""):speech[r.s].lines.join(" ").replace(/~/g,"");
+function notesFilter(rows,c){const q=nf.q.trim().toLowerCase();
+  return rows.filter(r=>{const sp=speech[r.s],m=marks[r.s]||{};
     if(nf.who&&sp.who!==nf.who)return false;
-    if(nf.th&&!((m.th||[]).includes(nf.th)||(QBY[k]||[]).some(x=>x.themes.includes(nf.th))))return false;
-    if(nf.c==="note"&&!(m.note&&m.note.trim()))return false;if(nf.c&&nf.c!=="note"&&hlOf(m)!==nf.c)return false;
-    if(q&&!((m.note||"").toLowerCase().includes(q)||sp.lines.join(" ").toLowerCase().includes(q)||sp.m.toLowerCase().includes(q)))return false;return true})}
-function notesList(){const ids=notesIds();let h=`<p class="muted">${ids.length} of ${Object.keys(marks).filter(k=>speech[k]).length} shown</p>`,la=0;
-  ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k),hl=hlOf(m);
+    if(nf.th&&!((m.th||[]).includes(nf.th)||(QBY[r.s]||[]).some(x=>x.themes.includes(nf.th))))return false;
+    if(c==="note"&&!rowNote(r))return false;if(c&&c!=="note"&&rowInk(r)!==c)return false;
+    if(q&&!(rowNote(r).toLowerCase().includes(q)||rowTxt(r).toLowerCase().includes(q)||!r.f&&sp.m.toLowerCase().includes(q)))return false;return true})}
+const notesShown=()=>notesFilter(notesRows(),nf.c);
+function notesChips(){const rs=notesFilter(notesRows(),""),n=k=>rs.filter(r=>rowInk(r)===k).length,nn=rs.filter(rowNote).length;
+  return `<button type="button" class="chip" data-nfc="" aria-pressed="${!nf.c}">All <small>${rs.length}</small></button>${INK.map(k=>n(k)||nf.c===k?`<button type="button" class="chip mkchip fc-${k}" data-nfc="${k}" aria-pressed="${nf.c===k}"><i class="hlk fc-${k}"></i>${esc(inkName(k))} <small>${n(k)}</small></button>`:"").join("")}${nn||nf.c==="note"?`<button type="button" class="chip" data-nfc="note" aria-pressed="${nf.c==="note"}">✎ Has note <small>${nn}</small></button>`:""}`}
+function notesList(){const rows=notesShown();let h=`<p class="muted">${rows.length} of ${notesRows().length} shown</p>`,la=0;
+  rows.forEach(r=>{const sp=speech[r.s],m=marks[r.s]||{},p=sceneOf(r.s),ik=rowInk(r),t=rowTxt(r),nt=rowNote(r);
     if(p.act!==la){h+=`<div class="eyebrow" style="margin:14px 0 0">${LAT[p.act]}</div>`;la=p.act}
-    const o=sp.lines.join(" ").replace(/~/g,"");
-    h+=`<div class="item" data-speech="${k}" tabindex="0"><small>${hl?`<i class="hlk ${hl}"></i> `:""}${esc(where(sp))}${thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><span style="font-family:var(--f-old)">${esc(o.slice(0,140))}${o.length>140?"…":""}</span>${m.note?`<div class="mynote">${esc(m.note)}</div>`:""}</div>`});
+    const lab=`${ik?`<i class="hlk fc-${ik}"></i><b class="mkn">${esc(inkName(ik))}</b> · `:""}${esc(where(sp))}`,band=x=>ik?`<mark class="mkb fc-${ik}">${x}</mark>`:x;
+    h+=r.f?`<div class="item mkr" data-fph="${esc(r.f.t)}" tabindex="0"><small>${lab} · <button class="link" data-fpdel="${esc(r.f.t)}">Remove</button></small><span class="mkt">${band("“"+esc(t)+"”")}</span>${nt?`<div class="mynote">${esc(nt)}</div>`:""}</div>`
+      :`<div class="item mkr" data-speech="${r.s}" tabindex="0"><small>${lab}${thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""}${ik?"":" · speech"}</small><span class="mkt">${band(esc(t.slice(0,160))+(t.length>160?"…":""))}</span>${nt?`<div class="mynote">${esc(nt)}</div>`:""}</div>`});
   return h}
 function openNotes(){
-  const all=Object.keys(marks).filter(k=>speech[k]),whos=[...new Set(all.map(k=>speech[k].who))].sort();
+  const rows=notesRows(),whos=[...new Set(rows.map(r=>speech[r.s].who))].sort();
   let h=`<p class="muted">Saved on this device. Tap one to go to it.</p>`;
   if(BM.length)h+=`<div class="eyebrow" style="margin:10px 0 0">Bookmarks</div>`+BM.map((b,i)=>`<div class="item" data-bm="${i}" tabindex="0"><small>${esc(sName(scenes[sIdx(b.s)]))} · <button class="link" data-bmdel="${i}">Remove</button></small><span style="font-family:var(--f-old)">${esc(b.txt||"")}</span></div>`).join("");
-  const fv=FAV.filter(f=>speech[f.id]);if(fv.length)h+=`<div class="eyebrow" style="margin:14px 0 0">Favourite phrases</div>`+fv.map(f=>`<div class="item" data-fph="${esc(f.t)}" tabindex="0"><small><i class="hlk fc-${fcOk(f.c)}"></i> ${esc(where(speech[f.id]))} · <button class="link" data-fpdel="${esc(f.t)}">Remove</button></small><span style="font-family:var(--f-old)">“${esc(f.txt)}”</span>${f.note?`<div class="mynote">${esc(f.note)}</div>`:""}</div>`).join("");
-  if(!all.length)h+=`<div class="empty46"><svg viewBox="0 0 120 90" aria-hidden="true"><path class="eq" d="M86 8c-14 6-30 22-42 44l-6 14 12-9c18-14 32-30 36-49z"/><path class="eq2" d="M44 52l-8 18M50 46c6-2 14-8 20-16"/><path class="er" d="M18 20h10v58l-5-6-5 6z"/><path class="el" d="M8 84h104"/></svg></div><p class="emptyp">No notes yet. While reading, press and hold a word to save a favourite phrase, or open Speech tools from that bar to highlight a speech, tag a theme or add a note. Use the bookmark button in the top bar to save a page.</p>`;
-  else h+=`<div class="eyebrow" style="margin:14px 0 0">Notes and highlights</div><div class="nfilt"><label class="sr" for="nf-q">Search notes</label><input type="search" id="nf-q" placeholder="Search your notes and lines…" value="${esc(nf.q)}">
-    <label class="sr" for="nf-c">Colour</label><select id="nf-c"><option value="">Any colour</option>${HLC.map(([k,l])=>`<option value="${k}"${nf.c===k?" selected":""}>${l}</option>`).join("")}<option value="note"${nf.c==="note"?" selected":""}>With a written note</option></select>
+  if(!rows.length)h+=`<div class="empty46"><svg viewBox="0 0 120 90" aria-hidden="true"><path class="eq" d="M86 8c-14 6-30 22-42 44l-6 14 12-9c18-14 32-30 36-49z"/><path class="eq2" d="M44 52l-8 18M50 46c6-2 14-8 20-16"/><path class="er" d="M18 20h10v58l-5-6-5 6z"/><path class="el" d="M8 84h104"/></svg></div><p class="emptyp">No marks yet. While reading, press and hold a word, then tap an ink to mark it. Press and hold a speaker’s name to mark the whole speech. Use the bookmark button in the top bar to save a page.</p>`;
+  else h+=`<div class="eyebrow" style="margin:14px 0 0">Marks and notes</div><div class="mkchips" id="nchips" role="group" aria-label="Filter by ink">${notesChips()}</div><div class="nfilt"><label class="sr" for="nf-q">Search notes</label><input type="search" id="nf-q" placeholder="Search your marks and notes…" value="${esc(nf.q)}" style="grid-column:1/-1">
     <label class="sr" for="nf-th">Theme</label><select id="nf-th"><option value="">Any theme</option>${Object.entries(QUOTES.themes).map(([k,v])=>`<option value="${k}"${nf.th===k?" selected":""}>${esc(v[0])}</option>`).join("")}</select>
-    <label class="sr" for="nf-who">Character</label><select id="nf-who" style="grid-column:1/-1"><option value="">Any character</option>${whos.map(w=>`<option value="${esc(w)}"${nf.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
+    <label class="sr" for="nf-who">Character</label><select id="nf-who"><option value="">Any character</option>${whos.map(w=>`<option value="${esc(w)}"${nf.who===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select></div>
     <div class="row"><button class="btn sm" id="nf-print">Print</button><button class="btn sm" id="nf-copy">Copy</button><button class="btn sm" id="nf-share">Share as a link</button></div><div id="nlist">${notesList()}</div>`;
-  openSheet("My notes",h);if(!all.length)return;
-  let tm;$("nf-q").oninput=e=>{nf.q=e.target.value;clearTimeout(tm);tm=setTimeout(()=>$("nlist").innerHTML=notesList(),150)};
-  ["c","th","who"].forEach(f=>$("nf-"+f).onchange=e=>{nf[f]=e.target.value;$("nlist").innerHTML=notesList()});
-  const txt=()=>notesIds().map(k=>{const sp=speech[k],m=marks[k];return `${where(sp)}\n${sp.lines.map(l=>l.replace(/^~/,"")).join("\n")}${m.note?`\nNote: ${m.note}`:""}`}).join("\n\n");
+  openSheet("My notes",h);if(!rows.length)return;
+  const re=()=>{$("nlist").innerHTML=notesList();$("nchips").innerHTML=notesChips()};
+  let tm;$("nf-q").oninput=e=>{nf.q=e.target.value;clearTimeout(tm);tm=setTimeout(re,150)};
+  ["th","who"].forEach(f=>$("nf-"+f).onchange=e=>{nf[f]=e.target.value;re()});
+  $("nchips").onclick=e=>{const b=e.target.closest("[data-nfc]");if(!b)return;nf.c=b.dataset.nfc;re()};
+  const lines=r=>r.f?"“"+rowTxt(r)+"”":speech[r.s].lines.map(l=>l.replace(/^~/,"")).join("\n"),ink=r=>rowInk(r)?`[${inkName(rowInk(r))}] `:"";
+  const txt=()=>notesShown().map(r=>`${ink(r)}${where(speech[r.s])}\n${lines(r)}${rowNote(r)?`\nNote: ${rowNote(r)}`:""}`).join("\n\n");
   $("nf-copy").onclick=()=>copyText("MY "+CFG.short.toUpperCase()+" NOTES\n\n"+txt());
-  $("nf-print").onclick=()=>printArea("My "+CFG.short+" notes",notesIds().map(k=>{const sp=speech[k],m=marks[k];return `<div class="pi"><small>${esc(where(sp))}${thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><div>${sp.lines.map(l=>esc(l.replace(/^~/,""))).join("<br>")}</div>${m.note?`<i>${esc(m.note)}</i>`:""}</div>`}).join(""));
-  $("nf-share").onclick=()=>shareIds(notesIds());
+  $("nf-print").onclick=()=>printArea("My "+CFG.short+" notes",notesShown().map(r=>{const m=marks[r.s]||{};return `<div class="pi"><small>${esc(ink(r)+where(speech[r.s]))}${!r.f&&thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""}</small><div>${esc(lines(r)).replace(/\n/g,"<br>")}</div>${rowNote(r)?`<i>${esc(rowNote(r))}</i>`:""}</div>`}).join(""));
+  $("nf-share").onclick=()=>shareIds([...new Set(notesShown().map(r=>r.s))]);
 }
 function printArea(tl,html){let pa=$("printarea");if(!pa){pa=document.createElement("div");pa.id="printarea";document.body.appendChild(pa)}
   pa.innerHTML=`<h1>${esc(tl)}</h1>${html}`;document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");removeEventListener("afterprint",done)};addEventListener("afterprint",done);
@@ -2047,7 +2101,7 @@ function jumpLine(v){const m=String(v).trim().match(/^(\d)\D+(\d)\D+(\d+)$/);if(
 /* Settings › How to read: one short line per gesture, in four groups (same guidance as before 3.1.1, split up) */
 const HOWTO=[["Turning pages",[["⇆","Swipe left or right","turn the page (arrow keys or scroll wheel on a computer)"],["☰","Tap empty space","show or hide the menus"],["⟷","Drag the page slider","preview pages (bottom menu)"]]],
   ["Understanding",[["¶","Tap a line","its modern English opens underneath; tap again to fold it"],["⋯","Whole speech","long speeches come in parts; this shows the rest"],["<u>a</u>","Tap an underlined word","its meaning"],["Aa","Tap a character’s name","who they are, with links to Study"],["❦","Tap ❦ or “note”","the key quote or study note for that line"]]],
-  ["Marking",[["✎","Press and hold a word","select a phrase; drag to extend, tap another word to move the nearer end"],["◐","Pick a colour","save the phrase as a favourite"],["⚒","Speech tools","in the same bar: meanings, notes, highlights (right-click a speech on a computer)"]]],
+  ["Marking",[["✎","Press and hold a word","selects it; keep dragging, or drag the ink-drop handles, to take in more words"],["◐","Tap an ink","marks the words at once (Undo in the message); the same ink again removes the mark"],["¶","Press and hold a name","selects the whole speech (right-click on a computer)"],["✐","Press and hold an ink","rename it, for every play"],["⋯","Note, Copy, More","in the same pill; More opens Speech tools"]]],
   ["Text size",[["⤢","Pinch with two fingers","change the text size (or use Text size above)"]]]];
 /* 4.3 settings icons, picked by each option's label */
 const SETI=[['<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',/./],
@@ -2056,7 +2110,7 @@ const SETI=[['<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 
   ['<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',/Theme/],['<path d="M4 19 9 5l5 14M6 14h6M15 19l3-8 3 8M16 16.5h4"/>',/Text size/],
   ['<path d="M4 6h12M4 12h16M4 18h10M20 4v4M18 6h4"/>',/spacing/],['<path d="M5 5h14v14H5z"/><path d="M9 9h6"/>',/Clean/],['<path d="M8 11V5a2 2 0 0 1 4 0v5l5 1a2 2 0 0 1 1.6 2.3L18 20H9l-4-5a1.8 1.8 0 0 1 2.6-2.4z"/>',/One-hand/],
   ['<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/>',/Page turn/],['<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',/Dim/],['<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.3 5.5 2.3s4-.8 5.5-2.3V11"/>',/Exam/],
-  ['<path d="M4 20c4-1 4-6 8-7s4-6 8-7"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="6" r="1.6"/>',/beats/i],['<path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/>',/Argument/],['<circle cx="9" cy="8" r="3.5"/><path d="M3 20c1-4 3-6 6-6s5 2 6 6M17 8h4M19 6v4"/>',/Follow/],
+  ['<path d="M14.5 4.5l5 5-8.5 8.5H6v-5z"/><path d="M4 20h8"/>',/^Marks/],['<path d="M4 20c4-1 4-6 8-7s4-6 8-7"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="6" r="1.6"/>',/beats/i],['<path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/>',/Argument/],['<circle cx="9" cy="8" r="3.5"/><path d="M3 20c1-4 3-6 6-6s5 2 6 6M17 8h4M19 6v4"/>',/Follow/],
   ['<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17v.5"/>',/How to/],['<path d="M12 3v12M7 10l5 5 5-5M4 19h16"/>',/[Bb]ackup/],['<path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/>',/Progress/]];
 let SETTAB="page";
 /* 4.5 Fit verse: the largest size (≥14px) at which about 90% of this play's verse lines fit on one line of the page */
@@ -2072,6 +2126,7 @@ function openSettings(){
     <div class="opt"><div class="lbl">Fit verse lines</div>${segs("fit",[["true","On"],["false","Off"]],S.fit)}<small>Sets Shakespeare's verse just small enough that most lines fit on one line (never under 14px), so the rhythm stays visible. Prose follows the same size.</small></div>
     <div class="opt"><div class="lbl">Line spacing</div>${segs("lh",[["1.4","Compact"],["1.55","Normal"],["1.8","Airy"]],S.lh)}</div>
     <div class="opt"><div class="lbl">Clean page</div>${segs("clean",[["false","Off"],["true","On"]],S.clean)}<small>Hides line numbers, tags and underlines for pure reading. Tapping still works.</small></div>
+    <div class="opt"><div class="lbl">Marks on the page, for every play</div>${segs("mkview",[["full","Full"],["ticks","Ticks only"],["off","Off"]],S.mkview)}<small>Full: a soft ink band behind marked words and a tick in the margin. Ticks only: just the tick. Off: a clean page; your marks stay in My notes.</small></div>
     <div class="opt"><div class="lbl">One-hand page turns</div>${segs("onehand",[["false","Off"],["true","On"]],S.onehand)}<small>Tap the bottom-left or bottom-right corner to turn pages.</small></div>
     <div class="opt"><div class="lbl">Page turn</div>${segs("turn",[["curl","Curl"],["slide","Slide"],["instant","Instant"]],S.turn)}<small>Curl: hold the page near its outer edge or a corner and drag; it bends and turns like paper. Taps and swipes curl too. Instant changes pages with no motion, like an e-reader (Slide is also instant in Paper themes).</small></div>
     <div class="opt"><label for="focsel" class="lbl">Dim everyone except</label><select id="focsel"><option value="">Nobody (show all normally)</option>${whoOpts.map(w=>`<option value="${esc(w)}"${S.focus===w?" selected":""}>${esc(title(w))}</option>`).join("")}</select><small>Other speakers stay on the page but fade, so you can follow one voice.</small></div>
@@ -2086,7 +2141,7 @@ function openSettings(){
     if(k==="level"){LS.set("folio-level",v);$("sheet-body").querySelectorAll(`[data-set="level"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="study")renderStudy();toast(v==="a"?"Marking: A-level":"Marking: GCSE");return}
     if(k==="scale"||k==="lh")v=parseFloat(v);if(k==="sum"||k==="clean"||k==="onehand"||k==="beats"||k==="fit")v=v==="true";S[k]=v;applySettings();$("sheet-body").querySelectorAll(`[data-set="${k}"] button`).forEach(x=>x.setAttribute("aria-pressed",x===b));repaginate()});
   /* 4.5: Settings in four tabs, the live preview pinned on top */
-  {const sb=$("sheet-body"),TABS=[["page","Page"],["type","Type"],["theme","Theme"],["app","App"]],TOF=[["theme",/^Theme/],["type",/^Text size|^Line spacing|^One-hand|^Page turn/],["page",/^On the page|^Clean|^Dim|^Story beats|^The Argument|^Follow/]];
+  {const sb=$("sheet-body"),TABS=[["page","Page"],["type","Type"],["theme","Theme"],["app","App"]],TOF=[["theme",/^Theme/],["type",/^Text size|^Line spacing|^One-hand|^Page turn/],["page",/^On the page|^Marks|^Clean|^Dim|^Story beats|^The Argument|^Follow/]];
     sb.querySelectorAll(":scope>.opt,:scope>.box").forEach(o=>{const l=o.querySelector(".lbl,h3"),t=l?l.textContent.trim():"",f=TOF.find(x=>x[1].test(t));o.dataset.stab=f?f[0]:"app"});
     sb.querySelector(".spv").insertAdjacentHTML("afterend",`<div class="stabs" role="tablist">${TABS.map(([k,l])=>`<button type="button" role="tab" data-stb="${k}" aria-selected="${k===SETTAB}">${l}</button>`).join("")}</div>`);
     const showT=k=>{SETTAB=k;sb.dataset.st=k;sb.querySelectorAll("[data-stb]").forEach(b=>b.setAttribute("aria-selected",b.dataset.stb===k))};showT(SETTAB);
@@ -2208,7 +2263,7 @@ $("you").addEventListener("click",e=>{const s=e.target.closest("[data-stop]");if
 /* ---------- first-run hint ---------- */
 /* once per app (folio-hint), not once per play: three short steps, Folio style */
 function hint(){if(folioSimple()){coach();return}if(LS.get("folio-hint")||LS.get(PFX+"hint4")||view!=="reader")return;const d=document.createElement("div");d.className="hint";d.setAttribute("role","dialog");d.setAttribute("aria-label","How to read");
-  d.innerHTML=`<p class="eyebrow">How to read</p><ol><li><b>Swipe</b> or tap the page edge to turn the page.</li><li><b>Tap a line</b> and its modern English opens under it. Tap a dotted word for its meaning.</li><li><b>Tap empty space</b> for the menus. Press and hold a word to save a phrase.</li></ol><button class="btn primary">Begin</button>`;
+  d.innerHTML=`<p class="eyebrow">How to read</p><ol><li><b>Swipe</b> or tap the page edge to turn the page.</li><li><b>Tap a line</b> and its modern English opens under it. Tap a dotted word for its meaning.</li><li><b>Tap empty space</b> for the menus. Press and hold a word to mark it.</li></ol><button class="btn primary">Begin</button>`;
   $("reader").appendChild(d);d.addEventListener("pointerup",e=>e.stopPropagation());d.querySelector("button").onclick=()=>{d.remove();LS.set("folio-hint","1")}}
 
 /* ---------- start ---------- */

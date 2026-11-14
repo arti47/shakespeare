@@ -1,6 +1,5 @@
 
 /* Layout: an e-reader for a Folio. Home = title page, contents, "The Names of the Actors". Reader = one screen-sized page at a time, menus hidden (tap empty space to show them, swipe or arrow keys to turn). Tap a speech part for its modern English; long-press for word meanings and notes (side panel on wide screens, bottom sheet on phones). Study = its own tab. Type: IM Fell for Shakespeare, Instrument Sans for everything modern. */
-:root[data-theme="paper"]{--hl-ev:#ece2bf;--hl-fav:#d9e1ea;--hl-cf:#ecd9d9}
 :root[data-theme^="paper"] body,:root[data-theme^="paper"] #reader,:root[data-theme^="paper"] .sheet .sbox,:root[data-theme^="paper"] .panel,:root[data-theme^="paper"] .sheet .head{background-image:var(--grain)}
 :root[data-theme^="paper"] .pg{text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
 :root[data-theme^="paper"] *{box-shadow:none!important}
@@ -39,32 +38,14 @@ abbr.g.on{background:var(--accent-soft);border-radius:2px}
 abbr.g{text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,transparent);text-underline-offset:4px}
 
 /* ---------- batch A: reader extras ---------- */
-:root{--hl-ev:#f7e9b5;--hl-fav:#d8e7fb;--hl-cf:#f8dbe0;--lh:1.55}
-:root[data-theme="dark"],:root[data-theme="night"]{--hl-ev:#3b3315;--hl-fav:#172a42;--hl-cf:#40202b}
-@media (prefers-color-scheme: dark){:root:not([data-theme]){--hl-ev:#3b3315;--hl-fav:#172a42;--hl-cf:#40202b}}
-.sp.hl.hl-ev .o,.sp.hl.hl-ev .m{background:var(--hl-ev);box-shadow:0 0 0 .25em var(--hl-ev)}
-.sp.hl.hl-fav .o,.sp.hl.hl-fav .m{background:var(--hl-fav);box-shadow:0 0 0 .25em var(--hl-fav)}
-.sp.hl.hl-cf .o,.sp.hl.hl-cf .m{background:var(--hl-cf);box-shadow:0 0 0 .25em var(--hl-cf)}
 .hlk{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:-.05em;margin-right:4px;border:1px solid var(--rule)}
-.hlk.ev{background:var(--hl-ev)}.hlk.fav{background:var(--hl-fav)}.hlk.cf{background:var(--hl-cf)}
 :root{--fc-r:#f8d7de;--fc-y:#f7eaa6;--fc-g:#d3ecd0;--fc-b:#d6e6fb;--fc-v:#e5dbf7;--fci-r:#c2405a;--fci-y:#a8850a;--fci-g:#3f8f47;--fci-b:#3b74c4;--fci-v:#7d55c7}
 :root[data-theme="dark"],:root[data-theme="night"]{--fc-r:#4a2330;--fc-y:#3f3614;--fc-g:#1f3a24;--fc-b:#172a42;--fc-v:#2f2546;--fci-r:#f08a9b;--fci-y:#e2c25c;--fci-g:#7ccf86;--fci-b:#7fb0f0;--fci-v:#b99af0}
 @media (prefers-color-scheme: dark){:root:not([data-theme]){--fc-r:#4a2330;--fc-y:#3f3614;--fc-g:#1f3a24;--fc-b:#172a42;--fc-v:#2f2546;--fci-r:#f08a9b;--fci-y:#e2c25c;--fci-g:#7ccf86;--fci-b:#7fb0f0;--fci-v:#b99af0}}
-.fc-r{--fc:var(--fc-r);--fci:var(--fci-r)}.fc-y{--fc:var(--fc-y);--fci:var(--fci-y)}.fc-g{--fc:var(--fc-g);--fci:var(--fci-g)}.fc-b{--fc:var(--fc-b);--fci:var(--fci-b)}.fc-v{--fc:var(--fc-v);--fci:var(--fci-v)}
-.pg mark.fph{background:var(--fc,var(--fc-r));color:inherit;border-bottom:2px solid var(--fci,var(--fci-r));border-radius:2px;box-shadow:0 0 0 .08em var(--fc,var(--fc-r));-webkit-box-decoration-break:clone;box-decoration-break:clone}
-.pg mark.fph.fsel{outline:2px solid var(--ink);outline-offset:1px;border-bottom-style:dashed}
+.fc-r{--fc:var(--fc-r);--fci:var(--fci-r);--mk:var(--mk-r)}.fc-y{--fc:var(--fc-y);--fci:var(--fci-y);--mk:var(--mk-y)}.fc-g{--fc:var(--fc-g);--fci:var(--fci-g);--mk:var(--mk-g)}.fc-b{--fc:var(--fc-b);--fci:var(--fci-b);--mk:var(--mk-b)}.fc-v{--fc:var(--fc-v);--fci:var(--fci-v);--mk:var(--mk-v)}
 .hlk[class*="fc-"]{background:var(--fc)}
 .sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--fci);background:var(--fc);cursor:pointer;padding:0;flex:none}
 .sw.on{outline:3px solid var(--ink);outline-offset:2px}
-.fs-sw{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.fsbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:min(560px,calc(100% - 24px));z-index:20;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:12px 14px;font:500 .9375rem var(--f-ui);user-select:none;-webkit-user-select:none}
-.fsbar[hidden]{display:none}
-.pg .o .l[data-j]{touch-action:none}/* long-press + drag selects words; the browser must not take the drag as a pan */
-.fsbar.top{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 12px)}
-.fsbar .fs-txt{font-family:var(--f-old);font-size:1.0625rem;line-height:1.35;max-height:4.2em;overflow:auto;margin-bottom:10px}
-.fsbar .fs-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:8px}
-.fsbar .fs-row:last-child{justify-content:flex-start}.fsbar #fs-x{margin-left:auto}
-.fsbar textarea{width:100%;min-height:58px;margin-top:8px;font:inherit;font-size:1rem;user-select:text;-webkit-user-select:text}
 .tool .ib.hlb{padding:7px 11px}.tool .ib.hlb.on{outline:2px solid var(--ink);outline-offset:1px;background:var(--page);color:var(--ink);border-color:var(--rule)}
 .onstage{font:500 max(14px,.62em) var(--f-ui);letter-spacing:.06em;color:var(--muted);margin-top:.6em;text-align:center}
 .onstage span{color:color-mix(in srgb,var(--c,var(--ink)) var(--nmw),var(--nmix));font-weight:600}
@@ -252,7 +233,6 @@ body.mode-mod .m{font-size:max(14px,.86em);color:var(--ink)}
 body.mode-both .sp .body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 3em}
 body.mode-both .chunk{display:contents}
 body.mode-both .chunk+.chunk>*{border-top:1px dotted var(--rule);padding-top:.3em;margin-top:.2em}
-.sp.hl .o,.sp.hl .m{background:var(--hl);box-shadow:0 0 0 .25em var(--hl);border-radius:2px}
 .sp.pressing{background:var(--accent-soft)}
 .sp.active{background:color-mix(in srgb,var(--accent-soft) 80%,transparent);box-shadow:0 0 0 .35em color-mix(in srgb,var(--accent-soft) 80%,transparent)}
 .endblk{text-align:center;padding:1.6em 0 0;color:var(--muted)}
@@ -1601,14 +1581,6 @@ body.spread .pgfoot .pfr{padding-right:0}
 :root[data-theme="dark"] .mx,:root[data-theme="night"] .mx,:root[data-theme="dark"] .mx::before,:root[data-theme="night"] .mx::before{background:color-mix(in srgb,var(--gold) 10%,var(--card))}
 @media (prefers-color-scheme:dark){:root:not([data-theme]) .mx,:root:not([data-theme]) .mx::before{background:color-mix(in srgb,var(--gold) 10%,var(--card))}}
 /* action pill (long-press) */
-.apill{position:fixed;z-index:40;display:flex;align-items:center;gap:2px;padding:5px 6px;border-radius:999px;background:var(--card);border:var(--line) solid var(--rule-strong);box-shadow:0 10px 26px -8px rgba(30,15,5,.45);animation:f43pop .18s ease-out}
-.apill button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:44px;min-height:44px;padding:2px 6px;border:0;border-radius:999px;background:none;color:var(--ink);cursor:pointer}
-.apill button:hover,.apill button:focus-visible{background:var(--hover);outline:none}
-.apill svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.apill small{font:400 max(14px,.72rem) var(--f-sc);letter-spacing:.03em;color:var(--soft)}
-.apill .aph i{width:22px;height:22px;border-radius:50%;display:block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
-.apill .aph.on i{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--accent)}
-.apill .apsep{width:1px;height:28px;background:var(--rule);margin:0 4px}
 /* phone: the page slider and the nav are one bar; the ribbon is its top edge */
 @media (max-width:759px){
   body.v-reader .bbar{border-top:0;box-shadow:0 -6px 14px -10px rgba(40,20,5,.35)}
@@ -1688,7 +1660,7 @@ body.facing .spread2.facing::before{content:"";position:absolute;top:0;bottom:0;
   body.v-reader.spread .prib{position:absolute;left:0;right:0;top:0;height:5px}
   body.spread .dogear{position:fixed}
 }
-@media (prefers-reduced-motion:reduce){.apill,body.v-reader.sside .sheet .sbox{animation:none}.sheet .sbox,.rhead,.dogear{transition:none}}
+@media (prefers-reduced-motion:reduce){.mkpill,body.v-reader.sside .sheet .sbox{animation:none}.sheet .sbox,.rhead,.dogear{transition:none}}
 
 /* ---------- 4.6 "Printed page" (audit 9, reader only): desk page inside the book with book margins, sheets keep the book,
    run-in speakers on phones, no rules between speeches, tidy opener, tabbed Speech tools, parchment gloss, key quote card,
@@ -1819,7 +1791,7 @@ body.facing .spread2.facing::before{content:"";position:absolute;top:0;bottom:0;
 /* ---------- 4.7 "Pocket edition" (audit 10, reader only, no content changes): live verse fit, tighter page, Crimson Pro book serif,
    scene title pages with woodcut headpieces, act pages, tailpieces, margin marks, slim bars, candlelit Night/Dark, desk spread with the rail in the spine ---------- */
 /* book serif for modern English, notes, intros (reader only; the shelf keeps its own) */
-#reader,#study,#you,.sheet,.panel,.gpop,.apill{--f-body:"Crimson Pro","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+#reader,#study,#you,.sheet,.panel,.gpop,.mkpill{--f-body:"Crimson Pro","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
 #reader .m,#reader .mx,#reader .who1,.tool .pmod p,.gpop.gslip{font-size-adjust:none}
 .pg .m,.pg .mxt{font-size:max(14px,.8em)}
 body.mode-mod .pg .m{font-size:max(14px,.95em)}
@@ -2065,3 +2037,76 @@ button.tdc{cursor:pointer}
 #sbody .az{position:sticky;top:0;z-index:6;margin:0 -4px 12px;padding:8px 4px;background:var(--page,var(--bg));border-bottom:1px solid var(--rule)}
 #sbody .az{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#sbody .az::-webkit-scrollbar{display:none}
 #sbody .az button{flex:none;min-width:40px;min-height:40px;font:400 1rem var(--f-old)}
+
+/* ---------- 4.11 Marks: inks as a soft hand-drawn marker band behind the words, a tick in the margin, ink-drop handles, the floating pill ---------- */
+:root{--lh:1.55;--mk-y:rgba(255,206,0,.42);--mk-r:rgba(255,92,135,.28);--mk-b:rgba(70,145,255,.27);--mk-g:rgba(60,190,95,.28);--mk-v:rgba(150,95,240,.25);--selc:color-mix(in srgb,var(--accent) 20%,transparent)}
+:root[data-theme="paper"]{--mk-y:rgba(235,190,20,.40);--mk-r:rgba(225,90,120,.26);--mk-b:rgba(70,130,215,.25);--mk-g:rgba(70,165,90,.26);--mk-v:rgba(135,95,205,.24)}
+:root[data-theme="dark"],:root[data-theme="night"]{--mk-y:rgba(240,200,60,.30);--mk-r:rgba(245,110,145,.28);--mk-b:rgba(110,165,250,.30);--mk-g:rgba(110,205,130,.26);--mk-v:rgba(175,135,245,.30);--selc:color-mix(in srgb,var(--accent) 28%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--mk-y:rgba(240,200,60,.30);--mk-r:rgba(245,110,145,.28);--mk-b:rgba(110,165,250,.30);--mk-g:rgba(110,205,130,.26);--mk-v:rgba(175,135,245,.30);--selc:color-mix(in srgb,var(--accent) 28%,transparent)}}
+.pg .o .l[data-j]{touch-action:none}/* long-press + drag selects words; the browser must not take the drag as a pan */
+/* the band: lower two-thirds of the line, ragged ends, a slightly uneven stroke like a felt marker */
+.pg mark.fph{color:inherit;background:linear-gradient(100deg,transparent 0,var(--mk) .18em,var(--mk) calc(100% - .2em),transparent 100%) 0 70%/100% 66% no-repeat,linear-gradient(98deg,transparent 30%,color-mix(in srgb,var(--mk) 60%,transparent) 50%,transparent 75%) 0 72%/100% 58% no-repeat;
+  padding:0 .12em;margin:0 -.12em;border-radius:.5em .25em .45em .2em/.4em .3em .5em .35em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.pg mark.fph.fsp{padding:0;margin:0}
+.pg .m mark.fph{padding:0;margin:0}
+.pg mark.fph.fsel{--mk:var(--selc);background:linear-gradient(var(--selc),var(--selc)) 0 55%/100% 92% no-repeat;border-radius:2px}
+.pg mark.fph[data-fp]{cursor:pointer}
+/* margin tick by each marked line */
+.o .l>.mt{position:absolute;left:-10px;top:calc(.5em*var(--lh) - .35em);width:3px;height:1.05em;border-radius:2px;background:var(--fci);text-indent:0;pointer-events:none}
+.mkh.nohit i{pointer-events:none}
+body.mk-ticks .pg mark.fph:not(.fsel),body.mk-off .pg mark.fph:not(.fsel){background:none;padding:0;margin:0}
+body.mk-off .o .l>.mt{display:none}
+/* ink swatches and dots */
+.hlk[class*="fc-"]{background:var(--fc);box-shadow:inset 0 0 0 1.5px var(--fci);border-color:transparent}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--fci);background:var(--fc);cursor:pointer;padding:0;flex:none}
+/* ink-drop handles */
+.mkh{position:fixed;z-index:41;width:0;pointer-events:none;border-left:2px solid var(--accent);margin-left:-1px}
+.mkh[hidden]{display:none}
+.mkh i{position:absolute;left:-12px;width:22px;height:22px;pointer-events:auto;touch-action:none;cursor:grab}
+.mkh i::before{content:"";position:absolute;inset:3px;background:var(--accent);border-radius:50% 50% 50% 0;box-shadow:0 2px 5px rgba(0,0,0,.25)}
+.mkh i::after{content:"";position:absolute;inset:-11px}/* 44px hit area */
+.mkh-a i{bottom:100%;margin-bottom:-2px}.mkh-a i::before{transform:rotate(135deg)}
+.mkh-b i{top:100%;margin-top:-2px}.mkh-b i::before{transform:rotate(-45deg)}
+.mkh.drag i{cursor:grabbing}.mkh.drag i::before{transform-origin:50% 50%;scale:1.15}
+/* the pill: five named inks, then Note · Copy · Speech/Modern · More */
+.mkpill{position:fixed;z-index:40;width:max-content;max-width:calc(100vw - 16px);padding:6px;border-radius:22px;background:var(--card);color:var(--ink);border:var(--line,1px) solid var(--rule-strong,var(--rule));box-shadow:0 14px 34px -10px rgba(30,15,5,.5),0 2px 6px rgba(30,15,5,.12);animation:mkin .16s ease-out;user-select:none;-webkit-user-select:none;font-family:var(--f-ui)}
+.mkpill[hidden]{display:none}
+.mkpill.hid{visibility:hidden}
+@keyframes mkin{from{opacity:0;transform:translateY(4px) scale(.97)}to{opacity:1;transform:none}}
+.mkinks{display:flex;gap:2px}
+.mki{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:58px;min-height:52px;padding:6px 4px 4px;border:0;border-radius:16px;background:none;color:var(--ink);cursor:pointer;-webkit-touch-callout:none}
+.mki i{display:block;width:30px;height:16px;border-radius:9px 5px 8px 4px/7px 5px 8px 6px;background:var(--mk);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--fci) 70%,transparent);transition:transform .12s}
+.mki small{font:500 max(14px,.8rem)/1.1 var(--f-ui);color:var(--soft);max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mki:hover,.mki:focus-visible{background:var(--hover);outline:none}
+.mki:active i{transform:scale(.92)}
+.mki.on{background:color-mix(in srgb,var(--fci) 14%,transparent)}
+.mki.on i{box-shadow:inset 0 0 0 2px var(--fci),0 0 0 2px var(--card),0 0 0 3.5px var(--fci)}
+.mki.on small{color:var(--ink);font-weight:600}
+.mkacts{display:flex;align-items:center;gap:2px;margin-top:4px;padding-top:4px;border-top:1px solid var(--rule)}
+.mkacts button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;padding:0 8px;border:0;border-radius:14px;background:none;color:var(--ink);cursor:pointer}
+.mkacts button:hover,.mkacts button:focus-visible{background:var(--hover);outline:none}
+.mkacts svg{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.mkacts small{font:500 max(14px,.8rem) var(--f-ui);color:var(--soft)}
+.mkacts .mkx{flex:0 0 44px;color:var(--muted)}
+.mkcard{padding:8px 6px 4px}
+.mkcard[hidden]{display:none}
+.mkcard textarea,.mkcard input{width:100%;box-sizing:border-box;font:1rem/1.4 var(--f-body,var(--f-ui));padding:8px 10px;border:1px solid var(--rule);border-radius:12px;background:var(--page);color:var(--ink);user-select:text;-webkit-user-select:text}
+.mkcard .mkl{display:block;font:500 max(14px,.8rem) var(--f-ui);color:var(--soft);margin-bottom:6px}
+.mkrow{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
+/* toast Undo */
+.toast .tundo{margin-left:14px;padding:4px 10px;min-height:32px;border:0;border-radius:6px;background:color-mix(in srgb,var(--page) 18%,transparent);color:var(--page);font:600 .875rem var(--f-ui);cursor:pointer}
+/* My notes: ink chips and rows with the marked words in their ink */
+.mkchips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.mkchips .chip{display:inline-flex;align-items:center;gap:6px}
+.mkchips .chip small{color:var(--muted);font-variant-numeric:tabular-nums}
+.mkchips .hlk{margin:0;width:.9em;height:.9em}
+.mkr .mkn{font-weight:600;color:var(--ink)}
+.mkr .mkt{display:block;font-family:var(--f-body,var(--f-old));font-size:1.0625rem;line-height:1.5;margin-top:2px}
+mark.mkb{color:inherit;background:linear-gradient(100deg,transparent 0,var(--mk) .15em,var(--mk) calc(100% - .15em),transparent 100%) 0 72%/100% 64% no-repeat;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.hlset .tb small{max-width:7.5em}
+@media (prefers-reduced-motion:reduce){.mkpill{animation:none}}
+@media print{.mkpill,.mkh{display:none!important}}
+/* phones: the page box reaches 12px into the gutter (same text width) so the margin tick is not clipped */
+@media (max-width:759px){body:not(.spread) .pg{margin-left:-12px;padding-left:12px}}
+.toast{font-family:var(--f-ui)}
+.toast:not([hidden]):has(.tundo){display:flex;white-space:nowrap;align-items:center;gap:4px;padding:6px 8px 6px 16px}
