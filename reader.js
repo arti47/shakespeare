@@ -49,7 +49,7 @@ const pageWords=p=>p.items.reduce((n,it)=>n+(it.t==="sp"?it.lines.join(" ").spli
 /* ---------- saved state: marks + progress (this device, and in backups) ---------- */
 let marks={},prog={done:{},quiz:{},cards:{}};
 try{marks=JSON.parse(LS.get(PFX+"marks")||"{}")}catch(e){}if(!marks||typeof marks!=="object"||Array.isArray(marks))marks={};
-for(const k in marks){const v=marks[k];if(!v||typeof v!=="object")delete marks[k];else if(v.note!=null&&typeof v.note!=="string")v.note=String(v.note)}
+for(const k in marks){const v=marks[k];if(!v||typeof v!=="object")delete marks[k];else{if(v.note!=null&&typeof v.note!=="string")v.note=String(v.note);/* 4.12.1: a record with no ink, note or theme tag is empty (old saves, backups): drop it */if(!v.hl&&!(v.note&&v.note.trim())&&!(Array.isArray(v.th)&&v.th.length))delete marks[k]}}
 /* favourite phrases: a run of words in one speech's original lines, this device (and in backups).
    {id, a:[line,word], b:[line,word], txt, note, t}; line = index into the speech's lines, word = index of a non-space run */
 let FAV=[];try{FAV=JSON.parse(LS.get(PFX+"fav")||"[]")}catch(e){}if(!Array.isArray(FAV))FAV=[];
@@ -716,7 +716,7 @@ function hdl(k,x,t,b){let h=$("mkh-"+k);
       if(a+""!==SEL.a+""||b+""!==SEL.b+""){SEL.a=a;SEL.b=b;SEL.whole=false;selPaint()}});
     const up=()=>{h.classList.remove("drag");if(SEL&&SEL.hd){SEL.hd=null;SEL.anc=SEL.a;selPaint()}};h.addEventListener("pointerup",up);h.addEventListener("pointercancel",up)}
   h.hidden=false;h.style.left=x+"px";h.style.top=t+"px";h.style.height=Math.max(12,b-t)+"px"}
-function undoToast(msg,snap){toast(msg,()=>{try{FAV=JSON.parse(snap.fav)}catch(e){}saveFav();if(snap.mk)marks[snap.id]=JSON.parse(snap.mk);else delete marks[snap.id];LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks();toast("Undone")})}
+function undoToast(msg,snap){toast(msg,()=>{try{FAV=JSON.parse(snap.fav)}catch(e){}saveFav();if(snap.mk)marks[snap.id]=JSON.parse(snap.mk);else delete marks[snap.id];LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks();if($("nlist"))openNotes();toast("Undone")})}
 const selSnap=id=>({id,fav:JSON.stringify(FAV),mk:marks[id]?JSON.stringify(marks[id]):null});
 function inkTap(k){if(!SEL)return;const id=SEL.id,snap=selSnap(id);let msg;
   if(SEL.whole){const was=inkOf(marks[id]||{});saveMark(id,{hl:was===k?false:INK2HL[k]});msg=was===k?"Mark removed":"Speech marked: "+inkName(k)}
@@ -2009,7 +2009,8 @@ sheet.addEventListener("click",e=>{if(e.target===sheet)return closeSheet();
   const ct=e.target.closest("[data-ctab]");if(ct){openContents(ct.dataset.ctab);return}
   const fw=e.target.closest("[data-follow]");if(fw){follow(fw.dataset.follow);return}
   const bd=e.target.closest("[data-bmdel]");if(bd){BM.splice(+bd.dataset.bmdel,1);saveBM();bmState();openNotes();return}
-  const fd=e.target.closest("[data-fpdel]");if(fd){FAV=FAV.filter(f=>String(f.t)!==fd.dataset.fpdel);saveFav();refreshMarks();openNotes();toast("Phrase removed");return}
+  const md=e.target.closest("[data-mkdel]");if(md){const id=+md.dataset.mkdel,snap=selSnap(id);delete marks[id];LS.set(PFX+"marks",JSON.stringify(marks));refreshMarks();openNotes();undoToast("Removed",snap);return}
+  const fd=e.target.closest("[data-fpdel]");if(fd){const f=FAV.find(x=>String(x.t)===fd.dataset.fpdel),snap=selSnap(f?f.id:-1);FAV=FAV.filter(x=>x!==f);saveFav();refreshMarks();openNotes();undoToast("Removed",snap);return}
   const fh=e.target.closest("[data-fph]");if(fh){const f=FAV.find(x=>String(x.t)===fh.dataset.fph);if(f)goSpeech(f.id);return}
   const bk=e.target.closest("[data-bm]");if(bk){const b=BM[+bk.dataset.bm];closeSheet();setHash(b.s);show("reader");openScene(sIdx(b.s),{key:b.key});return}
   const rc=e.target.closest("[data-recent]");if(rc){const [id,pi]=rc.dataset.recent.split(":").map(Number);goSpeech(id);setTimeout(()=>{showPartPage(id,pi);openPart(id,pi,false)},250);return}
@@ -2055,7 +2056,7 @@ function notesList(){const rows=notesShown();let h=`<p class="muted">${rows.leng
     if(p.act!==la){h+=`<div class="eyebrow" style="margin:14px 0 0">${LAT[p.act]}</div>`;la=p.act}
     const lab=`${ik?`<i class="hlk fc-${ik}"></i><b class="mkn">${esc(inkName(ik))}</b> · `:""}${esc(where(sp))}`,band=x=>ik?`<mark class="mkb fc-${ik}">${x}</mark>`:x;
     h+=r.f?`<div class="item mkr" data-fph="${esc(r.f.t)}" tabindex="0"><small>${lab} · <button class="link" data-fpdel="${esc(r.f.t)}">Remove</button></small><span class="mkt">${band("“"+esc(t)+"”")}</span>${nt?`<div class="mynote">${esc(nt)}</div>`:""}</div>`
-      :`<div class="item mkr" data-speech="${r.s}" tabindex="0"><small>${lab}${thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""}${ik?"":" · speech"}</small><span class="mkt">${band(esc(t.slice(0,160))+(t.length>160?"…":""))}</span>${nt?`<div class="mynote">${esc(nt)}</div>`:""}</div>`});
+      :`<div class="item mkr" data-speech="${r.s}" tabindex="0"><small>${lab}${thOf(m).length?" · "+thOf(m).map(x=>esc(QUOTES.themes[x][0])).join(", "):""} · <button class="link" data-mkdel="${r.s}">Remove</button></small>${!ik&&!nt&&thOf(m).length?`<span class="mkwhy">Theme tag from Speech tools</span>`:""}<span class="mkt">${band(esc(t.slice(0,160))+(t.length>160?"…":""))}</span>${nt?`<div class="mynote">${esc(nt)}</div>`:""}</div>`});
   return h}
 function openNotes(){
   const rows=notesRows(),whos=[...new Set(rows.map(r=>speech[r.s].who))].sort();
