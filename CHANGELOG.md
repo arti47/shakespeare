@@ -4,6 +4,18 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.14.0] — 2026-11-14
+
+### Added
+- Library: tapping a shelf cover pulls the book out toward you (lift, tilt and a foil sweep; a gilt outline with reduced motion) (#125)
+- Shelf headers: a row of seals, one per play (gilt when begun, red wax when finished), beside the play count (#125)
+- Desktops (1200px+): a sticky sidebar beside the bookcase holds the masthead, Continue, Daily review, the genre tabs (stacked) and Order; the case shows five covers a row (#125)
+- Theme button: hold it (or right-click) for all four themes (#125)
+
+### Changed
+- Lectern: shows only Continue reading and, when items are due, Daily review (a wax seal with the count); This week stays on You; with nothing begun and nothing due the lectern is hidden and the shelves start higher (#125)
+- Theme button: a sun for Light and Paper, a moon for Dark and Night, with the theme's name beside it from tablet width (#125)
+
 ## [4.13.1] — 2026-11-14
 
 ### Removed
