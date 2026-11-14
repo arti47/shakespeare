@@ -4,6 +4,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.23.0] — 2026-11-14
+
+### Changed
+- Fill the gap no longer blanks function words such as that, with, thou or shall (#PR)
+- Who said it?: no one speaker takes more than a quarter of a round, so guessing the title character no longer wins (#PR)
+- Which scene? and Sprint now cover every scene: scenes without a key quote supply a line from their own text (#PR)
+
 ## [4.22.0] — 2026-11-14
 
 ### Changed
