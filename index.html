@@ -90,16 +90,9 @@ h2.vt{font:400 1.75rem var(--f-sc);letter-spacing:.04em;margin:2px 0 16px;line-h
 .hero .acts .btn{min-height:44px;padding:6px 16px}
 .hero.empty{grid-template-columns:1fr;text-align:center}
 
-/* today: one card, line of the day with word + week in its foot */
+/* today: one card stack (word of the day, this week, reviews); no line/quote of the day */
 .today{border:var(--line) solid var(--rule-strong);border-radius:var(--r-m);background:var(--card);position:relative;overflow:hidden}
 .today::before{content:"";position:absolute;inset:4px;border:1px solid var(--rule);border-radius:calc(var(--r-m) - 4px);pointer-events:none}
-.lotd{padding:20px 18px 14px;text-align:center}
-.ldate{margin:0;font:italic 400 max(14px,.66rem) var(--f-old);color:var(--muted)}
-.lotd blockquote{margin:8px auto 0;max-width:26ch;font:italic 400 1.3rem/1.32 var(--f-old);text-wrap:balance}
-.lotd blockquote::first-letter{color:var(--accent);font-size:1.5em;line-height:.8}
-.lotd cite{display:block;margin:10px 0 12px;font:normal 400 max(14px,.62rem) var(--f-sc);letter-spacing:.12em;color:var(--soft)}
-.lotd .acts{display:flex;justify-content:center;gap:8px}
-.lotd .acts .btn{min-height:44px;padding:6px 16px}
 .tfoot{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule)}
 .tfoot>*{padding:12px 16px;min-width:0;border:0;background:none;text-align:left;color:inherit}
 .tfoot>*+*{border-left:1px solid var(--rule)}
@@ -279,14 +272,7 @@ footer .orn{justify-content:center;margin-bottom:8px}
 .tlink{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;color:var(--accent);font:500 max(14px,.7rem) var(--f-ui);text-decoration:none}
 .tlink:hover{text-decoration:underline}
 .hero .acts{align-items:center}
-.lotd blockquote{font-size:.9rem;line-height:1.36;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.lotd .ldate{display:inline;font-size:1em;letter-spacing:0;text-transform:none;font-variant:normal}
-.lotd cite{margin:6px 0 4px}
 
-.lacts{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px}
-.lacts a,.lacts button{display:inline-flex;align-items:center;min-height:40px;border:0;background:none;padding:0;color:var(--accent);font:500 max(14px,.66rem) var(--f-ui);text-decoration:none;cursor:pointer}
-.lotd blockquote.all{display:block;-webkit-line-clamp:unset}
-.lmore{border:0;background:none;color:var(--accent);font:500 max(14px,.66rem) var(--f-ui);min-height:36px;cursor:pointer}
 .word .wl{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;-webkit-line-clamp:unset;overflow:visible}
 .word .wl a,.word .wl button{border:0;background:none;padding:6px 0;min-height:32px;color:var(--accent);font:500 max(14px,.62rem) var(--f-ui);text-decoration:none;cursor:pointer}
 .word{cursor:default}
@@ -312,7 +298,6 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .stk-in{display:grid;align-items:stretch;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:var(--r-m)}
 .stk-in::-webkit-scrollbar{display:none}
 .stk-c{scroll-snap-align:start;min-width:0;padding:16px 18px 6px;text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:178px}
-.stk-c .lotd{padding:0}
 .stk-c.word b{display:block;font:400 1.8rem/1.1 var(--f-old);margin:4px 0}
 .stk-c.word .wm{display:block;font-size:max(14px,.72rem);color:var(--soft)}
 .stk-c.word .wl{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px;margin-top:8px}
@@ -385,11 +370,8 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
   .hero h3{font-size:1.2rem;margin:0 0 2px}
   .hero .eyebrow{margin:0}
   .hero .acts .btn{min-height:42px;padding:4px 14px}
-  .lotd{padding:14px 14px 8px}
   .greet{margin:0 0 10px;font-size:.95rem}
   .case{display:flex;flex-direction:column}.case .order{order:2;margin-top:6px}
-  .lacts{gap:2px 16px}
-  .lotd blockquote{font-size:.82rem}
 }
 
 /* ===== 4.3 "Illuminated folio" shelf: stage hero, illustrated Today, wooden shelves with brass plaques, full-width desktop ===== */
@@ -409,14 +391,7 @@ html.simple .tabs .in{grid-template-columns:repeat(3,1fr)}
 .wxd{display:grid;place-items:center;width:40px;height:40px}
 .wxs{width:40px;height:40px}.wxs .st{font-size:34px}
 .btn.wax:hover{filter:brightness(1.08)}
-/* Today: a parchment scroll, an illuminated initial, a seal per day, a seal for reviews */
-.scroll{position:relative;margin:10px auto 8px;max-width:32ch;padding:12px 18px;background:linear-gradient(180deg,#f6ead0,#efdfba);color:#2a1c08;border-left:1px solid #d6bf8e;border-right:1px solid #d6bf8e;box-shadow:0 4px 10px -6px rgba(60,30,10,.4)}
-.scroll .sr1,.scroll .sr2{position:absolute;left:-10px;right:-10px;height:12px;border-radius:6px;background:linear-gradient(180deg,#e9cf8f,#b98c43 60%,#7d5a24);box-shadow:0 2px 3px rgba(0,0,0,.3)}
-.scroll .sr1{top:-7px}.scroll .sr2{bottom:-7px}
-.scroll blockquote{margin:0 auto;color:#2a1c08}
-.scroll blockquote::first-letter{color:#8e1b17}
-.lotd cite{display:flex;align-items:center;justify-content:center;gap:8px}
-.cembx{width:26px;height:26px;color:#b8862a;--kc:var(--card)}
+/* Today: an illuminated initial, a seal per day, a seal for reviews */
 .wini{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 2px}
 .ini{display:grid;place-items:center;width:56px;height:56px;flex:none;border-radius:4px;background:radial-gradient(circle at 30% 25%,#b02a22,#7e1510);color:#f6dc94;font:400 2.3rem/1 var(--f-sc);border:2px solid #d9ab4f;box-shadow:inset 0 0 0 3px #7e1510,inset 0 0 0 4px rgba(246,220,148,.6),0 4px 8px -4px rgba(0,0,0,.5)}
 .stk-c.word .wini b{margin:0}
@@ -734,15 +709,12 @@ function unstart(p){try{localStorage.removeItem("folio-stat-"+p.id);localStorage
   const pr=J(p.prefix+"prog");if(pr&&pr.done){pr.done={};LS.set(p.prefix+"prog",JSON.stringify(pr))}
   if(LS.get("folio-last")===p.id){const nx=PLAYS.filter(q=>q.id!==p.id).map(q=>[q.id,J("folio-stat-"+q.id)]).filter(x=>x[1]).sort((a,b)=>(b[1].t||0)-(a[1].t||0))[0];nx?LS.set("folio-last",nx[0]):localStorage.removeItem("folio-last")}}catch(e){}}
 
-/* ---------- today: line of the day, word of the day, this week, daily review ---------- */
-let li=null,stI=0;
+/* ---------- today: word of the day, this week, daily review ---------- */
+let stI=0;
 /* seals across every play (art.js), and each play's count kept in its folio-stat-<id>.sl so a play page can add up the others */
 function seals(){let n=0;for(const p of PLAYS){const k=folioSealsOf(J(p.prefix+"prog"));n+=k;const st=J("folio-stat-"+p.id);if(st&&st.sl!==k){st.sl=k;LS.set("folio-stat-"+p.id,JSON.stringify(st))}}return n}
-/* Today (4.0): one card stack you swipe: line of the day, word of the day, this week with your level, reviews due */
-function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"}),C=[];
-  if(LINES.length){if(li==null)li=(dayNo()*7919)%LINES.length;const L=LINES[li],p=byId[L.play];
-    C.push(["lotd",`<div class="lotd"><p class="eyebrow">Line of the day <span class="ldate">· ${esc(date)}</span></p><div class="scroll"><i class="sr1" aria-hidden="true"></i><blockquote id="lq">${esc(L.text)}</blockquote><i class="sr2" aria-hidden="true"></i></div><cite><span class="cemb" aria-hidden="true">${emblemSVG(p.id,"cembx")||""}</span>${esc(L.who)} · ${esc(p.title)}</cite>
-      <div class="lacts"><button class="lmore" type="button" id="lmore" hidden>Whole line</button><a href="${p.id}/#sp=${encodeURIComponent(L.id)}" data-play="${p.id}">Read it in the play ›</a><button type="button" id="lnext">Another ›</button></div></div>`,"Line",`“${esc(L.text)}”`])}
+/* Today (4.0): one card stack you swipe: word of the day, this week with your level, reviews due */
+function renderToday(){const el=$("today"),C=[];
   const W=WORDS.length?WORDS[(dayNo()*104729)%WORDS.length]:null,wp=W&&byId[W[2]];
   if(W)C.push(["word",`<p class="eyebrow">Word of the day</p><div class="wini"><span class="ini" aria-hidden="true">${esc((W[0].replace(/^[^A-Za-z]+/,"")[0]||"?").toUpperCase())}</span><b>${esc(W[0])}</b></div><span class="wm">${esc(W[1])}${wp?` · ${esc(wp.title)}`:""}</span><span class="wl">${wp?`<a href="${wp.id}/#study=explore:glossary:${encodeURIComponent(W[0])}" data-play="${wp.id}">Glossary ›</a>`:""}<button type="button" id="wfind">Find in the plays ›</button></span>`,"Word",`<b>${esc(W[0])}</b> · ${esc(W[1])}`]);
   const days=readDays(),now=new Date(),wk=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);wk.push(d)}
@@ -755,8 +727,6 @@ function renderToday(){const el=$("today"),date=new Date().toLocaleDateString(un
   /* 4.3.2: all cards share one height (the tallest), so nothing resizes while you swipe */
   si.addEventListener("scroll",()=>{const i=Math.round(si.scrollLeft/Math.max(1,si.clientWidth));if(i!==stI){stI=i;el.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-current",+b.dataset.st===i))}},{passive:true});
   el.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>si.scrollTo({left:+b.dataset.st*si.clientWidth,behavior:reduce?"auto":"smooth"}));
-  {const q=$("lq"),m=$("lmore");if(q&&m){m.hidden=q.scrollHeight<=q.clientHeight+2;m.onclick=()=>{q.classList.add("all");m.hidden=true}}}
-  const ln=$("lnext");if(ln)ln.onclick=()=>{li=(li+1+Math.floor(Math.random()*(LINES.length-1)))%LINES.length;stI=0;renderToday()};
   const wf=$("wfind");if(wf)wf.onclick=()=>{go("search");$("q").value=W[0].replace(/^'/,"");runSearch()};
   $("lvgo").onclick=()=>go("you");
   /* 4.4 phones: Today folds to a one-line ticker; a tap opens that card */
