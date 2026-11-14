@@ -4,6 +4,20 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.17.0] — 2026-11-14
+
+### Added
+- Practise: four new drills built from each play's own lines, each a scored round under the practice frame:
+  - Which scene? (place 8 key quotes in their scene) (#130)
+  - Who speaks next? (read a cue, then pick the next speaker from four medallions; the answer shows their reply) (#130)
+  - Quote timeline (three rounds: put 4 key quotes in the order they're spoken) (#130)
+  - Odd one out (three quotes share a theme: find the one that doesn't) (#130)
+- Which scene? and Quote timeline also sit on the Quotes topic (#130)
+- Missed Which scene? quotes join Daily review as act questions; missed Odd one out quotes join it as theme questions (#130)
+
+### Fixed
+- Drill rule cards and Practice hall action icons drew too small (#130)
+
 ## [4.16.0] — 2026-11-14
 
 ### Added
