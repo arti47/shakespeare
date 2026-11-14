@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.25.0] — 2026-11-14
+
+### Added
+- Quizzes, tragedies (all 12): every scene now has 5 questions, 568 new ones, mostly why and how, each checked against the text; the answer is the longest option in 21–27% of each play's questions (#139)
+
 ## [4.24.0] — 2026-11-14
 
 ### Changed
