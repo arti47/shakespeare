@@ -4,6 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.33.0] — 2026-11-14
+
+### Added
+- Key quotes, comedies and histories: 290 new quotes chosen from the text, each with themes, a note and Why it matters; The Tempest 62 → 102, Twelfth Night 53 → 100, Much Ado 64 → 101, A Midsummer Night's Dream 68 → 106, As You Like It 83 → 100, Two Gentlemen 86 → 100, All's Well 84 → 100, The Merchant of Venice 94 → 101, Love's Labour's Lost 99 → 100, The Taming of the Shrew 89 → 100, Richard II 69 → 101; scenes with no key quote filled in Measure for Measure, Merry Wives, The Winter's Tale, King John, 1 Henry IV, 1 and 2 Henry VI and Richard III. All 36 plays now have 100+ key quotes and one in every scene, and the build checks it (#147)
+
+### Fixed
+- Key quotes: 90 older quotes in The Tempest, Twelfth Night and Much Ado had no Why it matters note; all filled (#147)
+- Shelf search: A Midsummer Night's Dream's key quotes were missing from Key quotes results (#147)
+
 ## [4.32.0] — 2026-11-14
 
 ### Added

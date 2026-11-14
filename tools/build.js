@@ -108,6 +108,17 @@ for (const p of PLAYS) {
     const c = [0, 0, 0]; (v.quiz || []).forEach(q => c[q.b === 1 ? 0 : q.b <= 3 ? 1 : 2]++);
     if (c[0] !== 1 || c[1] !== 2 || c[2] !== 2) throw new Error(`${f}: quiz ${s} has ${c.join("/")} Remember/Understand/Analyse+ questions (needs 1/2/2)`);
   }
+  /* 4.33 key quotes (TY): at least 100 per play, at least one in every scene, each quote found in its speech (letters only, with or without bracketed stage directions) and given an EX.why note. */
+  const QS = constJSON(rd(f), "QUOTES", f).quotes, spk = {}, sceneOf = {}, qn = t => t.toLowerCase().replace(/[^a-z]/g, "");
+  cur = null;
+  for (const b of DATA) { if (b.t === "scene") cur = "a" + b.act + "s" + roman(b.scene); else if (b.t === "sp") { { const t = b.lines.join(" "); spk[b.id] = [qn(t), qn(t.replace(/\[[^\]]*\]/g, ""))]; } sceneOf[b.id] = cur; } }
+  if (QS.length < 100) throw new Error(`${f}: ${QS.length} key quotes (needs at least 100)`);
+  QS.forEach((q, i) => {
+    if (!spk[q.id] || !spk[q.id].some(t => t.includes(qn(q.text)))) throw new Error(`${f}: key quote ${i} not found in speech ${q.id}`);
+    if (!(EX.why || {})[i]) throw new Error(`${f}: key quote ${i} has no EX.why note`);
+  });
+  const qsc = new Set(QS.map(q => sceneOf[q.id])), bare = Object.keys(inScene).filter(s => !qsc.has(s));
+  if (bare.length) throw new Error(`${f}: no key quote in scene ${bare.join(", ")}`);
 }
 
 /* Every play needs a shelf cover (covers.js: COVER[id] with colour, epigraph, emblem, and M[id] pattern motif). */
