@@ -7,9 +7,9 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.21.0] — 2026-11-14
 
 ### Changed
-- Practice rounds open in focus mode: the bottom bar and Study header step aside, leaving a slim frame with × to leave, a segmented progress bar and your streak (#PR)
-- After each answer a tray rises from the bottom with Right or Not quite, the note and a full-width Next, so nothing needs scrolling; Enter continues on a keyboard (#PR)
-- Drill end screens show accuracy, best streak and time, and fold the lines you got right under Look again (#PR)
+- Practice rounds open in focus mode: the bottom bar and Study header step aside, leaving a slim frame with × to leave, a segmented progress bar and your streak (#134)
+- After each answer a tray rises from the bottom with Right or Not quite, the note and a full-width Next, so nothing needs scrolling; Enter continues on a keyboard (#134)
+- Drill end screens show accuracy, best streak and time, and fold the lines you got right under Look again (#134)
 
 ## [4.20.0] — 2026-11-14
 
