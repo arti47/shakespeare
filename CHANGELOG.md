@@ -18,6 +18,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ### Fixed
 - Word of the day: the illuminated initial showed as a blank red tile (#123)
 
+## [4.12.4] — 2026-11-14
+
+### Fixed
+- Tablet and desk: Northumberland's name in the left margin no longer runs into the verse; very long single-word names are set slightly smaller (#122)
+
 ## [4.12.3] — 2026-11-14
 
 ### Removed

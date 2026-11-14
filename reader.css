@@ -2148,3 +2148,5 @@ mark.mkb{color:inherit;background:linear-gradient(100deg,transparent 0,var(--mk)
 /* prose runs on, so a key-quote fleuron sits mid-sentence: keep it tight to the words (a wider invisible tap area stays) */
 .sp:not(.vs) .o .l:not(.song)>.kqm{min-width:0;min-height:0;margin:0 .1em 0 .2em;padding:0 .05em;position:relative}
 .sp:not(.vs) .o .l:not(.song)>.kqm::after{content:"";position:absolute;inset:-10px -6px}
+/* marginal speakers: a very long single-word name (Northumberland) would run past the 6.4em margin into the verse */
+@media (min-width:760px){body:not(.mode-both) .sp>.hd .nm.lng{font-size:max(14px,.74em);letter-spacing:0}}
