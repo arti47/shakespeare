@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.29.0] — 2026-11-14
+
+### Changed
+- Quizzes, tragedies (all 12): every scene reshaped to 1 recall, 2 understand and 2 analyse or evaluate questions; 796 questions rewritten from the text (purpose, inference, implication, point of view, judgement) and every question hand-tagged with its Bloom level and Paul element; the answer is the longest option in 13–26% of each play's questions (#143)
+
 ## [4.28.0] — 2026-11-14
 
 ### Added
