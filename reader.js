@@ -982,7 +982,8 @@ function topicStat(k){const n=o=>Object.keys(o).length,sc=scenes.length,fr=(a,b)
   if(k==="themes"){const T=Object.keys(QUOTES.themes),d=T.filter(t=>thLearnt(t)[0]>0).length;return [fr(d,T.length),`${d} of ${T.length} themes`]}
   if(k==="quotes"){const d=n(prog.cards);return [fr(d,QUOTES.quotes.length),`${d} of ${QUOTES.quotes.length} learnt`]}
   if(k==="words")return [null,`${n(G)} words`];
-  if(k==="practise"){const d=Object.keys(prog.quiz).filter(q=>q!=="all").length;return [fr(d,sc),`${d} of ${sc} quizzes`]}
+  if(k==="practise"){const d=Object.keys(prog.quiz).filter(q=>q!=="all"&&sIdx(q)>=0),qa=d.reduce((a,q)=>a+prog.quiz[q][0]/Math.max(1,prog.quiz[q][1]),0)/sc,ln=fr(n(prog.cards),QUOTES.quotes.length),ks=Object.keys(DRB).filter(x=>x!=="lad"&&drBest(x)),db=ks.reduce((a,x)=>a+drBest(x)[0]/drBest(x)[1],0)/Math.max(1,DRILLS.length-2),m=(qa+ln+db)/3;
+    return [m,`Mastery ${Math.round(m*100)}% · ${d.length} of ${sc} quizzes · ${n(prog.cards)} quotes learnt`]}
   if(k==="write"){const t=(EX.examq||[]).length,d=Math.min(t,planCount());return [fr(d,t),`${d} of ${t} plans`]}
   const due=dueKeys().length;return [null,due?`${due} due today`:"Sheet · backup"]}
 /* one suggested next step: due reviews, then a quiz on a scene you've read, then the scene you're on, then flashcards */
@@ -1038,6 +1039,18 @@ function questStripHTML(){const read=scenes.filter(p=>prog.done[p.id]&&questsOf(
 /* topic, character and theme pages */
 const whoAll=()=>{const s=new Set(MAINS);Object.keys(EX.analysis||{}).forEach(w=>s.add(w));return [...s].filter(w=>Object.values(speech).some(x=>x.who===w))};
 const secH=(t,n)=>`<div class="tsec"><h3>${t}</h3>${n!=null?`<small>${n}</small>`:""}</div>`;
+/* 4.16 Practice hall: three big actions (session, review, next quiz), the drills as tiles with best-score rings, then the longer tools */
+const qzN=p=>((STUDY.scenes[p.id]||{}).quiz||[]).length;
+function hallHTML(){const d=dueKeys().length,nq=scenes.find(p=>prog.done[p.id]&&!prog.quiz[p.id]&&qzN(p))||scenes.find(p=>!prog.quiz[p.id]&&qzN(p)),all=prog.quiz.all;
+  const ring=(f,body)=>{const C=2*Math.PI*21;return `<span class="hring${f>=1?" full":""}"><svg viewBox="0 0 48 48" aria-hidden="true"><circle class="rt" cx="24" cy="24" r="21"/>${f>0?`<circle class="rf" cx="24" cy="24" r="21" stroke-dasharray="${(Math.min(1,f)*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 24 24)"/>`:""}</svg>${body}</span>`};
+  const A=[["study:review?ses=1","Session","10 mixed questions · about 5 minutes","review","main"],
+    ["study:review",d?`Review ${d} due`:"Daily review",d?"Spaced out so they stick":"Nothing due: try a few new ones","review",d?"due":""],
+    [nq?"study:quiz?s="+nq.id:"study:quiz?s=all",nq?"Quiz: "+sName(nq):"Whole-play quiz",nq?`${qzN(nq)} questions${prog.done[nq.id]?" on a scene you've read":""}`:`20 questions${all?` · last ${all[0]} of ${all[1]}`:""}`,"quiz",""]];
+  const T=drillsNow().filter(k=>k!=="stress"||EX.lang);
+  return `<div class="hall16">${A.map(([to,b,s,ic,c])=>`<button type="button" class="hact ${c}" data-to="${to}${to.includes("?")?"&":"?"}tp=practise">${c==="main"?laurelSVG("qal")+laurelSVG("qar"):""}${tic(ic)}<span><b>${esc(b)}</b><small>${esc(s)}</small></span></button>`).join("")}</div>`
+   +secH("Drills",T.length)+`<div class="hgrid16">${T.map(k=>{const D0=DRILLS.find(x=>x[0]===k)||[k,k,""],B=drBest(k),f=B?B[0]/B[1]:0;
+     return `<button type="button" class="htile" data-to="study:drill:${k}?tp=practise">${ring(f,tic("drill:"+k))}<b>${esc(D0[1])}</b><small>${B?(k==="ladder"?`${B[0]} by heart`:`Best ${B[0]}/${B[1]}`):"New"}</small></button>`}).join("")}</div>`
+   +secH("Longer practice")+`<div class="tlist48">${["cards","part","quiz"].filter(toolOK).map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=practise">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
 function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   let h=`<div class="thead">${tbanner(EMB[k])}${ringEmb(EMB[k],f,"big")}<div><h2>${T[1]}</h2><p>${esc(TLINE[k])}</p><small>${esc(st)}</small></div></div>`;
   if(k==="people")h+=secH("The characters")+`<div class="wgal">${whoAll().map(w=>`<button class="wmed" type="button" data-to="study:who:${esc(encodeURIComponent(w))}">${folioMedal(w,COLORS[w])}<b>${esc(title(w))}</b>${profStarted(w)?`<small>Profile started</small>`:""}</button>`).join("")}</div>`;
@@ -1045,8 +1058,7 @@ function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   if(k==="story")h+=secH("Act by act")+`<div class="ribbon48">${ACTS.map(a=>{const ps=scenes.filter(p=>p.act===a);return ps.length?`<button class="rbact" type="button" data-to="study:acts?a=${a}&tp=story"><b>${a?R[a]:"Ind."}</b><span class="rbdots">${ps.map(p=>`<i class="${prog.done[p.id]?"d":""}${pos&&pos.s===p.id?" h":""}" title="${esc(sName(p))}"></i>`).join("")}</span><small>${ps.filter(p=>prog.done[p.id]).length}/${ps.length}</small></button>`:""}).join("")}</div>${pos&&sIdx(pos.s)>=0?`<p class="rbnow">You're at ${toLink("scene:"+pos.s,sName(scenes[sIdx(pos.s)]))}</p>`:""}`;
   if(k==="quotes"){const nx=QUOTES.quotes.find(q=>!prog.cards[q.i]);if(nx)h+=secH("One to learn")+`<div class="one">${qCard(nx)}</div>`}
   if(k==="words"){const w=wordOfDay();if(w)h+=secH("Word of the day")+`<div class="wod48"><b>${esc(w.k)}</b><p>${esc(w.g)}</p>${w.id?chip(w.id):""}</div>`}
-  if(k==="practise"){const d=dueKeys().length,qz=Object.entries(prog.quiz).filter(([q])=>q!=="all"&&sIdx(q)>=0),tot=qz.reduce((a,[,v])=>[a[0]+v[0],a[1]+v[1]],[0,0]);
-    h+=secH("Your practice")+`<div class="stat48">${[[d,"due today","study:review"],["10","mixed session","study:review?ses=1"],[qz.length+"/"+scenes.length,"scenes quizzed","study:quiz"],[tot[1]?Math.round(100*tot[0]/tot[1])+"%":"–","quiz average","study:quiz"]].map(([v,l,to])=>`<button type="button" data-to="${to}${to.includes("?")?"&":"?"}tp=practise"><b>${v}</b><small>${l}</small></button>`).join("")}</div>`}
+  if(k==="practise")return h+hallHTML();
   if(k==="write"&&(EX.examq||[]).length){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:plan?tp=write">Plan it ›</button></div>`}
   if(k==="revise"){const d=dueKeys().length;h+=`<div class="pickup"><button class="pk next" data-to="study:${d?"review":"revise"}?tp=revise"><small>${d?"Due today":"Revision sheet"}</small><b>${d?`Review ${d} card${d===1?"":"s"}`:"Copy, print or back up"}</b></button></div>`}
   const ts=T[2].filter(toolOK);return h+secH("Tools",ts.length)+`<div class="tlist48">${ts.map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=${k}">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
@@ -1334,42 +1346,6 @@ function verseExplore(){const all=Object.values(speech),lines=sp=>sp.lines.lengt
 const LANG=EX.lang||{un:[],pun:[],st:[]};
 const wtok=l=>l.split(/\s+/).filter(Boolean);
 const clean=w=>w.toLowerCase().replace(/[’]/g,"'").replace(/[^a-z']/g,"").replace(/^'+|'+$/g,"");
-function langDrill(back){let h="";
-  if(dr.k==="word"){if(!dr.g){const use=glossUse(),ks=Object.keys(use).filter(k=>speech[use[k]]&&G[k].length<90),k=rnd(ks),others=shuf(ks.filter(x=>x!==k&&G[x]!==G[k])).slice(0,3);dr.g={k,id:use[k],o:shuf([k,...others]),ans:null,n:(dr.g0||0)+1,ok:dr.gok||0}}
-    const g=dr.g,sp=speech[g.id],ln=sp.lines.map(lineOf).find(l=>new RegExp("(^|[^A-Za-z'])"+g.k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![A-Za-z])","i").test(l))||lineOf(sp.lines[0]);
-    const hl=esc(ln).replace(new RegExp("(^|[^A-Za-z'])("+esc(g.k).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?![A-Za-z])","i"),"$1<mark>$2</mark>");
-    h=`<div class="qz"><div class="qn">Word ${g.n} · ${g.ok} right · ${esc(where(sp))}</div><p class="intro">Use the rest of the line to guess what the marked word means here.</p><h3 style="font:400 1.3rem/1.45 var(--f-old)">${hl}</h3>
-     <div class="opts">${g.o.map(o=>`<button data-wd="${esc(o)}"${g.ans?" disabled":""} class="${g.ans?(o===g.k?"right":o===g.ans?"wrong":""):""}">${esc(G[o])}</button>`).join("")}</div>
-     ${g.ans?`<p class="muted"><b>${esc(g.k)}</b>: ${esc(G[g.k])}</p><div class="row"><button class="btn primary" id="wd-next">Next word</button>${chip(g.id)}</div>`:""}</div>`}
-  if(dr.k==="untangle"){const U=LANG.un;if(dr.u==null||!U[dr.u.i])dr.u={i:0,pk:[],res:null};const u=dr.u,[id,orig,mod]=U[u.i],ws=wtok(mod),ord=u.ord||(u.ord=shuf(ws.map((_,i)=>i)));
-    const built=u.pk.map(i=>ws[i]).join(" "),done=u.pk.length===ws.length,ok=done&&u.pk.map(i=>clean(ws[i])).join(" ")===ws.map(clean).join(" ");
-    h=`<div class="qz"><div class="qn">Line ${u.i+1} of ${U.length} · ${esc(where(speech[id]))}</div><p class="intro">Shakespeare often moves words around to fit the beat or to stress a word. Tap the words to put the line into everyday order.</p>
-     <h3 style="font:400 1.3rem/1.45 var(--f-old)">“${esc(orig)}”</h3><div class="ord words">${ord.map(i=>`<button data-uw="${i}"${u.pk.includes(i)?" disabled":""}>${esc(ws[i].replace(/[,.;:!?]+$/,""))}</button>`).join("")}</div>
-     <p class="ubuilt" style="color:${done?(ok?"var(--ok)":"var(--bad)"):"var(--ink)"}">${esc(built.replace(/[,.;:!?](?=\s|$)/g,""))||"<span class='muted'>Your order appears here</span>"}</p>
-     ${done?`<p>${ok?"<b>Right.</b>":"<b>Not quite.</b> One everyday order:"} ${esc(mod)}</p><p class="muted">Which word did Shakespeare's order push to the front or the end? That is usually the word he wants stressed.</p>`:""}
-     <div class="row">${u.pk.length&&!done?`<button class="link" id="un-undo">Undo</button>`:""}${done?`<button class="btn primary" id="un-next">${u.i+1<U.length?"Next line":"Start again"}</button>`:""}${chip(id)}</div></div>`}
-  if(dr.k==="pun"){const Pn=LANG.pun;if(dr.pn==null||!Pn[dr.pn.i])dr.pn={i:0,pick:null};const pn=dr.pn,[id,line,word,kind,ex]=Pn[pn.i],tw=wtok(word).map(clean),ws=wtok(line);
-    const lab={pun:"Pun: one word, two meanings",shift:"Functional shift: a word used as a different part of speech",malapropism:"Malapropism: the wrong word that sounds like the right one",wordplay:"Wordplay"}[kind]||"Wordplay";
-    h=`<div class="qz"><div class="qn">${pn.i+1} of ${Pn.length} · ${esc(where(speech[id]))}</div><p class="intro">${kind==="shift"?"Which word is doing a job it doesn't usually do?":kind==="malapropism"?"Which word is the wrong one?":"Which word is doing double duty?"} Tap it.</p>
-     <div class="punl">${ws.map((w,i)=>{const hit=tw.includes(clean(w));return `<button data-pw="${i}"${pn.pick!=null?" disabled":""} class="${pn.pick!=null?(hit?"right":+pn.pick===i?"wrong":""):""}">${esc(w)}</button>`}).join(" ")}</div>
-     ${pn.pick!=null?`<div class="snote"><b>${esc(lab)}</b><br>${esc(ex)}</div><div class="row"><button class="btn primary" id="pn-next">${pn.i+1<Pn.length?"Next":"Start again"}</button>${chip(id)}</div>`:""}</div>`}
-  if(dr.k==="stress"){const St=LANG.st;if(dr.st==null||!St[dr.st.i])dr.st={i:0,seen:[]};const s=dr.st,[id,line,opts]=St[s.i],ws=wtok(line);
-    const on=s.seen[s.seen.length-1];
-    h=`<div class="qz"><div class="qn">${s.i+1} of ${St.length} · ${esc(where(speech[id]))}</div><p class="intro">Say the line aloud three times, leaning on a different word each time. Tap the word you'd stress to see what it does.</p>
-     <h3 class="stl">${(used=>ws.map(w=>{const k=opts.findIndex(o=>clean(o[0])===clean(w));if(k>=0&&used.has(k))return esc(w);used.add(k);return k<0?esc(w):`<button class="stw${s.seen.includes(k)?" seen":""}${on===k?" on":""}" data-sw="${k}">${esc(w)}</button>`}).join(" "))(new Set())}</h3>
-     ${s.seen.map(k=>`<div class="snote"><b>Stress “${esc(opts[k][0])}”</b><br>${esc(opts[k][1])}</div>`).join("")}
-     ${s.seen.length>=opts.length?`<p class="muted">No single right answer: actors choose. Which reading fits your view of the character? Use it in an essay as "an actor might stress…".</p>`:""}
-     <div class="row"><button class="btn primary" id="st-next">${s.i+1<St.length?"Next line":"Start again"}</button>${chip(id)}</div></div>`}
-  $("sbody").innerHTML=back+h;const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
-  $("sbody").querySelectorAll("[data-wd]").forEach(b=>b.onclick=()=>{const g=dr.g;g.ans=b.dataset.wd;if(g.ans===g.k)g.ok++;dr.gok=g.ok;studyDrill()});
-  on("wd-next",()=>{dr.g0=dr.g.n;dr.g=null;studyDrill()});
-  $("sbody").querySelectorAll("[data-uw]").forEach(b=>b.onclick=()=>{dr.u.pk.push(+b.dataset.uw);studyDrill()});
-  on("un-undo",()=>{dr.u.pk.pop();studyDrill()});on("un-next",()=>{dr.u={i:(dr.u.i+1)%LANG.un.length,pk:[]};studyDrill()});
-  $("sbody").querySelectorAll("[data-pw]").forEach(b=>b.onclick=()=>{dr.pn.pick=b.dataset.pw;studyDrill()});
-  on("pn-next",()=>{dr.pn={i:(dr.pn.i+1)%LANG.pun.length,pick:null};studyDrill()});
-  $("sbody").querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{const k=+b.dataset.sw,S2=dr.st.seen,i=S2.indexOf(k);if(i>=0)S2.splice(i,1);S2.push(k);studyDrill()});
-  on("st-next",()=>{dr.st={i:(dr.st.i+1)%LANG.st.length,seen:[]};studyDrill()});
-}
 /* ---------- performance: director's choices, thought track, cut the scene, two-line scenes ---------- */
 let DIRC={};try{DIRC=JSON.parse(LS.get(PFX+"dir")||"{}")}catch(e){}
 const saveDir=()=>LS.set(PFX+"dir",JSON.stringify(DIRC));
@@ -1386,78 +1362,181 @@ function dirTools(id){const ix=DIRS.map((d,i)=>[d,i]).filter(([d])=>+d[0]===+id)
 function thoughtHTML(sp){return `<details class="about tthink"><summary>Thought track: what is ${esc(title(sp.who))} really thinking?</summary><p class="muted">Actors play the thought under the words. Write it in the first person, then add it to your note.</p><label for="tt" class="sr">Thought track</label><textarea id="tt" placeholder="I…"></textarea><div class="acts"><button class="btn sm" id="tt-add">Add to my note</button></div></details>`}
 function wirePerf(id){const tt=$("tt-add");if(tt)tt.onclick=()=>{const v=$("tt").value.trim();if(!v){toast("Write the thought first");return}const cur=(marks[id]||{}).note||"",n=(cur.trim()?cur.trim()+"\n":"")+"Thought track: "+v;saveMark(id,{note:n});if($("tn"))$("tn").value=n;$("tt").value="";toast("Added to your note")};
   document.querySelectorAll(".tool [data-dirgo]").forEach(b=>b.onclick=()=>{closeSheet();closePanel();exSel="director";goStudy("explore")})}
-/* drills */
-function perfDrill(back){let h="";
-  if(dr.k==="cut"){if(!dr.c){const ok=scenes.map((s,i)=>[s,i]).filter(([s])=>s.items.filter(it=>it.t==="sp").length>=10),here=pos&&sIdx(pos.s)>=0&&ok.find(x=>x[1]===sIdx(pos.s));dr.c={k:(here||rnd(ok))[1],cut:{},chk:false}}
-    const C=dr.c,s=scenes[C.k],sps=s.items.filter(it=>it.t==="sp"),tot=sps.reduce((a,x)=>a+x.lines.length,0),kept=sps.filter(x=>!C.cut[x.id]).reduce((a,x)=>a+x.lines.length,0),pc=Math.round(kept/tot*100);
-    const lost=C.chk?sps.filter(x=>C.cut[x.id]&&(QBY[x.id]||EX.irony[x.id]||STUDY.notes[x.id])):[];
-    h=`<p class="intro">Directors often cut Shakespeare. Cut this scene to half its lines or less, and keep the story clear. Tap a speech to cut it; tap again to keep it.</p>
-     <label class="lbl" for="cut-s">Scene</label><select class="sinput" id="cut-s">${scenes.map((x,i)=>x.items.filter(it=>it.t==="sp").length>=10?`<option value="${i}"${i===C.k?" selected":""}>${sName(x)} · ${esc(shortLoc(x))}</option>`:"").join("")}</select>
-     <div class="cutbar"><b>${kept}</b> of ${tot} lines kept (${pc}%)<i><b style="width:${pc}%;background:${pc<=50?"var(--ok)":"var(--accent)"}"></b></i></div>
-     <div class="cuts">${sps.map(x=>`<button data-cut="${x.id}" class="${C.cut[x.id]?"cut":""}" aria-pressed="${!!C.cut[x.id]}"><small>${esc(title(x.who))} · ${x.lines.length} line${x.lines.length===1?"":"s"}${QBY[x.id]&&C.chk?" · key quote":""}</small><span>${esc(lineOf(x.lines[0]).slice(0,90))}${x.lines.length>1||lineOf(x.lines[0]).length>90?"…":""}</span></button>`).join("")}</div>
-     <div class="row"><button class="btn primary" id="cut-chk">${C.chk?"Check again":"Check my cut"}</button><button class="btn" id="cut-reset">Start again</button></div>
-     ${C.chk?`<div class="box"><h3>${pc<=50?"Within the target.":"Still over half: keep cutting."}</h3>${lost.length?`<p>You cut ${lost.length} speech${lost.length===1?"":"es"} the notes flag as important:</p><ul>${lost.map(x=>`<li>${esc(title(x.who))}: “${esc(lineOf(x.lines[0]).slice(0,70))}…”${QBY[x.id]?" (key quote)":EX.irony[x.id]?" (dramatic irony)":" (study note)"}</li>`).join("")}</ul>`:`<p>You kept every speech the notes flag as important.</p>`}
-      ${(STUDY.scenes[s.id]||{}).key?`<p class="muted">Does your cut still tell these points?</p><ul>${STUDY.scenes[s.id].key.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}<p class="muted">There is no single right cut. What did you lose: plot, character, or atmosphere?</p></div>`:""}`}
-  if(dr.k==="two"){if(!dr.t){const ok=scenes.map((s,i)=>[s,i]).filter(([s])=>new Set(s.items.filter(it=>it.t==="sp").map(x=>x.who)).size>=2);dr.t={k:rnd(ok)[1],a:"",b:"",show:false}}
-    const T=dr.t,s=scenes[T.k],by={};s.items.filter(it=>it.t==="sp").forEach(x=>by[x.who]=(by[x.who]||0)+x.lines.length);const [w1,w2]=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(x=>x[0]),st=STUDY.scenes[s.id]||{},kq=QUOTES.quotes.filter(q=>speech[q.id].page===s.id)[0];
-    h=`<p class="intro">Shrink a whole scene into two lines: one for each main character, in your own words. It forces you to find what the scene is really about.</p>
-     <div class="qz"><div class="qn">${sName(s)} · ${esc(shortLoc(s))}</div>
-     <label class="lbl" for="two-a">${esc(title(w1))}</label><input class="sinput" id="two-a" value="${esc(T.a)}" placeholder="What ${esc(title(w1))} wants or says, in one line">
-     <label class="lbl" for="two-b" style="margin-top:8px">${esc(title(w2))}</label><input class="sinput" id="two-b" value="${esc(T.b)}" placeholder="How ${esc(title(w2))} answers">
-     <div class="row"><button class="btn primary" id="two-show">${T.show?"Hide":"Compare"}</button><button class="btn" id="two-next">Another scene</button><button class="btn" data-go2="${s.id}">Read the scene</button></div>
-     ${T.show?`<div class="box">${st.sum?`<p><b>The scene:</b> ${esc(st.sum)}</p>`:""}${kq?quoteHTML(kq):""}<p class="muted">Did your two lines catch the conflict? Act them out loud with a friend.</p></div>`:""}</div>`}
-  $("sbody").innerHTML=back+h;const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
-  if($("cut-s"))$("cut-s").onchange=e=>{dr.c={k:+e.target.value,cut:{},chk:false};studyDrill()};
-  $("sbody").querySelectorAll("[data-cut]").forEach(b=>b.onclick=()=>{const i=b.dataset.cut;if(dr.c.cut[i])delete dr.c.cut[i];else dr.c.cut[i]=1;const y=scrollY;studyDrill();scrollTo(0,y)});
-  on("cut-chk",()=>{dr.c.chk=true;studyDrill()});on("cut-reset",()=>{dr.c={k:dr.c.k,cut:{},chk:false};studyDrill()});
-  if($("two-a")){$("two-a").oninput=e=>dr.t.a=e.target.value;$("two-b").oninput=e=>dr.t.b=e.target.value}
-  on("two-show",()=>{dr.t.show=!dr.t.show;studyDrill()});on("two-next",()=>{dr.t=null;studyDrill()});
-}
-const DRILLS=[["gap","Fill the gap","Type the missing words in a key quote"],["ladder","Memory ladder","Learn a quote: full, then half hidden, then first letters, then from memory"],["explain","Explain this line","Put a passage in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["order","Put it in order","Sort 6 plot events into the right sequence"],["word","Word detective","Guess what an old word means from the line around it"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[]),["cut","Cut the scene","Keep half the lines and still tell the story"],["two","Two-line scene","Sum up a scene as one line for each of two characters"]];
+/* ---------- 4.16 practice frame: every drill runs as a round under one frame (pips, score, streak) and ends on a wreath
+   with the best score and the lines missed. Quote misses join Daily review (gap → fin, who → who). Bests: <prefix>drb. ---------- */
+const DRILLS=[["gap","Fill the gap","Type the missing words in 8 key quotes"],["ladder","Memory ladder","Learn a quote by heart: full, half hidden, first letters, from memory"],["explain","Explain this line","Put 5 passages in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["order","Put it in order","Three rounds: sort 5 plot events into the order they happen"],["word","Word detective","Guess what 8 old words mean from the line around them"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[]),["cut","Cut the scene","Keep half the lines and still tell the story"],["two","Two-line scene","Sum up 3 scenes as one line for each of two characters"]];
 const rnd=a=>a[Math.floor(Math.random()*a.length)],shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+let DRB={};try{DRB=JSON.parse(LS.get(PFX+"drb")||"{}")||{}}catch(e){}if(typeof DRB!=="object"||Array.isArray(DRB))DRB={};
+if(!DRB.lad||typeof DRB.lad!=="object"||Array.isArray(DRB.lad))DRB.lad={};
+const saveDrb=()=>LS.set(PFX+"drb",JSON.stringify(DRB));
+const drBest=k=>{if(k==="ladder"){const n=Object.keys(DRB.lad).filter(i=>QUOTES.quotes[i]).length;return n?[n,QUOTES.quotes.length,0,n]:null}const b=DRB[k];return Array.isArray(b)&&isFinite(b[0])&&isFinite(b[1])&&b[1]>0?b:null};
+/* the frame: label · i of n, pips (a bar past 24 items), right so far and the current streak */
+function pipFrame(lab,res,i,n,right,streak,rw){const pips=n<=24?`<span class="pips" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${res[j]===true?"ok":res[j]===false?"no":j===i?"cur":""}"></i>`).join("")}</span>`:`<span class="pbar" aria-hidden="true"><b style="width:${(100*Math.min(i,n)/Math.max(1,n)).toFixed(1)}%"></b></span>`;
+  return `<div class="dfr pfr"><span class="dfl">${esc(lab)} · ${Math.min(i+1,n)} of ${n}</span>${pips}<span class="dfs">${right} ${rw||"right"}${streak>1?` · <b class="stk">${streak} in a row</b>`:""}</span></div>`}
+const DRN={gap:8,who:8,word:8,order:3,explain:5,two:3,untangle:6,pun:6,stress:5};
+const gapCand=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
+const gw=w=>w.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g,"");
+const gnorm=w=>w.toLowerCase().replace(/[’]/g,"'").replace(/[^a-z']/g,"");
+const dQ=it=>QUOTES.quotes[it.qi];
+const selfRate=(a,b)=>`<div class="srate"><span class="muted">How close were you?</span><button class="btn" data-dans="0">${a}</button><button class="btn primary" data-dans="1">${b}</button></div>`;
+const nextBtn=()=>{const R=dr.R;return `<button class="btn primary" id="dr-next">${R.i+1<R.items.length?"Next ›":"See score ›"}</button>`};
+/* each drill: make(n) → items; view(it,st,done) → html; ids(it) → speeches for Look again; key(it) → Daily review key */
+const DK={
+  gap:{make:n=>shuf(QUOTES.quotes.filter(q=>gapCand(q).length)).slice(0,n).map(q=>({qi:q.i,pick:shuf(gapCand(q)).slice(0,2).map(x=>x[1]).sort((a,b)=>a-b)})),
+    ids:it=>[dQ(it).id],key:it=>"fin:"+it.qi,
+    view(it,st,done){const q=dQ(it),ws=q.text.split(/\s+/),sp=speech[q.id];st.v=st.v||{};st.ok=st.ok||{};
+      return `<div class="qz gap16"><div class="gapq">“${ws.map((w,i)=>{if(!it.pick.includes(i))return esc(w);const core=gw(w),pre=w.slice(0,w.indexOf(core)),post=w.slice(w.indexOf(core)+core.length);
+        if(done||st.ok[i])return esc(pre)+`<b class="gw ${st.ok[i]?"ok":"no"}">${esc(core)}</b>`+esc(post);
+        return esc(pre)+`<input class="gin${st.bad&&st.bad[i]?" bad":""}" data-gap="${i}" style="--n:${core.length}" maxlength="${core.length+3}" value="${esc(st.v[i]||"")}" aria-label="Missing word, ${core.length} letters" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">`+esc(post)}).join(" ")}”</div>
+       <p class="gsrc">${folioMedal(sp.who,COLORS[sp.who],"gmed")}<span>${esc(title(sp.who))} · ${sName(sceneOf(q.id))}</span></p>
+       ${done?`<p class="dres ${st.right?"ok":"no"}">${st.right?(st.tries?"Right on the second try.":"Right."):"The missing words are in bold."}</p><p class="muted">${esc(q.note)}</p><div class="row">${nextBtn()}${chip(q.id)}</div>`
+        :`${st.tries?`<p class="dres no">Not quite: one more try. The right words stay.</p>`:""}<div class="row"><button class="btn primary" id="gap-chk">Check</button>${st.hint?"":`<button class="btn" id="gap-hint">First letters</button>`}<button class="link" id="gap-show">Show answer</button></div>`}</div>`},
+    wire(it,st){const ins=[...$("sbody").querySelectorAll("[data-gap]")],q=dQ(it),ws=q.text.split(/\s+/);
+      ins.forEach(el=>{el.oninput=()=>{st.v[el.dataset.gap]=el.value};el.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();const nx=ins[ins.indexOf(el)+1];if(nx)nx.focus();else $("gap-chk").click()}}});
+      const chk=()=>{st.bad={};let all=true;it.pick.forEach(i=>{if(st.ok[i])return;const r=gnorm(st.v[i]||"")===gnorm(gw(ws[i]));if(r)st.ok[i]=1;else{st.bad[i]=1;all=false}});
+        if(all){st.right=true;drAns(true);return}if(st.tries){drAns(false);return}st.tries=1;studyDrill();const f=$("sbody").querySelector(".gin.bad");if(f)f.focus()};
+      if($("gap-chk"))$("gap-chk").onclick=chk;
+      if($("gap-hint"))$("gap-hint").onclick=()=>{st.hint=1;it.pick.forEach(i=>{if(!st.ok[i]&&!(st.v[i]||"").trim())st.v[i]=gw(ws[i])[0]});studyDrill();const f=$("sbody").querySelector(".gin");if(f){f.focus();f.setSelectionRange(f.value.length,f.value.length)}};
+      if($("gap-show"))$("gap-show").onclick=()=>drAns(false);
+      if(!st.tries&&!st.hint&&ins[0]&&!matchMedia("(pointer:coarse)").matches)ins[0].focus({preventScroll:true})}},
+  who:{make:n=>{const pool=[...new Set([...(CFG.drillCast||[]),...QUOTES.quotes.map(x=>speech[x.id].who)])];
+      return shuf(QUOTES.quotes.filter(q=>!q.text.toLowerCase().includes(speech[q.id].who.toLowerCase()))).slice(0,n).map(q=>{const w=speech[q.id].who;return {qi:q.i,o:shuf([w,...shuf(pool.filter(x=>x!==w)).slice(0,3)])}})},
+    ids:it=>[dQ(it).id],key:it=>"who:"+it.qi,
+    view(it,st,done){const q=dQ(it),w=speech[q.id].who,p=sceneOf(q.id);
+      return `<div class="qz who16"><h3 class="dq">“${esc(q.text)}”</h3><div class="wopts">${it.o.map(o=>`<button data-dpick="${esc(o)}"${done?" disabled":""} class="${done?(o===w?"right":o===st.pick?"wrong":""):""}" style="--c:${esc(COLORS[o]||"var(--ink)")}">${folioMedal(o,COLORS[o],"wom")}<b>${esc(title(o))}</b></button>`).join("")}</div>
+       ${done?`<p class="muted">${esc(title(w))}, ${sName(p)}. ${esc(q.note)}</p><div class="row">${nextBtn()}${chip(q.id)}</div>`:""}</div>`},
+    pick:(it,v)=>v===speech[dQ(it).id].who},
+  word:{make:n=>{const use=glossUse(),ks=shuf(Object.keys(use).filter(k=>speech[use[k]]&&G[k].length<90));return ks.slice(0,n).map(k=>({k,id:use[k],o:shuf([k,...shuf(ks.filter(x=>x!==k&&G[x]!==G[k])).slice(0,3)])}))},
+    ids:it=>[it.id],
+    view(it,st,done){const sp=speech[it.id],rx=it.k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),ln=sp.lines.map(lineOf).find(l=>new RegExp("(^|[^A-Za-z'])"+rx+"(?![A-Za-z])","i").test(l))||lineOf(sp.lines[0]);
+      const hl=esc(ln).replace(new RegExp("(^|[^A-Za-z'])("+esc(it.k).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?![A-Za-z])","i"),"$1<mark>$2</mark>");
+      return `<div class="qz"><p class="intro">Use the rest of the line to guess what the marked word means here.</p><h3 class="dq">${hl}</h3><p class="muted">${esc(where(sp))}</p>
+       <div class="opts">${it.o.map(o=>`<button data-dpick="${esc(o)}"${done?" disabled":""} class="${done?(o===it.k?"right":o===st.pick?"wrong":""):""}">${esc(G[o])}</button>`).join("")}</div>
+       ${done?`<p class="muted"><b>${esc(it.k)}</b>: ${esc(G[it.k])}</p><div class="row">${nextBtn()}${chip(it.id)}</div>`:""}</div>`},
+    pick:(it,v)=>v===it.k},
+  order:{make:n=>{const T=EX.timeline||[];if(T.length<5)return [];return Array.from({length:n},()=>{const ev=shuf(T.map((_,i)=>i)).slice(0,5).sort((a,b)=>a-b);return {ev,show:shuf(ev)}})},
+    ids:it=>it.ev.map(i=>EX.timeline[i].id).filter(x=>x!=null),
+    view(it,st,done){const T=EX.timeline,P=st.pk=st.pk||[],full=P.length===it.ev.length,ev=i=>{const e=T[i],p=e.s&&sIdx(e.s)>=0?scenes[sIdx(e.s)]:null;return {t:e.t,p}};
+      if(done){const n=P.filter((i,j)=>i===it.ev[j]).length;
+        return `<div class="qz"><p class="dres ${st.right?"ok":"no"}">${n} of ${it.ev.length} in the right place.</p><ol class="otl">${it.ev.map((i,j)=>{const e=ev(i),u=P.indexOf(i);return `<li class="${u===j?"ok":"no"}"><i aria-hidden="true">${u===j?"✓":u+1}</i><div><b>${esc(e.t)}</b>${e.p?`<small>${sName(e.p)}</small>`:""}${u!==j?`<small class="ow">You put it ${u+1}${["st","nd","rd","th","th"][u]}</small>`:""}</div>${T[i].id!=null&&speech[T[i].id]?chip(T[i].id):""}</li>`}).join("")}</ol><div class="row">${nextBtn()}</div></div>`}
+      return `<div class="qz ord16"><p class="intro">Tap the events in the order they happen. Drag a placed event to move it; tap it to take it back.</p>
+       <div class="opool">${it.show.map(i=>P.includes(i)?"":`<button data-opk="${i}">${esc(T[i].t)}</button>`).join("")||`<p class="muted">All placed. Check your order, or drag to change it.</p>`}</div>
+       <ol class="oslots">${it.ev.map((_,j)=>P[j]!=null?`<li class="ofill" data-osl="${j}"><i aria-hidden="true">${j+1}</i><span>${esc(T[P[j]].t)}</span><b class="ogrip" aria-hidden="true">⋮⋮</b></li>`:`<li class="oempty"><i aria-hidden="true">${j+1}</i><span></span></li>`).join("")}</ol>
+       <div class="row"><button class="btn primary" id="ord-chk"${full?"":" disabled"}>Check</button>${P.length?`<button class="link" id="ord-clr">Clear</button>`:""}</div></div>`},
+    wire(it,st){const P=st.pk;$("sbody").querySelectorAll("[data-opk]").forEach(b=>b.onclick=()=>{P.push(+b.dataset.opk);studyDrill()});
+      if($("ord-clr"))$("ord-clr").onclick=()=>{P.length=0;studyDrill()};
+      if($("ord-chk"))$("ord-chk").onclick=()=>{st.right=P.every((i,j)=>i===it.ev[j]);drAns(st.right)};
+      /* drag a placed event to a new slot (pointer events, so it works with touch); a tap sends it back to the pool */
+      $("sbody").querySelectorAll("[data-osl]").forEach(li=>{li.onpointerdown=e=>{if(e.button>0)return;const j=+li.dataset.osl,y0=e.clientY,h=li.offsetHeight+6;let moved=false;li.setPointerCapture(e.pointerId);
+        li.onpointermove=m=>{const dy=m.clientY-y0;if(Math.abs(dy)>6){moved=true;li.classList.add("drag");li.style.transform=`translateY(${dy}px)`}};
+        li.onpointerup=li.onpointercancel=u=>{li.onpointermove=li.onpointerup=li.onpointercancel=null;if(!moved){if(u.type==="pointerup")P.splice(j,1);studyDrill();return}
+          const to=Math.max(0,Math.min(P.length-1,j+Math.round((u.clientY-y0)/h)));const [x]=P.splice(j,1);P.splice(to,0,x);studyDrill()}}})}},
+  explain:{make:n=>shuf(Object.keys(PARTS).filter(id=>speech[id])).slice(0,n).map(id=>({id,pi:Math.floor(Math.random()*PARTS[id].length)})),
+    ids:it=>[it.id],
+    view(it,st,done){const sp=speech[it.id],q=partsOf(sp)[it.pi]||partsOf(sp)[0];
+      return `<div class="qz"><p class="muted">${esc(where(sp))}</p><div class="tool"><div class="porig">${sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("")}</div></div>
+       <label class="lbl" for="ex-a" style="display:block;margin-top:12px">In your own words</label><textarea class="sinput" id="ex-a" style="min-height:90px" placeholder="What is being said here?">${esc(st.mine||"")}</textarea>
+       ${st.show?`<div class="tool"><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div>${done?`<div class="row">${nextBtn()}${chip(it.id)}</div>`:selfRate("Missed the point","Got the main point")}`:`<div class="row"><button class="btn primary" id="ex-show">Compare</button></div>`}</div>`},
+    wire(it,st){if($("ex-a"))$("ex-a").oninput=e=>st.mine=e.target.value;if($("ex-show"))$("ex-show").onclick=()=>{st.show=1;studyDrill()}}},
+  two:{make:n=>shuf(scenes.map((s,i)=>[s,i]).filter(([s])=>new Set(s.items.filter(it=>it.t==="sp").map(x=>x.who)).size>=2)).slice(0,n).map(x=>({k:x[1]})),
+    ids:it=>{const s=scenes[it.k],kq=QUOTES.quotes.find(q=>speech[q.id].page===s.id);return kq?[kq.id]:[]},
+    view(it,st,done){const s=scenes[it.k],by={};s.items.filter(x=>x.t==="sp").forEach(x=>by[x.who]=(by[x.who]||0)+x.lines.length);const [w1,w2]=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(x=>x[0]),S0=STUDY.scenes[s.id]||{},kq=QUOTES.quotes.find(q=>speech[q.id].page===s.id);
+      return `<div class="qz"><p class="intro">Shrink the scene into two lines: one for each main character, in your own words.</p><div class="qn">${sName(s)} · ${esc(shortLoc(s))}</div>
+       <label class="lbl" for="two-a">${esc(title(w1))}</label><input class="sinput" id="two-a" value="${esc(st.a||"")}" placeholder="What ${esc(title(w1))} wants or says, in one line">
+       <label class="lbl" for="two-b" style="margin-top:8px">${esc(title(w2))}</label><input class="sinput" id="two-b" value="${esc(st.b||"")}" placeholder="How ${esc(title(w2))} answers">
+       ${st.show?`<div class="box">${S0.sum?`<p><b>The scene:</b> ${esc(S0.sum)}</p>`:""}${kq?quoteHTML(kq):""}</div>${done?`<div class="row">${nextBtn()}<button class="btn" data-go2="${s.id}">Read the scene</button></div>`:selfRate("Missed the conflict","Caught the conflict")}`:`<div class="row"><button class="btn primary" id="two-show">Compare</button><button class="btn" data-go2="${s.id}">Read the scene</button></div>`}</div>`},
+    wire(it,st){if($("two-a")){$("two-a").oninput=e=>st.a=e.target.value;$("two-b").oninput=e=>st.b=e.target.value}if($("two-show"))$("two-show").onclick=()=>{st.show=1;studyDrill()}}},
+  untangle:{make:n=>shuf(LANG.un.map((_,i)=>i)).slice(0,n).map(u=>({u})),ids:it=>[LANG.un[it.u][0]],
+    view(it,st,done){const [id,orig,mod]=LANG.un[it.u],ws=wtok(mod),ord=st.ord||(st.ord=shuf(ws.map((_,i)=>i))),pk=st.pk=st.pk||[],built=pk.map(i=>ws[i]).join(" ");
+      return `<div class="qz"><p class="muted">${esc(where(speech[id]))}</p><p class="intro">Tap the words to put the line into everyday order.</p><h3 class="dq">“${esc(orig)}”</h3>
+       <div class="ord words">${ord.map(i=>`<button data-uw="${i}"${pk.includes(i)||done?" disabled":""}>${esc(ws[i].replace(/[,.;:!?]+$/,""))}</button>`).join("")}</div>
+       <p class="ubuilt ${done?(st.right?"ok":"no"):""}">${esc(built.replace(/[,.;:!?](?=\s|$)/g,""))||"<span class='muted'>Your order appears here</span>"}</p>
+       ${done?`<p>${st.right?"<b>Right.</b>":"<b>Not quite.</b> One everyday order:"} ${esc(mod)}</p><p class="muted">Which word did Shakespeare's order push to the front or the end? That is usually the word he wants stressed.</p><div class="row">${nextBtn()}${chip(id)}</div>`
+        :`<div class="row">${pk.length?`<button class="link" id="un-undo">Undo</button>`:""}</div>`}</div>`},
+    wire(it,st){const ws=wtok(LANG.un[it.u][2]);$("sbody").querySelectorAll("[data-uw]").forEach(b=>b.onclick=()=>{st.pk.push(+b.dataset.uw);if(st.pk.length===ws.length){st.right=st.pk.map(i=>clean(ws[i])).join(" ")===ws.map(clean).join(" ");drAns(st.right)}else studyDrill()});
+      if($("un-undo"))$("un-undo").onclick=()=>{st.pk.pop();studyDrill()}}},
+  pun:{make:n=>shuf(LANG.pun.map((_,i)=>i)).slice(0,n).map(u=>({u})),ids:it=>[LANG.pun[it.u][0]],
+    view(it,st,done){const [id,line,word,kind,ex]=LANG.pun[it.u],tw=wtok(word).map(clean),ws=wtok(line);
+      const lab={pun:"Pun: one word, two meanings",shift:"Functional shift: a word used as a different part of speech",malapropism:"Malapropism: the wrong word that sounds like the right one",wordplay:"Wordplay"}[kind]||"Wordplay";
+      return `<div class="qz"><p class="muted">${esc(where(speech[id]))}</p><p class="intro">${kind==="shift"?"Which word is doing a job it doesn't usually do?":kind==="malapropism"?"Which word is the wrong one?":"Which word is doing double duty?"} Tap it.</p>
+       <div class="punl">${ws.map((w,i)=>{const hit=tw.includes(clean(w));return `<button data-pw="${i}"${done?" disabled":""} class="${done?(hit?"right":+st.pick===i?"wrong":""):""}">${esc(w)}</button>`}).join(" ")}</div>
+       ${done?`<div class="snote"><b>${esc(lab)}</b><br>${esc(ex)}</div><div class="row">${nextBtn()}${chip(id)}</div>`:""}</div>`},
+    wire(it,st){const [,line,word]=LANG.pun[it.u],tw=wtok(word).map(clean),ws=wtok(line);$("sbody").querySelectorAll("[data-pw]").forEach(b=>b.onclick=()=>{st.pick=b.dataset.pw;drAns(tw.includes(clean(ws[+st.pick])))})}},
+  stress:{make:n=>shuf(LANG.st.map((_,i)=>i)).slice(0,n).map(u=>({u})),ids:()=>[],
+    view(it,st,done){const [id,line,opts]=LANG.st[it.u],ws=wtok(line),seen=st.seen=st.seen||[],on=seen[seen.length-1];
+      return `<div class="qz"><p class="muted">${esc(where(speech[id]))}</p><p class="intro">Say the line aloud, leaning on a different word each time. Tap each word you could stress to hear what it does.</p>
+       <h3 class="stl">${(used=>ws.map(w=>{const k=opts.findIndex(o=>clean(o[0])===clean(w));if(k>=0&&used.has(k))return esc(w);used.add(k);return k<0?esc(w):`<button class="stw${seen.includes(k)?" seen":""}${on===k?" on":""}" data-sw="${k}">${esc(w)}</button>`}).join(" "))(new Set())}</h3>
+       ${seen.map(k=>`<div class="snote"><b>Stress “${esc(opts[k][0])}”</b><br>${esc(opts[k][1])}</div>`).join("")}
+       ${done?`<p class="muted">No single right answer: actors choose. Use it in an essay as "an actor might stress…".</p><div class="row">${nextBtn()}${chip(id)}</div>`:`<p class="muted">${seen.length} of ${opts.length} readings heard.</p>`}</div>`},
+    wire(it,st){const opts=LANG.st[it.u][2];$("sbody").querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{const k=+b.dataset.sw,i=st.seen.indexOf(k);if(i>=0)st.seen.splice(i,1);st.seen.push(k);if(st.seen.length>=opts.length&&dr.R.res[dr.R.i]==null)drAns(true);else studyDrill()})}}
+};
+const DRL={stress:"heard"};
+function drStart(){const D=DK[dr.k];dr.R={items:D.make(DRN[dr.k]||8).filter(Boolean),i:0,res:[],st:{},streak:0}}
+function drAns(ok){const R=dr.R;if(!R||R.res[R.i]!=null)return;const it=R.items[R.i],D=DK[dr.k];R.res[R.i]=!!ok;R.streak=ok?R.streak+1:0;
+  const key=D.key&&D.key(it);if(key&&(QUOTES.quotes[+key.split(":")[1]])){if(!ok)grade(key,false,false);else if(isDue(key))grade(key,true,false)}
+  studyDrill()}
+const drillsNow=()=>topicK("practise")[2].concat(topicK("words")[2]).filter(s=>s.startsWith("drill:")&&toolOK(s)).map(s=>s.slice(6)).filter((k,i,a)=>a.indexOf(k)===i);
+function nextDrill(k){const L=drillsNow().filter(x=>DK[x]||x==="ladder"),i=L.indexOf(k);return L.length>1?DRILLS.find(d=>d[0]===L[(i+1)%L.length]):null}
+function drEnd(){const R=dr.R,D0=DRILLS.find(d=>d[0]===dr.k),n=R.items.length,ok=R.res.filter(x=>x===true).length,old=drBest(dr.k);
+  if(!R.saved){R.saved=1;R.nb=!!ok&&(!old||ok/n>old[0]/old[1]);const pl=((old&&old[3])||0)+1;DRB[dr.k]=R.nb||!old?[ok,n,Date.now(),pl]:[old[0],old[1],old[2],pl];saveDrb()}
+  const b=drBest(dr.k),ids=[...new Set(R.items.filter((_,j)=>R.res[j]===false).flatMap(it=>DK[dr.k].ids(it)).filter(x=>x!=null&&speech[x]))],nx=nextDrill(dr.k);
+  return pipFrame(D0[1],R.res,n,n,ok,0)+`<div class="qz dend">${wreathHTML(ok,n)}<p class="dmsg">${ok===n?"Full marks.":ok>=n*.7?"A strong round.":"Look again at the lines below, then go again."}</p>
+    ${R.nb?`<p class="nbest">${folioSeal("❦","g","nbs")}New best</p>`:b?`<p class="muted">Your best: ${b[0]} of ${b[1]} · played ${b[3]} time${b[3]===1?"":"s"}</p>`:""}
+    <div class="row" style="justify-content:center"><button class="btn primary" id="dr-again">Play again</button>${nx?`<button class="btn" type="button" data-to="study:drill:${nx[0]}?tp=practise">Next: ${esc(nx[1])} ›</button>`:""}</div>
+    ${R.res.some(x=>x===false)&&DK[dr.k].key?`<p class="muted" style="text-align:center">Missed quotes join Daily review.</p>`:""}</div>${ids.length?`<div class="box miss49"><h3>Look again · ${ids.length}</h3>${evHTML(ids,"Lines")}</div>`:""}`}
+/* memory ladder: choose a quote from a searchable list, climb four steps, then type it from memory */
+function ladderHTML(){
+  if(dr.i==null){const f=(dr.f||"").toLowerCase(),L=QUOTES.quotes.filter(q=>!f||q.text.toLowerCase().includes(f)||title(speech[q.id].who).toLowerCase().includes(f));
+    return `<p class="intro">Choose a quote to learn by heart. A seal marks quotes you have typed word for word.</p><label class="sr" for="ld-f">Search quotes</label><input class="sinput" id="ld-f" type="search" placeholder="Search by word or speaker" value="${esc(dr.f||"")}" autocomplete="off">
+     <div class="lql">${L.map(q=>{const sp=speech[q.id];return `<button type="button" data-ldq="${q.i}" style="--c:${esc(COLORS[sp.who]||"var(--ink)")}">${DRB.lad[q.i]?folioSeal("❦","g","lqs"):prog.cards[q.i]?folioSeal("✓","","lqs"):`<i class="lqn" aria-hidden="true"></i>`}<span><b>“${esc(clip(q.text,90))}”</b><small>${esc(title(sp.who))} · ${sName(sceneOf(q.id))}</small></span></button>`}).join("")||`<p class="muted">No quote matches.</p>`}</div>`}
+  const q=QUOTES.quotes[dr.i],ws=q.text.split(/\s+/),sp=speech[q.id],l=dr.l||0;
+  const view=l===0?esc(q.text):l===1?ws.map((w,i)=>i%2?`<span class="lh">${esc(w.replace(/[A-Za-z]/g,"_"))}</span>`:esc(w)).join(" "):l===2?ws.map(w=>esc(w.replace(/([A-Za-z])[A-Za-z']*/,"$1"))).join(" "):"";
+  return pipFrame("Memory ladder",[0,1,2,3].map(j=>j<l?true:j===3&&dr.res!=null?dr.res:undefined),l,4,l,0,"climbed")+`<div class="qz lad16" style="--c:${esc(COLORS[sp.who]||"var(--ink)")}"><div class="qn">Step ${l+1}: ${["Read it aloud","Every other word hidden","First letters only","From memory"][l]}</div>
+    <div class="ladder">${l<3?view:`<textarea class="sinput" id="ld-a" placeholder="Type the whole quote from memory">${esc(dr.a||"")}</textarea>`}</div><p class="gsrc">${folioMedal(sp.who,COLORS[sp.who],"gmed")}<span>${esc(title(sp.who))} · ${sName(sceneOf(q.id))}</span></p>
+    <div id="ld-res">${dr.res!=null?dr.rh:""}</div>
+    <div class="row">${l>0&&dr.res==null?`<button class="btn" id="ld-prev">‹ Easier</button>`:""}${l<3?`<button class="btn primary" id="ld-next">Harder ›</button>`:dr.res==null?`<button class="btn primary" id="ld-chk">Check</button>`:`<button class="btn primary" id="ld-nq">Next quote ›</button><button class="btn" id="ld-re">Try again</button>`}<button class="link" id="ld-pick">Choose another</button></div></div>`}
+function wireLadder(){const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
+  if($("ld-f"))$("ld-f").oninput=e=>{dr.f=e.target.value;const p=e.target.selectionStart;studyDrill();const f=$("ld-f");f.focus();f.setSelectionRange(p,p)};
+  $("sbody").querySelectorAll("[data-ldq]").forEach(b=>b.onclick=()=>{dr.i=+b.dataset.ldq;dr.l=0;dr.res=null;dr.a="";studyDrill();scrollTo(0,0)});
+  on("ld-next",()=>{dr.l++;studyDrill()});on("ld-prev",()=>{dr.l--;studyDrill()});on("ld-pick",()=>{dr.i=null;studyDrill()});on("ld-re",()=>{dr.l=0;dr.res=null;dr.a="";studyDrill()});
+  on("ld-nq",()=>{const L=QUOTES.quotes.filter(q=>!DRB.lad[q.i]&&q.i!==dr.i);dr.i=(L.find(q=>q.i>dr.i)||L[0]||QUOTES.quotes[0]).i;dr.l=0;dr.res=null;dr.a="";studyDrill();scrollTo(0,0)});
+  if($("ld-a"))$("ld-a").oninput=e=>dr.a=e.target.value;
+  on("ld-chk",()=>{const a=(dr.a||"").toLowerCase().replace(/[^a-z' ]/g,"").split(/\s+/).filter(Boolean),q=QUOTES.quotes[dr.i],b=q.text.toLowerCase().replace(/[^a-z' ]/g,"").split(/\s+/).filter(Boolean);
+    const L=Array(b.length+1).fill(0).map(()=>Array(a.length+1).fill(0));for(let i=1;i<=b.length;i++)for(let j=1;j<=a.length;j++)L[i][j]=b[i-1]===a[j-1]?L[i-1][j-1]+1:Math.max(L[i-1][j],L[i][j-1]);
+    const hit=L[b.length][a.length],ok=hit===b.length&&a.length===b.length;dr.res=ok;dr.rh=`<p class="dres ${ok?"ok":"no"}"><b>${hit} of ${b.length} words right.</b> ${ok?"Word perfect: it's yours.":"Answer: "+esc(q.text)}</p>`;
+    if(ok){DRB.lad[dr.i]=Date.now();saveDrb()}const k="fin:"+dr.i;if(!ok)grade(k,false,false);else if(isDue(k))grade(k,true,false);studyDrill()})}
+/* cut the scene (one task, no round) */
+function cutHTML(){if(!dr.c){const ok=scenes.map((s,i)=>[s,i]).filter(([s])=>s.items.filter(it=>it.t==="sp").length>=10),here=pos&&sIdx(pos.s)>=0&&ok.find(x=>x[1]===sIdx(pos.s));dr.c={k:(here||rnd(ok))[1],cut:{},chk:false}}
+  const C=dr.c,s=scenes[C.k],sps=s.items.filter(it=>it.t==="sp"),tot=sps.reduce((a,x)=>a+x.lines.length,0),kept=sps.filter(x=>!C.cut[x.id]).reduce((a,x)=>a+x.lines.length,0),pc=Math.round(kept/tot*100);
+  const lost=C.chk?sps.filter(x=>C.cut[x.id]&&(QBY[x.id]||EX.irony[x.id]||STUDY.notes[x.id])):[];
+  return `<p class="intro">Directors often cut Shakespeare. Cut this scene to half its lines or less, and keep the story clear. Tap a speech to cut it; tap again to keep it.</p>
+   <label class="lbl" for="cut-s">Scene</label><select class="sinput" id="cut-s">${scenes.map((x,i)=>x.items.filter(it=>it.t==="sp").length>=10?`<option value="${i}"${i===C.k?" selected":""}>${sName(x)} · ${esc(shortLoc(x))}</option>`:"").join("")}</select>
+   <div class="cutbar"><b>${kept}</b> of ${tot} lines kept (${pc}%)<i><b style="width:${pc}%;background:${pc<=50?"var(--ok)":"var(--accent)"}"></b></i></div>
+   <div class="cuts">${sps.map(x=>`<button data-cut="${x.id}" class="${C.cut[x.id]?"cut":""}" aria-pressed="${!!C.cut[x.id]}"><small>${esc(title(x.who))} · ${x.lines.length} line${x.lines.length===1?"":"s"}${QBY[x.id]&&C.chk?" · key quote":""}</small><span>${esc(lineOf(x.lines[0]).slice(0,90))}${x.lines.length>1||lineOf(x.lines[0]).length>90?"…":""}</span></button>`).join("")}</div>
+   <div class="row"><button class="btn primary" id="cut-chk">${C.chk?"Check again":"Check my cut"}</button><button class="btn" id="cut-reset">Start again</button></div>
+   ${C.chk?`<div class="box"><h3>${pc<=50?"Within the target.":"Still over half: keep cutting."}</h3>${lost.length?`<p>You cut ${lost.length} speech${lost.length===1?"":"es"} the notes flag as important:</p><ul>${lost.map(x=>`<li>${esc(title(x.who))}: “${esc(lineOf(x.lines[0]).slice(0,70))}…”${QBY[x.id]?" (key quote)":EX.irony[x.id]?" (dramatic irony)":" (study note)"}</li>`).join("")}</ul>`:"<p>You kept every speech the notes flag as important.</p>"}
+    ${(STUDY.scenes[s.id]||{}).key?`<p class="muted">Does your cut still tell these points?</p><ul>${STUDY.scenes[s.id].key.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}<p class="muted">There is no single right cut. What did you lose: plot, character, or atmosphere?</p></div>`:""}`}
+function wireCut(){if($("cut-s"))$("cut-s").onchange=e=>{dr.c={k:+e.target.value,cut:{},chk:false};studyDrill()};
+  $("sbody").querySelectorAll("[data-cut]").forEach(b=>b.onclick=()=>{const i=b.dataset.cut;if(dr.c.cut[i])delete dr.c.cut[i];else dr.c.cut[i]=1;const y=scrollY;studyDrill();scrollTo(0,y)});
+  const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};on("cut-chk",()=>{dr.c.chk=true;studyDrill()});on("cut-reset",()=>{dr.c={k:dr.c.k,cut:{},chk:false};studyDrill()})}
 function studyDrill(){
-  const back=`<div class="exh"><button class="btn sm" data-drill="">‹ All drills</button><h2>${dr.k?DRILLS.find(d=>d[0]===dr.k)[1]:""}</h2></div>`;
-  if(!dr.k){$("sbody").innerHTML=`<p class="intro">Short exercises for remembering quotes and understanding the language.</p><div class="drills">${DRILLS.map(([k,a,b])=>`<button data-drill="${k}">${tic("drill:"+k)}<b>${a}</b><span>${b}</span></button>`).join("")}</div>`;return}
-  /* the rule, one line, on a card before the drill starts */
-  const D0=DRILLS.find(d=>d[0]===dr.k);
-  if(!dr.go&&D0){$("sbody").innerHTML=back+`<div class="rulec">${folioSeal("❦","g","rcs")}<div class="rct">${tic("drill:"+dr.k)}</div><h3>${esc(D0[1])}</h3><p>${esc(D0[2])}.</p><button class="btn primary" type="button" id="dr-go">Begin</button></div>`;$("dr-go").onclick=()=>{dr.go=1;studyDrill();scrollTo(0,0)};return}
-  if(["word","untangle","pun","stress"].includes(dr.k))return langDrill(back);
-  if(["cut","two"].includes(dr.k))return perfDrill(back);
-  let h="";
-  if(dr.k==="gap"){if(!dr.q){const gc=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
-    const gq=QUOTES.quotes.filter(x=>gc(x).length),q=rnd(gq.length?gq:QUOTES.quotes),ws=q.text.split(/\s+/),cand=gc(q);const pick=shuf(cand).slice(0,Math.min(2,cand.length)).map(x=>x[1]);dr.q={q,ws,pick,res:null}}
-    const {q,ws,pick,res}=dr.q;h=`<div class="qz"><div class="gapq">“${ws.map((w,i)=>pick.includes(i)?(res?`<b style="color:${res[i]?"var(--ok)":"var(--bad)"}">${esc(w)}</b>`:`<input data-gap="${i}" aria-label="Missing word" autocomplete="off" autocapitalize="off">`)+esc(w.replace(/[A-Za-z']+/,"").slice(0)):esc(w)).join(" ")}”</div>
-      <p class="muted">${esc(title(speech[q.id].who))} · ${sName(sceneOf(q.id))}</p><div class="row">${res?`<button class="btn primary" id="dr-next">Next quote</button>`:`<button class="btn primary" id="dr-check">Check</button><button class="link" id="dr-show">Show answer</button>`}</div></div>`}
-  if(dr.k==="ladder"){if(dr.i==null)dr.i=0;if(dr.l==null)dr.l=0;const q=QUOTES.quotes[dr.i],ws=q.text.split(/\s+/);
-    const view=dr.l===0?esc(q.text):dr.l===1?ws.map((w,i)=>i%2?w.replace(/[A-Za-z]/g,"_"):w).map(esc).join(" "):dr.l===2?ws.map(w=>w.replace(/([A-Za-z])[A-Za-z']*/,"$1")).map(esc).join(" "):"";
-    h=`<label class="lbl" for="ld-q">Quote</label><select class="sinput" id="ld-q">${QUOTES.quotes.map((x,i)=>`<option value="${i}"${i===dr.i?" selected":""}>${i+1}. ${esc(title(speech[x.id].who))} · ${sName(sceneOf(x.id))}</option>`).join("")}</select>
-     <div class="qz" style="margin-top:10px"><div class="qn">Step ${dr.l+1} of 4: ${["Read it","Every other word hidden","First letters only","From memory"][dr.l]}</div><div class="ladder">${dr.l<3?view:`<textarea class="sinput" id="ld-a" placeholder="Type the whole quote from memory"></textarea>`}</div>
-     <div class="row">${dr.l>0?`<button class="btn" id="ld-prev">‹ Easier</button>`:""}${dr.l<3?`<button class="btn primary" id="ld-next">Harder ›</button>`:`<button class="btn primary" id="ld-chk">Check</button>`}</div><div id="ld-res"></div></div>`}
-  if(dr.k==="explain"){if(!dr.p){const ids=Object.keys(PARTS);const id=rnd(ids),ps=PARTS[id],pi=Math.floor(Math.random()*ps.length);dr.p={id,pi,show:false}}
-    const sp=speech[dr.p.id],q=partsOf(sp)[dr.p.pi];h=`<div class="qz"><div class="qn">${esc(where(sp))}</div><div class="tool"><div class="porig">${sp.lines.slice(q[0],q[1]+1).map(l=>`<span>${esc(l.replace(/^~/,""))}</span>`).join("")}</div></div>
-     <label class="lbl" for="ex-a" style="display:block;margin-top:12px">In your own words</label><textarea class="sinput" id="ex-a" style="min-height:90px" placeholder="What is being said here?">${esc(dr.p.mine||"")}</textarea>
-     ${dr.p.show?`<div class="tool"><div class="pmod"><div class="ptag">Modern English</div><p>${esc(q[2])}</p></div></div><p class="muted">Did you catch the main point? Compare word choices too.</p>`:""}
-     <div class="row">${dr.p.show?`<button class="btn primary" id="ex-next">Another passage</button>`:`<button class="btn primary" id="ex-show">Compare</button>`}</div></div>`}
-  if(dr.k==="who"){if(!dr.w){const qs=shuf(QUOTES.quotes.filter(q=>!q.text.toLowerCase().includes(speech[q.id].who.toLowerCase()))).slice(0,8);dr.w={qs,i:0,ok:0,ans:null}}const W=dr.w;
-    if(W.i<W.qs.length){const q=W.qs[W.i],who=speech[q.id].who,pool=[...new Set([...CFG.drillCast,...QUOTES.quotes.map(x=>speech[x.id].who)])],opts=shuf([who,...shuf(pool.filter(x=>x!==who)).slice(0,3)]);
-      h=`<div class="qz"><div class="qn">Quote ${W.i+1} of ${W.qs.length} · score ${W.ok}</div><h3 style="font:400 1.35rem/1.45 var(--f-old)">“${esc(q.text)}”</h3><div class="opts">${opts.map(o=>`<button data-who="${o}"${W.ans?" disabled":""} class="${W.ans?(o===who?"right":o===W.ans?"wrong":""):""}">${esc(title(o))}</button>`).join("")}</div>
-       ${W.ans?`<p class="muted">${sName(sceneOf(q.id))}. ${esc(q.note)}</p><div class="row"><button class="btn primary" id="who-next">Next</button></div>`:""}</div>`}
-    else h=`<div class="qz" style="text-align:center">${wreathHTML(W.ok,W.qs.length)}<button class="btn primary" id="who-again">Play again</button></div>`}
-  if(dr.k==="order"){if(!dr.o){const ev=shuf(EX.timeline.map((e,i)=>i)).slice(0,6).sort((a,b)=>a-b);dr.o={ev,show:shuf(ev),picked:[]}}const O=dr.o,done=O.picked.length===O.ev.length;
-    h=`<p class="intro">Tap the events in the order they happen.</p><div class="ord">${O.show.map(i=>`<button data-ord="${i}"${O.picked.includes(i)?" disabled":""}>${esc(EX.timeline[i].t)}</button>`).join("")}</div>
-     <h3 class="lbl" style="margin-top:14px">Your order</h3><ol>${O.picked.map((i,n)=>`<li style="color:${done?(i===O.ev[n]?"var(--ok)":"var(--bad)"):"inherit"}">${esc(EX.timeline[i].t)}${done&&i!==O.ev[n]?` <small class="muted">(should be: ${esc(EX.timeline[O.ev[n]].t)})</small>`:""}</li>`).join("")}</ol>
-     ${done?`<p><b>${O.picked.filter((i,n)=>i===O.ev[n]).length} of 6 in the right place.</b></p><button class="btn primary" id="ord-again">New set</button>`:`<button class="link" id="ord-undo">Undo</button>`}`}
-  $("sbody").innerHTML=back+h;
-  const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
-  on("dr-check",()=>{const r={};dr.q.pick.forEach(i=>{const v=(document.querySelector(`[data-gap="${i}"]`).value||"").toLowerCase().replace(/[^a-z']/g,"");r[i]=v===dr.q.ws[i].toLowerCase().replace(/[^a-z']/g,"")});dr.q.res=r;studyDrill()});
-  on("dr-show",()=>{dr.q.res=Object.fromEntries(dr.q.pick.map(i=>[i,false]));studyDrill()});on("dr-next",()=>{dr.q=null;studyDrill()});
-  if($("ld-q"))$("ld-q").onchange=e=>{dr.i=+e.target.value;dr.l=0;studyDrill()};on("ld-next",()=>{dr.l++;studyDrill()});on("ld-prev",()=>{dr.l--;studyDrill()});
-  on("ld-chk",()=>{const a=$("ld-a").value.toLowerCase().replace(/[^a-z' ]/g,"").split(/\s+/).filter(Boolean),b=QUOTES.quotes[dr.i].text.toLowerCase().replace(/[^a-z' ]/g,"").split(/\s+/).filter(Boolean);
-    const L=Array(b.length+1).fill(0).map(()=>Array(a.length+1).fill(0));for(let i=1;i<=b.length;i++)for(let j=1;j<=a.length;j++)L[i][j]=b[i-1]===a[j-1]?L[i-1][j-1]+1:Math.max(L[i-1][j],L[i][j-1]);const hit=L[b.length][a.length];$("ld-res").innerHTML=`<p><b>${hit} of ${b.length} words right.</b> ${hit===b.length?"Perfect.":"Answer: "+esc(QUOTES.quotes[dr.i].text)}</p>`});
-  on("ex-show",()=>{dr.p.mine=$("ex-a").value;dr.p.show=true;studyDrill()});on("ex-next",()=>{dr.p=null;studyDrill()});
-  $("sbody").querySelectorAll("[data-who]").forEach(b=>b.onclick=()=>{const W=dr.w,q=W.qs[W.i];W.ans=b.dataset.who;if(W.ans===speech[q.id].who)W.ok++;studyDrill()});
-  on("who-next",()=>{dr.w.i++;dr.w.ans=null;studyDrill()});on("who-again",()=>{dr.w=null;studyDrill()});
-  $("sbody").querySelectorAll("[data-ord]").forEach(b=>b.onclick=()=>{dr.o.picked.push(+b.dataset.ord);studyDrill()});on("ord-undo",()=>{dr.o.picked.pop();studyDrill()});on("ord-again",()=>{dr.o=null;studyDrill()});
+  const back=`<div class="exh"><button class="btn sm" data-drill="">‹ All drills</button><h2>${dr.k?esc((DRILLS.find(d=>d[0]===dr.k)||[,""])[1]):""}</h2></div>`;
+  if(!dr.k||!DRILLS.some(d=>d[0]===dr.k)){dr={k:""};$("sbody").innerHTML=`<p class="intro">Short exercises for remembering quotes and understanding the language.</p><div class="drills">${DRILLS.map(([k,a,b])=>`<button data-drill="${k}">${tic("drill:"+k)}<b>${a}</b><span>${b}</span></button>`).join("")}</div>`;return}
+  /* the rule, one line, on a card before the drill starts, with the best score so far */
+  const D0=DRILLS.find(d=>d[0]===dr.k),B=drBest(dr.k);
+  if(!dr.go){$("sbody").innerHTML=back+`<div class="rulec">${folioSeal("❦","g","rcs")}<div class="rct">${tic("drill:"+dr.k)}</div><h3>${esc(D0[1])}</h3><p>${esc(D0[2])}.</p>${B?`<p class="rbest">${dr.k==="ladder"?`${B[0]} of ${B[1]} quotes word perfect`:`Best ${B[0]} of ${B[1]} · played ${B[3]} time${B[3]===1?"":"s"}`}</p>`:""}<button class="btn primary" type="button" id="dr-go">Begin</button></div>`;$("dr-go").onclick=()=>{dr.go=1;studyDrill();scrollTo(0,0)};return}
+  if(dr.k==="ladder"){$("sbody").innerHTML=back+ladderHTML();wireLadder();return}
+  if(dr.k==="cut"){$("sbody").innerHTML=back+cutHTML();wireCut();return}
+  const D=DK[dr.k];if(!dr.R)drStart();const R=dr.R;
+  if(!R.items.length){$("sbody").innerHTML=back+`<div class="empty46"><p>Nothing to practise here for this play.</p></div>`;return}
+  if(R.i>=R.items.length){$("sbody").innerHTML=back+drEnd();$("dr-again").onclick=()=>{drStart();studyDrill();scrollTo(0,0)};return}
+  const it=R.items[R.i],st=R.st,done=R.res[R.i]!=null,ok=R.res.filter(x=>x===true).length;
+  $("sbody").innerHTML=back+pipFrame(D0[1],R.res,R.i,R.items.length,ok,R.streak,DRL[dr.k])+D.view(it,st,done);
+  if(D.pick)$("sbody").querySelectorAll("[data-dpick]").forEach(b=>b.onclick=()=>{st.pick=b.dataset.dpick;drAns(D.pick(it,st.pick))});
+  $("sbody").querySelectorAll("[data-dans]").forEach(b=>b.onclick=()=>drAns(b.dataset.dans==="1"));
+  if($("dr-next"))$("dr-next").onclick=()=>{R.i++;R.st={};studyDrill();scrollTo(0,0)};
+  if(!done&&D.wire)D.wire(it,st);
+  else if(done&&D.wire&&dr.k==="stress")D.wire(it,st);
 }
 /* essay planner with exam questions, 45-minute timer and self-marking checklist */
 let PLAN={};try{PLAN=JSON.parse(LS.get(PFX+"plan")||"{}")}catch(e){}
@@ -1778,7 +1857,7 @@ function studyPart(){
   const st=R0.steps[R0.i],sp=speech[st.id],ps=partsOf(sp),q=ps[st.pi],L=partLines(sp,q);
   const cue=st.pi>0?{who:sp.who,txt:partLines(sp,ps[st.pi-1]).join(" ").split(/\s+/).slice(-3).join(" "),self:1}:cueOf(p,st.id);
   const hint=R0.shown?`<div class="ptxt">${L.map(l=>`<span>${esc(l)}</span>`).join("")}</div>`:R0.h===2?`<div class="ptxt fl">${L.map(l=>`<span>${esc(firstLet(l))}</span>`).join("")}</div>`:R0.h===1?`<div class="ptmean"><div class="ptag">What you want to say</div><p>${esc(q[2])}</p></div>`:`<div class="ptblank">${L.map(()=>`<i></i>`).join("")}</div>`;
-  $("sbody").innerHTML=back+`<div class="qz cue"><div class="qn">${sName(p)} · part ${R0.i+1} of ${R0.steps.length} · ${R0.ok} right</div>
+  R0.res=R0.res||[];$("sbody").innerHTML=back+pipFrame(sName(p),R0.res,R0.i,R0.steps.length,R0.ok,0)+`<div class="qz cue">
    <div class="cueline"><small>${cue?(cue.self?"Your previous line ends":(pt.showWho?esc(title(cue.who))+" ends":"Cue")):"Start of the scene"}</small>${cue?`<b>… ${esc(cue.txt)}</b>`:"<b>You speak first</b>"}</div>
    <div class="ptme" style="--c:${COLORS[pt.who]||"var(--ink)"}"><div class="ptwho">${esc(title(pt.who))}${ps.length>1?` <small>(${st.pi+1} of ${ps.length} in this speech)</small>`:""}</div>${hint}</div>
    <div class="cardbtns">${R0.shown?`<button class="btn" data-pt="miss">Missed</button><button class="btn" data-pt="near">Nearly</button><button class="btn primary" data-pt="got">Word perfect</button>`
@@ -1788,7 +1867,7 @@ function studyPart(){
 function partAct(a){const R0=pt.run;if(!R0)return;const st=R0.steps[R0.i];
   if(a==="hint"){R0.h++;studyPart();return}
   if(a==="show"){R0.shown=true;studyPart();return}
-  const k=`pt:${st.id}:${st.pi}`,ok=a==="got"&&R0.h===0;if(ok)R0.ok++;else R0.miss.push(st);
+  const k=`pt:${st.id}:${st.pi}`,ok=a==="got"&&R0.h===0;if(ok)R0.ok++;else R0.miss.push(st);(R0.res=R0.res||[])[R0.i]=ok;
   if(ok&&!getS(k)){}else grade(k,ok,false);
   R0.i++;R0.h=0;R0.shown=false;studyPart();scrollTo(0,0)}
 
@@ -1808,7 +1887,7 @@ function startSession(){const due=shuf(dueKeys()),used=new Set(),items=[],kinds=
     if(!used.has(k)&&(t!=="qz"||kQuiz(k))){used.add(k);items.push(k)}}
   rv={items:shuf(items).map(k=>({k,stage:"ask"})),i:0,ok:0,pred:-1,ses:1}}
 /* the shared frame: progress pips, right so far */
-const rvFrame=()=>`<div class="dfr"><span class="dfl">${rv.ses?"Session":"Review"} · ${rv.i+1} of ${rv.items.length}</span><span class="pips" aria-hidden="true">${rv.items.map((x,j)=>`<i class="${j<rv.i||x.stage==="shown"&&j===rv.i&&x.ok!=null?(x.ok?"ok":"no"):j===rv.i?"cur":""}"></i>`).join("")}</span><span class="dfs">${rv.ok} right</span></div>`;
+const rvFrame=()=>{let k=0;const res=rv.items.map((x,j)=>j<rv.i||x.stage==="shown"&&j===rv.i?x.ok:undefined);for(let j=rv.i-(rv.items[rv.i]&&rv.items[rv.i].ok!=null?0:1);j>=0&&res[j]===true;j--)k++;return pipFrame(rv.ses?"Session":"Review",res,rv.i,rv.items.length,rv.ok,k)};
 /* every missed item, linked to its lines */
 function missedHTML(){const M=rv.items.filter(x=>x.ok===false);if(!M.length)return `<p class="muted">Nothing missed.</p>`;
   const qs=[...new Set(M.filter(x=>!x.k.startsWith("qz:")).map(x=>kq(x.k).id))],qz=M.filter(x=>x.k.startsWith("qz:")).map(x=>kQuiz(x.k)).filter(Boolean);
@@ -1927,10 +2006,11 @@ function studyQuiz(){
     $("sbody").innerHTML=`<div class="qz"><div class="qn">Before you start</div><h3>How many of these ${n} questions do you think you'll get right?</h3><input type="range" id="qp" min="0" max="${n}" value="${v}" class="srange" aria-label="Predicted score"><p class="big" id="qpv">${v}</p><div class="row"><button class="btn primary" id="qp-go">Start</button><button class="link" id="qp-skip">Skip</button></div></div>`;
     $("qp").oninput=e=>$("qpv").textContent=e.target.value;$("qp-go").onclick=()=>{qz.pred=+$("qp").value;studyQuiz()};$("qp-skip").onclick=()=>{qz.pred=-1;studyQuiz()};return}
   if(qz&&qz.i<qz.qs.length){const q=qz.qs[qz.i],p=scenes[sIdx(q.s)];
-    $("sbody").innerHTML=`<div class="qz"><div class="qn">${qz.kind==="all"?"Whole play":qz.kind==="miss"?"Mistakes review":sName(p)} · question ${qz.i+1} of ${qz.qs.length}</div><h3>${esc(q.q)}</h3>
+    qz.res=qz.res||[];let qk=0;for(let j=qz.i-(qz.ans!=null?0:1);j>=0&&qz.res[j]===true;j--)qk++;
+    $("sbody").innerHTML=`${pipFrame(qz.kind==="all"?"Whole play":qz.kind==="miss"?"Mistakes review":sName(p),qz.res,qz.i,qz.qs.length,qz.ok,qk)}<div class="qz"><h3>${esc(q.q)}</h3>
       <div class="opts">${q.o.map((o,i)=>`<button data-i="${i}"${qz.ans!=null?" disabled":""} class="${qz.ans!=null?(i===q.a?"right":i===qz.ans?"wrong":""):""}">${esc(o)}</button>`).join("")}</div>
       <div class="row">${qz.ans!=null?`<button class="btn primary" id="qz-next">${qz.i+1<qz.qs.length?"Next question":"See score"}</button>`:""}<button class="link" id="qz-quit">Stop quiz</button>${qz.kind==="all"?`<span class="muted" style="font-size:.875rem">from ${sName(p)}</span>`:""}</div>${qz.ans!=null?`<div class="xrow">${toLink("scene:"+q.s,qz.ans===q.a?"Read the scene":"Check it in the scene")}${(STUDY.scenes[q.s]||{}).sum?toLink("study:acts?a="+p.act+"&s="+q.s,"Scene summary"):""}</div>`:""}</div>`;
-    $("sbody").querySelectorAll(".opts button").forEach(b=>b.onclick=()=>{qz.ans=+b.dataset.i;const M=prog.miss.q,ix=M.findIndex(m=>m.q===q.q);
+    $("sbody").querySelectorAll(".opts button").forEach(b=>b.onclick=()=>{qz.ans=+b.dataset.i;qz.res[qz.i]=qz.ans===q.a;const M=prog.miss.q,ix=M.findIndex(m=>m.q===q.q);
       if(qz.ans===q.a){qz.ok++;if(ix>=0)M.splice(ix,1)}else if(ix<0)M.push({q:q.q,o:q.o,a:q.a,s:q.s});saveProg();studyQuiz()});
     if($("qz-next"))$("qz-next").onclick=()=>{qz.i++;qz.ans=null;studyQuiz()};
     $("qz-quit").onclick=()=>{qz=null;studyQuiz()};return}
