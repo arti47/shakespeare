@@ -122,6 +122,21 @@ for (const p of PLAYS) {
   });
   const qsc = new Set(QS.map(q => sceneOf[q.id])), bare = Object.keys(inScene).filter(s => !qsc.has(s));
   if (bare.length) throw new Error(`${f}: no key quote in scene ${bare.join(", ")}`);
+  /* 4.37 language drills (TY): 12+ Untangle, Pun hunt and Tone and stress items, each line found in its speech; the pun word and every stress word are words of the line, stress words single and distinct (else the drill cannot finish). */
+  const LG = (EX.lang || {}), lw = l => l.split(/\s+/), lc = w => w.toLowerCase().replace(/[’]/g, "'").replace(/[^a-z']/g, "").replace(/^'+|'+$/g, "");
+  for (const [k, n] of [["un", "Untangle"], ["pun", "Pun hunt"], ["st", "Tone and stress"]]) {
+    const a = LG[k] || [];
+    if (a.length < 12) throw new Error(`${f}: ${a.length} ${n} items (needs at least 12)`);
+    a.forEach((x, i) => {
+      if (!spk[x[0]] || !spk[x[0]].some(t => t.includes(qn(x[1])))) throw new Error(`${f}: ${n} item ${i} line not found in speech ${x[0]}`);
+      const ws = lw(x[1]).map(lc);
+      if (k === "pun" && !lw(x[2]).map(lc).some(w => ws.includes(w))) throw new Error(`${f}: ${n} item ${i} word "${x[2]}" not in its line`);
+      if (k === "st") {
+        if (x[2].some(o => lw(o[0]).length > 1 || !ws.includes(lc(o[0])))) throw new Error(`${f}: ${n} item ${i} has a stress word that is not one word of its line`);
+        if (new Set(x[2].map(o => lc(o[0]))).size < x[2].length) throw new Error(`${f}: ${n} item ${i} repeats a stress word`);
+      }
+    });
+  }
 }
 
 /* Every play needs a shelf cover (covers.js: COVER[id] with colour, epigraph, emblem, and M[id] pattern motif). */

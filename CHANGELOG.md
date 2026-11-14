@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.37.0] — 2026-11-14
+
+### Added
+- Language drills, comedies and histories: Untangle, Pun hunt and Tone and stress raised to 12+ items each in all 24 plays (573 new items chosen from the text), so every play now has 12+ of each (#151)
+
+### Changed
+- Build check: every play needs 12+ items in each language drill, each line found in its speech, the pun word in its line and stress words single, distinct words of the line (#151)
+
 ## [4.36.0] — 2026-11-14
 
 ### Added
