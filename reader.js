@@ -964,6 +964,7 @@ const TIC={acts:'<path d="M6 4h10a3 3 0 0 1 3 3v13H9a3 3 0 0 1-3-3z"/><path d="M
   verse:'<path d="M3 12c1.5-3 3-3 4.5 0s3 3 4.5 0 3-3 4.5 0 3 3 4.5 0"/><path d="M3 18h18M3 6h18"/>',insults:'<path d="M13 3 6 13h6l-1 8 7-10h-6z"/>',pronouns:'<path d="M4 7h7M7.5 7v11M14 11v7M14 13c.5-1.5 1.8-2 3-2s2.5.7 2.5 2.5V18"/>',
   word:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 20 20M8 12.5l2-5 2 5M8.6 11h2.8"/>',untangle:'<path d="M4 7h4l8 10h4M4 17h4l3-3.8M13 9.8 16 7h4M18 5l2 2-2 2M18 15l2 2-2 2"/>',pun:'<path d="M5 12h14M5 12l4-4M5 12l4 4M19 12l-4-4M19 12l-4 4"/>',
   stress:'<path d="M4 18h16M7 14l3-8 3 8M8 11.5h4M15 6l3 3"/>',review:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4M9 14.5l2 2 4-4"/>',quiz:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12l3 3 5-6"/>',
+  sprint:'<circle cx="12" cy="13" r="8"/><path d="M12 13V9M10 3h4M18 6l1.5-1.5"/>',
   scene:'<path d="M4 5h16v14H4z"/><path d="M4 9h16M9 5v4M15 5v4M8 14h8"/>',next:'<path d="M4 8h9l-3-3M13 8l-3 3"/><circle cx="17" cy="15" r="3"/><path d="M12 21c0-2.5 2.2-4 5-4s5 1.5 5 4"/>',time:'<path d="M12 3v18"/><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/><path d="M14 6h6M4 12h6M14 18h6"/>',odd:'<circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
   explain:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/>',order:'<path d="M10 6h10M10 12h10M10 18h10M4 5h2v3M4 11.5c0-1 2-1 2 0s-2 1.5-2 2.5h2M4 17h2l-1 1.5c1 0 1.5.5 1 1.5H4"/>',cut:'<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8 15 18 4M16 15 6 4"/>',
   two:'<path d="M4 8h16M4 16h11"/><circle cx="19" cy="16" r="1.5"/>',plan:'<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/>',extract:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 17h4"/><path d="M4 10v6" />',
@@ -1042,15 +1043,21 @@ const whoAll=()=>{const s=new Set(MAINS);Object.keys(EX.analysis||{}).forEach(w=
 const secH=(t,n)=>`<div class="tsec"><h3>${t}</h3>${n!=null?`<small>${n}</small>`:""}</div>`;
 /* 4.16 Practice hall: three big actions (session, review, next quiz), the drills as tiles with best-score rings, then the longer tools */
 const qzN=p=>((STUDY.scenes[p.id]||{}).quiz||[]).length;
+/* 4.19 the last 14 days of finished rounds */
+function histHTML(){const D=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);D.push([today(d),d])}const v=D.map(([k])=>+DRLOG[k]||0),mx=Math.max(1,...v),tot=v.reduce((a,b)=>a+b,0);
+  let st=0;for(let i=v.length-1;i>=0;i--){if(v[i])st++;else if(i<v.length-1)break}
+  return `<div class="hist16"><div class="hh"><b>${tot} round${tot===1?"":"s"}</b> in 14 days${st>1?` · <span class="stk">${st}-day streak</span>`:""}</div><div class="hbars" aria-hidden="true">${D.map(([k,d],j)=>`<i class="${j===13?"t":""}" style="--h:${(v[j]/mx).toFixed(2)}"><b></b><small>${"SMTWTFS"[d.getDay()]}</small></i>`).join("")}</div></div>`}
 function hallHTML(){const d=dueKeys().length,nq=scenes.find(p=>prog.done[p.id]&&!prog.quiz[p.id]&&qzN(p))||scenes.find(p=>!prog.quiz[p.id]&&qzN(p)),all=prog.quiz.all;
   const ring=(f,body)=>{const C=2*Math.PI*21;return `<span class="hring${f>=1?" full":""}"><svg viewBox="0 0 48 48" aria-hidden="true"><circle class="rt" cx="24" cy="24" r="21"/>${f>0?`<circle class="rf" cx="24" cy="24" r="21" stroke-dasharray="${(Math.min(1,f)*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 24 24)"/>`:""}</svg>${body}</span>`};
   const A=[["study:review?ses=1","Session","10 mixed questions · about 5 minutes","review","main"],
     ["study:review",d?`Review ${d} due`:"Daily review",d?"Spaced out so they stick":"Nothing due: try a few new ones","review",d?"due":""],
     [nq?"study:quiz?s="+nq.id:"study:quiz?s=all",nq?"Quiz: "+sName(nq):"Whole-play quiz",nq?`${qzN(nq)} questions${prog.done[nq.id]?" on a scene you've read":""}`:`20 questions${all?` · last ${all[0]} of ${all[1]}`:""}`,"quiz",""]];
-  const T=drillsNow().filter(k=>k!=="stress"||EX.lang);
+  const T=drillsNow(),nu=nextUp(),tile=k=>{const D0=DRILLS.find(x=>x[0]===k)||[k,k,""],B=drBest(k),f=B?(k==="sprint"?Math.min(1,B[0]/15):B[0]/B[1]):0;
+     return `<button type="button" class="htile" data-to="study:drill:${k}?tp=practise">${ring(f,tic("drill:"+k))}<b>${esc(D0[1])}</b><small>${B?(k==="ladder"?`${B[0]} by heart`:k==="sprint"?`Best ${B[0]}`:`Best ${B[0]}/${B[1]}`):"New"} · ${DMIN[k]||3} min</small></button>`};
   return `<div class="hall16">${A.map(([to,b,s,ic,c])=>`<button type="button" class="hact ${c}" data-to="${to}${to.includes("?")?"&":"?"}tp=practise">${c==="main"?laurelSVG("qal")+laurelSVG("qar"):""}${tic(ic)}<span><b>${esc(b)}</b><small>${esc(s)}</small></span></button>`).join("")}</div>`
-   +secH("Drills",T.length)+`<div class="hgrid16">${T.map(k=>{const D0=DRILLS.find(x=>x[0]===k)||[k,k,""],B=drBest(k),f=B?B[0]/B[1]:0;
-     return `<button type="button" class="htile" data-to="study:drill:${k}?tp=practise">${ring(f,tic("drill:"+k))}<b>${esc(D0[1])}</b><small>${B?(k==="ladder"?`${B[0]} by heart`:`Best ${B[0]}/${B[1]}`):"New"}</small></button>`}).join("")}</div>`
+   +(nu?`<button type="button" class="hnext" data-to="study:drill:${nu[0]}?tp=practise"><small>Next up</small>${tic("drill:"+nu[0])}<span><b>${esc(DRILLS.find(d=>d[0]===nu[0])[1])}</b><em>${esc(nu[1])} · ${DMIN[nu[0]]||3} min</em></span><i aria-hidden="true">›</i></button>`:"")
+   +histHTML()
+   +DSHELF.map(([nm,ks])=>{const L=ks.filter(k=>T.includes(k));return L.length?secH(nm,L.length)+`<div class="hgrid16">${L.map(tile).join("")}</div>`:""}).join("")
    +secH("Longer practice")+`<div class="tlist48">${["cards","part","quiz"].filter(toolOK).map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=practise">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
 function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   let h=`<div class="thead">${tbanner(EMB[k])}${ringEmb(EMB[k],f,"big")}<div><h2>${T[1]}</h2><p>${esc(TLINE[k])}</p><small>${esc(st)}</small></div></div>`;
@@ -1119,7 +1126,8 @@ function renderRel(){const el=$("srel");if(!el)return;if(SH||SV||view!=="study")
   const hid=x=>folioSimple()&&EXAMT.some(t=>x[0]==="study:"+t||x[0].startsWith("study:"+t+"?")),L=relList().filter(x=>x[0]!=="read"&&!hid(x));if(!L.length)L.push(["study","Study home"]);const [n,...m]=L;RELM=m;const ps=pos&&sIdx(pos.s)>=0?scenes[sIdx(pos.s)]:null;
   el.innerHTML=`<div class="upn48"><button class="upn" type="button" data-to="${esc(n[0])}"><small>Up next</small><b>${n[1]}</b><i aria-hidden="true">›</i></button>${m.length?`<button class="upm" type="button" data-relmore>More <span>${m.length}</span></button>`:""}</div>${ps?`<button class="upback" type="button" data-to="scene:${ps.id}"><span aria-hidden="true">‹</span> Back to ${esc(sName(ps))}</button>`:`<button class="upback" type="button" data-to="read"><span aria-hidden="true">‹</span> Back to reading</button>`}`}
 document.addEventListener("click",e=>{if(e.target.closest("[data-relmore]"))openSheet("More from here",`<div class="relm48">${RELM.map(([sp,l])=>`<button class="tlr" type="button" data-to="${esc(sp)}">${tic(sp.replace(/^study:/,"").split("?")[0])}<span><b>${l}</b></span><i aria-hidden="true">›</i></button>`).join("")}</div>`)});
-try{new MutationObserver(()=>renderRel()).observe($("sbody"),{childList:true})}catch(e){}
+const focusNow=()=>{const sb=$("sbody");$("study").classList.toggle("inround",view==="study"&&!!sb.querySelector(".pfr")&&!sb.querySelector(".wreath,.dend"))};
+try{new MutationObserver(()=>{renderRel();focusNow()}).observe($("sbody"),{childList:true})}catch(e){}
 let SBACK=null;
 function renderStudy(){
   if(!TABS.some(t=>t[0]===S.stab))S.stab="quotes";
@@ -1373,7 +1381,7 @@ function wirePerf(id){const tt=$("tt-add");if(tt)tt.onclick=()=>{const v=$("tt")
   document.querySelectorAll(".tool [data-dirgo]").forEach(b=>b.onclick=()=>{closeSheet();closePanel();exSel="director";goStudy("explore")})}
 /* ---------- 4.16 practice frame: every drill runs as a round under one frame (pips, score, streak) and ends on a wreath
    with the best score and the lines missed. Quote misses join Daily review (gap → fin, who → who). Bests: <prefix>drb. ---------- */
-const DRILLS=[["gap","Fill the gap","Type the missing words in 8 key quotes"],["ladder","Memory ladder","Learn a quote by heart: full, half hidden, first letters, from memory"],["explain","Explain this line","Put 5 passages in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["scene","Which scene?","Place 8 key quotes in their scene"],["next","Who speaks next?","Read a cue and name the next speaker, 8 times"],["time","Quote timeline","Three rounds: put 4 key quotes in the order they are spoken"],["odd","Odd one out","Three quotes share a theme: find the one that doesn't"],["order","Put it in order","Three rounds: sort 5 plot events into the order they happen"],["word","Word detective","Guess what 8 old words mean from the line around them"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[]),["cut","Cut the scene","Keep half the lines and still tell the story"],["two","Two-line scene","Sum up 3 scenes as one line for each of two characters"]];
+const DRILLS=[["sprint","Sprint","Answer as many quick quote questions as you can in 60 seconds"],["gap","Fill the gap","Type the missing words in 8 key quotes"],["ladder","Memory ladder","Learn a quote by heart: full, half hidden, first letters, from memory"],["explain","Explain this line","Put 5 passages in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["scene","Which scene?","Place 8 key quotes in their scene"],["next","Who speaks next?","Read a cue and name the next speaker, 8 times"],["time","Quote timeline","Three rounds: put 4 key quotes in the order they are spoken"],["odd","Odd one out","Three quotes share a theme: find the one that doesn't"],["order","Put it in order","Three rounds: sort 5 plot events into the order they happen"],["word","Word detective","Guess what 8 old words mean from the line around them"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[]),["cut","Cut the scene","Keep half the lines and still tell the story"],["two","Two-line scene","Sum up 3 scenes as one line for each of two characters"]];
 const rnd=a=>a[Math.floor(Math.random()*a.length)],shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 let DRB={};try{DRB=JSON.parse(LS.get(PFX+"drb")||"{}")||{}}catch(e){}if(typeof DRB!=="object"||Array.isArray(DRB))DRB={};
 if(!DRB.lad||typeof DRB.lad!=="object"||Array.isArray(DRB.lad))DRB.lad={};
@@ -1381,7 +1389,7 @@ const saveDrb=()=>LS.set(PFX+"drb",JSON.stringify(DRB));
 const drBest=k=>{if(k==="ladder"){const n=Object.keys(DRB.lad).filter(i=>QUOTES.quotes[i]).length;return n?[n,QUOTES.quotes.length,0,n]:null}const b=DRB[k];return Array.isArray(b)&&isFinite(b[0])&&isFinite(b[1])&&b[1]>0?b:null};
 /* the frame: label · i of n, pips (a bar past 24 items), right so far and the current streak */
 function pipFrame(lab,res,i,n,right,streak,rw){const pips=n<=24?`<span class="pips" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${res[j]===true?"ok":res[j]===false?"no":j===i?"cur":""}"></i>`).join("")}</span>`:`<span class="pbar" aria-hidden="true"><b style="width:${(100*Math.min(i,n)/Math.max(1,n)).toFixed(1)}%"></b></span>`;
-  return `<div class="dfr pfr"><span class="dfl">${esc(lab)} · ${Math.min(i+1,n)} of ${n}</span>${pips}<span class="dfs">${right} ${rw||"right"}${streak>1?` · <b class="stk">${streak} in a row</b>`:""}</span></div>`}
+  return `<div class="dfr pfr"><span class="dfl">${lab?esc(lab)+" · ":""}${Math.min(i+1,n)} of ${n}</span>${pips}<span class="dfs">${right} ${rw||"right"}${streak>1?` · <b class="stk">${streak} in a row</b>`:""}</span></div>`}
 const DRN={gap:8,who:8,word:8,order:3,time:3,scene:8,next:8,odd:6,explain:5,two:3,untangle:6,pun:6,stress:5};
 const gapCand=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
 const gw=w=>w.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g,"");
@@ -1511,17 +1519,37 @@ const DK={
     wire(it,st){const opts=LANG.st[it.u][2];$("sbody").querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{const k=+b.dataset.sw,i=st.seen.indexOf(k);if(i>=0)st.seen.splice(i,1);st.seen.push(k);if(st.seen.length>=opts.length&&dr.R.res[dr.R.i]==null)drAns(true);else studyDrill()})}}
 };
 const DRL={stress:"heard"};
+/* 4.19 Sprint: 60 seconds of mixed quick-pick questions (who, scene, odd, word); best = most right */
+const SPRK=["who","scene","odd","word"];let SPT=null;
+const sprintFrame=(R,ok)=>{const left=Math.max(0,60-Math.floor((Date.now()-(R.t0||Date.now()))/1e3));return `<div class="dfr pfr spr"><span class="dfl">Sprint · <b id="spt">${left}</b> s</span><span class="pbar" aria-hidden="true"><b id="spb" style="width:${(left/60*100).toFixed(1)}%"></b></span><span class="dfs">${ok} right${R.streak>1?` · <b class="stk">${R.streak} in a row</b>`:""}</span></div>`};
+function sprintTick(){const R=dr.R;if(!R.t0)R.t0=Date.now();clearInterval(SPT);SPT=setInterval(()=>{const el=$("spt");if(!el||dr.k!=="sprint"||dr.R!==R){clearInterval(SPT);return}
+  const left=Math.max(0,60-Math.floor((Date.now()-R.t0)/1e3));el.textContent=left;const b=$("spb");if(b)b.style.width=(left/60*100).toFixed(1)+"%";
+  if(left<=0){clearInterval(SPT);R.items=R.items.slice(0,R.res[R.i]!=null?R.i+1:R.i);R.res.length=R.items.length;R.i=R.items.length;studyDrill();scrollTo(0,0)}},250)}
+DK.sprint={make:()=>{const per={};SPRK.forEach(k=>per[k]=DK[k].make(12));const out=[];for(let i=0;i<12;i++)SPRK.forEach(k=>{const it=per[k][i];if(it)out.push({t:k,it})});return shuf(out)},
+  ids:x=>DK[x.t].ids(x.it),key:x=>DK[x.t].key?DK[x.t].key(x.it):null,view:(x,st,done)=>`<div class="sprk">${DRILLS.find(d=>d[0]===x.t)[1]}</div>`+DK[x.t].view(x.it,st,done),pick:(x,v)=>DK[x.t].pick(x.it,v)};
+/* haptics on phones (no-op elsewhere) */
+const buzz=ok=>{try{if(navigator.vibrate&&matchMedia("(pointer:coarse)").matches&&!matchMedia("(prefers-reduced-motion:reduce)").matches)navigator.vibrate(ok?12:[25,40,25])}catch(e){}};
+/* history: rounds finished per day, <prefix>drlog = {"YYYY-MM-DD":n}, last 60 days kept */
+let DRLOG={};try{DRLOG=JSON.parse(LS.get(PFX+"drlog")||"{}")||{}}catch(e){}if(typeof DRLOG!=="object"||Array.isArray(DRLOG))DRLOG={};
+function drLog(){const t=today();DRLOG[t]=(+DRLOG[t]||0)+1;const ks=Object.keys(DRLOG).sort();ks.slice(0,Math.max(0,ks.length-60)).forEach(k=>delete DRLOG[k]);LS.set(PFX+"drlog",JSON.stringify(DRLOG))}
+/* minutes per drill, shelves, and the Next up pick */
+const DMIN={gap:3,ladder:4,who:3,scene:3,next:3,time:3,odd:3,order:3,explain:6,word:3,untangle:3,pun:2,stress:3,cut:8,two:5,sprint:1};
+const DSHELF=[["Quotes",["sprint","gap","who","scene","time","odd","ladder"]],["Plot and people",["order","next","two"]],["Language",["word","explain","untangle","pun","stress"]],["On stage",["cut"]]];
+function nextUp(){const L=drillsNow().filter(k=>DK[k]&&k!=="stress"&&k!=="sprint");const un=L.find(k=>!drBest(k));if(un)return [un,"Not tried yet"];
+  const sc=L.map(k=>{const b=drBest(k);return [k,b[0]/b[1],b[2]]}).sort((a,b)=>a[1]-b[1]||a[2]-b[2])[0];return sc?[sc[0],`Your lowest best: ${drBest(sc[0])[0]} of ${drBest(sc[0])[1]}`]:null}
+function rulePrev(){const D=DK[dr.k];if(!D||dr.k==="stress")return "";try{if(!dr.sm)dr.sm=D.make(1)[0];if(!dr.sm)return "";const R0=dr.R;dr.R={items:[dr.sm],i:0,res:[],st:{}};const h=D.view(dr.sm,{},false);dr.R=R0;
+  return `<div class="rprev" aria-hidden="true" inert><small>Looks like this</small><div class="rpv">${h}</div></div>`}catch(e){return ""}}
 function drStart(){const D=DK[dr.k];dr.R={items:D.make(DRN[dr.k]||8).filter(Boolean),i:0,res:[],st:{},streak:0}}
-function drAns(ok){const R=dr.R;if(!R||R.res[R.i]!=null)return;const it=R.items[R.i],D=DK[dr.k];R.res[R.i]=!!ok;R.streak=ok?R.streak+1:0;
+function drAns(ok){const R=dr.R;if(!R||R.res[R.i]!=null)return;const it=R.items[R.i],D=DK[dr.k];R.res[R.i]=!!ok;R.streak=ok?R.streak+1:0;R.fx=ok?"ok":"no";buzz(ok);
   const key=D.key&&D.key(it);if(key&&(QUOTES.quotes[+key.split(":")[1]])){if(!ok)grade(key,false,false);else if(isDue(key))grade(key,true,false)}
   studyDrill()}
-const drillsNow=()=>topicK("practise")[2].concat(topicK("words")[2]).filter(s=>s.startsWith("drill:")&&toolOK(s)).map(s=>s.slice(6)).filter((k,i,a)=>a.indexOf(k)===i);
+const drillsNow=()=>["drill:sprint"].concat(topicK("practise")[2]).concat(topicK("words")[2]).filter(s=>s.startsWith("drill:")&&toolOK(s)).map(s=>s.slice(6)).filter((k,i,a)=>a.indexOf(k)===i);
 function nextDrill(k){const L=drillsNow().filter(x=>DK[x]||x==="ladder"),i=L.indexOf(k);return L.length>1?DRILLS.find(d=>d[0]===L[(i+1)%L.length]):null}
 function drEnd(){const R=dr.R,D0=DRILLS.find(d=>d[0]===dr.k),n=R.items.length,ok=R.res.filter(x=>x===true).length,old=drBest(dr.k);
-  if(!R.saved){R.saved=1;R.nb=!!ok&&(!old||ok/n>old[0]/old[1]);const pl=((old&&old[3])||0)+1;DRB[dr.k]=R.nb||!old?[ok,n,Date.now(),pl]:[old[0],old[1],old[2],pl];saveDrb()}
+  if(!R.saved){R.saved=1;drLog();R.nb=!!ok&&(!old||(dr.k==="sprint"?ok>old[0]:ok/n>old[0]/old[1]));const pl=((old&&old[3])||0)+1;DRB[dr.k]=R.nb||!old?[ok,n,Date.now(),pl]:[old[0],old[1],old[2],pl];saveDrb()}
   const b=drBest(dr.k),ids=[...new Set(R.items.filter((_,j)=>R.res[j]===false).flatMap(it=>DK[dr.k].ids(it)).filter(x=>x!=null&&speech[x]))],nx=nextDrill(dr.k);
-  return pipFrame(D0[1],R.res,n,n,ok,0)+`<div class="qz dend">${wreathHTML(ok,n)}<p class="dmsg">${ok===n?"Full marks.":ok>=n*.7?"A strong round.":"Look again at the lines below, then go again."}</p>
-    ${R.nb?`<p class="nbest">${folioSeal("❦","g","nbs")}New best</p>`:b?`<p class="muted">Your best: ${b[0]} of ${b[1]} · played ${b[3]} time${b[3]===1?"":"s"}</p>`:""}
+  clearInterval(SPT);return (dr.k==="sprint"?"":pipFrame("",R.res,n,n,ok,0))+`<div class="qz dend">${dr.k==="sprint"?`<div class="wreath${ok>=10?" full":""}">${laurelSVG("wl")}<div class="wrs"><b>${ok}</b> <small>in 60 s</small></div></div>`:wreathHTML(ok,n)}<p class="dmsg">${dr.k==="sprint"?`${ok} right of ${n} answered.`:ok===n?"Full marks.":ok>=n*.7?"A strong round.":"Look again at the lines below, then go again."}</p>
+    ${R.nb?`<p class="nbest">${folioSeal("❦","g","nbs")}New best</p>`:b?`<p class="muted">Your best: ${b[0]}${dr.k==="sprint"?"":" of "+b[1]} · played ${b[3]} time${b[3]===1?"":"s"}</p>`:""}
     <div class="row" style="justify-content:center"><button class="btn primary" id="dr-again">Play again</button>${nx?`<button class="btn" type="button" data-to="study:drill:${nx[0]}?tp=practise">Next: ${esc(nx[1])} ›</button>`:""}</div>
     ${R.res.some(x=>x===false)&&DK[dr.k].key?`<p class="muted" style="text-align:center">Missed quotes join Daily review.</p>`:""}</div>${ids.length?`<div class="box miss49"><h3>Look again · ${ids.length}</h3>${evHTML(ids,"Lines")}</div>`:""}`}
 /* memory ladder: choose a quote from a searchable list, climb four steps, then type it from memory */
@@ -1566,14 +1594,16 @@ function studyDrill(){
   if(!dr.k||!DRILLS.some(d=>d[0]===dr.k)){dr={k:""};$("sbody").innerHTML=`<p class="intro">Short exercises for remembering quotes and understanding the language.</p><div class="drills">${DRILLS.map(([k,a,b])=>`<button data-drill="${k}">${tic("drill:"+k)}<b>${a}</b><span>${b}</span></button>`).join("")}</div>`;return}
   /* the rule, one line, on a card before the drill starts, with the best score so far */
   const D0=DRILLS.find(d=>d[0]===dr.k),B=drBest(dr.k);
-  if(!dr.go){$("sbody").innerHTML=back+`<div class="rulec">${folioSeal("❦","g","rcs")}<div class="rct">${tic("drill:"+dr.k)}</div><h3>${esc(D0[1])}</h3><p>${esc(D0[2])}.</p>${B?`<p class="rbest">${dr.k==="ladder"?`${B[0]} of ${B[1]} quotes word perfect`:`Best ${B[0]} of ${B[1]} · played ${B[3]} time${B[3]===1?"":"s"}`}</p>`:""}<button class="btn primary" type="button" id="dr-go">Begin</button></div>`;$("dr-go").onclick=()=>{dr.go=1;studyDrill();scrollTo(0,0)};return}
+  if(!dr.go){$("sbody").innerHTML=back+`<div class="rulec">${folioSeal("❦","g","rcs")}<div class="rct">${tic("drill:"+dr.k)}</div><h3>${esc(D0[1])}</h3><p>${esc(D0[2])}.</p><p class="rmeta">${dr.k==="sprint"?"60 seconds · mixed quote questions":DRN[dr.k]?`${DRN[dr.k]} items · about ${DMIN[dr.k]||3} min`:`about ${DMIN[dr.k]||3} min`}</p>${B?`<p class="rbest">${dr.k==="ladder"?`${B[0]} of ${B[1]} quotes word perfect`:dr.k==="sprint"?`Best ${B[0]} · played ${B[3]} time${B[3]===1?"":"s"}`:`Best ${B[0]} of ${B[1]} · played ${B[3]} time${B[3]===1?"":"s"}`}</p>`:""}<button class="btn primary" type="button" id="dr-go">Begin</button>${rulePrev()}</div>`;$("dr-go").onclick=()=>{dr.go=1;studyDrill();scrollTo(0,0)};return}
   if(dr.k==="ladder"){$("sbody").innerHTML=back+ladderHTML();wireLadder();return}
   if(dr.k==="cut"){$("sbody").innerHTML=back+cutHTML();wireCut();return}
   const D=DK[dr.k];if(!dr.R)drStart();const R=dr.R;
   if(!R.items.length){$("sbody").innerHTML=back+`<div class="empty46"><p>Nothing to practise here for this play.</p></div>`;return}
   if(R.i>=R.items.length){$("sbody").innerHTML=back+drEnd();$("dr-again").onclick=()=>{drStart();studyDrill();scrollTo(0,0)};return}
   const it=R.items[R.i],st=R.st,done=R.res[R.i]!=null,ok=R.res.filter(x=>x===true).length;
-  $("sbody").innerHTML=back+pipFrame(D0[1],R.res,R.i,R.items.length,ok,R.streak,DRL[dr.k])+D.view(it,st,done);
+  if(dr.k==="sprint"){$("sbody").innerHTML=back+sprintFrame(R,ok)+D.view(it,st,done);sprintTick()}else $("sbody").innerHTML=back+pipFrame("",R.res,R.i,R.items.length,ok,R.streak,DRL[dr.k])+D.view(it,st,done);
+  if(R.fx){const c=$("sbody").querySelector(".qz");if(c)c.classList.add("fx-"+R.fx);R.fx=null}
+  if(dr.k==="sprint"&&done){const i0=R.i;setTimeout(()=>{if(dr.R===R&&R.i===i0&&dr.k==="sprint"&&R.i<R.items.length){R.i++;R.st={};studyDrill()}},650)}
   if(D.pick)$("sbody").querySelectorAll("[data-dpick]").forEach(b=>b.onclick=()=>{st.pick=b.dataset.dpick;drAns(D.pick(it,st.pick))});
   $("sbody").querySelectorAll("[data-dans]").forEach(b=>b.onclick=()=>drAns(b.dataset.dans==="1"));
   if($("dr-next"))$("dr-next").onclick=()=>{R.i++;R.st={};studyDrill();scrollTo(0,0)};

@@ -4,6 +4,19 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.19.0] — 2026-11-14
+
+### Added
+- Practice hall: a Next up card picks the drill to do now (one you haven't tried, else your lowest best) (#PR)
+- Practice hall: a 14-day bar chart of finished rounds, with your day streak (#PR)
+- Sprint: 60 seconds of quick mixed quote questions (Who said it?, Which scene?, Odd one out, Word detective), advancing on its own; your best count is kept (#PR)
+- Drill rule cards show the round size, roughly how long it takes, and a preview of one item (#PR)
+
+### Changed
+- Practice hall: drills sit on four shelves (Quotes, Plot and people, Language, On stage); each tile shows its best and its minutes (#PR)
+- Rounds: while you play, the Up next footer is hidden and the frame shows just "3 of 8" with the dots (#PR)
+- Rounds: a right answer pulses and pops, a wrong one shakes, the current dot breathes, and the end wreath springs in; phones give a short buzz. All motion is off with Reduce motion (#PR)
+
 ## [4.18.0] — 2026-11-14
 
 ### Added
