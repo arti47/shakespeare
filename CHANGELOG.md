@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.35.0] — 2026-11-14
+
+### Changed
+- Key quote notes, comedies and histories: 1199 quotes rewritten so each note says who speaks, to whom and what happens (all 25+ characters), and Why notes that only repeated the note rewritten to say why the line matters. All 36 plays done; the build now fails on a note under 25 characters or a Why that repeats its note (#149)
+
 ## [4.34.0] — 2026-11-14
 
 ### Changed

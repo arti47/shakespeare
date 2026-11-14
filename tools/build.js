@@ -116,6 +116,9 @@ for (const p of PLAYS) {
   QS.forEach((q, i) => {
     if (!spk[q.id] || !spk[q.id].some(t => t.includes(qn(q.text)))) throw new Error(`${f}: key quote ${i} not found in speech ${q.id}`);
     if (!(EX.why || {})[i]) throw new Error(`${f}: key quote ${i} has no EX.why note`);
+    /* 4.35 (TY): notes say who, to whom and what happens; Why says why it matters, not the note again. */
+    if ((q.note || "").length < 25) throw new Error(`${f}: key quote ${i} note under 25 characters`);
+    if (qn(EX.why[i]) === qn(q.note)) throw new Error(`${f}: key quote ${i} EX.why repeats its note`);
   });
   const qsc = new Set(QS.map(q => sceneOf[q.id])), bare = Object.keys(inScene).filter(s => !qsc.has(s));
   if (bare.length) throw new Error(`${f}: no key quote in scene ${bare.join(", ")}`);
