@@ -7,8 +7,8 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.24.0] — 2026-11-14
 
 ### Changed
-- Quizzes, comedies and histories (all 24): wrong options rewritten to the same length and pull as the right one; across all 36 plays the longest option is now the answer in about 1 question in 5, down from 2 in 3 (#PR)
-- Build check: every quiz question has 4 distinct options, and in each play the right answer may be the longest option in at most 30% of questions (#PR)
+- Quizzes, comedies and histories (all 24): wrong options rewritten to the same length and pull as the right one; across all 36 plays the longest option is now the answer in about 1 question in 5, down from 2 in 3 (#138)
+- Build check: every quiz question has 4 distinct options, and in each play the right answer may be the longest option in at most 30% of questions (#138)
 
 ## [4.23.1] — 2026-11-14
 
