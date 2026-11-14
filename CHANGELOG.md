@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.31.0] — 2026-11-14
+
+### Changed
+- Quizzes, histories (all 10): every scene reshaped to 1 recall, 2 understand and 2 analyse or evaluate questions; 414 questions rewritten from the text (purpose, inference, implication, point of view, judgement) and every question hand-tagged with its Bloom level and Paul element; the answer is the longest option in 7–23% of each play's questions. All 36 plays now follow the same shape, and the build checks it (#PR)
+
 ## [4.30.0] — 2026-11-14
 
 ### Changed

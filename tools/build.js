@@ -103,6 +103,11 @@ for (const p of PLAYS) {
     if (!(Number.isInteger(q.b) && q.b >= 1 && q.b <= 6) || !PAUL.includes(q.p)) throw new Error(`${f}: quiz ${k} needs a Bloom level b (1-6) and a Paul element p (${PAUL.join("|")})`);
   }
   if (QZ.length && qlong / QZ.length > 0.3) throw new Error(`${f}: right answer is the longest option in ${qlong} of ${QZ.length} quiz questions (max 30%)`);
+  /* 4.31 scene shape (TY): each scene quiz = 1 Remember (b1), 2 Understand (b2-3), 2 Analyse or Evaluate (b4-6). */
+  for (const [s, v] of Object.entries(constJSON(rd(f), "STUDY", f).scenes || {})) {
+    const c = [0, 0, 0]; (v.quiz || []).forEach(q => c[q.b === 1 ? 0 : q.b <= 3 ? 1 : 2]++);
+    if (c[0] !== 1 || c[1] !== 2 || c[2] !== 2) throw new Error(`${f}: quiz ${s} has ${c.join("/")} Remember/Understand/Analyse+ questions (needs 1/2/2)`);
+  }
 }
 
 /* Every play needs a shelf cover (covers.js: COVER[id] with colour, epigraph, emblem, and M[id] pattern motif). */
