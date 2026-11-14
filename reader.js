@@ -871,9 +871,9 @@ const SPAGES=["topic","who","theme"];let SV=null,TP="";
 const TOPICS=[["story","Story",["acts","explore:timeline","explore:facts","explore:iago","explore:arcs","explore:context","explore:director"]],
   ["people","People",["explore:analysis","prof","part","explore:map","explore:contrast"]],
   ["themes","Themes",["themes","explore:motifs","explore:symbols","explore:bigq","explore:critics"]],
-  ["quotes","Quotes",["quotes","cards","drill:gap","drill:ladder","drill:who","explore:compare"]],
+  ["quotes","Quotes",["quotes","cards","drill:gap","drill:ladder","drill:who","drill:scene","drill:time","explore:compare"]],
   ["words","Words",["explore:glossary","explore:devices","explore:verse","explore:insults","explore:pronouns","drill:word","drill:untangle","drill:pun","drill:stress"]],
-  ["practise","Practise",["review","quiz","cards","part","drill:gap","drill:ladder","drill:who","drill:explain","drill:order","drill:word","drill:cut","drill:two"]],
+  ["practise","Practise",["review","quiz","cards","part","drill:gap","drill:ladder","drill:who","drill:scene","drill:next","drill:time","drill:odd","drill:explain","drill:order","drill:word","drill:cut","drill:two"]],
   ["write","Write",["plan","extract","para"]],
   ["revise","Revise",["revise","acts","review","quiz"]]];
 const TLINE={story:"The plot act by act, with the facts behind it",people:"Who's who, what drives them, how they change",themes:"The big ideas, traced from start to end",quotes:"The lines to know, one card at a time",words:"Old words, imagery, verse and wordplay",practise:"Quizzes, flashcards and quick drills",write:"Exam answers, one step at a time",revise:"Your sheet, cards due and backup"};
@@ -964,6 +964,7 @@ const TIC={acts:'<path d="M6 4h10a3 3 0 0 1 3 3v13H9a3 3 0 0 1-3-3z"/><path d="M
   verse:'<path d="M3 12c1.5-3 3-3 4.5 0s3 3 4.5 0 3-3 4.5 0 3 3 4.5 0"/><path d="M3 18h18M3 6h18"/>',insults:'<path d="M13 3 6 13h6l-1 8 7-10h-6z"/>',pronouns:'<path d="M4 7h7M7.5 7v11M14 11v7M14 13c.5-1.5 1.8-2 3-2s2.5.7 2.5 2.5V18"/>',
   word:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 20 20M8 12.5l2-5 2 5M8.6 11h2.8"/>',untangle:'<path d="M4 7h4l8 10h4M4 17h4l3-3.8M13 9.8 16 7h4M18 5l2 2-2 2M18 15l2 2-2 2"/>',pun:'<path d="M5 12h14M5 12l4-4M5 12l4 4M19 12l-4-4M19 12l-4 4"/>',
   stress:'<path d="M4 18h16M7 14l3-8 3 8M8 11.5h4M15 6l3 3"/>',review:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4M9 14.5l2 2 4-4"/>',quiz:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12l3 3 5-6"/>',
+  scene:'<path d="M4 5h16v14H4z"/><path d="M4 9h16M9 5v4M15 5v4M8 14h8"/>',next:'<path d="M4 8h9l-3-3M13 8l-3 3"/><circle cx="17" cy="15" r="3"/><path d="M12 21c0-2.5 2.2-4 5-4s5 1.5 5 4"/>',time:'<path d="M12 3v18"/><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/><path d="M14 6h6M4 12h6M14 18h6"/>',odd:'<circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
   explain:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/>',order:'<path d="M10 6h10M10 12h10M10 18h10M4 5h2v3M4 11.5c0-1 2-1 2 0s-2 1.5-2 2.5h2M4 17h2l-1 1.5c1 0 1.5.5 1 1.5H4"/>',cut:'<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8 15 18 4M16 15 6 4"/>',
   two:'<path d="M4 8h16M4 16h11"/><circle cx="19" cy="16" r="1.5"/>',plan:'<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/>',extract:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 17h4"/><path d="M4 10v6" />',
   para:'<path d="M13 4v16M17 4v16M19 4h-9a4 4 0 0 0 0 8h3"/>',revise:'<path d="M6 9V3h12v6M6 17H4v-8h16v8h-2"/><path d="M6 14h12v7H6z"/>',dot:'<circle cx="12" cy="12" r="3"/>'};
@@ -1364,7 +1365,7 @@ function wirePerf(id){const tt=$("tt-add");if(tt)tt.onclick=()=>{const v=$("tt")
   document.querySelectorAll(".tool [data-dirgo]").forEach(b=>b.onclick=()=>{closeSheet();closePanel();exSel="director";goStudy("explore")})}
 /* ---------- 4.16 practice frame: every drill runs as a round under one frame (pips, score, streak) and ends on a wreath
    with the best score and the lines missed. Quote misses join Daily review (gap → fin, who → who). Bests: <prefix>drb. ---------- */
-const DRILLS=[["gap","Fill the gap","Type the missing words in 8 key quotes"],["ladder","Memory ladder","Learn a quote by heart: full, half hidden, first letters, from memory"],["explain","Explain this line","Put 5 passages in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["order","Put it in order","Three rounds: sort 5 plot events into the order they happen"],["word","Word detective","Guess what 8 old words mean from the line around them"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[]),["cut","Cut the scene","Keep half the lines and still tell the story"],["two","Two-line scene","Sum up 3 scenes as one line for each of two characters"]];
+const DRILLS=[["gap","Fill the gap","Type the missing words in 8 key quotes"],["ladder","Memory ladder","Learn a quote by heart: full, half hidden, first letters, from memory"],["explain","Explain this line","Put 5 passages in your own words, then compare"],["who","Who said it?","Match 8 quotes to their speakers"],["scene","Which scene?","Place 8 key quotes in their scene"],["next","Who speaks next?","Read a cue and name the next speaker, 8 times"],["time","Quote timeline","Three rounds: put 4 key quotes in the order they are spoken"],["odd","Odd one out","Three quotes share a theme: find the one that doesn't"],["order","Put it in order","Three rounds: sort 5 plot events into the order they happen"],["word","Word detective","Guess what 8 old words mean from the line around them"],...(EX.lang?[["untangle","Untangle","Put Shakespeare's word order into everyday order"],["pun","Pun hunt","Find the word doing double duty"],["stress","Tone and stress","Lean on different words and hear the meaning change"]]:[]),["cut","Cut the scene","Keep half the lines and still tell the story"],["two","Two-line scene","Sum up 3 scenes as one line for each of two characters"]];
 const rnd=a=>a[Math.floor(Math.random()*a.length)],shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 let DRB={};try{DRB=JSON.parse(LS.get(PFX+"drb")||"{}")||{}}catch(e){}if(typeof DRB!=="object"||Array.isArray(DRB))DRB={};
 if(!DRB.lad||typeof DRB.lad!=="object"||Array.isArray(DRB.lad))DRB.lad={};
@@ -1373,13 +1374,30 @@ const drBest=k=>{if(k==="ladder"){const n=Object.keys(DRB.lad).filter(i=>QUOTES.
 /* the frame: label · i of n, pips (a bar past 24 items), right so far and the current streak */
 function pipFrame(lab,res,i,n,right,streak,rw){const pips=n<=24?`<span class="pips" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${res[j]===true?"ok":res[j]===false?"no":j===i?"cur":""}"></i>`).join("")}</span>`:`<span class="pbar" aria-hidden="true"><b style="width:${(100*Math.min(i,n)/Math.max(1,n)).toFixed(1)}%"></b></span>`;
   return `<div class="dfr pfr"><span class="dfl">${esc(lab)} · ${Math.min(i+1,n)} of ${n}</span>${pips}<span class="dfs">${right} ${rw||"right"}${streak>1?` · <b class="stk">${streak} in a row</b>`:""}</span></div>`}
-const DRN={gap:8,who:8,word:8,order:3,explain:5,two:3,untangle:6,pun:6,stress:5};
+const DRN={gap:8,who:8,word:8,order:3,time:3,scene:8,next:8,odd:6,explain:5,two:3,untangle:6,pun:6,stress:5};
 const gapCand=q=>{const ws=q.text.split(/\s+/),nw=ws.map(w=>w.replace(/[^A-Za-z']/g,"").toLowerCase().replace(/^'+|'+$/g,"").replace(/'(s|d|ll)$/,""));return ws.map((w,i)=>[nw[i],i]).filter(x=>x[0].length>3&&nw.indexOf(x[0])===nw.lastIndexOf(x[0]))};
 const gw=w=>w.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g,"");
 const gnorm=w=>w.toLowerCase().replace(/[’]/g,"'").replace(/[^a-z']/g,"");
 const dQ=it=>QUOTES.quotes[it.qi];
 const selfRate=(a,b)=>`<div class="srate"><span class="muted">How close were you?</span><button class="btn" data-dans="0">${a}</button><button class="btn primary" data-dans="1">${b}</button></div>`;
 const nextBtn=()=>{const R=dr.R;return `<button class="btn primary" id="dr-next">${R.i+1<R.items.length?"Next ›":"See score ›"}</button>`};
+/* ordering drills (Put it in order, Quote timeline): it.e = entries in the right order, it.show = the order they're dealt */
+const ordItem=e=>({e,show:shuf(e.map((_,i)=>i))});
+function ordView(it,st,done,intro){const P=st.pk=st.pk||[],full=P.length===it.e.length,E=it.e,sc=x=>x.s&&sIdx(x.s)>=0?scenes[sIdx(x.s)]:null;
+  if(done){const n=P.filter((i,j)=>i===j).length;
+    return `<div class="qz"><p class="dres ${st.right?"ok":"no"}">${n} of ${E.length} in the right place.</p><ol class="otl">${E.map((x,j)=>{const u=P.indexOf(j),p=sc(x);return `<li class="${u===j?"ok":"no"}"><i aria-hidden="true">${u===j?"✓":u+1}</i><div><b>${esc(x.t)}</b>${p?`<small>${x.who?esc(title(x.who))+" · ":""}${sName(p)}</small>`:""}${u!==j?`<small class="ow">You put it ${u+1}${["st","nd","rd","th","th","th"][u]}</small>`:""}</div>${x.id!=null&&speech[x.id]?chip(x.id):""}</li>`}).join("")}</ol><div class="row">${nextBtn()}</div></div>`}
+  return `<div class="qz ord16"><p class="intro">${intro} Drag a placed one to move it; tap it to take it back.</p>
+   <div class="opool">${it.show.map(i=>P.includes(i)?"":`<button data-opk="${i}">${esc(E[i].t)}</button>`).join("")||`<p class="muted">All placed. Check your order, or drag to change it.</p>`}</div>
+   <ol class="oslots">${E.map((_,j)=>P[j]!=null?`<li class="ofill" data-osl="${j}"><i aria-hidden="true">${j+1}</i><span>${esc(E[P[j]].t)}</span><b class="ogrip" aria-hidden="true">⋮⋮</b></li>`:`<li class="oempty"><i aria-hidden="true">${j+1}</i><span></span></li>`).join("")}</ol>
+   <div class="row"><button class="btn primary" id="ord-chk"${full?"":" disabled"}>Check</button>${P.length?`<button class="link" id="ord-clr">Clear</button>`:""}</div></div>`}
+function ordWire(it,st){const P=st.pk;$("sbody").querySelectorAll("[data-opk]").forEach(b=>b.onclick=()=>{P.push(+b.dataset.opk);studyDrill()});
+  if($("ord-clr"))$("ord-clr").onclick=()=>{P.length=0;studyDrill()};
+  if($("ord-chk"))$("ord-chk").onclick=()=>{st.right=P.every((i,j)=>i===j);drAns(st.right)};
+  /* drag a placed entry to a new slot (pointer events, so it works with touch); a tap sends it back to the pool */
+  $("sbody").querySelectorAll("[data-osl]").forEach(li=>{li.onpointerdown=e=>{if(e.button>0)return;const j=+li.dataset.osl,y0=e.clientY,h=li.offsetHeight+6;let moved=false;li.setPointerCapture(e.pointerId);
+    li.onpointermove=m=>{const dy=m.clientY-y0;if(Math.abs(dy)>6){moved=true;li.classList.add("drag");li.style.transform=`translateY(${dy}px)`}};
+    li.onpointerup=li.onpointercancel=u=>{li.onpointermove=li.onpointerup=li.onpointercancel=null;if(!moved){if(u.type==="pointerup")P.splice(j,1);studyDrill();return}
+      const to=Math.max(0,Math.min(P.length-1,j+Math.round((u.clientY-y0)/h)));const [x]=P.splice(j,1);P.splice(to,0,x);studyDrill()}}})}
 /* each drill: make(n) → items; view(it,st,done) → html; ids(it) → speeches for Look again; key(it) → Daily review key */
 const DK={
   gap:{make:n=>shuf(QUOTES.quotes.filter(q=>gapCand(q).length)).slice(0,n).map(q=>({qi:q.i,pick:shuf(gapCand(q)).slice(0,2).map(x=>x[1]).sort((a,b)=>a-b)})),
@@ -1414,23 +1432,37 @@ const DK={
        <div class="opts">${it.o.map(o=>`<button data-dpick="${esc(o)}"${done?" disabled":""} class="${done?(o===it.k?"right":o===st.pick?"wrong":""):""}">${esc(G[o])}</button>`).join("")}</div>
        ${done?`<p class="muted"><b>${esc(it.k)}</b>: ${esc(G[it.k])}</p><div class="row">${nextBtn()}${chip(it.id)}</div>`:""}</div>`},
     pick:(it,v)=>v===it.k},
-  order:{make:n=>{const T=EX.timeline||[];if(T.length<5)return [];return Array.from({length:n},()=>{const ev=shuf(T.map((_,i)=>i)).slice(0,5).sort((a,b)=>a-b);return {ev,show:shuf(ev)}})},
-    ids:it=>it.ev.map(i=>EX.timeline[i].id).filter(x=>x!=null),
-    view(it,st,done){const T=EX.timeline,P=st.pk=st.pk||[],full=P.length===it.ev.length,ev=i=>{const e=T[i],p=e.s&&sIdx(e.s)>=0?scenes[sIdx(e.s)]:null;return {t:e.t,p}};
-      if(done){const n=P.filter((i,j)=>i===it.ev[j]).length;
-        return `<div class="qz"><p class="dres ${st.right?"ok":"no"}">${n} of ${it.ev.length} in the right place.</p><ol class="otl">${it.ev.map((i,j)=>{const e=ev(i),u=P.indexOf(i);return `<li class="${u===j?"ok":"no"}"><i aria-hidden="true">${u===j?"✓":u+1}</i><div><b>${esc(e.t)}</b>${e.p?`<small>${sName(e.p)}</small>`:""}${u!==j?`<small class="ow">You put it ${u+1}${["st","nd","rd","th","th"][u]}</small>`:""}</div>${T[i].id!=null&&speech[T[i].id]?chip(T[i].id):""}</li>`}).join("")}</ol><div class="row">${nextBtn()}</div></div>`}
-      return `<div class="qz ord16"><p class="intro">Tap the events in the order they happen. Drag a placed event to move it; tap it to take it back.</p>
-       <div class="opool">${it.show.map(i=>P.includes(i)?"":`<button data-opk="${i}">${esc(T[i].t)}</button>`).join("")||`<p class="muted">All placed. Check your order, or drag to change it.</p>`}</div>
-       <ol class="oslots">${it.ev.map((_,j)=>P[j]!=null?`<li class="ofill" data-osl="${j}"><i aria-hidden="true">${j+1}</i><span>${esc(T[P[j]].t)}</span><b class="ogrip" aria-hidden="true">⋮⋮</b></li>`:`<li class="oempty"><i aria-hidden="true">${j+1}</i><span></span></li>`).join("")}</ol>
-       <div class="row"><button class="btn primary" id="ord-chk"${full?"":" disabled"}>Check</button>${P.length?`<button class="link" id="ord-clr">Clear</button>`:""}</div></div>`},
-    wire(it,st){const P=st.pk;$("sbody").querySelectorAll("[data-opk]").forEach(b=>b.onclick=()=>{P.push(+b.dataset.opk);studyDrill()});
-      if($("ord-clr"))$("ord-clr").onclick=()=>{P.length=0;studyDrill()};
-      if($("ord-chk"))$("ord-chk").onclick=()=>{st.right=P.every((i,j)=>i===it.ev[j]);drAns(st.right)};
-      /* drag a placed event to a new slot (pointer events, so it works with touch); a tap sends it back to the pool */
-      $("sbody").querySelectorAll("[data-osl]").forEach(li=>{li.onpointerdown=e=>{if(e.button>0)return;const j=+li.dataset.osl,y0=e.clientY,h=li.offsetHeight+6;let moved=false;li.setPointerCapture(e.pointerId);
-        li.onpointermove=m=>{const dy=m.clientY-y0;if(Math.abs(dy)>6){moved=true;li.classList.add("drag");li.style.transform=`translateY(${dy}px)`}};
-        li.onpointerup=li.onpointercancel=u=>{li.onpointermove=li.onpointerup=li.onpointercancel=null;if(!moved){if(u.type==="pointerup")P.splice(j,1);studyDrill();return}
-          const to=Math.max(0,Math.min(P.length-1,j+Math.round((u.clientY-y0)/h)));const [x]=P.splice(j,1);P.splice(to,0,x);studyDrill()}}})}},
+  order:{make:n=>{const T=(EX.timeline||[]).map(e=>({t:e.t,s:e.s,id:e.id}));if(T.length<5)return [];return Array.from({length:n},()=>ordItem(shuf(T.map((_,i)=>i)).slice(0,5).sort((a,b)=>a-b).map(i=>T[i])))},
+    ids:it=>it.e.map(e=>e.id).filter(x=>x!=null),view:(it,st,done)=>ordView(it,st,done,"Tap the events in the order they happen."),wire:ordWire},
+  time:{make:n=>{const Q=QUOTES.quotes.filter(q=>speech[q.id]);if(Q.length<8)return [];return Array.from({length:n},()=>{const pick=[];const sc=new Set();for(const q of shuf(Q)){const p=speech[q.id].page;if(!sc.has(p)){sc.add(p);pick.push(q)}if(pick.length===4)break}
+      return ordItem(pick.sort((a,b)=>+a.id-+b.id).map(q=>({t:"“"+q.text+"”",s:speech[q.id].page,id:q.id,who:speech[q.id].who})))})},
+    ids:it=>it.e.map(e=>e.id),view:(it,st,done)=>ordView(it,st,done,"Tap the quotes in the order they're spoken in the play."),wire:ordWire},
+  scene:{make:n=>{const sc=scenes.filter(p=>QUOTES.quotes.some(q=>speech[q.id].page===p.id));return shuf(QUOTES.quotes).slice(0,n).map(q=>{const p=sceneOf(q.id),k=sIdx(p.id),near=shuf(scenes.filter(x=>x.id!==p.id&&Math.abs(sIdx(x.id)-k)<=4)),far=shuf(sc.filter(x=>x.id!==p.id));
+      const o=[p.id];for(const x of [...near.slice(0,2),...far])if(!o.includes(x.id)&&o.length<4)o.push(x.id);return {qi:q.i,o:shuf(o)}})},
+    ids:it=>[dQ(it).id],key:it=>"act:"+it.qi,
+    view(it,st,done){const q=dQ(it),sp=speech[q.id],p=sceneOf(q.id);
+      return `<div class="qz"><p class="intro">Which scene is this from?</p><h3 class="dq">“${esc(q.text)}”</h3><p class="gsrc">${folioMedal(sp.who,COLORS[sp.who],"gmed")}<span>${esc(title(sp.who))}</span></p>
+       <div class="opts sopts">${it.o.map(id=>{const x=scenes[sIdx(id)];return `<button data-dpick="${id}"${done?" disabled":""} class="${done?(id===p.id?"right":id===st.pick?"wrong":""):""}"><b>${sName(x)}</b><small>${esc(shortLoc(x))}</small></button>`}).join("")}</div>
+       ${done?`<p class="muted">${esc(q.note)}</p><div class="row">${nextBtn()}${chip(q.id)}</div>`:""}</div>`},
+    pick:(it,v)=>v===sceneOf(dQ(it).id).id},
+  next:{make:n=>{const C=[];scenes.forEach(p=>{const sps=p.items.filter(x=>x.t==="sp"),cast=[...new Set(sps.map(x=>x.who))];if(cast.length<3)return;
+      for(let j=0;j+1<sps.length;j++){const a=sps[j],b=sps[j+1];if(a.who!==b.who&&a.lines.length>=2&&b.who.length<30)C.push({id:a.id,nx:b.id,cast})}});
+      return shuf(C).slice(0,n).map(c=>{const w=speech[c.nx].who;return {id:c.id,nx:c.nx,o:shuf([w,...shuf(c.cast.filter(x=>x!==w&&x!==speech[c.id].who)).slice(0,3)])}})},
+    ids:it=>[it.nx],
+    view(it,st,done){const a=speech[it.id],b=speech[it.nx],L=a.lines.map(lineOf),t=L.slice(-3);
+      return `<div class="qz"><p class="intro">Who speaks next? Read the cue, then pick the speaker.</p><p class="muted">${sName(sceneOf(it.id))} · ${esc(shortLoc(sceneOf(it.id)))}</p>
+       <div class="cuebx" style="--c:${esc(COLORS[a.who]||"var(--ink)")}"><small>${esc(title(a.who))}</small>${L.length>3?`<span class="muted">…</span>`:""}${t.map(l=>`<span>${esc(l)}</span>`).join("")}</div>
+       <div class="wopts">${it.o.map(o=>`<button data-dpick="${esc(o)}"${done?" disabled":""} class="${done?(o===b.who?"right":o===st.pick?"wrong":""):""}" style="--c:${esc(COLORS[o]||"var(--ink)")}">${folioMedal(o,COLORS[o],"wom")}<b>${esc(title(o))}</b></button>`).join("")}</div>
+       ${done?`<div class="cuebx ans" style="--c:${esc(COLORS[b.who]||"var(--ink)")}"><small>${esc(title(b.who))}</small>${b.lines.slice(0,3).map(l=>`<span>${esc(lineOf(l))}</span>`).join("")}${b.lines.length>3?`<span class="muted">…</span>`:""}</div><div class="row">${nextBtn()}${chip(it.nx)}</div>`:""}</div>`},
+    pick:(it,v)=>v===speech[it.nx].who},
+  odd:{make:n=>{const T=Object.keys(QUOTES.themes),out=[];for(let g=0;g<200&&out.length<n;g++){const t=rnd(T),inn=shuf(QUOTES.quotes.filter(q=>q.themes.includes(t))),outq=shuf(QUOTES.quotes.filter(q=>!q.themes.includes(t)));
+      if(inn.length<3||!outq.length)continue;const odd=outq[0],qs=[...inn.slice(0,3),odd];if(out.some(x=>x.odd===odd.i))continue;out.push({t,odd:odd.i,o:shuf(qs.map(q=>q.i))})}return out},
+    ids:it=>[QUOTES.quotes[it.odd].id],key:it=>"th:"+it.odd,
+    view(it,st,done){const [nm]=QUOTES.themes[it.t];
+      return `<div class="qz"><p class="intro">Three of these quotes share a theme. Tap the odd one out.</p>
+       <div class="oddl">${it.o.map(i=>{const q=QUOTES.quotes[i],sp=speech[q.id];return `<button data-dpick="${i}"${done?" disabled":""} class="${done?(i===it.odd?"right":String(i)===st.pick?"wrong":"in"):""}" style="--c:${esc(COLORS[sp.who]||"var(--ink)")}"><span>“${esc(q.text)}”</span><small>${esc(title(sp.who))}${done?` · ${q.themes.map(t=>esc(QUOTES.themes[t][0])).join(", ")}`:""}</small></button>`}).join("")}</div>
+       ${done?`<p class="dres ok">The three share <b>${esc(nm)}</b>.</p><div class="row">${nextBtn()}${chip(QUOTES.quotes[it.odd].id)}</div>`:""}</div>`},
+    pick:(it,v)=>+v===it.odd},
   explain:{make:n=>shuf(Object.keys(PARTS).filter(id=>speech[id])).slice(0,n).map(id=>({id,pi:Math.floor(Math.random()*PARTS[id].length)})),
     ids:it=>[it.id],
     view(it,st,done){const sp=speech[it.id],q=partsOf(sp)[it.pi]||partsOf(sp)[0];
