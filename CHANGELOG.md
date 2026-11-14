@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.12.1] — 2026-11-14
+
+### Fixed
+- Phones: the Irony, device, Soliloquy and note chips after a run-in speaker name no longer slide back over the name; they sit after it and wrap with the line (#119)
+- Marks in prose: the margin tick no longer lands mid-text on each printed line; a marked prose part gets one tick down the margin (#119)
+- Soliloquies and asides: a marked line inks the speech's margin rule instead of drawing a second tick beside it (#119)
+- Phones and tablet portrait: the raised initial on a scene's first speech keeps clear of the speaker and note row above it; prose key-quote fleurons sit tight to the words; Irony and device chips show one ornament (#119)
+
 ## [4.12.0] — 2026-11-14
 
 ### Changed
