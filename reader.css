@@ -2460,3 +2460,12 @@ body.focus21 .pfr{top:calc(6px + env(safe-area-inset-top,0px))}
 .ss22 b{font:400 1.25rem var(--f-old);color:var(--tc,var(--accent))}.ss22 i{font:italic 400 .95rem var(--f-old);color:var(--soft)}
 .sopts.sg22 .right .ss22{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--card))}
 .sopts.sg22 .wrong .ss22{border-color:var(--bad)}
+
+/* ---------- 4.28 Thinking skills breakdown on the quiz score page ---------- */
+.sk28{margin:14px auto 4px;max-width:420px;text-align:left}
+.sk28 .skr{display:grid;grid-template-columns:minmax(0,9.5em) 1fr auto;align-items:center;gap:10px;margin:8px 0}
+.sk28 .skr span{display:flex;flex-direction:column;line-height:1.2}
+.sk28 .skr small{font-size:.875rem;color:var(--muted)}
+.sk28 .cbar{height:8px;border-radius:4px;background:var(--rule);overflow:hidden}
+.sk28 .cbar i{display:block;height:100%;background:var(--accent)}
+.sk28 p{font-size:.875rem;margin:8px 0 0}

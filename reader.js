@@ -2115,12 +2115,17 @@ function coverageHTML(){return `<div class="lbl">Your coverage: quotes learnt an
 /* 4.22 an optional guess at your score: one tap on a chip, tap again to clear; never a gate */
 const predVals=n=>n<=6?Array.from({length:n+1},(_,i)=>i):[...new Set([.5,.6,.7,.8,.9,1].map(f=>Math.round(n*f)))];
 const predChips=(n,v,attr)=>`<div class="pred22" role="group" aria-label="Guess your score (optional)"><small>Guess your score <i>(optional)</i></small><div class="pc22">${predVals(n).map(x=>`<button type="button" class="chip" data-${attr}="${x}" aria-pressed="${v===x}">${x}</button>`).join("")}<span>of ${n}</span></div></div>`;
+/* 4.28 thinking skills: each question's Bloom level (q.b) feeds a breakdown on the score page; Paul's element (q.p) is stored only */
+const BLOOM=[["Recall",[1],"who, what, where"],["Understand",[2,3],"why and how"],["Analyse",[4],"what it shows"],["Evaluate",[5,6],"judging"]];
+function skillsHTML(qs,res){const rows=BLOOM.map(([n,lv,d])=>{const ix=qs.map((q,i)=>lv.includes(q.b)?i:-1).filter(i=>i>=0);return [n,d,ix.filter(i=>res[i]===true).length,ix.length]}).filter(r=>r[3]);
+  if(!rows.length)return "";const weak=rows.filter(r=>r[2]<r[3]).sort((a,b)=>a[2]/a[3]-b[2]/b[3])[0];
+  return `<div class="sk28" role="group" aria-label="Thinking skills"><div class="lbl">Thinking skills</div>${rows.map(([n,d,k,t])=>`<div class="skr"><span><b>${n}</b><small>${d}</small></span><div class="cbar"><i style="width:${k/t*100}%"></i></div><small>${k} / ${t}</small></div>`).join("")}${weak&&rows.length>1?`<p class="muted">Most room to grow: <b>${weak[0]}</b> questions.</p>`:""}</div>`}
 /* quizzes: one question at a time */
 let qz=null;
 function startQuiz(kind){
   let qs=[];
   if(kind==="all"){scenes.forEach(p=>((STUDY.scenes[p.id]||{}).quiz||[]).forEach(q=>qs.push(Object.assign({s:p.id},q))));qs=qs.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]).slice(0,20)}
-  else if(kind==="miss")qs=prog.miss.q.map(q=>Object.assign({},q));
+  else if(kind==="miss")qs=prog.miss.q.map(q=>{const o=((STUDY.scenes[q.s]||{}).quiz||[]).find(x=>x.q===q.q);return Object.assign({},q,o?{b:o.b,p:o.p}:{})});
   else qs=((STUDY.scenes[kind]||{}).quiz||[]).map(q=>Object.assign({s:kind},q));
   qs=qs.map(q=>{const ix=shuf(q.o.map((_,i)=>i));return Object.assign({},q,{o:ix.map(i=>q.o[i]),a:ix.indexOf(q.a)})});
   qz={kind,qs,i:0,ok:0,ans:null,pred:-1,ask:kind!=="miss"&&qs.length>=3};studyQuiz();scrollTo(0,0);
@@ -2137,7 +2142,7 @@ function studyQuiz(){
     if($("qz-next"))$("qz-next").onclick=()=>{qz.i++;qz.ans=null;studyQuiz()};
     $("qz-quit").onclick=()=>{qz=null;studyQuiz()};return}
   if(qz){const k=qz.kind,old=prog.quiz[k];if(qz.pred>=0&&!qz.logged){qz.logged=1;REV.cal.push([qz.pred,qz.ok,Date.now(),qz.qs.length]);REV.cal=REV.cal.slice(-20);saveRev()}if(k!=="miss"&&(k==="all"||!old||qz.ok>=old[0])){prog.quiz[k]=[qz.ok,qz.qs.length];saveProg()}
-    $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">${k==="all"?"Whole play":k==="miss"?"Mistakes review":sName(scenes[sIdx(k)])}</div>${wreathHTML(qz.ok,qz.qs.length)}${qz.pred>=0?`<p>${qz.ok===qz.pred?"You predicted exactly right.":qz.ok>qz.pred?`${qz.ok-qz.pred} better than you predicted.`:`You predicted ${qz.pred-qz.ok} more than you got.`}</p>`:""}<p class="muted">${qz.ok===qz.qs.length?"Perfect score.":"The right answers were shown as you went."}</p><div class="row" style="justify-content:center"><button class="btn primary" id="qz-again">Try again</button><button class="btn" id="qz-list">All quizzes</button></div>${sIdx(k)>=0?`<div class="xrow" style="justify-content:center">${toLink("scene:"+k,"Read the scene again")}${toLink("study:acts?a="+scenes[sIdx(k)].act,"Act summary")}</div>`:""}</div>`;
+    $("sbody").innerHTML=`<div class="qz" style="text-align:center"><div class="qn">${k==="all"?"Whole play":k==="miss"?"Mistakes review":sName(scenes[sIdx(k)])}</div>${wreathHTML(qz.ok,qz.qs.length)}${qz.pred>=0?`<p>${qz.ok===qz.pred?"You predicted exactly right.":qz.ok>qz.pred?`${qz.ok-qz.pred} better than you predicted.`:`You predicted ${qz.pred-qz.ok} more than you got.`}</p>`:""}<p class="muted">${qz.ok===qz.qs.length?"Perfect score.":"The right answers were shown as you went."}</p>${skillsHTML(qz.qs,qz.res||[])}<div class="row" style="justify-content:center"><button class="btn primary" id="qz-again">Try again</button><button class="btn" id="qz-list">All quizzes</button></div>${sIdx(k)>=0?`<div class="xrow" style="justify-content:center">${toLink("scene:"+k,"Read the scene again")}${toLink("study:acts?a="+scenes[sIdx(k)].act,"Act summary")}</div>`:""}</div>`;
     $("qz-again").onclick=()=>startQuiz(k);$("qz-list").onclick=()=>{qz=null;studyQuiz()};return}
   const all=prog.quiz.all;
   $("sbody").innerHTML=`<p class="intro">Test yourself scene by scene, or take 20 random questions from the whole play.</p>

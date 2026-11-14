@@ -92,12 +92,15 @@ for (const p of PLAYS) {
   const okEv = a => Array.isArray(a) && a.length >= 1 && a.length <= 3 && a.every(i => ids.has(String(i)));
   EX.context.forEach((c, i) => { if (!okEv((ev.ctx || [])[i])) throw new Error(`${f}: EX.ev.ctx[${i}] needs 1-3 speech ids`); });
   for (const [k, v] of Object.entries(EX.critics)) v.forEach((c, i) => { if (!okEv(((ev.cr || {})[k] || [])[i])) throw new Error(`${f}: EX.ev.cr.${k}[${i}] needs 1-3 speech ids`); });
+  const PAUL = ["purpose", "question", "information", "inference", "concept", "assumption", "implication", "view"];
   /* 4.24 quiz options: 4 distinct options, and the right answer is the unique longest in at most 30% of questions. */
   const QZ = Object.entries(constJSON(rd(f), "STUDY", f).scenes || {}).flatMap(([s, v]) => (v.quiz || []).map((q, i) => [s + "." + i, q]));
   let qlong = 0;
   for (const [k, q] of QZ) {
     if (!Array.isArray(q.o) || q.o.length !== 4 || new Set(q.o).size !== 4 || !(q.a >= 0 && q.a < 4)) throw new Error(`${f}: quiz ${k} needs 4 distinct options and an answer index`);
     if (q.o.every((o, j) => j === q.a || o.length < q.o[q.a].length)) qlong++;
+    /* 4.28 thinking-skill tags: b = Bloom level 1-6 (Remember, Understand, Apply, Analyse, Evaluate, Create), p = Paul's element of thought. */
+    if (!(Number.isInteger(q.b) && q.b >= 1 && q.b <= 6) || !PAUL.includes(q.p)) throw new Error(`${f}: quiz ${k} needs a Bloom level b (1-6) and a Paul element p (${PAUL.join("|")})`);
   }
   if (QZ.length && qlong / QZ.length > 0.3) throw new Error(`${f}: right answer is the longest option in ${qlong} of ${QZ.length} quiz questions (max 30%)`);
 }

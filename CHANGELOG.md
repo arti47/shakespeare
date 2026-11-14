@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.28.0] — 2026-11-14
+
+### Added
+- Quizzes: every question (all 36 plays) is tagged with a thinking skill (Bloom level) and an element of reasoning (Paul's wheel); the score page shows a Thinking skills breakdown (Recall, Understand, Analyse, Evaluate) and names the one with most room to grow (#142)
+
 ## [4.27.0] — 2026-11-14
 
 ### Added
