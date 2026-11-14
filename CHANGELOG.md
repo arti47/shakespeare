@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.32.0] — 2026-11-14
+
+### Added
+- Key quotes, tragedies: 319 new quotes chosen from the text, each with themes, a note and Why it matters; Othello 42 → 115, Antony and Cleopatra 55 → 122, King Lear 61 → 128, Hamlet 84 → 113, Macbeth 92 → 116, Julius Caesar 80 → 110, Romeo and Juliet 87 → 111; every scene in all 12 tragedies now has at least one key quote (Troilus and Cressida, Coriolanus and Cymbeline gaps filled). New quotes also join shelf search (#146)
+
+### Fixed
+- Key quotes: 87 older quotes in Othello, Antony and Cleopatra and King Lear had no Why it matters note; all filled (#146)
+
 ## [4.31.0] — 2026-11-14
 
 ### Changed
