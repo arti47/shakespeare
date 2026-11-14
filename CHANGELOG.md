@@ -7,11 +7,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.22.0] — 2026-11-14
 
 ### Changed
-- Put it in order and Quote timeline: the cards are dealt into one list you drag into order, or move with ▲ ▼, so the whole round fits on the screen (#PR)
-- Quizzes and Daily review start at once; a guess at your score is an optional row of chips above the first question (#PR)
-- Flashcards and Daily review: swipe a card right for sure / knew it and left for not sure / not yet; tap an unturned card to flip it (#PR)
-- Learn a part: scenes are grouped by act, each with a seal for your best score and a bar for how many lines you speak (#PR)
-- Which scene?: the answers are a two-column grid of act and scene seals (#PR)
+- Put it in order and Quote timeline: the cards are dealt into one list you drag into order, or move with ▲ ▼, so the whole round fits on the screen (#135)
+- Quizzes and Daily review start at once; a guess at your score is an optional row of chips above the first question (#135)
+- Flashcards and Daily review: swipe a card right for sure / knew it and left for not sure / not yet; tap an unturned card to flip it (#135)
+- Learn a part: scenes are grouped by act, each with a seal for your best score and a bar for how many lines you speak (#135)
+- Which scene?: the answers are a two-column grid of act and scene seals (#135)
 
 ## [4.21.0] — 2026-11-14
 
