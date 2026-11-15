@@ -4,6 +4,20 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.57.0] — 2026-11-15
+
+### Added
+- Revision notes: Revise now, one button for ten items, weakest first: must-know quotes you have read and not learnt, mixed with notes from Plot, Characters, Themes and Big ideas, favouring sections you missed this session (#PR)
+- Revision notes: Plot as a timeline per act (a dot per scene, filled once read, Latin act titles); Characters open with a strip of medallions to jump to anyone (#PR)
+- Revision notes: each section header shows what is inside while closed, and the index follows the section you are reading (#PR)
+
+### Changed
+- Revision notes respect your place without hiding whole rows: quotes, scenes and characters you have not reached are left out, sentences that name a later act are dropped, and structure facts (turning point, climax, ending) wait until you finish; one quiet line per section says what is still to come (#PR)
+- Revision notes: lighter page (a tinted rule over each section, no boxes), Test is a ✓ in each section header, Progress with nothing learnt is one line, and quote bank counts cover only the quotes you can see (#PR)
+
+### Removed
+- Revision notes: Cover mode (Test and Revise now do the same job better) (#PR)
+
 ## [4.56.1] — 2026-11-15
 
 ### Changed
