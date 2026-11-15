@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.39.0] — 2026-11-15
+
+### Added
+- Writing desk, tragedies: 72 new exam questions written from the text, 6 per tragedy (2 To what extent, 2 extract-led, 2 Explore the view), each with a quote set and a model paragraph, plus a model outline (argument, beginning, middle and end topic sentences, conclusion) for all 207 tragedy questions (#153)
+
+### Changed
+- Writing desk: extract questions open Gather on the Extract tab and mark only the task's key words, not the scene reference (#153)
+
 ## [4.38.0] — 2026-11-15
 
 ### Added
