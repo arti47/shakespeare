@@ -2839,3 +2839,20 @@ details.dchk{padding:0 14px}details.dchk summary{min-height:44px;display:flex;al
 .zoom49{position:sticky;bottom:calc(var(--navh,84px) + 8px);z-index:5;margin:10px 0;padding:10px 12px;border:2px solid var(--gold);border-radius:var(--r-m);background:var(--scard,var(--card));box-shadow:0 6px 18px rgba(0,0,0,.12)}
 .zoom49 small{display:block;font:400 .875rem var(--f-sc);color:var(--dk)}.zoom49 textarea{width:100%}.zoom49 .row{display:flex;gap:10px;align-items:center;margin-top:6px}
 @media print{.zbar49,.zoom49,.tadd49,.ib49{display:none!important}.xt.zoom .zh{display:block}}
+/* ---------- 4.50 Band ladders (Writing desk) ---------- */
+.lad50 .lfrom50 b{font-weight:500;color:var(--ink)}
+.lrail50{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;gap:6px;margin:4px 0 12px}
+.lstep50{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(44px + var(--k)*12px);border:1px solid var(--rule);border-radius:var(--r-m) var(--r-m) 4px 4px;background:var(--scard,var(--card));color:var(--ink);cursor:pointer}
+.lstep50 b{font:500 1.15rem var(--f-body)}.lstep50 small{font:400 .75rem var(--f-sc);letter-spacing:.04em;color:var(--dk)}
+.lstep50.got{background:color-mix(in srgb,var(--gold) 14%,var(--scard,var(--card)))}
+.lstep50.on{background:var(--dk);border-color:var(--dk);color:var(--page)}.lstep50.on small{color:var(--page)}
+.lrung50{margin:0 0 10px;padding:14px 16px;border:1px solid var(--rule);border-radius:var(--r-m);background:var(--scard,var(--card));box-shadow:inset 3px 0 0 var(--accent)}.ltag50{display:block;font:400 .9rem var(--f-sc);letter-spacing:.05em;color:var(--accent)}
+.lp50{margin:4px 0;font:400 1.05rem/1.65 var(--f-body)}.lp50 q,.lmini50 q,.lwhy50 q{quotes:"“" "”";font-style:italic}
+.lwc50{color:var(--muted);font-size:.875rem}
+.lwhy50{margin:0 0 10px;padding:10px 12px;border-left:3px solid var(--gold);background:color-mix(in srgb,var(--gold) 8%,transparent);border-radius:0 var(--r-m) var(--r-m) 0}
+.lwhy50 small{display:block;font:400 .875rem var(--f-sc);color:var(--dk)}.lwhy50 p{margin:2px 0 0;font:400 1rem/1.5 var(--f-body)}
+.lnav50{display:flex;justify-content:space-between;gap:8px;margin:0 0 10px}.lnav50 .primary{margin-left:auto}
+.lmini50{padding:8px 0;border-top:1px dashed var(--rule)}.lmini50 b{font:400 .9rem var(--f-sc);color:var(--accent)}.lmini50 p{margin:2px 0 0;font:400 .98rem/1.55 var(--f-body)}
+.dlgo50{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 10px;width:100%;margin:0 0 14px;padding:10px 14px;text-align:left;border:1px solid var(--gold);border-radius:var(--r-m);background:color-mix(in srgb,var(--gold) 8%,var(--scard,var(--card)));color:var(--ink);cursor:pointer}
+.dlgo50 small{font:400 .875rem var(--f-sc);color:var(--dk)}.dlgo50 b{grid-column:1;font:500 1rem var(--f-body)}.dlgo50 i{grid-row:1/3;grid-column:2;font-style:normal;font-size:1.4rem;color:var(--dk)}
+@media print{.lrail50,.lnav50,.dlgo50{display:none!important}.lall50{display:block}}

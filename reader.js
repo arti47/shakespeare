@@ -2101,6 +2101,21 @@ function dqTest(i,P){const ty=dqType(i),tw=ty==="tw"||ty==="view",S=P.stm||{},T=
    <div class="dslot"><label for="dts-c">Steelman<small>The strongest case against your argument</small></label><textarea id="dts-c" data-dstm="c" rows="2" placeholder="Someone could argue that …">${esc(S.c||"")}</textarea></div>
    <div class="dslot"><label for="dts-r">Your reply<small>Why your argument still holds, or how far</small></label><textarea id="dts-r" data-dstm="r" rows="2" placeholder="However, …">${esc(S.r||"")}</textarea></div></div>`}
 let dqZm={};
+/* ---------- 4.50 Band ladders: EX.lad = [[question, [[paragraph, what lifts it] x4]] x2]; one ladder, labels by level. Session only: dqLR (rung shown). ---------- */
+const DLADL={g:["Grade 3","Grade 5","Grade 7","Grade 9"],a:["Grade E","Grade C","Grade B","Grade A*"]};
+let dqLR={};
+const dqLadOf=i=>{const L=EX.lad||[];return L.find(x=>x[0]===i)||L.find(x=>dqType(x[0])===dqType(i))||L[0]||null};
+const dqLadYou=i=>{const b=dqBest(i);if(!b)return -1;const p=dqPct(b);return p>=85?3:p>=70?2:p>=55?1:p>=35?0:-1};
+function dqLadder(i){const D=dqLadOf(i);if(!D)return `<p class="muted">No grade ladder for this play yet.</p>`;
+  const lab=DLADL[aoLevel()==="a"?"a":"g"],R=D[1],you=dqLadYou(i),j=Math.min(3,Math.max(0,dqLR[i]==null?(you<0?0:Math.min(3,you+1)):dqLR[i])),r=R[j];
+  const hi=t=>esc(t).replace(/“([^”]+)”/g,(m,q)=>`<q>${q}</q>`);
+  return `<div class="lad50">${D[0]!==i?`<p class="muted lfrom50">From a similar question: <b>${esc(EX.examq[D[0]][0])}</b></p>`:`<p class="muted">The same paragraph written at four grades. Read up the ladder: what changes?</p>`}
+   <div class="lrail50" role="tablist">${R.map((_,k)=>`<button type="button" role="tab" class="lstep50${k===j?" on":""}${k<=you?" got":""}" data-dlr="${k}" aria-selected="${k===j}" style="--k:${k}"><b>${esc(lab[k].replace("Grade ",""))}</b>${k===you?`<small>You</small>`:""}</button>`).join("")}</div>
+   <article class="lrung50"><small class="ltag50">${esc(lab[j])}</small><p class="lp50">${hi(r[0])}</p><small class="lwc50">${dqWords(r[0])} words</small></article>
+   <div class="lwhy50"><small>${j?`What lifts it from ${esc(lab[j-1].replace("Grade ",""))} to ${esc(lab[j].replace("Grade ",""))}`:"Why it stays low"}</small><p>${hi(r[1])}</p></div>
+   <div class="row lnav50">${j?`<button type="button" class="btn sm" data-dlr="${j-1}">‹ ${esc(lab[j-1])}</button>`:""}${j<3?`<button type="button" class="btn sm primary" data-dlr="${j+1}">${esc(lab[j+1])} ›</button>`:""}</div>
+   <details class="fold lall50"><summary>All four, one under another</summary>${R.map((x,k)=>`<div class="lmini50"><b>${esc(lab[k])}</b><p>${hi(x[0])}</p></div>`).join("")}</details>
+   ${you>=0?`<p class="muted">Your best mark puts this essay at about ${esc(lab[you])}. Try writing your next paragraph at ${esc(lab[Math.min(3,you+1)])}.</p>`:""}</div>`}
 /* the shelf */
 function deskShelf(){const N=EX.examq.length,L=aoLevel(),f=DSK.f||"",ty=[...new Set(EX.examq.map((_,i)=>dqType(i)))];
   const ord=[...Array(N).keys()].sort((a,b)=>L==="a"?(dqType(b)==="view")-(dqType(a)==="view"):0).filter(i=>!f||dqType(i)===f);
@@ -2155,7 +2170,7 @@ function studyDesk(){clearInterval(dskTmr);document.querySelectorAll("body>.kb47
         <div class="dqkw"><small>Key word</small><div class="chips">${[...new Set(dqQWords(q.text))].map(w=>`<button type="button" class="chip" data-dqkw="${j}" data-w="${esc(w)}" aria-pressed="${pt.k===w}">${esc(w)}</button>`).join("")}</div></div></div>`:`<p class="dempty">${pane==="work"?`<button type="button" class="link" data-dpane="src">Choose a quote ›</button>`:"Choose a quote from the bank: tap Point "+(j+1)+"."}</p>`}
        <label class="wq sm" for="dg-a${j}">Analysis: zoom in on one word</label><textarea id="dg-a${j}" data-dpp="${j}:a" rows="3" placeholder="${esc(pt.k?`The word “${pt.k}”${pt.m?", "+String(pt.m).toLowerCase()+",":""} suggests …`:"The word “…” suggests …")}">${esc(pt.a||"")}</textarea></div>`}).join("")+`<div class="dnext"><button class="btn primary" type="button" data-dst="2">Next: write ›</button></div>`}
   if(k==="w"){const run=E.t0&&Date.now()-E.t0<(E.tl||45)*6e4,w=dqWords(dqText(E)),ex=dqExamOn(E),fr=ex?"plain":dqFrame(),tg0=aoLevel()==="a"?700:450,wm=dqSplit(E.tl||45)[1];
-    S=ex?`<div class="dexh"><b>Exam mode</b> Quote bank, models and starters are closed.</div>`+(dqExtractShown(i)?dqExtractRO(i):`<p class="muted">Your board does not print an extract for this question: write from memory.</p>`):tabs([["model","Model paragraph"],["plan","Your plan"],["lens","Perspectives"],["voc","Vocabulary"],["start","Starters"]])+(src==="voc"?dqVocab(i):src==="plan"?dqPlanView(i):src==="lens"?dqLens(i,P,true):src==="start"?dqTray(null,true):`${dqModel(i,DSK.fade&&DSK.fade[i]||0)}
+    S=ex?`<div class="dexh"><b>Exam mode</b> Quote bank, models and starters are closed.</div>`+(dqExtractShown(i)?dqExtractRO(i):`<p class="muted">Your board does not print an extract for this question: write from memory.</p>`):tabs([["model","Model paragraph"],["plan","Your plan"],["lens","Perspectives"],["voc","Vocabulary"],...((EX.lad||[]).length?[["ladder","Grade ladder"]]:[]),["start","Starters"]])+(src==="ladder"?dqLadder(i):src==="voc"?dqVocab(i):src==="plan"?dqPlanView(i):src==="lens"?dqLens(i,P,true):src==="start"?dqTray(null,true):`${dqModel(i,DSK.fade&&DSK.fade[i]||0)}
       <div class="dfade" role="group" aria-label="Practise the model"><small>Practise it:</small>${["Read","Fill 2","Fill 4","Write all"].map((l,j)=>`<button type="button" class="chip" data-dfade="${j}" aria-pressed="${(DSK.fade&&DSK.fade[i]||0)===j}">${l}</button>`).join("")}</div>`);
     W=`${E.rd?`<div class="rdb48 noprint"><small>Redraft</small><b>${DSECN[E.rd.sec]||""}</b>${E.rd.tg?`<span>Target: ${esc(E.rd.tg)}</span>`:""}<button class="btn sm primary" type="button" data-drdx="1">Done: mark it ›</button></div>`:""}${E.mk&&ex?`<div class="dexh mk48b"><b>Mock paper</b> ${esc(DBRD[dqBoard()].n)} timing. Unseen question.</div>`:""}<div class="dtool noprint">${run?`<span class="dtm" id="dtm">--:--</span>${ex?`<button class="btn sm primary" type="button" id="dt-fin">Finish</button>`:`<button class="btn sm" type="button" id="dt-stop">Stop</button>`}`:`<button class="btn sm primary" type="button" data-dexam="1">Exam mode · ${dqMins()} min</button><button class="btn sm" type="button" data-dtime="15">15 min</button>`}<span class="dwc" id="dwc">${w} words</span>${ex?`<span class="dpace" id="dpace">Aim: about ${Math.ceil(tg0/wm)} words a minute</span>`:""}${dqBarHTML(E)}<button class="btn sm" type="button" id="dfocus" aria-pressed="${document.body.classList.contains("wfocus38")}">${document.body.classList.contains("wfocus38")?"Exit focus":"Focus"}</button></div>
       ${dqSpine(i)}
@@ -2175,7 +2190,7 @@ function studyDesk(){clearInterval(dskTmr);document.querySelectorAll("body>.kb47
     W=`${XR&&Date.now()-XR[0]<864e5?`<div class="dexr"><small>Exam mode</small><b>${XR[1]} words in ${XR[2]} min</b><span>${DBRD[dqBoard()].n} timing: ${XR[3]} min</span></div>`:""}
       ${gate?`<div class="dgate47"><small>Not ready to mark</small><b>${wd} of 150 words</b><p>Write at least 150 words and the app marks your script. You can still tick the objectives below if you wrote on paper.</p><span class="cbar"><i style="width:${Math.round(wd/1.5)}%"></i></span><button class="btn primary" type="button" data-dst="2">Back to Write ›</button></div>`
        :`${T?`<div class="dtgt"><small>Your one target</small><b>${esc(T[1])}</b><p>${T[2]}</p><button type="button" class="link" data-dgo47="1">See it in your script ›</button></div>`:`<div class="dtgt ok"><small>Your one target</small><b>Every check passed</b><p>Now push the judgement: weigh a second reading in each paragraph.</p></div>`}
-      ${dqAOSum(R)}<h4 class="dh dsh47">Your script, marked</h4>${dqScript(i,false)}${dqVers(i)}`}
+      ${dqAOSum(R)}${(EX.lad||[]).length?`<button type="button" class="dlgo50" data-dlgo="1"><small>Grade ladder</small><b>See one paragraph at Grade ${aoLevel()==="a"?"E, C, B and A*":"3, 5, 7 and 9"}</b><i aria-hidden="true">›</i></button>`:""}<h4 class="dh dsh47">Your script, marked</h4>${dqScript(i,false)}${dqVers(i)}`}
       ${dqPred(i,E)}<div class="box chk ao" id="aobox"></div>
       <div class="dsave noprint"><button class="btn primary" type="button" id="dm-save">Save this mark</button>${wd?`<button class="btn" type="button" id="dm-fair">Fair copy</button>`:""}<button class="btn" type="button" id="dm-dl">Download essay</button></div>
       ${dqRefl(i,H)}${gate?"":dqDirt(i,T,H)}
@@ -2258,6 +2273,8 @@ function dqWire(i,P,E,st,k){const B=$("sbody"),re=(y)=>{const sy=y==null?scrollY
   const essay=()=>`${EX.examq[i][0]}\n\n${dqText(E)}`;
   if($("dw-copy"))$("dw-copy").onclick=()=>copyText(essay());
   if($("dm-dl"))$("dm-dl").onclick=()=>download(CFG.file+"-essay.txt",essay(),"text/plain");
+  B.querySelectorAll("[data-dlr]").forEach(b=>b.onclick=()=>{dqLR[i]=+b.dataset.dlr;re()});
+  B.querySelectorAll("[data-dlgo]").forEach(b=>b.onclick=()=>{DSK.st[i]=2;DSK.src.w="ladder";DSK.pane="src";saveDSK();re(0);setTimeout(()=>{const el=B.querySelector(".lad50");if(el)el.scrollIntoView({block:"start",behavior:"smooth"})},60)});
   B.querySelectorAll("[data-dzm]").forEach(b=>b.onclick=()=>{dqZm[i]=dqZm[i]?0:1;re()});
   B.querySelectorAll("[data-dzn1]").forEach(b=>b.onclick=()=>{dqZm[i]=(dqZm[i]||1)+1;re();setTimeout(()=>{const el=B.querySelector(".xl.zc");if(el)el.scrollIntoView({block:"center",behavior:"smooth"});const t=$("dzn");if(t)t.focus({preventScroll:true})},60)});
   B.querySelectorAll("[data-dzx]").forEach(b=>b.onclick=()=>{dqZm[i]=0;re()});

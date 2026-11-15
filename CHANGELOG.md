@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.50.0] — 2026-11-15
+
+### Added
+- Writing desk, grade ladders: one paragraph written at four grades (GCSE 3/5/7/9, A-level E/C/B/A*) with what lifts it at each step, for two questions in each of the 14 Comedies; Write tab Grade ladder (your best mark marked on the ladder) and a link from Mark (#164)
+
 ## [4.49.0] — 2026-11-15
 
 ### Added
