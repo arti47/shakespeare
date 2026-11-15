@@ -4,6 +4,19 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.54.0] — 2026-11-15
+
+### Added
+- Revision notes: must-know quotes (★: quotes behind the big ideas, the theme plans and the exam questions); the quote bank opens on them, with Not learnt, All and a search box (#168)
+- Revision notes: Test this section steps through every note and quote with a tally, then lists what to look at again; quotes grade into Daily review (#168)
+- Revision notes: key quotes by act under each theme, and a relationship map at the top of Characters (Full) (#168)
+- Revision notes print as a two-column A4 organiser (#168)
+
+### Changed
+- Revision notes: one sticky bar for Brief/Full, Cover, Export and the section index; sections take the topic's colour and emblem; full width on tablets, two columns from 1000px (#168)
+- Revision notes: quotes run full width with a light citation instead of the scene chip; Plot lists every scene by act with turning points in bold; Characters show their group and a trait line (#168)
+- Revision notes: Progress (must-know, quotes learnt, scenes quizzed, Fix next) and My notes are separate sections; Big ideas show in Brief and in Simple (#168)
+
 ## [4.53.0] — 2026-11-15
 
 ### Changed
