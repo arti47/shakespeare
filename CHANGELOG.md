@@ -7,9 +7,9 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.55.1] — 2026-11-15
 
 ### Fixed
-- Daily review: the count in the wax seal and the play chips now uses lining figures, centred and readable, instead of small old-style numerals that sat low (#PR)
-- Numbers in every wax seal (week strip, story timeline) are centred the same way (#PR)
-- Revision notes: Knew it in Cover mode or Test this section no longer pushes a quote further out each time you test it again; it counts only when the quote is new or due, as in drills, so the Daily review count stays true (#PR)
+- Daily review: the count in the wax seal and the play chips now uses lining figures, centred and readable, instead of small old-style numerals that sat low (#170)
+- Numbers in every wax seal (week strip, story timeline) are centred the same way (#170)
+- Revision notes: Knew it in Cover mode or Test this section no longer pushes a quote further out each time you test it again; it counts only when the quote is new or due, as in drills, so the Daily review count stays true (#170)
 
 ## [4.55.0] — 2026-11-15
 
