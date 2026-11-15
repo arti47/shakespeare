@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.40.0] — 2026-11-15
+
+### Added
+- Writing desk, comedies: 84 new exam questions written from the text, 6 per comedy (2 To what extent, 2 extract-led, 2 Explore the view), each with a quote set and a model paragraph, plus a model outline for all 184 comedy questions (#154)
+
 ## [4.39.0] — 2026-11-15
 
 ### Added
