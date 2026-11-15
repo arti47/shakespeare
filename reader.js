@@ -98,14 +98,13 @@ function weekStats(){let s=0,p=0,days=0;for(let i=0;i<7;i++){const d=new Date();
 let view="reader";
 let pos=null;try{pos=JSON.parse(LS.get(PFX+"pos")||"null")}catch(e){}
 /* 4.56 spoilers: Study shows only what you have read. readIdx() = furthest scene read (finished, or before your place; the first scene when
-   none); folio-spoil "show" turns hiding off. Per-scene content is filtered with scOK(p)/readOK(id); whole-play pages wait behind spGate() */
+   none); folio-spoil "show" turns hiding off. Per-scene content is filtered with scOK(p)/readOK(id); every other page is filtered item by item (spFilter) */
 const SPOIL=()=>LS.get("folio-spoil")!=="show";
 function readIdx(){let m=0;scenes.forEach((p,i)=>{if(prog.done[p.id]&&i>m)m=i});const j=pos&&pos.s?sIdx(pos.s):-1;if(j-1>m)m=j-1;return m}
 const scOK=p=>!SPOIL()||!p||sIdx(p.id)<=readIdx();
 const readOK=id=>!SPOIL()||!speech[id]||sIdx(speech[id].page)<=readIdx();
 const allRead=()=>!SPOIL()||readIdx()>=scenes.length-1;
 const RQ=()=>QUOTES.quotes.filter(q=>readOK(q.id));
-const SPSHOW=new Set();
 /* no history entries: Safari's edge back-swipe then has nothing in the app to slide back to */
 /* push=true adds a history entry (moving between views and places), so the back gesture steps back through them */
 function setHash(h,push){if(location.hash.slice(1)!==h){try{history[push?"pushState":"replaceState"](null,"","#"+h)}catch(e){}}}
@@ -1087,7 +1086,7 @@ function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   if(k==="quotes"){const nx=RQ().find(q=>!prog.cards[q.i]);if(nx)h+=secH("One to learn")+`<div class="one">${qCard(nx)}</div>`}
   if(k==="words"){const w=wordOfDay();if(w&&(!w.id||readOK(w.id)))h+=secH("Word of the day")+`<div class="wod48"><b>${esc(w.k)}</b><p>${esc(w.g)}</p>${w.id?chip(w.id):""}</div>`}
   if(k==="practise")return h+hallHTML();
-  if(k==="write"&&(EX.examq||[]).length&&!spGated("desk")){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:desk?q=${dayN()%EX.examq.length}&tp=write">Open on the desk ›</button></div>`}
+  if(k==="write"&&(EX.examq||[]).length){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:desk?q=${dayN()%EX.examq.length}&tp=write">Open on the desk ›</button></div>`}
   if(k==="revise"){const N=QUOTES.quotes.length,kn=QUOTES.quotes.filter(q=>prog.cards[q.i]).length,W=rvWeak();
     h+=`<button type="button" class="rvgo53" data-to="study:revise?tp=revise">${hring(kn/Math.max(1,N),tic("revise"))}<span><small>Revision notes</small><b>Plot, characters, themes and quotes on one page</b><em>${kn} of ${N} quotes learnt${W.length?` · ${W.length} thing${W.length===1?"":"s"} to fix`:""}</em></span><i aria-hidden="true">›</i></button>`
       +(W.length?`<div class="rvw53 rvtw">${W.slice(0,3).map(([t,s0,a,l])=>`<div class="rvwr"><span><b>${esc(t)}</b><small>${esc(s0)}</small></span><button type="button" class="btn sm" ${a}>${l}</button></div>`).join("")}</div>`:"")}
@@ -1114,20 +1113,37 @@ function renderSPage(){const {k,x}=SV;SLAST=false;
   if(k==="topic"&&!TOPICS.some(t=>t[0]===x))SV.x="story";
   const tp=k==="topic"?SV.x:k==="who"?"people":"themes";TP=tp;$("study").dataset.tp=tp;
   if(k==="topic"){sHead("study","Study","");$("sbody").innerHTML=topicHTML(tp)}
-  else if(k==="who"){sHead("study:topic:people","People",title(x));$("sbody").innerHTML=spGated("who:"+x)?spGate("who:"+x,title(x)):whoHTML(x)}
-  else{sHead("study:topic:themes","Themes",QUOTES.themes[x][0]);$("sbody").innerHTML=spGated("theme:"+x)?spGate("theme:"+x,QUOTES.themes[x][0]):themeHTML(x)}}
-/* 4.56 spoilers: tools built per scene filter themselves (SPTS); every other tool, character and theme page covers the whole play,
-   so until the play is read it opens on a cover: Show anyway (this page, this visit) or Always show (folio-spoil) */
-const SPTS=["quotes","cards","review","quiz","acts","explore","drill","explore:timeline","explore:iago"];
-const spGated=t=>SPOIL()&&!allRead()&&!SPSHOW.has(t)&&!SPTS.includes(t)&&!t.startsWith("drill:");
-function spPlace(){const p=scenes[readIdx()];return pos||Object.keys(prog.done).length?`You have read up to ${sName(p)}.`:"You haven't started reading yet."}
-function spGate(t,nm){return `<div class="spg56">${folioSeal("❦","","spgs")}<h3>Spoilers ahead</h3><p>${esc(nm)} covers the whole play, including scenes you haven't read. ${spPlace()}</p>
-  <div class="row"><button class="btn primary" type="button" data-spshow="${esc(t)}">Show anyway</button><button class="btn" type="button" data-spoff>Always show everything</button></div>
-  <p class="muted">Change this any time in Settings › App › Spoilers.</p></div>`}
+  else if(k==="who"){sHead("study:topic:people","People",title(x));$("sbody").innerHTML=whoHTML(x)}
+  else{sHead("study:topic:themes","Themes",QUOTES.themes[x][0]);$("sbody").innerHTML=themeHTML(x)}}
+/* 4.56.1 spoilers by line: tools built per scene filter their own data (SPTS). On every other page spFilter() runs after each render:
+   any item (SPI, nearest first) holding a link to a scene past your place (data-pv / data-speech / data-go / data-go2 / data-to scene:|speech:)
+   is hidden, and one bar at the top counts them with Show (session SPSHOW per page) */
+const SPTS=["cards","review","quiz","drill"];
+const SPI=".kq,.qt,.exitem,.pbr,.wq48,.cn54,p,dd,tr,li,.card,.evb,.gline";
+const actOK=a=>scenes.some(p=>p.act===+a&&scOK(p));
+const SPSHOW=new Set();
 const spLock=p=>`<article class="lock56"><span class="lk56" aria-hidden="true">${folioSeal("?","e","lks")}</span><div><b>${sName(p)}</b><small>${esc(shortLoc(p))}</small><p>Read this scene to unlock its summary.</p></div></article>`;
 const spMore=(n,w)=>`<p class="more56">${n} ${w} after your place. Keep reading to unlock them.</p>`;
-document.addEventListener("click",e=>{const a=e.target.closest("[data-spshow]");if(a){SPSHOW.add(a.dataset.spshow);renderStudy();return}
-  if(e.target.closest("[data-spoff]")){LS.set("folio-spoil","show");toast("Showing everything. Turn hiding back on in Settings › App");renderStudy()}});
+function spItem(el,B,txt){for(const sel of SPI.split(",")){const c=(txt?el:el).closest(sel);if(c&&B.contains(c)&&c!==B&&!/^(qlnk|schip)$/.test(c.classList[0]||"")){return c}}
+  for(let c=el;c&&c!==B;c=c.parentElement){const d=getComputedStyle(c).display;if(!d.startsWith("inline")&&d!=="contents")return c}return null}
+function spRef(el){const d=el.dataset;let id=null,sc=null;const v=d.pv!=null?d.pv:d.speech;
+  if(v!=null){const a=String(v).split(":")[0];if(speech[a])id=a;else if(sIdx(a)>=0)sc=a}
+  if(d.go2)sc=d.go2;else if(d.go&&sIdx(d.go)>=0)sc=d.go;
+  const m=(d.to||"").match(/^(scene|speech):([^?]+)/);if(m){if(m[1]==="scene")sc=m[2];else id=m[2]}
+  return id!=null&&speech[id]?sIdx(speech[id].page):sc!=null?sIdx(sc):-1}
+function spFilter(){const B=$("sbody");if(!B||view!=="study")return;const key=SV?SV.k+":"+SV.x:toolNow();
+  if(!SPOIL()||allRead()||SPSHOW.has(key)||(!SV&&!SH&&SPTS.includes(S.stab)))return;const m=readIdx(),hid=new Set();
+  B.querySelectorAll("[data-pv],[data-speech],[data-go],[data-go2],[data-to^='scene:'],[data-to^='speech:']").forEach(el=>{if(el.closest(".spx56,.spbar56"))return;if(spRef(el)<=m)return;
+    const it=spItem(el,B);if(it)hid.add(it)});
+  /* text that names a later act ("Act V", "Acts III and IV") is hidden too */
+  const ma=scenes[m].act,tw=document.createTreeWalker(B,NodeFilter.SHOW_TEXT,{acceptNode:n=>/\bActs?\s/.test(n.nodeValue)?1:3});
+  for(let n;(n=tw.nextNode());){if(n.parentElement.closest(".spx56,.spbar56"))continue;const t=n.nodeValue.replace(/\bActs?\s+((?:[IVX]+|[1-5])(?:\s*(?:,|and|to|–|-|&)\s*(?:[IVX]+|[1-5]))*)/g,(x,g)=>" ¦"+g.split(/[^IVX1-5]+/).map(v=>/^\d$/.test(v)?+v:roman[v]||0).join("¦")+"¦");
+    const as=(t.match(/¦[\d¦]+/g)||[]).join("").split("¦").filter(Boolean).map(Number);if(as.some(a=>a>ma)){const it=spItem(n.parentElement,B,1);if(it)hid.add(it)}}
+  if(!hid.size)return;hid.forEach(it=>it.classList.add("spx56"));
+  const n=B.querySelectorAll(".spx56").length,bar=B.querySelector(".spbar56"),h=`${folioSeal("?","e","spbs")}<span><b>${n} item${n>1?"s":""} hidden</b><small>They come after your place (${sName(scenes[m])}).</small></span><button type="button" class="btn sm" data-spshow="${esc(key)}">Show</button>`;
+  if(bar)bar.innerHTML=h;else B.insertAdjacentHTML("afterbegin",`<div class="spbar56 noprint">${h}</div>`)}
+let spT=0;try{new MutationObserver(()=>{clearTimeout(spT);spT=setTimeout(spFilter,0)}).observe($("sbody"),{childList:true,subtree:true})}catch(e){}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-spshow]");if(!a)return;SPSHOW.add(a.dataset.spshow);const B=$("sbody");B.querySelectorAll(".spx56").forEach(x=>x.classList.remove("spx56"));const b=B.querySelector(".spbar56");if(b)b.remove()});
 /* "Related" footer under every Study section: links to the sections that follow on from it (kept in step by an observer, as sections re-render themselves) */
 function relList(){const T=k=>(TABS.find(x=>x[0]===k)||[,k])[1],W=w=>esc(title(w)),R=[],add=(sp,l)=>R.push([sp,l]);
   const who=w=>{if(!w)return;if(MAINS.includes(w))add("study:prof?who="+w,"Profile: "+W(w));if(whoQ(w))add("study:quotes?who="+w,"Key quotes: "+W(w));if(EX.analysis&&EX.analysis[w])add("study:explore:analysis?an="+w,"Analysis: "+W(w));if(MAINS.includes(w))add("study:part?who="+w,"Learn "+W(w)+"'s part")};
@@ -1205,7 +1221,6 @@ function renderStudy(){
   const tn=toolNow(),tp=SBACK?(SBACK.k==="topic"?SBACK.x:SBACK.k==="who"?"people":"themes"):topicOf(tn);TP=tp;SLAST=true;$("study").dataset.tp=tp;
   if(SBACK&&SBACK.k!=="topic")sHead("study:"+SBACK.k+":"+encodeURIComponent(SBACK.x),SBACK.k==="who"?title(SBACK.x):QUOTES.themes[SBACK.x][0],toolName(tn));
   else sHead("study:topic:"+tp,topicK(tp)[1],toolName(tn));
-  if(spGated(tn)){$("sbody").innerHTML=spGate(tn,toolName(tn));return}
   ({part:studyPart,review:studyReview,drill:studyDrill,desk:studyDesk,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
 }
 /* intros: one line shows; the full how-to opens from a ? (the first one in the header) */
@@ -1301,7 +1316,7 @@ function relSVG(act){const E=EX.rel[act],N=[...new Set(E.flatMap(e=>[e[0],e[1]])
   return `<div class="mapf"><svg class="chart rmap" viewBox="0 0 ${W} ${H}" role="img" aria-label="Character map for ${AN(+act)}"><defs>${relMk("ar")}</defs>${ed}${N.map(n=>relNode(n,P[n][0],P[n][1],S,wa)).join("")}</svg></div>
    ${relLegend()}<p class="muted" style="font-size:.875rem">Arrows point from the character who feels it to the one it is aimed at. Tap a medallion to open that character's page.</p>`}
 /* a character's own relationships across the play, them in the middle */
-function miniRel(w){if(!EX.rel)return "";const M=new Map();Object.values(EX.rel).forEach(es=>(es||[]).forEach(([a,b,k])=>{if(a===b||(a!==w&&b!==w))return;const o=a===w?b:a,key=o+"|"+(a===w?1:0);if(!M.has(key))M.set(key,[o,k,a===w])}));
+function miniRel(w){if(!EX.rel)return "";const M=new Map();Object.entries(EX.rel).filter(([a])=>actOK(a)).map(x=>x[1]).forEach(es=>(es||[]).forEach(([a,b,k])=>{if(a===b||(a!==w&&b!==w))return;const o=a===w?b:a,key=o+"|"+(a===w?1:0);if(!M.has(key))M.set(key,[o,k,a===w])}));
   const O=[...new Set([...M.values()].map(e=>e[0]))].slice(0,8);if(!O.length)return "";
   const E=[...M.values()].filter(e=>O.includes(e[0])),W=400,H=380,cx=200,cy=184,r=134,S=50,C=[cx,cy],P={},wa=whoAll();
   O.forEach((n,i)=>{const a=-Math.PI/2+(i+.5)*2*Math.PI/O.length;P[n]=[cx+r*Math.cos(a),cy+r*Math.sin(a)]});
@@ -1328,7 +1343,7 @@ function mapDiff(MA){const i=MA.indexOf(mapAct);if(i<1)return `<p class="muted m
 let mapAct=1;
 function arcSVG(){const W=360,H=214,L=30,T=12,B=36,n=scenes.length,x=i=>L+i*(W-L-10)/Math.max(1,n-1),y=v=>T+(10-v)*(H-T-B)/10,cols=["var(--t-story)","var(--t-practise)"];
   const pts=v=>v.map((a,i)=>f1(x(i))+","+f1(y(a))).join(" ");
-  const ls=Object.entries(EX.arc).map(([k,v],j)=>`<polygon class="afill" points="${f1(x(0))},${f1(y(0))} ${pts(v)} ${f1(x(v.length-1))},${f1(y(0))}" fill="${cols[j]}"/><polyline points="${pts(v)}" fill="none" stroke="${cols[j]}" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>`+v.map((a,i)=>{const d=scenes[i]&&prog.done[scenes[i].id];return `<circle cx="${f1(x(i))}" cy="${f1(y(a))}" r="${d?3.8:2.8}" fill="${d?cols[j]:"var(--card)"}" stroke="${cols[j]}" stroke-width="1.6"/>`}).join("")).join("");
+  const ls=Object.entries(EX.arc).map(([k,v0],j,_,v=v0.slice(0,allRead()?v0.length:readIdx()+1))=>`<polygon class="afill" points="${f1(x(0))},${f1(y(0))} ${pts(v)} ${f1(x(v.length-1))},${f1(y(0))}" fill="${cols[j]}"/><polyline points="${pts(v)}" fill="none" stroke="${cols[j]}" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>`+v.map((a,i)=>{const d=scenes[i]&&prog.done[scenes[i].id];return `<circle cx="${f1(x(i))}" cy="${f1(y(a))}" r="${d?3.8:2.8}" fill="${d?cols[j]:"var(--card)"}" stroke="${cols[j]}" stroke-width="1.6"/>`}).join("")).join("");
   const st=scenes.map((p,i)=>p.sc===1?i:-1).filter(i=>i>=0),near=(a,b)=>b!=null&&a!=null&&x(b)-x(a)<52;
   const bands=st.map((i,k)=>{if(!(k%2))return "";const a=i?(x(i)+x(i-1))/2:L,b=k<st.length-1?(x(st[k+1])+x(st[k+1]-1))/2:W-10;return `<rect class="aband" x="${f1(a)}" y="${T}" width="${f1(b-a)}" height="${H-T-B}"/>`}).join("");
   /* act labels: shorten to the numeral, then drop, when one-scene acts put them too close to the previous label */
@@ -1349,7 +1364,7 @@ function studyExplore(){
   const hereK=pos&&sIdx(pos.s)>=0?sIdx(pos.s):-1;
   if(exSel==="timeline"){let la=null;const TL=EX.timeline.map((e,i)=>[e,i]).filter(([e])=>readOK(e.id)&&scOK(scenes[sIdx(e.s)])),tmore=EX.timeline.length-TL.length;h=`<ol class="troad">`+TL.map(([e,i])=>{const p=scenes[sIdx(e.s)],gate=p&&p.act!==la?(la=p.act,`<li class="tgate">${folioPlate(LAT[p.act],p.act?R[p.act]:"",AN(p.act),"tgp")}</li>`):"";
     return gate+`<li class="tev">${folioSeal(String(i+1),p&&prog.done[p.id]?"":"e","tsl")}<small>${p?sName(p):""}</small><b>${esc(e.t)}</b>${spLine(e.id)}</li>`}).join("")+`</ol>`+(tmore?spMore(tmore,"more moments"):"")}
-  if(exSel==="map"){const MA=ACTS.filter(a=>EX.rel[a]);if(!MA.includes(mapAct))mapAct=MA[0];h=mapStep(MA)+relSVG(mapAct)+mapDiff(MA)}
+  if(exSel==="map"){const MA=ACTS.filter(a=>EX.rel[a]&&actOK(a));if(!MA.includes(mapAct))mapAct=MA[0];h=mapStep(MA)+relSVG(mapAct)+mapDiff(MA)}
   if(exSel==="iago"){const IG=EX.iago.filter(([s])=>scOK(scenes[sIdx(s)])),imore=EX.iago.length-IG.length;h=`<p class="intro">Steps are ticked once you've read past that scene.</p>`+IG.map(([s,st],i)=>{const k=sIdx(s),done=prog.done[s]||k<hereK;return `<div class="exitem"><span class="tick">${done?"✓":"○"}</span> <small>${sName(scenes[k])}</small><p style="margin-top:2px;color:var(--ink)">${i+1}. ${esc(st)}</p><div class="xrow">${toLink("scene:"+s,"Read "+sName(scenes[k]))}</div></div>`}).join("")+(imore?spMore(imore,"more steps"):"");}
   if(exSel==="arcs")h=arcSVG();
   if(exSel==="verse")h=verseExplore();
