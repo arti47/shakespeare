@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.44.0] — 2026-11-15
+
+### Added
+- Writing desk, Unpack: Big ideas tab, a bank of concepts to argue (a how, a why and a twist, each with key quotes from beginning, middle and end); ideas that fit the question come first, and Start from this idea fills the argument builder. Tragedies: 95 ideas written from the text across 12 plays (#158)
+
 ## [4.43.0] — 2026-11-15
 
 ### Added

@@ -2715,3 +2715,10 @@ body.wfocus38 .dspine{max-width:760px;margin:0 auto 12px}
 .qpraw{margin:0 0 12px;padding:10px 14px;border:1px dashed var(--accent);border-radius:var(--r-m)}.qpraw small{font:400 .875rem var(--f-sc);color:var(--accent)}.qpraw p{margin:4px 0 0;font:400 1.08rem/1.5 var(--f-body)}
 .qpg{margin:12px 0}.qpg small{display:block;margin-bottom:6px;font:400 .9rem var(--f-sc);color:var(--muted)}.qpg .row{display:flex;flex-wrap:wrap;gap:8px}
 .dqp42 .dtool{position:static}
+/* ---------- 4.44 Big ideas bank (Writing desk, Unpack) ---------- */
+.dbig{display:flex;flex-direction:column;gap:10px}
+.dbc{padding:12px 14px;border:1px solid var(--rule);border-left:4px solid color-mix(in srgb,var(--dk) 45%,var(--rule));border-radius:var(--r-m);background:var(--scard,var(--card))}
+.dbc.fit{border-left-color:var(--gold,#c98d2a);box-shadow:var(--lift)}
+.dbch{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px}.dbch b{font:400 1.08rem var(--f-sc);color:var(--dk)}.dbch em{font:400 .875rem var(--f-sc);color:var(--ink);font-style:normal;padding:1px 8px;border-radius:var(--pill);background:color-mix(in srgb,var(--gold,#c98d2a) 30%,transparent)}
+.dbc p{margin:6px 0 8px;font:400 1rem/1.5 var(--f-body)}.dbc .bw{color:var(--ink)}.dbc .bu{color:var(--muted)}
+.dbq{display:flex;flex-direction:column;gap:4px;margin:0 0 8px;font:italic 400 .95rem/1.4 var(--f-body)}.dbq span{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}.dbq .schip{font-style:normal}
