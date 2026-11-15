@@ -2590,3 +2590,80 @@ body.wfocus38 .dtool{top:calc(6px + env(safe-area-inset-top,0px))}
   .dtool{top:58px;padding:6px 8px}.dtool .btn.sm{min-height:36px}
 }
 @media (max-width:400px){.drib button span{font-size:.875rem;letter-spacing:0}.drib i{display:none}.drib button[aria-current="step"] span{font-weight:600}}
+/* ---------- 4.42 Essay craft (Writing desk): board select, bookmark stage ribbon, essay spine, ruled paper sheets with margin labels, Decode, thesis builder, lens, frames, exam bar ---------- */
+.dsets{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dbrd{min-height:40px;padding:4px 30px 4px 12px;border:var(--line) solid var(--rule-strong);border-radius:var(--pill);background:var(--scard,var(--card));color:var(--ink);font:400 .95rem var(--f-sc);letter-spacing:.03em}
+/* stage ribbon as bookmarks */
+.drib{gap:6px;padding:0 6px;border-bottom:0;background:linear-gradient(var(--page) 0 100%);box-shadow:inset 0 2px 0 var(--dk)}
+.drib button{border-radius:0;padding:8px 2px 16px;min-height:60px;background:color-mix(in srgb,var(--dk) 9%,var(--scard,var(--card)));clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 9px),0 100%);transition:padding .15s}
+.drib button.done{background:color-mix(in srgb,var(--dk) 22%,var(--scard,var(--card)));color:var(--ink)}
+.drib button[aria-current="step"]{background:var(--dk);color:var(--page);padding-bottom:22px}
+.drib button[aria-current="step"] i{background:var(--page);color:var(--dk);border-color:var(--page)}
+/* essay spine */
+.dspine{display:flex;align-items:center;margin:0 0 12px;padding:8px 10px;border:1px solid var(--rule);border-radius:var(--pill);background:var(--scard,var(--card))}
+.dsn{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:44px;min-height:44px;padding:0;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.dsn b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px dashed currentColor;font:600 .875rem var(--f-ui)}
+.dsn small{font:400 .875rem var(--f-sc);line-height:1.1}
+.dsn.s1{color:var(--ink)}.dsn.s1 b{border-style:solid}
+.dsn.s2{color:var(--ink)}.dsn.s2 b{border:0;background:var(--dk);color:var(--page)}
+.dsn.th b{box-shadow:0 0 0 3px color-mix(in srgb,var(--gold,#c98d2a) 55%,transparent)}
+.dsl{flex:1;height:2px;min-width:6px;margin:0 2px 18px;background:var(--rule)}.dsl.th{height:3px;background:var(--gold,#c98d2a)}
+/* ruled paper sheet, margin labels */
+.sheet42{position:relative;margin:0 0 14px;padding:12px 14px 14px 18px;border:1px solid var(--rule);border-radius:3px;background:var(--scard,var(--card));box-shadow:0 10px 24px -18px rgba(0,0,0,.45)}
+.sheet42::before{content:"";position:absolute;top:0;bottom:0;left:9px;border-left:3px double color-mix(in srgb,var(--accent) 45%,transparent);pointer-events:none}
+.sheet42 .dh{margin:0 0 6px}
+.dslot{margin:0 0 8px}
+.dslot label{display:block;margin:6px 0 0;font:400 .9rem var(--f-sc);letter-spacing:.04em;color:var(--accent)}
+.dslot label small{display:block;font:400 .875rem var(--f-ui);letter-spacing:0;color:var(--muted)}
+.desk38 .sheet42 textarea{display:block;padding:2px 6px 0;border:0;border-radius:0;background:repeating-linear-gradient(to bottom,transparent 0 27px,color-mix(in srgb,var(--fci-b) 28%,var(--rule)) 27px 28px);background-attachment:local;font:400 1.05rem/28px var(--f-body);resize:none;overflow:hidden;min-height:58px;box-shadow:none}
+.desk38 .sheet42 textarea[rows="1"]{min-height:30px}
+.dthc li.no{border-radius:14px;flex-wrap:wrap}
+.desk38 .sheet42 textarea:focus{outline:2px solid color-mix(in srgb,var(--dk) 45%,transparent);outline-offset:2px}
+.dph{margin:14px 0 2px;padding-top:8px;border-top:1px dashed var(--rule);font:400 1rem/1.4 var(--f-body)}.dph b{font:400 1rem var(--f-sc);color:var(--dk);margin-right:6px}
+.dslot.s-o label,.dslot.s-u label,.dslot.s-s label{color:var(--muted)}
+/* decode */
+.dtoks{margin:4px 0 8px;font:500 1.15rem/2 var(--f-body)}
+.dtok{display:inline;padding:2px 3px;border:0;border-radius:3px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.dtok:hover{background:color-mix(in srgb,var(--dk) 10%,transparent)}
+.dtok.on{outline:2px solid var(--dk);outline-offset:0;background:color-mix(in srgb,var(--dk) 12%,transparent)}
+.dtok.c{text-decoration:underline 3px var(--accent);text-underline-offset:4px;cursor:default}
+.dfw{margin:0 0 6px;font:400 1rem var(--f-body)}.dfw small{font:400 .875rem var(--f-sc);color:var(--dk);margin-right:4px}
+/* thesis builder */
+.dthp{margin:8px 0;padding:10px 12px;border-left:4px solid var(--dk);background:color-mix(in srgb,var(--dk) 6%,transparent);font:italic 400 1.08rem/1.5 var(--f-body)}
+.dthc{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 6px;padding:0;list-style:none}
+.dthc li{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--pill);border:1px solid var(--rule);font-size:.9rem}
+.dthc li i{font-style:normal;font-weight:700}.dthc li small{display:none}
+.dthc li.ok{border-color:var(--fci-g);background:color-mix(in srgb,var(--fci-g) 12%,transparent)}.dthc li.ok i{color:var(--fci-g)}
+.dthc li.no small{display:inline;color:var(--muted);font-size:.875rem}
+.dtbf{min-height:40px;font-size:.95rem}
+.dbfmt{margin:0 0 10px;font:400 1rem/1.45 var(--f-body)}.dbfmt b{font:400 .95rem var(--f-sc);color:var(--dk);margin-right:4px}
+/* board panel */
+.dbinfo{margin:0 0 12px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--dk) 30%,var(--rule));border-radius:var(--r-m)}
+.dbinfo h4{margin:0 0 6px;font:400 1rem var(--f-sc);color:var(--dk)}.dbinfo p{margin:0 0 6px;font:400 1rem/1.45 var(--f-body)}.dbinfo .dbao{font:400 .9rem var(--f-ui);color:var(--ink)}
+.dsplit{display:flex;gap:3px;margin:8px 0 6px}.dsplit span{padding:6px 8px;border-radius:4px;background:color-mix(in srgb,var(--dk) 14%,transparent);font:400 .875rem var(--f-ui);white-space:nowrap;overflow:hidden}.dsplit span:nth-child(2){background:var(--dk);color:var(--page)}.dsplit b{font-weight:600}
+/* lens */
+.dlk{margin:0 0 6px}.dlk .chip[aria-pressed="true"],.dfr42 .chip[aria-pressed="true"]{background:var(--dk);border-color:var(--dk);color:var(--page)}
+.dlc{margin:0 0 10px;padding:10px 12px;border:1px solid var(--rule);border-radius:var(--r-m)}.dlc b{display:block;font:400 .95rem var(--f-sc);color:var(--dk)}.dlc small{display:block;color:var(--muted);font-size:.9rem}.dlc p{margin:6px 0;font:italic 400 1rem/1.45 var(--f-body)}.dlc .chip{margin-top:6px}
+.dcrs>small{display:block;margin:8px 0 4px;font:400 .875rem var(--f-sc);color:var(--muted)}
+.dcr{margin:0 0 8px;padding:8px 12px;border-left:3px solid var(--fci-v);font:400 .95rem/1.45 var(--f-body)}.dcr b{display:block;font:400 .875rem var(--f-sc)}.dcr .chip{margin-top:6px;min-height:36px}
+/* frames + exam bar */
+.dfr42{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px}.dfr42 small{font:400 .875rem var(--f-sc);color:var(--muted)}
+.dfrn{margin:-4px 0 10px;font-size:.9rem}
+.dpbar{position:relative;flex:1 1 100%;order:9;height:8px;border-radius:4px;background:var(--rule);overflow:hidden}
+.dpbar i{position:absolute;inset:0 auto 0 0;width:calc(var(--f,0) * 100%);background:var(--dk);transition:width .3s}
+.dpbar b{position:absolute;top:0;bottom:0;left:calc(var(--t,0) * 100%);width:2px;background:var(--ink)}.dpbar b.t2{left:calc(var(--t2,0) * 100%)}
+.dpbar.time i{background:linear-gradient(90deg,var(--fci-b),var(--dk))}
+@media (min-width:760px){
+  .dslot{display:grid;grid-template-columns:112px minmax(0,1fr);gap:0 12px;align-items:start}
+  .dslot label{margin:4px 0 0;text-align:right}
+  .sheet42{padding-left:140px}.sheet42::before{left:128px}
+  .sheet42 .dslot{margin-left:-128px}
+}
+@media (max-width:759px){
+  .drib button{min-height:48px;padding:6px 2px 14px}.drib button[aria-current="step"]{padding-bottom:18px}
+  .dspine{padding:6px;margin-bottom:8px}.dsn small{display:none}.dsn{min-width:40px}.dsl{margin-bottom:0}
+  .desk38 .dtop{flex-wrap:wrap}.dback{white-space:nowrap}.dsets{gap:6px}.dbrd{min-height:34px;font-size:.875rem;padding:2px 26px 2px 10px}
+}
+@media (prefers-reduced-motion:reduce){.drib button,.dpbar i{transition:none}}
+@media print{.sheet42{box-shadow:none;border:0}.sheet42::before{display:none}.desk38 .sheet42 textarea{background:none}.dspine,.dfr42,.dpbar{display:none!important}}
+body.wfocus38 .dspine{max-width:760px;margin:0 auto 12px}
