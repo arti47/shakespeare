@@ -2978,3 +2978,19 @@ details.dchk{padding:0 14px}details.dchk summary{min-height:44px;display:flex;al
 /* print: a two-column A4 organiser */
 @media print{@page{margin:12mm}.rv53{font-size:10pt}.rvsh,.rva53{break-after:avoid}.rvrh{display:flex}.rvgrid{columns:2;column-gap:8mm}.rvs53{display:block;border:0;box-shadow:none;background:none;break-inside:auto;margin:0 0 4mm}.rvsh{min-height:0;padding:2mm 0;background:none;border-bottom:1.5pt solid #000!important}.rvsh i,.rvem,.rvgc53,.rvqf54,.rqg,.rvtest,.rib54,.rvmap54{display:none!important}.rvsb{display:block!important;padding:1mm 0}.cvr .cv{filter:none}.cn54,.rq54,.rvnr,.rva53{break-inside:avoid}.cn54{padding:1.5mm 0}.rvg53 summary{min-height:0}.rvg53 summary .cbar{display:none}.nt p,.rqt{font-size:10pt;line-height:1.35}.rv-prog{display:none}.rv-themes{break-before:column}}
 .rvidx53 button[data-rvj]::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--tc)}
+
+/* ===== 4.56 "No spoilers": cover for whole-play pages, locked scenes, quote card original ===== */
+.spg56{max-width:520px;margin:24px auto;padding:24px 20px;text-align:center;border:var(--line,1px) solid var(--rule);border-radius:14px;background:var(--card)}
+.spg56 .spgs{width:64px;height:64px;display:block;margin:0 auto 8px}
+.spg56 h3{margin:0 0 6px;font:400 1.4rem var(--f-sc);color:var(--accent)}
+.spg56 p{margin:0 0 14px}
+.spg56 .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:10px}
+.lock56{display:flex;gap:12px;align-items:center;margin:14px 0;padding:14px;border:1px dashed var(--rule-strong);border-radius:12px;color:var(--muted)}
+.lock56 .lks{width:44px;height:44px;flex:none;display:block}
+.lock56 b{display:block;color:var(--ink);font:400 1.05rem var(--f-body)}
+.lock56 small{display:block}
+.lock56 p{margin:4px 0 0}
+.more56{margin:16px 0;padding:10px 14px;border-left:3px solid var(--rule-strong);color:var(--muted);font-style:italic}
+.qsl.spl56{opacity:.45}
+.card .cmod.corig{border-left-color:var(--rule-strong);background:var(--card)}
+.card .cmod.corig p{font-family:var(--f-old)}
