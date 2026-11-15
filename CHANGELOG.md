@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.45.0] — 2026-11-15
+
+### Added
+- Writing desk, Big ideas for the comedies: 111 concepts written from the text across 14 plays, each a how, a why and a twist with key quotes from beginning, middle and end (#159)
+
 ## [4.44.0] — 2026-11-15
 
 ### Added
