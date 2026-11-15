@@ -623,6 +623,7 @@ body{font-family:var(--f-body)}
   <span class="lbl">Last 15 weeks</span>
   <div class="heat" id="heat" aria-label="Days read"></div>
   <div class="sec"><h3>Your plays</h3><div class="pseals" id="pseals"></div></div>
+  <div class="sec" id="essec" hidden><h3>Your essays</h3><p>Every Writing desk, across the plays: essays started, marked and your best mark.</p><div class="pseals" id="essays"></div></div>
   <div class="sec">
     <h3>App mode</h3>
     <p>For every play. You can switch at any time; nothing you have saved changes.</p>
@@ -874,6 +875,13 @@ function renderYou(){
   /* 4.3: a shelf of seals per begun play */
   const bp=PLAYS.map(p=>[p,J("folio-stat-"+p.id),folioSealsOf(J(p.prefix+"prog"))]).filter(x=>x[1]||x[2]).sort((a,b)=>((b[1]&&b[1].t)||0)-((a[1]&&a[1].t)||0));
   $("pseals").innerHTML=bp.length?bp.map(([p,st,k])=>`<a class="psrow" href="${p.id}/#map" data-play="${p.id}"><span class="gthumb" style="--c:${p.c}" aria-hidden="true">${emblemSVG(p.id,"gte")||""}</span><span class="psm"><b>${esc(p.title)}</b><small>${st?Math.round(st.pct)+"% read · ":""}${k} seal${k===1?"":"s"}</small><span class="psl" aria-hidden="true">${Array.from({length:Math.min(k,12)},(_,i)=>folioSeal("","","ps1")).join("")}${k>12?`<em>+${k-12}</em>`:""}</span></span></a>`).join(""):`<p class="hint">Begin a play and its seals gather here.</p>`;
+  /* 4.47: essays per play from each <prefix>desk (Writing desk); hidden in Simple, like Write */
+  const wds=t=>(String(t||"").match(/[A-Za-z’'-]+/g)||[]).length;
+  const es=PLAYS.map(p=>{const D=J(p.prefix+"desk")||{},E=D.e||{},H=D.h||{},st=Object.keys(E).filter(i=>{const e=E[i]||{};return wds([e.i,...(e.p||[]),e.c].join(" "))>0}).length;
+    const hs=Object.values(H).flat().filter(h=>Array.isArray(h)&&h[2]>0),best=hs.length?Math.max(...hs.map(h=>Math.round(h[1]/h[2]*100))):0,ts=Math.max(0,...Object.values(D.ts||{}).map(Number).filter(Boolean));
+    return [p,st,Object.values(H).filter(h=>Array.isArray(h)&&h.length).length,best,ts]}).filter(x=>x[1]||x[2]).sort((a,b)=>b[4]-a[4]);
+  $("essec").hidden=folioSimple()||!es.length;
+  $("essays").innerHTML=es.map(([p,st,mk,best])=>`<a class="psrow" href="${p.id}/#study=desk" data-play="${p.id}"><span class="gthumb" style="--c:${p.c}" aria-hidden="true">${emblemSVG(p.id,"gte")||""}</span><span class="psm"><b>${esc(p.title)}</b><small>${st} essay${st===1?"":"s"} started · ${mk} marked${best?` · best ${best}%`:""}</small></span></a>`).join("");
   document.querySelectorAll("#modes [data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===folioMode()));
   const bk=+LS.get("folio-lastbk");$("bksum").textContent=bk?"Last saved "+ago(bk)+".":"Not saved yet.";
   renderTheme();
