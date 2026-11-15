@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.55.2] — 2026-11-15
 
 ### Fixed
-- Daily review count no longer goes up while you review: a quote or question you get wrong now comes back from tomorrow (and in the round's Look again list) instead of being due again at once, which added a new item to today's count (#PR)
+- Daily review count no longer goes up while you review: a quote or question you get wrong now comes back from tomorrow (and in the round's Look again list) instead of being due again at once, which added a new item to today's count (#171)
 
 ## [4.55.1] — 2026-11-15
 
