@@ -7,8 +7,8 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.56.1] — 2026-11-15
 
 ### Changed
-- No spoilers, smarter: whole-play pages (characters, themes, context, critics, key facts, Revision notes, the Writing desk…) no longer sit behind a cover; they open as usual and hide only the items that point past your place (a quote, a line, a scene or a later act), with one bar at the top that counts them and can show them (#PR)
-- The character map, the two-line chart and a character's relationships stop at the act you have reached (#PR)
+- No spoilers, smarter: whole-play pages (characters, themes, context, critics, key facts, Revision notes, the Writing desk…) no longer sit behind a cover; they open as usual and hide only the items that point past your place (a quote, a line, a scene or a later act), with one bar at the top that counts them and can show them (#173)
+- The character map, the two-line chart and a character's relationships stop at the act you have reached (#173)
 
 ## [4.56.0] — 2026-11-15
 
