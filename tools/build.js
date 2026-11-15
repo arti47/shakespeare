@@ -104,6 +104,13 @@ for (const p of PLAYS) {
     if (!Array.isArray(m) || m.length < 5 || m.length > 6 || !okQ(m[0]) || !m.slice(1).every(s => typeof s === "string" && s)) throw new Error(`${f}: EX.models[${i}] needs [quote, point, method, effect, context(, alternative)]`);
     if (!o || typeof o.th !== "string" || !o.th || !Array.isArray(o.s) || o.s.length !== 3 || !o.s.every(s => typeof s === "string" && s) || typeof o.c !== "string" || !o.c) throw new Error(`${f}: EX.outl[${i}] needs {th, s:[3], c}`);
   });
+  /* 4.46 big ideas: 6-10 per play, [title, how, why, twist, 2-3 quote indexes]. */
+  const XB = EX.big;
+  if (!Array.isArray(XB) || XB.length < 6 || XB.length > 10) throw new Error(`${f}: EX.big needs 6-10 big ideas`);
+  XB.forEach((b, i) => {
+    if (!Array.isArray(b) || b.length !== 5 || !b.slice(0, 4).every(s => typeof s === "string" && s.trim()) || !/^Shakespeare presents /.test(b[1])) throw new Error(`${f}: EX.big[${i}] needs [title, "Shakespeare presents …", why, twist, quotes]`);
+    if (!Array.isArray(b[4]) || b[4].length < 2 || b[4].length > 3 || !b[4].every(okQ) || new Set(b[4]).size !== b[4].length) throw new Error(`${f}: EX.big[${i}] needs 2-3 distinct quote indexes`);
+  });
   const PAUL = ["purpose", "question", "information", "inference", "concept", "assumption", "implication", "view"];
   /* 4.24 quiz options: 4 distinct options, and the right answer is the unique longest in at most 30% of questions. */
   const QZ = Object.entries(constJSON(rd(f), "STUDY", f).scenes || {}).flatMap(([s, v]) => (v.quiz || []).map((q, i) => [s + "." + i, q]));
