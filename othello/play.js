@@ -1,6 +1,7 @@
 // Othello: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "othello",
+ "genre": "Tragedies",
  "prefix": "oth-",
  "app": "othello-reader",
  "title": "Othello",

@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1503 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "richard-iii",
+ "genre": "Histories",
  "prefix": "riii-",
  "app": "richard-iii-reader",
  "title": "Richard III",

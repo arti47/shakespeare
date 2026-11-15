@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1133 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "cymbeline",
+ "genre": "Tragedies",
  "prefix": "cym-",
  "app": "cymbeline-reader",
  "title": "Cymbeline",

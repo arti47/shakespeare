@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1528 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "troilus-and-cressida",
+ "genre": "Tragedies",
  "prefix": "tc-",
  "app": "troilus-and-cressida-reader",
  "title": "Troilus and Cressida",

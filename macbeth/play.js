@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1533 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "macbeth",
+ "genre": "Tragedies",
  "prefix": "mac-",
  "app": "macbeth-reader",
  "title": "Macbeth",

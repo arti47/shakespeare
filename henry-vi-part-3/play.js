@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1502 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "henry-vi-part-3",
+ "genre": "Histories",
  "prefix": "3h6-",
  "app": "henry-vi-part-3-reader",
  "title": "Henry VI, Part 3",

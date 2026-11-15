@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1517 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "merry-wives",
+ "genre": "Comedies",
  "prefix": "wiv-",
  "app": "merry-wives-reader",
  "title": "The Merry Wives of Windsor",

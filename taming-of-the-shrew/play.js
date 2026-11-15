@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1508 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "taming-of-the-shrew",
+ "genre": "Comedies",
  "prefix": "tos-",
  "app": "taming-of-the-shrew-reader",
  "title": "The Taming of the Shrew",

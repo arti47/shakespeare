@@ -1,6 +1,7 @@
 // All's Well That Ends Well: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "alls-well",
+ "genre": "Comedies",
  "prefix": "aww-",
  "app": "alls-well-reader",
  "title": "All's Well That Ends Well",

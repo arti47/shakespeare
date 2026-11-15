@@ -1,6 +1,7 @@
 // Much Ado About Nothing: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "much-ado",
+ "genre": "Comedies",
  "prefix": "ado-",
  "app": "ado-reader",
  "title": "Much Ado About Nothing",

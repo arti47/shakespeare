@@ -53,6 +53,7 @@ const PLAYS = constJSON(index, "PLAYS", "index.html");
 const SHELL = rd("tools/play.html");
 for (const p of PLAYS) {
   const f = p.id + "/play.js", js = rd(f), CFG = constJSON(js, "CFG", f), EX = constJSON(js, "EX", f);
+  if (CFG.genre !== p.group) throw new Error(`${f}: CFG.genre must be "${p.group}" (its PLAYS group)`);
   if (CFG.id !== p.id) throw new Error(`${f}: CFG.id ${CFG.id} != ${p.id}`);
   const tp = (CFG.pre ? `    <div class="pre">${CFG.pre}</div>\n` : "") + `    <h1>${CFG.h1}</h1>\n    <div class="post">${CFG.post}</div>\n`;
   const v = { TITLE: CFG.title, CSS: CFG.css || "", TP: tp, EG: CFG.searchEg, N: String(EX.timeline.length) };

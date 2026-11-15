@@ -1,6 +1,7 @@
 // Twelfth Night: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "twelfth-night",
+ "genre": "Comedies",
  "prefix": "tn-",
  "app": "tn-reader",
  "title": "Twelfth Night",

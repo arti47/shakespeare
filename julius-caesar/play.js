@@ -1,6 +1,7 @@
 // Julius Caesar: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "julius-caesar",
+ "genre": "Tragedies",
  "prefix": "jc-",
  "app": "julius-caesar-reader",
  "title": "Julius Caesar",

@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1507 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "titus-andronicus",
+ "genre": "Tragedies",
  "prefix": "ta-",
  "app": "titus-andronicus-reader",
  "title": "Titus Andronicus",

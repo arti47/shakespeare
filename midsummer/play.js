@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1514 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "midsummer",
+ "genre": "Comedies",
  "prefix": "mnd-",
  "app": "midsummer-reader",
  "title": "A Midsummer Night's Dream",

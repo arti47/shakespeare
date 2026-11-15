@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1521 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "henry-v",
+ "genre": "Histories",
  "prefix": "h5-",
  "app": "henry-v-reader",
  "title": "Henry V",

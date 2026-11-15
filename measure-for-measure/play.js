@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1530 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "measure-for-measure",
+ "genre": "Comedies",
  "prefix": "mfm-",
  "app": "measure-for-measure-reader",
  "title": "Measure for Measure",
