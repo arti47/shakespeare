@@ -7,7 +7,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 ## [4.46.0] — 2026-11-15
 
 ### Added
-- Writing desk, Big ideas for the histories: 316 concepts written from the text across 10 plays; every play now has big ideas, and the build checks them (#160)
+- Writing desk, Big ideas for the histories: 79 concepts written from the text across 10 plays; every play now has big ideas, and the build checks them (#160)
 
 ## [4.45.0] — 2026-11-15
 
