@@ -1769,6 +1769,8 @@ function dqChecks(i){const E=dqEss(i),t=dqText(E),w=dqWords(t),L=aoLevel(),lo=t.
   R.push([ctx>=1,"Context",ctx?`${ctx} mention${ctx===1?"":"s"}.`:"Link a point to the audience or ideas of the time."]);
   R.push([ech(E.i)>=1&&ech(E.c)>=1,"Question kept in view",`Key words in your introduction: ${ech(E.i)}, conclusion: ${ech(E.c)}.`]);
   if(L==="a")R.push([crit>=2,"Other readings (AO5)",crit?`${crit} mention${crit===1?"":"s"}.`:"Bring in a critic or another reading."]);
+  {const sh=dqShows(t),vb=dqVerbs(t),cn=dqCons(t);R.push([vb.length>=2&&sh<=2,"Analytical verbs",`${vb.length} different${vb.length?" ("+esc(vb.slice(0,4).join(", "))+")":""}.${sh>2?` “Shows” ×${sh}: swap some.`:vb.length<2?" Try suggests, conveys, exposes …":""}`]);
+   R.push([cn.length>=1,"Concept words",cn.length?esc(cn.slice(0,4).join(", ")):`Name the big idea: ${esc(dqCon().slice(0,3).join(", "))} …`])}
   return R}
 const DSTOP=new Set("how does shakespeare present presents what extent the and of in to a is as an by does his her their its play this that with for explore view consider".split(" "));
 /* extract questions: key words come from the task after "Starting with this extract", not the scene reference */
@@ -1863,7 +1865,7 @@ function dqSpine(i){const P=PLAN[i]||{},E=(DSK.e||{})[i]||{},pts=P.pts||[],tk=dq
 function dqBarHTML(E){const L=aoLevel(),tg=L==="a"?[700,1200]:[450,800],m=E.tl||45,run=E.t0&&Date.now()-E.t0<m*6e4,ex=run&&m>=40,[p,,c]=dqSplit(m);
   return `<span class="dpbar${run?" time":""}" id="dpbar" style="--f:${run?Math.min(1,(Date.now()-E.t0)/(m*6e4)):Math.min(1,dqWords(dqText(E))/tg[1])};--t:${run?(ex?p/m:0):tg[0]/tg[1]};--t2:${ex?(m-c)/m:0}" aria-hidden="true"><i></i>${run&&!ex?"":"<b></b>"}${ex?"<b class=\"t2\"></b>":""}</span>`}
 const dqStarts=()=>{const A=aoLevel()==="a",cr=A?dqCrit(DSK.cur||0).map(([,c])=>crShort(c[0])).filter(Boolean).map(n=>`As ${n} suggests, …`):[];
-  return [...DSTART.slice(0,3),["Deepen",["because …","but …","so …","So what? This matters because …"]],["Perspective",[...DLENS.map(x=>x[3]),...[...new Set(cr)].slice(0,2)]],...DSTART.slice(3)]};
+  return [...DSTART.slice(0,3),["Deepen",["because …","but …","so …","So what? This matters because …","Although …, …","This suggests … because …"]],["Perspective",[...DLENS.map(x=>x[3]),...[...new Set(cr)].slice(0,2)]],...DSTART.slice(3)]};
 /* ---------- 4.43 Annotation, Exam mode, Mark overlay, Quick practice.
    New fields only: XT.w[i]["id:line:word"]={m,n}; PLAN[i].pts[j].m (method), .k (key word); DSK.e[i].ex (exam running), qpl (exam plan), exr [[ts,words,mins,boardMins]];
    DSK.h rows may carry a 5th item (the target); DSK.qp[k]=[plays,spot on]. ---------- */
@@ -1892,12 +1894,12 @@ function dqOverlay(i){const E=dqEss(i),t=dqText(E),P=PLAN[i]||{};if(!t.trim())re
 function dqThread(i){const P=PLAN[i]||{},E=dqEss(i),ks=[...new Set([...dqKeys(P.th||""),...dqKeys(dqFocus(EX.examq[i][0]))])].filter(w=>!/^(shakespeare|presents?|shows?|because|which|through|audience|play)$/.test(w));
   return [0,1,2].map(j=>{const p=String(E.p[j]||"").trim();if(!p)return [false,`Paragraph ${j+1}: golden thread`,"Not written yet."];const ts=(p.match(/^[^.!?]+[.!?]?/)||[p])[0].toLowerCase(),hit=ks.filter(w=>ts.includes(w.slice(0,Math.max(4,w.length-2))));
     return [hit.length>0,`Paragraph ${j+1}: golden thread`,hit.length?`Opens on ${esc(hit.slice(0,3).join(", "))}.`:"The opening sentence does not link back to your argument or the question."]})}
-const DTGP=["Question kept in view","golden thread","quote","Whole play","Methods named","Quotes built into sentences","Short quotes","Tentative","Context","Other readings","words"];
+const DTGP=["Question kept in view","golden thread","quote","Whole play","Methods named","Quotes built into sentences","Short quotes","Tentative","Context","Other readings","Analytical verbs","Concept words","words"];
 function dqTarget(R){const no=R.filter(r=>!r[0]);if(!no.length)return null;for(const p of DTGP){const r=no.find(x=>x[1].includes(p));if(r)return r}return no[0]}
 /* Quick practice on the desk shelf: self-graded, logged to practice history; a miss puts the question's key quote into Daily review */
-const DQP=[["thesis","Thesis sprint","2 minutes: one argument sentence, then compare with the model",2],["plan","Five-minute plan","5 minutes: argument and three points, then compare with the model outline",5],["upgrade","Sentence upgrade","Turn a dropped-in quote into an analytical sentence",0]];
+const DQP=[["thesis","Thesis sprint","2 minutes: one argument sentence, then compare with the model",2],["plan","Five-minute plan","5 minutes: argument and three points, then compare with the model outline",5],["upgrade","Sentence upgrade","Turn a dropped-in quote into an analytical sentence",0],["although","Although …","Join a claim and its twist in one sentence",0],["appos","Appositive","Say who they are, between two commas",0],["expand","Expand it","Grow a kernel sentence: when, how and why",0],["warrant","Prove it","Say why your quote proves your point",0]];
 let dqQP="",qpS=null,dqMock=false;
-function qpNew(k){const N=EX.examq.length,ok=[...Array(N).keys()].filter(i=>(EX.models||[])[i]&&(k!=="plan"||(EX.outl||[])[i]));const i=ok[Math.floor(Math.random()*ok.length)];qpS={k,i,txt:{},t0:0,show:false,g:null}}
+function qpNew(k){const N=EX.examq.length,ok=[...Array(N).keys()].filter(i=>(EX.models||[])[i]&&(k!=="plan"||(EX.outl||[])[i]));const i=ok[Math.floor(Math.random()*ok.length)];qpS={k,i,txt:{},t0:0,show:false,g:null,b:(EX.big||[]).length?Math.floor(Math.random()*EX.big.length):0}}
 function qpHTML(){const D=DQP.find(x=>x[0]===dqQP);if(!D){dqQP="";return deskShelf()}
   if(!qpS||qpS.k!==dqQP)qpNew(dqQP);const S=qpS,i=S.i,Q=EX.examq[i],M=EX.models[i],O=(EX.outl||[])[i],q=QUOTES.quotes[M[0]],run=S.t0&&!S.show,P0={th:S.txt.th||"",dec:undefined};
   const nq=`<div class="dq"><span class="dty">${DQT[dqType(i)]}</span><p>${dqMark(Q[0])}</p></div>`,qp=(DSK.qp||{})[S.k]||[0,0];
@@ -1905,15 +1907,16 @@ function qpHTML(){const D=DQP.find(x=>x[0]===dqQP);if(!D){dqQP="";return deskShe
   if(!S.t0&&!S.show)body=`<div class="rule qprule"><p>${esc(D[2])}.</p>${D[3]?`<p class="muted">The clock starts when you tap Start. Done stops it.</p>`:""}<div class="row"><button class="btn primary" type="button" id="qp-go">Start</button><button class="btn" type="button" id="qp-new">Another question</button></div></div>`;
   else if(S.k==="thesis")body=`<div class="sheet42"><div class="dslot"><label for="qp-th">Argument</label><textarea id="qp-th" data-qpt="th" rows="3" placeholder="Shakespeare presents … as …, because …"${S.show?" readonly":""}>${esc(S.txt.th||"")}</textarea></div>${dqThChkHTML(i,P0)}</div>`;
   else if(S.k==="plan")body=`<div class="sheet42">${[["th","Argument","Shakespeare presents … as …, because …"],["s0",DPART[0],"Topic sentence"],["s1",DPART[1],"Topic sentence"],["s2",DPART[2],"Topic sentence"],["c","Conclusion","Your final judgement"]].map(([f,l,h])=>`<div class="dslot"><label for="qp-${f}">${l}</label><textarea id="qp-${f}" data-qpt="${f}" rows="2" placeholder="${esc(h)}"${S.show?" readonly":""}>${esc(S.txt[f]||"")}</textarea></div>`).join("")}</div>`;
+  else if(DQC[S.k])body=`<div class="qpraw">${DQC[S.k].p(S)}</div><div class="sheet42"><div class="dslot"><label for="qp-x">Your sentence</label><textarea id="qp-x" data-qpt="x" rows="3" placeholder="${esc(DQC[S.k].h)}"${S.show?" readonly":""}>${esc(S.txt.x||"")}</textarea></div><ul class="dthc" id="qpchk">${qpChkLis(DQC[S.k].c(S.txt.x||"",S))}</ul></div>`;
   else body=`<div class="qpraw"><small>Upgrade this sentence</small><p>${esc(title(speech[q.id].who))} says “${esc(q.text)}”.</p></div><div class="sheet42"><div class="dslot"><label for="qp-up">Your version</label><textarea id="qp-up" data-qpt="up" rows="4" placeholder="Embed the quote, name a method, then add because, but or so …"${S.show?" readonly":""}>${esc(S.txt.up||"")}</textarea></div><ul class="dthc" id="qpchk">${qpUpChk(S.txt.up||"").map(([ok,l])=>`<li class="${ok?"ok":"no"}"><i aria-hidden="true">${ok?"✓":"·"}</i><b>${l}</b></li>`).join("")}</ul></div>`;
   if(run)body+=`<div class="dnext"><button class="btn primary" type="button" id="qp-done">Done: compare</button></div>`;
-  if(S.show){const cmp=S.k==="thesis"?`<div class="doutl"><h4>Model argument</h4><p>${esc(O?O.th:M[1])}</p></div>`:S.k==="plan"?dqOutline(i):`<div class="doutl"><h4>Model</h4><p>${esc(M[2])} ${esc(M[3]||"")}</p></div>`;
+  if(S.show){const cmp=DQC[S.k]?`<div class="doutl"><h4>${DQC[S.k].ml||"Model"}</h4>${DQC[S.k].m(S)}</div>`:S.k==="thesis"?`<div class="doutl"><h4>Model argument</h4><p>${esc(O?O.th:M[1])}</p></div>`:S.k==="plan"?dqOutline(i):`<div class="doutl"><h4>Model</h4><p>${esc(M[2])} ${esc(M[3]||"")}</p></div>`;
     body+=cmp+(S.g==null?`<div class="qpg" role="group" aria-label="How close were you?"><small>How close were you?</small><div class="row"><button class="btn" type="button" data-qpg="2">Spot on</button><button class="btn" type="button" data-qpg="1">Close</button><button class="btn" type="button" data-qpg="0">Not yet</button></div></div>`
       :`<p class="muted">${S.g===0?"The key quote is now in your Daily review.":S.g===2?"Logged. Try a harder question next.":"Logged."}</p><div class="dnext"><button class="btn" type="button" data-qpopen="${i}">Open on the desk</button><button class="btn primary" type="button" id="qp-again">Next question ›</button></div>`)}
   $("sbody").innerHTML=`<div class="desk38 dqp42"><div class="dtop"><button type="button" class="link dback" data-dshelf="1">‹ All questions</button><span class="qpst">${esc(D[1])} · ${qp[0]} done</span></div>${nq}${run&&D[3]?`<div class="dtool"><span class="dtm" id="qptm">--:--</span><span class="dpbar" id="qpbar" style="--f:0"><i></i></span></div>`:""}${body}</div>`;
   const B=$("sbody");B.querySelectorAll("[data-dshelf]").forEach(b=>b.onclick=()=>{qpS=null;goStudy("desk")});
   B.querySelectorAll(".sheet42 textarea").forEach(t=>{const g=()=>{if(t.scrollHeight>0){t.style.height="auto";t.style.height=t.scrollHeight+2+"px"}};g();t.addEventListener("input",g)});
-  B.querySelectorAll("[data-qpt]").forEach(t=>t.oninput=()=>{S.txt[t.dataset.qpt]=t.value;if(S.k==="thesis"){const c=$("dthc");if(c)c.outerHTML=dqThChkHTML(i,{th:t.value})}if(S.k==="upgrade"){const c=$("qpchk");if(c)c.innerHTML=qpUpChk(t.value).map(([ok,l])=>`<li class="${ok?"ok":"no"}"><i aria-hidden="true">${ok?"✓":"·"}</i><b>${l}</b></li>`).join("")}});
+  B.querySelectorAll("[data-qpt]").forEach(t=>t.oninput=()=>{S.txt[t.dataset.qpt]=t.value;if(S.k==="thesis"){const c=$("dthc");if(c)c.outerHTML=dqThChkHTML(i,{th:t.value})}if(DQC[S.k]){const c=$("qpchk");if(c)c.innerHTML=qpChkLis(DQC[S.k].c(t.value,S))}if(S.k==="upgrade"){const c=$("qpchk");if(c)c.innerHTML=qpUpChk(t.value).map(([ok,l])=>`<li class="${ok?"ok":"no"}"><i aria-hidden="true">${ok?"✓":"·"}</i><b>${l}</b></li>`).join("")}});
   if($("qp-go"))$("qp-go").onclick=()=>{S.t0=Date.now();qpHTML();const t=B.querySelector("textarea");if(t)t.focus()};
   if($("qp-new"))$("qp-new").onclick=()=>{qpNew(S.k);qpHTML()};
   if($("qp-again"))$("qp-again").onclick=()=>{qpNew(S.k);qpHTML();scrollTo(0,0)};
@@ -1967,11 +1970,12 @@ function dqScript(i,fair){const E=dqEss(i),A=aoLevel()==="a",ks=dqKeys(EX.examq[
     if(body&&F.q&&!F.m)N.push("Name the method: image, verb, soliloquy, contrast …");
     if(body&&TH[+k[1]]&&!TH[+k[1]][0])N.push("Link the first sentence back to your argument.");
     if(body&&F.q&&!F.t)N.push("Explore: perhaps, suggests, could …");
+    if(dqShows(t)>=2)N.push("Swap “shows”: suggests, conveys, exposes …");
     const st=[F.q&&F.m?"AO2":"",F.c?"AO3":"",A&&F.cr?"AO5":""].filter(Boolean);
     return `<section class="ss47"><div class="sl47"><small>${l}</small></div><div class="st47"><p>${h}</p>${fair?"":N.slice(0,2).map(n=>`<button type="button" class="rn47" data-dspn="${k}">${n}</button>`).join("")}${!fair&&!N.length&&body?`<span class="gn47">Well built: quote, method, link.</span>`:""}</div>
      <div class="sm47" aria-label="Margin">${"<i class=\"tk47\">✓</i>".repeat(Math.min(3,F.q-F.long))}${st.map(s=>`<b class="ao47">${s}</b>`).join("")}</div></section>`}).join("")}</div>`}
 /* AO summary: the app's checks grouped by objective, a ring each; the full list folds away */
-const DAOG=[["AO1","Argument",/words$|found in the play|not found|Whole play|Question kept|golden thread/],["AO2","Methods",/Short quotes|built into|Methods named|Tentative/],["AO3","Context",/^Context/],["AO5","Other readings",/Other readings/]];
+const DAOG=[["AO1","Argument",/words$|found in the play|not found|Whole play|Question kept|golden thread|Concept words/],["AO2","Methods",/Short quotes|built into|Methods named|Tentative|Analytical verbs/],["AO3","Context",/^Context/],["AO5","Other readings",/Other readings/]];
 function dqAOSum(R){const G=DAOG.map(([a,l,re])=>[a,l,R.filter(r=>re.test(r[1]))]).filter(g=>g[2].length),ok=R.filter(r=>r[0]).length;
   return `<div class="aos47">${G.map(([a,l,rs])=>{const n=rs.filter(r=>r[0]).length;return `<div class="aog47">${hring(n/rs.length,`<b>${n}/${rs.length}</b>`)}<span><b>${a}</b><small>${l}</small></span></div>`}).join("")}</div>
    <details class="fold dchk"><summary>All the app’s checks · ${ok} of ${R.length} met</summary><ul>${R.map(([o,l,t])=>`<li class="${o?"ok":"no"}"><i aria-hidden="true">${o?"✓":"!"}</i><span><b>${esc(l)}</b><small>${t}</small></span></li>`).join("")}</ul><p class="muted">Counted from your text, offline. The judgement is still yours: tick below.</p></details>`}
@@ -1985,7 +1989,7 @@ function dqFairHTML(i){const E=dqEss(i),w=dqWords(dqText(E)),b=dqBest(i);
 /* phones: Unpack sections and Write sections open one at a time; a starter bar sits on the keyboard */
 function dqSteps(i,P,E,k,B){if(!dqPhone())return;
   if(k==="u"){const secs=[...B.querySelectorAll(".dwork > .sheet42, .dwork > .dlens42")].filter(s=>s.querySelector(".dh"));
-    const dn=[dqDec(i,P).length>0,!!String(P.th||"").trim(),!!(P.lk||Object.values(P.lens||{}).some(v=>String(v).trim())),P.pts.filter(pt=>String(pt.p||"").trim()).length>=2];
+    const dn=[dqDec(i,P).length>0,!!String(P.th||"").trim(),!!(P.lk||Object.values(P.lens||{}).some(v=>String(v).trim())),P.pts.filter(pt=>String(pt.p||"").trim()).length>=2,!!String((P.stm||{}).c||"").trim()||!!((P.tug||{}).f||[]).length];
     if(dqUO[i]==null){const f=dn.findIndex(x=>!x);dqUO[i]=f<0?-1:f}
     const paint=()=>secs.forEach((s,j)=>{s.classList.add("acc47");s.classList.toggle("shut",dqUO[i]!==j);s.classList.toggle("dn",!!dn[j])});
     secs.forEach((s,j)=>{const h=s.querySelector(".dh");h.setAttribute("role","button");h.tabIndex=0;h.setAttribute("aria-expanded",dqUO[i]===j);
@@ -2051,6 +2055,52 @@ function dqMockHTML(){const m=dqMins(),[p,w,c]=dqSplit(m),M=dqMocks();
     <div class="row"><button class="btn primary" type="button" id="mk-go">Start the mock</button></div>${M.length?`<p class="muted">${M.length} mock${M.length===1?"":"s"} done · last ${dqAgo(M.sort((a,b)=>b[0]-a[0])[0][0])}, ${M[0][1]} words in ${M[0][2]} min</p>`:""}</div></div>`;
   dqWireLevel();$("sbody").querySelectorAll("[data-dshelf]").forEach(b=>b.onclick=()=>{dqMock=false;goStudy("desk")});
   $("mk-go").onclick=()=>{const q=dqMockPick(),E=dqEss(q);DSK.cur=q;E.t0=Date.now();E.tl=dqMins();E.ex=1;E.mk=1;E.rd=null;(DSK.st=DSK.st||{})[q]=2;DSK.pane="work";dqMock=false;saveDSK();toast(`Mock paper: ${E.tl} minutes. Plan first.`);goStudy("desk",String(q))}}
+/* ---------- 4.49 Sentence craft, vocabulary lens, thinking routines (Writing desk).
+   New fields only: PLAN[i].stm {c,r} (steelman), PLAN[i].tug {f:[],a:[],v} (tug of war), XT.z[i] (zoom-in notes per line); DSK.qp keys although|appos|expand|warrant. Session only: dqZm (zoom step). ---------- */
+const DVERB=["suggests","implies","conveys","reveals","exposes","evokes","emphasises","foreshadows","undermines","reinforces","hints","questions","challenges","mocks"];
+const DCON={Tragedies:["tragic hero","hamartia","hubris","catharsis","downfall","fate","free will","order and chaos","patriarchy","dramatic irony","the supernatural","nemesis"],
+  Comedies:["mistaken identity","disguise","festive","green world","misrule","resolution","marriage","patriarchy","wit","dramatic irony","order","reconciliation"],
+  Histories:["divine right","legitimacy","usurpation","kingship","providence","rebellion","honour","order and chaos","propaganda","dramatic irony","patriarchy","the body politic"]};
+const dqCon=()=>[...new Set([...(DCON[CFG.genre]||DCON.Tragedies),...Object.values(QUOTES.themes||{}).map(t=>String(t[0]).toLowerCase()).filter(t=>t.split(" ").length<=3)])];
+const dqShows=t=>(String(t).match(/\bshows?\b/gi)||[]).length;
+const dqVerbs=t=>{const lo=String(t).toLowerCase();return DVERB.filter(v=>new RegExp("\\b"+v.replace(/s$/,"")+"(s|es|ed|ing)?\\b").test(lo))};
+const dqCons=t=>{const lo=String(t).toLowerCase();return dqCon().filter(c=>lo.includes(c))};
+const qpChkLis=R=>R.map(([ok,l])=>`<li class="${ok?"ok":"no"}"><i aria-hidden="true">${ok?"✓":"·"}</i><b>${l}</b></li>`).join("");
+const dqWho=S=>{const M=EX.models[S.i],q=QUOTES.quotes[M[0]];return [title(speech[q.id].who),q]};
+const dqDesc=n=>{const c=((STUDY.chars||[]).find(x=>String(x.name).toLowerCase()===String(n).toLowerCase())||{}).desc||"";const f=c.split(/\.\s/)[0].replace(/\.$/,"");return f&&f.length<110?f.charAt(0).toLowerCase()+f.slice(1):""};
+const dqHas=(t,src)=>{const lo=String(t).toLowerCase();return [...new Set(dqQWords(src).map(w=>w.toLowerCase()).filter(w=>w.length>=5&&!DSTOP.has(w)))].some(w=>lo.includes(w.slice(0,Math.max(4,w.length-2))))};
+/* Writing Revolution style sentence drills: each = prompt, placeholder, checks, model */
+const DQC={
+  although:{h:"Although …, Shakespeare presents …",p:S=>{const b=(EX.big||[])[S.b]||[,"Shakespeare presents "+(DQT[dqType(S.i)]||"").toLowerCase(),"",""];return `<small>Join these in one sentence</small><p><b>Claim</b> ${esc(b[1])}.</p><p><b>Twist</b> but ${esc(b[3]||"…")}.</p>`},
+    c:(t,S)=>{const b=(EX.big||[])[S.b]||["","","",""];return [[/^\s*(although|even though|though|while|whereas)\b/i.test(t),"Opens with although / even though"],[dqHas(t,b[1]),"Keeps the claim"],[dqHas(t,b[3]),"Keeps the twist"],[(String(t).trim().match(/[.!?](\s|$)/g)||[]).length<=1,"One sentence"]]},
+    ml:"One way to write it",m:S=>{const b=(EX.big||[])[S.b];return b?`<p>Although ${esc(b[3])}, ${esc(b[1])}.</p>`:""}},
+  appos:{h:"Name, who they are, says “…”",p:S=>{const [n,q]=dqWho(S);return `<small>Add who they are after the name, between two commas</small><p>${esc(n)} says “${esc(q.text)}”.</p>`},
+    c:(t,S)=>{const [n,q]=dqWho(S);return [[new RegExp(rxq(n.split(" ")[0])+"[^,]*,\\s*[^,]{6,},","i").test(t),"Phrase between two commas"],[dqHas(t,q.text),"Quote kept"],[dqWords(t)>=dqWords(n+" says "+q.text)+4,"Four or more words added"]]},
+    ml:"One way to write it",m:S=>{const [n,q]=dqWho(S),d=dqDesc(n);return `<p>${esc(n)}, ${esc(d||"…who they are at this point…")}, says “${esc(q.text)}”.</p><p class="muted">The phrase between the commas tells the examiner you know the character, without a separate sentence.</p>`}},
+  expand:{h:"When, how, why: grow the sentence",p:S=>{const [n]=dqWho(S);return `<small>Grow this kernel: when? how? why?</small><p>${esc(n)} changes.</p>`},
+    c:t=>{const lo=String(t).toLowerCase();return [[/\b(at first|at the start|initially|by the end|finally|when|after|before|later|in act)\b/.test(lo),"When"],[/\b(through|by|via|using)\b/.test(lo),"How"],[/\b(because|so that|in order to|to show|to warn|to question|to suggest)\b/.test(lo),"Why"],[dqWords(t)>=20,"20+ words"]]},
+    ml:"The model point",m:S=>{const M=EX.models[S.i],O=(EX.outl||[])[S.i];return `<p>${esc(M[1])}</p>${O?`<p class="muted">${esc(O.th)}</p>`:""}`}},
+  warrant:{h:"This suggests … because …",p:S=>{const M=EX.models[S.i],q=QUOTES.quotes[M[0]];return `<small>Say why the quote proves the point</small><p><b>Point</b> ${esc(M[1])}</p><p><b>Quote</b> “${esc(q.text)}”</p>`},
+    c:(t,S)=>{const q=QUOTES.quotes[EX.models[S.i][0]],lo=String(t).toLowerCase();return [[/\b(because|since|which (shows|suggests|implies) that|as)\b/.test(lo),"because / since"],[dqHas(t,q.text),"Zooms in on a word of the quote"],[dqVerbs(t).length>0||new RegExp(DTENT.source,"i").test(lo),"Analytical verb"],[dqWords(t)>=15,"15+ words"]]},
+    ml:"The model",m:S=>{const M=EX.models[S.i];return `<p>${esc(M[2])} ${esc(M[3]||"")}</p>`}}};
+/* vocabulary lens: Write source tab */
+function dqVocab(i){const E=dqEss(i),t=dqText(E),sh=dqShows(t),vb=dqVerbs(t),cn=dqCons(t);
+  return `<div class="voc49"><div class="vstat49"><span class="${sh>2?"bad":""}"><b>${sh}</b><small>“shows”</small></span><span><b>${vb.length}</b><small>analytical verbs</small></span><span><b>${cn.length}</b><small>concept words</small></span></div>
+   <p class="muted">Tap a word to add it where you were writing.${sh>2?" Swap some of your “shows”: each verb says something different.":""}</p>
+   <h4 class="dh">Analytical verbs</h4><div class="chips">${DVERB.map(v=>`<button type="button" class="chip${vb.includes(v)?" used":""}" data-dins="${esc(v)}">${esc(v)}</button>`).join("")}</div>
+   <h4 class="dh">Concept words · ${esc(CFG.genre||"")}</h4><div class="chips">${dqCon().map(v=>`<button type="button" class="chip${cn.includes(v)?" used":""}" data-dins="${esc(v)}">${esc(v)}</button>`).join("")}</div></div>`}
+/* thinking routines: steelman (every question), tug of war (to what extent, views) */
+const DTUGW=[[0,"Hardly"],[30,"Partly"],[60,"Largely"],[85,"Entirely"]];
+const dqTugW=v=>[...DTUGW].reverse().find(x=>v>=x[0])[1];
+function dqTest(i,P){const ty=dqType(i),tw=ty==="tw"||ty==="view",S=P.stm||{},T=P.tug||{f:[],a:[],v:50},v=T.v==null?50:T.v;
+  const col=(k,l)=>`<div class="tcol49 ${k}"><b>${l}</b><ul>${(T[k]||[]).map((x,j)=>`<li><span>${esc(x)}</span><button type="button" class="ib49" data-dtgm="${k}:${j}" aria-label="Move to the other side">⇄</button><button type="button" class="ib49" data-dtgd="${k}:${j}" aria-label="Remove">×</button></li>`).join("")}</ul><div class="tadd49"><input type="text" data-dtgi="${k}" placeholder="Add a reason" aria-label="Add a reason ${l}"><button type="button" class="btn sm" data-dtga="${k}">Add</button></div></div>`;
+  return `<div class="dtest49 sheet42"><h4 class="dh">5. Test your argument</h4>
+   ${tw?`<div class="tug49"><p class="muted">Tug of war: pull reasons onto each side, then say where you stand.</p><div class="tcols49">${col("f",ty==="view"?"Agree":"For")}${col("a",ty==="view"?"Disagree":"Against")}</div>
+    <label class="trng49"><small>Where you stand: <b id="dtgw">${dqTugW(v)}</b></small><input type="range" min="0" max="100" step="5" value="${v}" data-dtgv="1" aria-label="Where you stand"></label>
+    <button type="button" class="link" data-dtgj="1">Use “${dqTugW(v).toLowerCase()}” in my argument</button></div>`:""}
+   <div class="dslot"><label for="dts-c">Steelman<small>The strongest case against your argument</small></label><textarea id="dts-c" data-dstm="c" rows="2" placeholder="Someone could argue that …">${esc(S.c||"")}</textarea></div>
+   <div class="dslot"><label for="dts-r">Your reply<small>Why your argument still holds, or how far</small></label><textarea id="dts-r" data-dstm="r" rows="2" placeholder="However, …">${esc(S.r||"")}</textarea></div></div>`}
+let dqZm={};
 /* the shelf */
 function deskShelf(){const N=EX.examq.length,L=aoLevel(),f=DSK.f||"",ty=[...new Set(EX.examq.map((_,i)=>dqType(i)))];
   const ord=[...Array(N).keys()].sort((a,b)=>L==="a"?(dqType(b)==="view")-(dqType(a)==="view"):0).filter(i=>!f||dqType(i)===f);
@@ -2090,6 +2140,7 @@ function studyDesk(){clearInterval(dskTmr);document.querySelectorAll("body>.kb47
       :`<p class="dbfmt"><b>${esc(DBRD[dqBoard()].n)}</b> ${esc(DBRD[dqBoard()].f[aoLevel()])}</p><ul class="dcmd">${DCMD[ty].map(t=>`<li>${esc(t)}</li>`).join("")}</ul><p class="muted">Highlighted: the key words to keep in view in every paragraph.</p>`);
     W=`${dqDecode(i,P)}${dqThesis(i,P)}${dqLens(i,P,false)}
       <div class="sheet42 dpts"><h4 class="dh">4. Three points across the play</h4>${[0,1,2].map(j=>`<div class="dslot"><label for="du-p${j}">${DPART[j]}</label><textarea id="du-p${j}" data-dpp="${j}:p" rows="2" placeholder="Topic sentence: one idea that answers the question">${esc(P.pts[j].p||"")}</textarea></div>`).join("")}</div>
+      ${dqTest(i,P)}
       <div class="dnext"><button class="btn primary" type="button" data-dst="1">Next: gather quotes ›</button></div>`}
   if(k==="g"){const qs=QUOTES.quotes,sug=Q[1],ap=DSK.ap==null?"":String(DSK.ap),X=xtBuild(i),A=(XT.a=XT.a||{})[i]=XT.a[i]||{};
     const pool=(src==="all"?qs.filter(q=>ap===""||String(dqPart(sceneOf(q.id).act))===ap):sug.map(j=>qs[j]));
@@ -2104,7 +2155,7 @@ function studyDesk(){clearInterval(dskTmr);document.querySelectorAll("body>.kb47
         <div class="dqkw"><small>Key word</small><div class="chips">${[...new Set(dqQWords(q.text))].map(w=>`<button type="button" class="chip" data-dqkw="${j}" data-w="${esc(w)}" aria-pressed="${pt.k===w}">${esc(w)}</button>`).join("")}</div></div></div>`:`<p class="dempty">${pane==="work"?`<button type="button" class="link" data-dpane="src">Choose a quote ›</button>`:"Choose a quote from the bank: tap Point "+(j+1)+"."}</p>`}
        <label class="wq sm" for="dg-a${j}">Analysis: zoom in on one word</label><textarea id="dg-a${j}" data-dpp="${j}:a" rows="3" placeholder="${esc(pt.k?`The word “${pt.k}”${pt.m?", "+String(pt.m).toLowerCase()+",":""} suggests …`:"The word “…” suggests …")}">${esc(pt.a||"")}</textarea></div>`}).join("")+`<div class="dnext"><button class="btn primary" type="button" data-dst="2">Next: write ›</button></div>`}
   if(k==="w"){const run=E.t0&&Date.now()-E.t0<(E.tl||45)*6e4,w=dqWords(dqText(E)),ex=dqExamOn(E),fr=ex?"plain":dqFrame(),tg0=aoLevel()==="a"?700:450,wm=dqSplit(E.tl||45)[1];
-    S=ex?`<div class="dexh"><b>Exam mode</b> Quote bank, models and starters are closed.</div>`+(dqExtractShown(i)?dqExtractRO(i):`<p class="muted">Your board does not print an extract for this question: write from memory.</p>`):tabs([["model","Model paragraph"],["plan","Your plan"],["lens","Perspectives"],["start","Starters"]])+(src==="plan"?dqPlanView(i):src==="lens"?dqLens(i,P,true):src==="start"?dqTray(null,true):`${dqModel(i,DSK.fade&&DSK.fade[i]||0)}
+    S=ex?`<div class="dexh"><b>Exam mode</b> Quote bank, models and starters are closed.</div>`+(dqExtractShown(i)?dqExtractRO(i):`<p class="muted">Your board does not print an extract for this question: write from memory.</p>`):tabs([["model","Model paragraph"],["plan","Your plan"],["lens","Perspectives"],["voc","Vocabulary"],["start","Starters"]])+(src==="voc"?dqVocab(i):src==="plan"?dqPlanView(i):src==="lens"?dqLens(i,P,true):src==="start"?dqTray(null,true):`${dqModel(i,DSK.fade&&DSK.fade[i]||0)}
       <div class="dfade" role="group" aria-label="Practise the model"><small>Practise it:</small>${["Read","Fill 2","Fill 4","Write all"].map((l,j)=>`<button type="button" class="chip" data-dfade="${j}" aria-pressed="${(DSK.fade&&DSK.fade[i]||0)===j}">${l}</button>`).join("")}</div>`);
     W=`${E.rd?`<div class="rdb48 noprint"><small>Redraft</small><b>${DSECN[E.rd.sec]||""}</b>${E.rd.tg?`<span>Target: ${esc(E.rd.tg)}</span>`:""}<button class="btn sm primary" type="button" data-drdx="1">Done: mark it ›</button></div>`:""}${E.mk&&ex?`<div class="dexh mk48b"><b>Mock paper</b> ${esc(DBRD[dqBoard()].n)} timing. Unseen question.</div>`:""}<div class="dtool noprint">${run?`<span class="dtm" id="dtm">--:--</span>${ex?`<button class="btn sm primary" type="button" id="dt-fin">Finish</button>`:`<button class="btn sm" type="button" id="dt-stop">Stop</button>`}`:`<button class="btn sm primary" type="button" data-dexam="1">Exam mode · ${dqMins()} min</button><button class="btn sm" type="button" data-dtime="15">15 min</button>`}<span class="dwc" id="dwc">${w} words</span>${ex?`<span class="dpace" id="dpace">Aim: about ${Math.ceil(tg0/wm)} words a minute</span>`:""}${dqBarHTML(E)}<button class="btn sm" type="button" id="dfocus" aria-pressed="${document.body.classList.contains("wfocus38")}">${document.body.classList.contains("wfocus38")?"Exit focus":"Focus"}</button></div>
       ${dqSpine(i)}
@@ -2141,14 +2192,18 @@ function dqFinish(i,E){const m=E.tl||45,used=Math.max(1,Math.round((Math.min(Dat
   E.t0=0;E.ex=0;clearInterval(dskTmr);DSK.st[i]=3;DSK.pane="work";saveDSK();toast("Exam saved: now mark it");studyDesk();scrollTo(0,0)}
 function dqTray(only,big){return `<div class="dtray${big?" big":""}">${dqStarts().filter(([g])=>!only||only.includes(g)).map(([g,a])=>`<div class="dtg"><small>${g}</small><div class="chips">${a.map(x=>`<button type="button" class="chip" data-dins="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>`).join("")}</div>`}
 function dqPlanView(i){const P=dqPlan(i);return `<div class="outline"><p><b>Argument</b> ${P.th?esc(P.th):"<em>Not written yet</em>"}</p>${P.pts.map((pt,j)=>{const q=dqQuote(pt);return `<p><b>Point ${j+1}</b> ${pt.p?esc(pt.p):"<em>No topic sentence</em>"}${q?`<br>“${esc(q.text)}”`:""}${pt.a?`<br><small>${esc(pt.a)}</small>`:""}</p>`}).join("")}</div>`}
-function dqExtract(i,X,A){const sel=DSK.xl||"",sw=DSK.xw||"",tags=dqMeths(),W=(XT.w=XT.w||{})[i]=XT.w[i]||{};
+function dqExtract(i,X,A){const sel=DSK.xl||"",sw=DSK.xw||"",tags=dqMeths(),W=(XT.w=XT.w||{})[i]=XT.w[i]||{},zm=dqZm[i]||0,Z=(XT.z=XT.z||{})[i]||[];let gl=0;
   const bar=key=>{const a=W[key]||{};return `<div class="xtbar xwbar"><small>Method for “${esc(DSK.xwt||"")}”</small><div class="chips">${tags.map(t=>`<button type="button" class="chip" data-dxwm="${esc(t)}" aria-pressed="${a.m===t}">${esc(t)}</button>`).join("")}</div><label class="wq sm" for="dx-n">Effect: what it makes the audience think or feel</label><textarea id="dx-n" data-dxn="1" rows="2" placeholder="This suggests …">${esc(a.n||"")}</textarea><div class="row"><button type="button" class="btn sm" data-dxwx="1">Done</button>${W[key]?`<button type="button" class="link" data-dxwd="1">Remove note</button>`:""}</div></div>`};
-  const lines=X.segs.map(([sp,a,z])=>`<div class="xsp"><div class="xwho" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</div>${sp.lines.slice(a,z).map((l,j0)=>{const j=a+j0,key=sp.id+":"+j,tg=A[key]||[];let w=0,openK="";
+  const lines=X.segs.map(([sp,a,z])=>`<div class="xsp${zm&&gl>=zm?" zh":""}"><div class="xwho" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</div>${sp.lines.slice(a,z).map((l,j0)=>{const j=a+j0,key=sp.id+":"+j,tg=A[key]||[],g=gl++,zh=zm&&g>=zm,zc=zm&&g===zm-1;let w=0,openK="";
     const ws=l.split(/(\s+)/).map(t=>{if(!t.trim())return t;const wk=key+":"+(w++),an=W[wk];if(sw===wk)openK=wk;return `<button type="button" class="xw${an?" an":""}${sw===wk?" on":""}" data-dxw="${wk}" data-t="${esc(t.replace(/[^A-Za-z’'-]/g,""))}">${esc(t)}${an&&an.m?`<sup>${esc(an.m)}</sup>`:""}</button>`}).join("");
-    return `<div class="xl${sel===key?" on":""}${sp.id===X.q.id&&j===X.ql?" key":""}"><span class="xlw">${ws}</span><button type="button" class="xlt" data-dxl="${key}" aria-label="Tag the whole line" title="Tag the whole line">≡</button>${tg.length?`<small>${tg.map(esc).join(" · ")}</small>`:""}</div>`+(openK?bar(openK):"")+(sel===key?`<div class="xtbar"><small>Tag this line</small><div class="chips">${XTAGS.concat(Object.values(EX.devices||{})).map(t=>`<button type="button" class="chip" data-dxtag="${esc(t)}" aria-pressed="${(A[key]||[]).includes(t)}">${esc(t)}</button>`).join("")}</div></div>`:"")}).join("")}</div>`).join("");
+    return `<div class="xl${sel===key?" on":""}${sp.id===X.q.id&&j===X.ql?" key":""}${zh?" zh":""}${zc?" zc":""}"><span class="xlw">${ws}</span><button type="button" class="xlt" data-dxl="${key}" aria-label="Tag the whole line" title="Tag the whole line">≡</button>${tg.length?`<small>${tg.map(esc).join(" · ")}</small>`:""}</div>`+(openK?bar(openK):"")+(sel===key?`<div class="xtbar"><small>Tag this line</small><div class="chips">${XTAGS.concat(Object.values(EX.devices||{})).map(t=>`<button type="button" class="chip" data-dxtag="${esc(t)}" aria-pressed="${(A[key]||[]).includes(t)}">${esc(t)}</button>`).join("")}</div></div>`:"")}).join("")}</div>`).join("");
   const mine=Object.entries(W).filter(([,v])=>v&&(v.m||v.n));
   const hints=X.segs.map(s=>s[0].id).flatMap(id=>(EX.dev[id]||[]).map(dv=>`<li><b>${esc((EX.devices||{})[dv[0]]||dv[0])}</b>: “${esc(dv[2])}”. ${esc(dv[1])}</li>`));
-  return `<p class="muted">${sName(sceneOf(X.q.id))} · ${X.n} lines · key line marked. Tap a word to note its method and effect; ≡ tags a whole line.</p><div class="xt">${lines}</div>
+  const zp=zm?`<div class="zoom49"><small>Zoom in · line ${zm} of ${X.n}</small><label class="wq sm" for="dzn">What do you notice? What might happen next?</label><textarea id="dzn" data-dzn="${zm-1}" rows="2" placeholder="I notice … so perhaps …">${esc(Z[zm-1]||"")}</textarea><div class="row">${zm<X.n?`<button type="button" class="btn sm primary" data-dzn1="1">Reveal next line</button>`:""}<button type="button" class="link" data-dzx="1">Show all</button></div></div>`:"";
+  const zl=Z.filter(x=>String(x||"").trim()).length;
+  return `<p class="muted">${sName(sceneOf(X.q.id))} · ${X.n} lines · key line marked. Tap a word to note its method and effect; ≡ tags a whole line.</p>
+   <div class="row zbar49"><button type="button" class="btn sm" data-dzm="1" aria-pressed="${!!zm}">${zm?"Stop zoom in":"Zoom in: reveal line by line"}</button>${zl&&!zm?`<small class="muted">${zl} zoom note${zl>1?"s":""}</small>`:""}</div>
+   <div class="xt${zm?" zoom":""}">${lines}</div>${zp}
    ${mine.length?`<div class="xmine"><h4 class="dh">Your annotations · ${mine.length}</h4><ul>${mine.map(([k,v])=>{const [id,j,w]=k.split(":"),l=(speech[id]&&speech[id].lines[+j]||"").split(/\s+/).filter(Boolean)[+w]||"";return `<li><b>${esc(l)}</b>${v.m?` <em>${esc(v.m)}</em>`:""}${v.n?`: ${esc(v.n)}`:""}</li>`}).join("")}</ul></div>`:""}
    ${hints.length?`<details class="fold"><summary>Check against the app's notes</summary><ul>${hints.join("")}</ul></details>`:""}`}
 function dqWire(i,P,E,st,k){const B=$("sbody"),re=(y)=>{const sy=y==null?scrollY:y;studyDesk();scrollTo(0,sy)};
@@ -2203,6 +2258,19 @@ function dqWire(i,P,E,st,k){const B=$("sbody"),re=(y)=>{const sy=y==null?scrollY
   const essay=()=>`${EX.examq[i][0]}\n\n${dqText(E)}`;
   if($("dw-copy"))$("dw-copy").onclick=()=>copyText(essay());
   if($("dm-dl"))$("dm-dl").onclick=()=>download(CFG.file+"-essay.txt",essay(),"text/plain");
+  B.querySelectorAll("[data-dzm]").forEach(b=>b.onclick=()=>{dqZm[i]=dqZm[i]?0:1;re()});
+  B.querySelectorAll("[data-dzn1]").forEach(b=>b.onclick=()=>{dqZm[i]=(dqZm[i]||1)+1;re();setTimeout(()=>{const el=B.querySelector(".xl.zc");if(el)el.scrollIntoView({block:"center",behavior:"smooth"});const t=$("dzn");if(t)t.focus({preventScroll:true})},60)});
+  B.querySelectorAll("[data-dzx]").forEach(b=>b.onclick=()=>{dqZm[i]=0;re()});
+  B.querySelectorAll("[data-dzn]").forEach(t=>t.oninput=()=>{const Z=(XT.z=XT.z||{})[i]=XT.z[i]||[];Z[+t.dataset.dzn]=t.value;saveXT()});
+  B.querySelectorAll("[data-dstm]").forEach(t=>t.oninput=()=>{(P.stm=P.stm||{})[t.dataset.dstm]=t.value;savePlan()});
+  const TG=()=>P.tug=P.tug||{f:[],a:[],v:50},tgAdd=k=>{const el=B.querySelector(`[data-dtgi="${k}"]`),v=el&&el.value.trim();if(!v)return;(TG()[k]=TG()[k]||[]).push(v);savePlan();re()};
+  B.querySelectorAll("[data-dtga]").forEach(b=>b.onclick=()=>tgAdd(b.dataset.dtga));
+  B.querySelectorAll("[data-dtgi]").forEach(el=>el.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();tgAdd(el.dataset.dtgi)}});
+  B.querySelectorAll("[data-dtgm]").forEach(b=>b.onclick=()=>{const [k,j]=b.dataset.dtgm.split(":"),T=TG(),o=k==="f"?"a":"f",x=(T[k]||[]).splice(+j,1)[0];if(x!=null)(T[o]=T[o]||[]).push(x);savePlan();re()});
+  B.querySelectorAll("[data-dtgd]").forEach(b=>b.onclick=()=>{const [k,j]=b.dataset.dtgd.split(":");(TG()[k]||[]).splice(+j,1);savePlan();re()});
+  B.querySelectorAll("[data-dtgv]").forEach(r=>r.oninput=()=>{TG().v=+r.value;savePlan();const w=$("dtgw");if(w)w.textContent=dqTugW(+r.value);const j=B.querySelector("[data-dtgj]");if(j)j.textContent=`Use “${dqTugW(+r.value).toLowerCase()}” in my argument`});
+  B.querySelectorAll("[data-dtgj]").forEach(b=>b.onclick=()=>{const w=dqTugW(TG().v==null?50:TG().v);const lc=x=>/^Shakespeare\b/.test(x)?x:x.replace(/^./,c=>c.toLowerCase()),strip=x=>String(x||"").trim().replace(new RegExp("^("+DTUGW.map(d=>d[1]).join("|")+"),\\s*","i"),"");
+    if(dqFree(P))P.th=w+", "+lc(strip(P.th)||"Shakespeare presents ");else{const tb=P.tb=P.tb||{};tb.h=w+", "+lc(strip(tb.h)||"Shakespeare presents ");P.th=dqCompose(tb)}savePlan();toast("Added to your argument");re();setTimeout(()=>{const el=$("dtb");if(el)el.scrollIntoView({block:"center",behavior:"smooth"})},60)});
   B.querySelectorAll("[data-drd]").forEach(b=>b.onclick=()=>{const T=dqTarget([...dqChecks(i),...dqThread(i)]);E.rd={sec:b.dataset.drd,tg:T?T[1]:"",t:Date.now()};E.t0=Date.now();E.tl=10;E.ex=0;dqWP[i]=b.dataset.drd;DSK.st[i]=2;DSK.pane="work";saveDSK();toast("Ten minutes: rewrite one section");re(0);setTimeout(()=>{const el=$("dw-"+b.dataset.drd+"w");if(el)el.scrollIntoView({block:"center",behavior:"smooth"})},80)});
   B.querySelectorAll("[data-drdx]").forEach(b=>b.onclick=()=>{E.t0=0;DSK.st[i]=3;DSK.pane="work";saveDSK();clearInterval(dskTmr);re(0)});
   B.querySelectorAll("[data-dvc]").forEach(b=>b.onclick=()=>{const [w,j]=b.dataset.dvc.split(":").map(Number),V=(DSK.v||{})[i]||[],n=B.querySelectorAll(".vpick48")[0].querySelectorAll(".chip").length,cur=(DSK.vc=DSK.vc||{})[i]||[n-2,n-1];cur[w]=j;DSK.vc[i]=cur;DSK.vo=1;saveDSK();re()});

@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1510 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "loves-labours-lost",
+ "genre": "Comedies",
  "prefix": "lll-",
  "app": "loves-labours-lost-reader",
  "title": "Love's Labour's Lost",

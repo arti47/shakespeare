@@ -1,6 +1,7 @@
 // Antony and Cleopatra: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "antony-and-cleopatra",
+ "genre": "Tragedies",
  "prefix": "ant-",
  "app": "antony-reader",
  "title": "Antony and Cleopatra",

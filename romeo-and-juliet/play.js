@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1513 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "romeo-and-juliet",
+ "genre": "Tragedies",
  "prefix": "rom-",
  "app": "romeo-and-juliet-reader",
  "title": "Romeo and Juliet",

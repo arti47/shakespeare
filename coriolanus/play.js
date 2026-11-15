@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1535 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "coriolanus",
+ "genre": "Tragedies",
  "prefix": "cor-",
  "app": "coriolanus-reader",
  "title": "Coriolanus",

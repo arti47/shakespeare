@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1518 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "henry-iv-part-2",
+ "genre": "Histories",
  "prefix": "2h4-",
  "app": "henry-iv-part-2-reader",
  "title": "Henry IV, Part 2",

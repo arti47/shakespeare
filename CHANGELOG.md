@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.49.0] — 2026-11-15
+
+### Added
+- Writing desk, sentence craft: four Quick practice drills (Although…, who-they-are phrase, grow the sentence, This suggests… because…) with live checks and a model; Deepen starters add Although and because (#163)
+- Writing desk, vocabulary lens: a Vocabulary tab in Write counts “shows”, analytical verbs and concept words for the play's Folio genre; Mark adds Analytical verbs (AO2) and Concept words (AO1) checks (#163)
+- Writing desk, test your argument: Unpack step 5 with a steelman box and reply for every question, and a tug of war (for/against reasons, where you stand) for to-what-extent and view questions that writes Hardly/Partly/Largely/Entirely into your argument (#163)
+- Writing desk, zoom in: reveal an extract line by line with a note on each line before reading on (#163)
+
 ## [4.48.0] — 2026-11-15
 
 ### Added

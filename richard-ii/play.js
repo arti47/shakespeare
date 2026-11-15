@@ -1,6 +1,7 @@
 // King Richard II: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "richard-ii",
+ "genre": "Histories",
  "prefix": "rii-",
  "app": "richard-ii-reader",
  "title": "King Richard II",

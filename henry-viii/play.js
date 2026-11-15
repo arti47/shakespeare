@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1541 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "henry-viii",
+ "genre": "Histories",
  "prefix": "h8-",
  "app": "henry-viii-reader",
  "title": "Henry VIII",

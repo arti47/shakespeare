@@ -1,6 +1,7 @@
 // As You Like It: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "as-you-like-it",
+ "genre": "Comedies",
  "prefix": "ayl-",
  "app": "ayl-reader",
  "title": "As You Like It",

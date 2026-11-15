@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1539 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "winters-tale",
+ "genre": "Comedies",
  "prefix": "wt-",
  "app": "winters-tale-reader",
  "title": "The Winter's Tale",

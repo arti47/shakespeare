@@ -1,6 +1,7 @@
 // King Lear: config and content for the shared Folio reader (../reader.js). Source of truth: edit here, then run node tools/build.js.
 const CFG={
  "id": "king-lear",
+ "genre": "Tragedies",
  "prefix": "lear-",
  "app": "lear-reader",
  "title": "King Lear",

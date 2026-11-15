@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1509 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "two-gentlemen",
+ "genre": "Comedies",
  "prefix": "tgv-",
  "app": "two-gentlemen-reader",
  "title": "The Two Gentlemen of Verona",

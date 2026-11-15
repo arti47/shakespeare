@@ -2817,3 +2817,25 @@ details.dchk{padding:0 14px}details.dchk summary{min-height:44px;display:flex;al
 .trend48{display:block;width:100%;max-width:420px;height:auto;margin:0 0 4px}.trend48 .tl{fill:none;stroke:var(--dk);stroke-width:2}.trend48 .td{fill:var(--dk)}.trend48 .tp{fill:none;stroke:var(--fci-v);stroke-width:2}
 .tkey48{display:flex;align-items:center;gap:6px;margin:0 0 8px;font-size:.875rem;color:var(--muted)}.tkey48 span{display:inline-block;width:10px;height:10px;border-radius:50%}.tkey48 .td{background:var(--dk)}.tkey48 .tp{border:2px solid var(--fci-v);margin-left:8px}
 @media print{.dmk48,.dirt48,.pred48,.refl48,.rdb48{display:none!important}}
+/* ---------- 4.49 Sentence craft, vocabulary lens, thinking routines (Writing desk) ---------- */
+.voc49 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.voc49 .chip.used{background:color-mix(in srgb,var(--fci-g) 18%,transparent);border-color:var(--fci-g)}
+.voc49 .chip.used::after{content:"✓";margin-left:4px;color:var(--fci-g)}
+.vstat49{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px}
+.vstat49 span{display:flex;flex-direction:column;align-items:center;padding:8px 4px;border:1px solid var(--rule);border-radius:var(--r-m);background:var(--scard,var(--card))}
+.vstat49 b{font:500 1.5rem/1.1 var(--f-body);color:var(--dk)}.vstat49 small{font:400 .875rem var(--f-sc);color:var(--muted);text-align:center}
+.vstat49 .bad{border-color:var(--accent)}.vstat49 .bad b{color:var(--accent)}
+.dtest49{margin-top:16px}
+.tcols49{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:0 0 10px}
+.tcol49{padding:10px;border:1px solid var(--rule);border-top:3px solid var(--fci-g);border-radius:var(--r-m);background:var(--scard,var(--card))}.tcol49.a{border-top-color:var(--accent)}
+.tcol49>b{display:block;margin:0 0 6px;font:400 .95rem var(--f-sc);color:var(--fci-g)}.tcol49.a>b{color:var(--accent)}
+.tcol49 ul{list-style:none;margin:0 0 6px;padding:0}.tcol49 li{display:flex;align-items:center;text-align:left;gap:4px;padding:4px 0;border-bottom:1px dashed var(--rule);font:400 .95rem/1.4 var(--f-body)}.tcol49 li span{flex:1;min-width:0;overflow-wrap:anywhere}
+.ib49{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:var(--muted);font-size:1rem;cursor:pointer}.ib49:hover{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
+.tadd49{display:flex;gap:6px}.tadd49 input{flex:1;min-width:0;min-height:40px;padding:6px 8px;border:1px solid var(--rule);border-radius:var(--r-s,8px);background:var(--page);color:var(--ink);font:400 1rem var(--f-body)}
+.trng49{display:block;margin:4px 0 6px}.trng49 small{display:block;font:400 .95rem var(--f-sc);color:var(--muted)}.trng49 b{color:var(--dk)}
+.trng49 input{width:100%;accent-color:var(--dk)}
+@media (max-width:420px){.tcols49{grid-template-columns:1fr}}
+.zbar49{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 8px}.zbar49 [aria-pressed="true"]{background:var(--dk);border-color:var(--dk);color:var(--page)}
+.xt.zoom .zh{display:none}.xt.zoom .xl.zc{background:color-mix(in srgb,var(--gold) 16%,transparent);border-radius:4px}
+.zoom49{position:sticky;bottom:calc(var(--navh,84px) + 8px);z-index:5;margin:10px 0;padding:10px 12px;border:2px solid var(--gold);border-radius:var(--r-m);background:var(--scard,var(--card));box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.zoom49 small{display:block;font:400 .875rem var(--f-sc);color:var(--dk)}.zoom49 textarea{width:100%}.zoom49 .row{display:flex;gap:10px;align-items:center;margin-top:6px}
+@media print{.zbar49,.zoom49,.tadd49,.ib49{display:none!important}.xt.zoom .zh{display:block}}

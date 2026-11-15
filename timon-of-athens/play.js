@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1536 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "timon-of-athens",
+ "genre": "Tragedies",
  "prefix": "tim-",
  "app": "timon-of-athens-reader",
  "title": "Timon of Athens",

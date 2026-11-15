@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1515 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "merchant-of-venice",
+ "genre": "Comedies",
  "prefix": "mov-",
  "app": "merchant-of-venice-reader",
  "title": "The Merchant of Venice",

@@ -2,6 +2,7 @@
 // Text: Project Gutenberg eBook #1511 (public domain). Modern English and Study content written fresh from the text.
 const CFG={
  "id": "king-john",
+ "genre": "Histories",
  "prefix": "kj-",
  "app": "king-john-reader",
  "title": "King John",
