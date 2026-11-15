@@ -14,6 +14,7 @@ const ROOT = path.resolve(__dirname, "..");
 const CHECK = process.argv.includes("--check");
 const rd = f => fs.readFileSync(path.join(ROOT, f), "utf8");
 const stale = [];
+const LADREQ = false; /* 4.50: true once Comedies, Histories and Tragedies all have EX.lad */
 function out(f, s) {
   const p = path.join(ROOT, f), cur = fs.existsSync(p) ? fs.readFileSync(p, "utf8") : null;
   if (cur === s) return;
@@ -142,6 +143,22 @@ for (const p of PLAYS) {
   });
   const qsc = new Set(QS.map(q => sceneOf[q.id])), bare = Object.keys(inScene).filter(s => !qsc.has(s));
   if (bare.length) throw new Error(`${f}: no key quote in scene ${bare.join(", ")}`);
+  /* 4.50 band ladders: EX.lad = [[question index, [[paragraph, what lifts it] x4]] x2], rungs grow in length, every “quoted” phrase found in the play (letters only; "/" and "…" split it). Required once every genre has them. */
+  if (EX.lad || LADREQ) {
+    const LD = EX.lad, all = Object.values(spk).map(t => t[0]).join("|");
+    if (!Array.isArray(LD) || LD.length !== 2) throw new Error(`${f}: EX.lad needs 2 ladders`);
+    LD.forEach((l, i) => {
+      if (!Array.isArray(l) || !Number.isInteger(l[0]) || l[0] < 0 || l[0] >= XQ.length || !Array.isArray(l[1]) || l[1].length !== 4) throw new Error(`${f}: EX.lad[${i}] needs [question index, 4 rungs]`);
+      let wn = 0;
+      l[1].forEach((r, j) => {
+        if (!Array.isArray(r) || r.length !== 2 || !r.every(s => typeof s === "string" && s.trim().length >= 20)) throw new Error(`${f}: EX.lad[${i}] rung ${j} needs [paragraph, what lifts it]`);
+        const w = r[0].split(/\s+/).length;
+        if (w <= wn) throw new Error(`${f}: EX.lad[${i}] rung ${j} must be longer than the rung below`);
+        wn = w;
+        for (const m of r[0].matchAll(/“([^”]+)”/g)) for (const part of m[1].split(/[\/…]/)) { const t = qn(part); if (t.length >= 3 && !all.includes(t)) throw new Error(`${f}: EX.lad[${i}] rung ${j} quote not in the play: ${part.trim()}`); }
+      });
+    });
+  }
   /* 4.37 language drills (TY): 12+ Untangle, Pun hunt and Tone and stress items, each line found in its speech; the pun word and every stress word are words of the line, stress words single and distinct (else the drill cannot finish). */
   const LG = (EX.lang || {}), lw = l => l.split(/\s+/), lc = w => w.toLowerCase().replace(/[’]/g, "'").replace(/[^a-z']/g, "").replace(/^'+|'+$/g, "");
   for (const [k, n] of [["un", "Untangle"], ["pun", "Pun hunt"], ["st", "Tone and stress"]]) {
