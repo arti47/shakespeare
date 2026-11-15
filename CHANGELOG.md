@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.51.0] — 2026-11-15
+
+### Added
+- Writing desk, grade ladders for the 12 Tragedies: two questions each, the same paragraph at four grades with what lifts it (#165)
+
 ## [4.50.0] — 2026-11-15
 
 ### Added
