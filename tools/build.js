@@ -14,7 +14,7 @@ const ROOT = path.resolve(__dirname, "..");
 const CHECK = process.argv.includes("--check");
 const rd = f => fs.readFileSync(path.join(ROOT, f), "utf8");
 const stale = [];
-const LADREQ = false; /* 4.50: true once Comedies, Histories and Tragedies all have EX.lad */
+const LADREQ = true; /* 4.52: every play needs EX.lad (2 ladders) */
 function out(f, s) {
   const p = path.join(ROOT, f), cur = fs.existsSync(p) ? fs.readFileSync(p, "utf8") : null;
   if (cur === s) return;

@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.52.0] — 2026-11-15
+
+### Added
+- Writing desk, grade ladders for the 10 Histories: two questions each, the same paragraph at four grades with what lifts it; every play now has ladders and the build requires them (#166)
+
 ## [4.51.0] — 2026-11-15
 
 ### Added
