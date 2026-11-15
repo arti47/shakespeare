@@ -623,7 +623,7 @@ body{font-family:var(--f-body)}
   <span class="lbl">Last 15 weeks</span>
   <div class="heat" id="heat" aria-label="Days read"></div>
   <div class="sec"><h3>Your plays</h3><div class="pseals" id="pseals"></div></div>
-  <div class="sec" id="essec" hidden><h3>Your essays</h3><p>Every Writing desk, across the plays: essays started, marked and your best mark.</p><div class="pseals" id="essays"></div></div>
+  <div class="sec" id="essec" hidden><h3>Your essays</h3><p>Every Writing desk, across the plays: essays started, marked and your best mark.</p><button class="btn pri" type="button" id="mockb" style="margin:0 0 12px">Mock paper: a random play you have begun</button><div class="pseals" id="essays"></div></div>
   <div class="sec">
     <h3>App mode</h3>
     <p>For every play. You can switch at any time; nothing you have saved changes.</p>
@@ -879,9 +879,12 @@ function renderYou(){
   const wds=t=>(String(t||"").match(/[A-Za-z’'-]+/g)||[]).length;
   const es=PLAYS.map(p=>{const D=J(p.prefix+"desk")||{},E=D.e||{},H=D.h||{},st=Object.keys(E).filter(i=>{const e=E[i]||{};return wds([e.i,...(e.p||[]),e.c].join(" "))>0}).length;
     const hs=Object.values(H).flat().filter(h=>Array.isArray(h)&&h[2]>0),best=hs.length?Math.max(...hs.map(h=>Math.round(h[1]/h[2]*100))):0,ts=Math.max(0,...Object.values(D.ts||{}).map(Number).filter(Boolean));
-    return [p,st,Object.values(H).filter(h=>Array.isArray(h)&&h.length).length,best,ts]}).filter(x=>x[1]||x[2]).sort((a,b)=>b[4]-a[4]);
-  $("essec").hidden=folioSimple()||!es.length;
-  $("essays").innerHTML=es.map(([p,st,mk,best])=>`<a class="psrow" href="${p.id}/#study=desk" data-play="${p.id}"><span class="gthumb" style="--c:${p.c}" aria-hidden="true">${emblemSVG(p.id,"gte")||""}</span><span class="psm"><b>${esc(p.title)}</b><small>${st} essay${st===1?"":"s"} started · ${mk} marked${best?` · best ${best}%`:""}</small></span></a>`).join("");
+    const mk=Object.values(E).flatMap(e=>(e&&Array.isArray(e.exr))?e.exr:[]).filter(r=>Array.isArray(r)&&r[4]===1).length;
+    return [p,st,Object.values(H).filter(h=>Array.isArray(h)&&h.length).length,best,ts,mk]}).filter(x=>x[1]||x[2]||x[5]).sort((a,b)=>b[4]-a[4]);
+  const begunP=PLAYS.filter(p=>J("folio-stat-"+p.id));
+  $("essec").hidden=folioSimple()||(!es.length&&!begunP.length);
+  $("mockb").onclick=()=>{const pool=begunP.length?begunP:PLAYS,p=pool[Math.floor(Math.random()*pool.length)];openPlay(p.id,p.id+"/#study=desk:mock")};
+  $("essays").innerHTML=es.map(([p,st,mk,best,,mo])=>`<a class="psrow" href="${p.id}/#study=desk" data-play="${p.id}"><span class="gthumb" style="--c:${p.c}" aria-hidden="true">${emblemSVG(p.id,"gte")||""}</span><span class="psm"><b>${esc(p.title)}</b><small>${st} essay${st===1?"":"s"} started · ${mk} marked${best?` · best ${best}%`:""}${mo?` · ${mo} mock${mo===1?"":"s"}`:""}</small></span></a>`).join("");
   document.querySelectorAll("#modes [data-mode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===folioMode()));
   const bk=+LS.get("folio-lastbk");$("bksum").textContent=bk?"Last saved "+ago(bk)+".":"Not saved yet.";
   renderTheme();

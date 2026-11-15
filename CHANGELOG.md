@@ -4,6 +4,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.48.0] — 2026-11-15
+
+### Added
+- Writing desk, redraft loop: after a mark, a ten-minute redraft of the section your target points at; each saved mark keeps a version (last 5) and Before and after shows the changes word by word (#162)
+- Writing desk, predict and reflect: guess your level before you tick, see how close you were, write one thing to do differently; a trend line shows marks and guesses over time (#162)
+- Writing desk, mock paper: an unseen question at your board's timing with sources closed, from the desk shelf or from a random begun play on You (#162)
+
 ## [4.47.0] — 2026-11-15
 
 ### Added
