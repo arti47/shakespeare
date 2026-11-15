@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.43.0] — 2026-11-15
+
+### Added
+- Writing desk, Gather: tap any word of the extract to note its method and effect (your annotations listed under it); each chosen quote takes a method and a key word, which shape the analysis prompt (#157)
+- Writing desk: Exam mode, timed to your board, with Plan / Write / Check phases, a words-a-minute pace guide, a quick plan box, sources and models closed (the extract stays when your board prints one); the result is saved and opens Mark (#157)
+- Writing desk, Mark: your essay coloured by quotes, methods, context, tentative and question words (toggle each), a golden-thread check on each paragraph's opening sentence, and one next-step target, saved with the mark (#157)
+- Writing desk: Quick practice on the question shelf: Thesis sprint (2 min), Five-minute plan (against the model outline) and Sentence upgrade; self-graded, logged to practice history, and a miss puts the question's key quote into Daily review (#157)
+
 ## [4.42.0] — 2026-11-15
 
 ### Added
