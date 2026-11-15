@@ -4,6 +4,18 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.47.0] — 2026-11-15
+
+### Added
+- Writing desk, portfolio shelf: Try next pick, essays started / marked / best mark, a stage track, best-mark seal and last edit on every question card, Quick practice as a strip at the top (#161)
+- Writing desk, marked script: Mark shows your essay on ruled paper with ticks and AO stamps in the margin, red-pen notes under each section (tap to fix it in Write) and AO rings with the full check list folded away; it waits for 150 words (#161)
+- Writing desk, fair copy: the finished essay as an exam script page to print or share (#161)
+- You (Library): Your essays, per play, with essays started, marked and best mark (#161)
+
+### Changed
+- Writing desk on phones: Unpack opens one section at a time with done ticks, Write opens one section at a time with the rest folded to their first line, a starter bar sits above the keyboard, and Next stays in reach (#161)
+- Writing desk header: the essay map moved into Write; thesis checks are one row of pills with a single hint (#161)
+
 ## [4.46.0] — 2026-11-15
 
 ### Added
