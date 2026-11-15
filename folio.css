@@ -80,6 +80,8 @@
 .seal .st{font:400 30px var(--f-sc);fill:#fbe3d6;letter-spacing:.02em}
 .seal.g .wr{stroke:url(#fgl);stroke-width:4}
 .seal.g .st{fill:url(#fgl)}
+/* numbers in seals: lining, tabular figures (IM Fell has old-style figures only, which sit low and off-centre) */
+.seal .st.n{font-family:var(--f-ui);font-weight:600;font-variant-numeric:lining-nums tabular-nums;letter-spacing:0}
 .seal.e .se{fill:var(--card);stroke:var(--rule-strong);stroke-width:2.5;stroke-dasharray:5 5}
 .seal.e .st{fill:var(--muted)}
 .seal.e.now .se{stroke:var(--accent);stroke-dasharray:none;stroke-width:4}

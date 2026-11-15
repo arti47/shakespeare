@@ -2772,6 +2772,9 @@ function rvSecHTML(s){const [k,nm,,tp]=s,open=!!RVO[k];let body,meta="";
     else{const n=G.reduce((a,g)=>a+g.rows.length,0);meta=k==="plot"?`${ACTS.length} act${ACTS.length===1?"":"s"}`:`${n}`;
       body=G.map(g=>(g.h?`<h4 class="rva53">${esc(g.h)}${g.sub?`<small>${esc(g.sub)}</small>`:""}</h4>`:"")+(g.map?`<div class="rvmap54">${g.map}</div>`:"")+g.rows.map(rvRow).join("")).join("")}}
   return `<section class="rvs53 rv-${k} tp-${tp}" id="rv-${k}"><button type="button" class="rvsh" data-rvt="${k}" aria-expanded="${open}"><svg class="rvem" viewBox="0 0 64 64" aria-hidden="true">${EMB[tp]}</svg><h3>${esc(nm)}</h3><small>${esc(meta)}</small><i aria-hidden="true">›</i></button><div class="rvsb"${open?"":" hidden"}>${RVTEST(k)?`<button type="button" class="rvtest noprint" data-rvtest="${k}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Test this section</button>`:""}${body}</div></section>`}
+/* Revision notes grade a quote as Flashcards, but Knew it moves a scheduled quote only when it is due (as drills do),
+   so testing or covering the same quote again does not push it up a box each time */
+function rvGrade(i,ok){const k="who:"+i;if(!ok||!getS(k)||isDue(k))grade(k,ok,false)}
 /* Test this section: cue → recall → reveal → Knew it / Not yet; quotes grade as flashcards, notes are practice only */
 function rvItems(k){const I=[];rvData(k).forEach(g=>{(g.rows||[]).forEach(r=>{const a=[r.tp,r.note].filter(Boolean).join(" ");if(r.cue&&a)I.push({cue:r.cue,role:r.role||(g.h||""),a});(r.qs||[]).forEach(([q,l])=>I.push({q,l}))});(g.qs||[]).forEach(q=>I.push({q}))});return I}
 function rvTest(k,only){const nm=(RVSEC.find(s=>s[0]===k)||[,""])[1],items=only||rvItems(k);if(!items.length){toast("Nothing to test here yet");return}RT={k,nm,items,i:0,shown:false,res:[]};rvTestView()}
@@ -2787,7 +2790,7 @@ function rvTestView(){const T=RT;if(!T)return;const n=T.items.length,ok=T.res.fi
   rvTestWire()}
 function rvTestWire(miss){$("sheet-body").querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const a=b.dataset.rt,T=RT;if(!T)return;
   if(a==="show"){T.shown=true;rvTestView()}
-  else if(a==="yes"||a==="no"){const it=T.items[T.i];if(it.q)grade("who:"+it.q.i,a==="yes",false);T.res[T.i]=a==="yes";T.i++;T.shown=false;rvTestView()}
+  else if(a==="yes"||a==="no"){const it=T.items[T.i];if(it.q)rvGrade(it.q.i,a==="yes");T.res[T.i]=a==="yes";T.i++;T.shown=false;rvTestView()}
   else if(a==="again")rvTest(T.k,miss);
   else{RT=null;closeSheet();const y=scrollY;studyRevise();scrollTo(0,y)}})}
 /* the same notes as text, for Copy, Share and Download */
@@ -2832,7 +2835,7 @@ function studyRevise(){const secs=rvSecs();
     const j=t.closest("[data-rvj]");if(j){const k=j.dataset.rvj;if(!RVO[k]){RVO[k]=1;$("rv-"+k).outerHTML=rvSecHTML(sec(k))}
       const el=$("rv-"+k),top=el.getBoundingClientRect().top+scrollY-(parseFloat(getComputedStyle($("sbody")).getPropertyValue("--sgh"))||0)-R0.querySelector(".rvtop54").offsetHeight-8;scrollTo({top,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});return}
     const st=t.closest("[data-rvt]");if(st){const k=st.dataset.rvt,o=st.getAttribute("aria-expanded")==="true";RVO[k]=o?0:1;st.setAttribute("aria-expanded",String(!o));st.nextElementSibling.hidden=o;return}
-    const gk=t.closest("[data-rvk]");if(gk){const q=gk.closest("[data-rvq]"),i=+q.dataset.rvq,ok=gk.dataset.rvk==="1";grade("who:"+i,ok,false);
+    const gk=t.closest("[data-rvk]");if(gk){const q=gk.closest("[data-rvq]"),i=+q.dataset.rvq,ok=gk.dataset.rvk==="1";rvGrade(i,ok);
       R0.querySelectorAll(`[data-rvq="${i}"]`).forEach(x=>{x.classList.add("done");x.classList.toggle("kn",!!prog.cards[i]);const b=x.querySelector(".rqg");if(b)b.remove()});
       toast(ok?(prog.cards[i]?"Learnt. It joins your learnt quotes":"Saved. It comes back in Daily review"):"It comes back in Daily review soon");return}
     if(!R0.classList.contains("cvr")||t.closest("button,a,summary,input"))return;

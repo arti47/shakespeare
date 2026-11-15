@@ -31,10 +31,10 @@
   var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
 
   /* a wax seal. kind: "" red (scene read), "g" gilt rim (quests done), "e" empty slot, "n" empty slot for where you are */
-  window.folioSeal=function(t,kind,cls){defs();t=esc(t);cls=cls?" "+cls:"";
-    if(kind==="e"||kind==="n")return '<svg class="seal e'+(kind==="n"?" now":"")+cls+'" viewBox="0 0 100 100" aria-hidden="true"><circle class="se" cx="50" cy="50" r="38"/><text class="st" x="50" y="51" text-anchor="middle" dominant-baseline="central">'+t+'</text></svg>';
+  window.folioSeal=function(t,kind,cls){defs();t=esc(t);cls=cls?" "+cls:"";var sc=/^\d+$/.test(t)?"st n":"st";
+    if(kind==="e"||kind==="n")return '<svg class="seal e'+(kind==="n"?" now":"")+cls+'" viewBox="0 0 100 100" aria-hidden="true"><circle class="se" cx="50" cy="50" r="38"/><text class="'+sc+'" x="50" y="51" text-anchor="middle" dominant-baseline="central">'+t+'</text></svg>';
     return '<svg class="seal'+(kind==="g"?" g":"")+cls+'" viewBox="0 0 100 100" aria-hidden="true"><path class="wx" d="'+BLOB+'"/><circle class="wr" cx="50" cy="50" r="32"/><circle class="wr2" cx="50" cy="50" r="27.5"/>'+
-      '<path class="wh" d="M27 36A27 27 0 0 1 46 22"/><text class="st" x="50" y="51" text-anchor="middle" dominant-baseline="central">'+t+'</text></svg>'};
+      '<path class="wh" d="M27 36A27 27 0 0 1 46 22"/><text class="'+sc+'" x="50" y="51" text-anchor="middle" dominant-baseline="central">'+t+'</text></svg>'};
 
   /* a cast medallion: laurel ring, a disc in the character's colour, their initials */
   var LAUREL=(function(){var s="";for(var i=0;i<22;i++){var a=(i/22)*2*Math.PI-Math.PI/2,x=50+42.5*Math.cos(a),y=50+42.5*Math.sin(a),t=a*180/Math.PI+90+(i%2?28:-28);
