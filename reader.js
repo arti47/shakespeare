@@ -102,7 +102,7 @@ let pos=null;try{pos=JSON.parse(LS.get(PFX+"pos")||"null")}catch(e){}
 function setHash(h,push){if(location.hash.slice(1)!==h){try{history[push?"pushState":"replaceState"](null,"","#"+h)}catch(e){}}}
 document.addEventListener("touchstart",e=>{const x=e.touches[0].clientX;if((x<24||x>innerWidth-24)&&!e.target.closest("button,a,input,select,textarea,label,summary"))e.preventDefault()},{passive:false});
 /* one app shell: Read / Study / You views share the Folio's bottom nav (Library goes back to the shelf) */
-function show(v){view=v;if(v!=="reader"&&$("pvback"))$("pvback").hidden=true;["you","reader","study","map"].forEach(x=>$(x).hidden=v!==x);closePanel();if(v!=="reader"&&$("coach"))$("coach").remove();
+function show(v){view=v;if(v!=="study")document.body.classList.remove("wfocus38");if(v!=="reader"&&$("pvback"))$("pvback").hidden=true;["you","reader","study","map"].forEach(x=>$(x).hidden=v!==x);closePanel();if(v!=="reader"&&$("coach"))$("coach").remove();
   document.body.classList.remove("v-reader","v-study","v-you","v-map");document.body.classList.add("v-"+v);
   if(v!=="reader"&&!matchMedia("(prefers-reduced-motion: reduce)").matches){const el=$(v);el.classList.remove("f43in");void el.offsetWidth;el.classList.add("f43in")}
   /* Simple mode has three tabs: Play (map, reader and Study) stands for all three */
@@ -120,7 +120,7 @@ function route(){
   if(h==="study"){SH=true;show("study");renderStudy();scrollTo(0,0);pvRestore();return}
   if(h.startsWith("study=")){const [t,x,w]=h.slice(6).split(":");SH=false;SV=null;
     if(SPAGES.includes(t)){let v="";try{v=decodeURIComponent(x||"")}catch(e){}SV={k:t,x:v};if(t==="topic")TP=v}
-    else if(TABS.some(y=>y[0]===t)){S.stab=t;LS.set(PFX+"stab",t);if(t==="explore")exSel=x&&EXT.some(y=>y[0]===x)?x:"";if(t==="drill"){const k=x&&DRILLS.some(d=>d[0]===x)?x:"";if(k!==dr.k)dr={k}}}show("study");renderStudy();scrollTo(0,0);pvRestore();
+    else if(TABS.some(y=>y[0]===t)){S.stab=t;LS.set(PFX+"stab",t);if(t==="desk"){dskOpen=x!=null&&x!==""&&isFinite(+x);if(dskOpen)DSK.cur=+x}if(t==="explore")exSel=x&&EXT.some(y=>y[0]===x)?x:"";if(t==="drill"){const k=x&&DRILLS.some(d=>d[0]===x)?x:"";if(k!==dr.k)dr={k}}}show("study");renderStudy();scrollTo(0,0);pvRestore();
     if(w){let k="";try{k=decodeURIComponent(w)}catch(e){}const el=k&&document.querySelector(`#sbody [data-gw="${CSS.escape(k)}"]`);if(el){el.scrollIntoView({block:"center"});el.classList.add("flash")}}return}
   const k=sIdx(h);
   if(k>=0){show("reader");openScene(k,pos&&pos.s===h?{key:pos.key,keep:true}:{page:0});return}
@@ -133,13 +133,13 @@ function goScene(k,opts){setHash(scenes[k].id,true);show("reader");openScene(k,o
 function goSpeech(id){const sp=speech[id];if(!sp)return;if(S.who&&sp.who!==S.who)S.who="";closeSheet();goScene(sIdx(sp.page),{speech:+id,flash:true})}
 function goStudy(tab,sub){SBACK=tab&&!SPAGES.includes(tab)&&SV?{k:SV.k,x:SV.x}:null;SH=!tab;SV=null;
   if(SPAGES.includes(tab)){SV={k:tab,x:sub||""};if(tab==="topic")TP=SV.x;setHash("study="+tab+":"+encodeURIComponent(SV.x),true)}
-  else{if(tab){S.stab=tab;LS.set(PFX+"stab",tab)}if(tab==="drill"&&sub!=null&&sub!==dr.k)dr={k:sub||""};
-    setHash(tab?"study="+tab+((tab==="explore"||tab==="drill")&&sub?":"+sub:""):"study",true)}
+  else{if(tab){S.stab=tab;LS.set(PFX+"stab",tab)}if(tab==="drill"&&sub!=null&&sub!==dr.k)dr={k:sub||""};if(tab==="desk"){dskOpen=sub!=null&&sub!==""&&isFinite(+sub);if(dskOpen)DSK.cur=+sub}
+    setHash(tab?"study="+tab+((tab==="explore"||tab==="drill"||tab==="desk")&&sub?":"+sub:""):"study",true)}
   show("study");renderStudy();scrollTo(0,0);sAnim()}
 /* a tile opening its topic or tool: the page rises in (off with reduced motion) */
 function sAnim(){const b=$("sbody");if(!b||matchMedia("(prefers-reduced-motion: reduce)").matches)return;b.classList.remove("sin");void b.offsetWidth;b.classList.add("sin")}
 /* back to where Study was last: a topic, character or theme page, the last tool, or the home */
-function goStudyLast(){if(SV)goStudy(SV.k,SV.x);else if(SLAST)goStudy(S.stab,S.stab==="explore"?exSel:S.stab==="drill"?dr.k:"");else goStudy()}
+function goStudyLast(){if(SV)goStudy(SV.k,SV.x);else if(SLAST)goStudy(S.stab,S.stab==="explore"?exSel:S.stab==="drill"?dr.k:S.stab==="desk"&&dskOpen?String(DSK.cur):"");else goStudy()}
 function goYou(){setHash("you",true);show("you");renderYou();scrollTo(0,0)}
 function goMap(){setHash("map",true);show("map");renderMap();scrollTo(0,0)}
 function goRead(){if(pos&&sIdx(pos.s)>=0)goScene(sIdx(pos.s),{key:pos.key,keep:true});else goScene(0)}
@@ -151,7 +151,7 @@ const whoQ=w=>QUOTES.quotes.some(q=>speech[q.id].who===w);
 function whoLinks(w){const L=[];if(MAINS.includes(w))L.push(toLink("study:prof?who="+w,"Profile"));if(whoQ(w))L.push(toLink("study:quotes?who="+w,"Key quotes"));
   if(EX.analysis&&EX.analysis[w])L.push(toLink("study:explore:analysis?an="+w,"Analysis"));if(MAINS.includes(w))L.push(toLink("study:part?who="+w,"Learn their part"));return L.join("")}
 function goTo(spec){const [w,qs]=String(spec).split("?"),P={};(qs||"").split("&").filter(Boolean).forEach(x=>{const [k,v]=x.split("=");P[k]=decodeURIComponent(v||"")});
-  hideGloss();const [a,b,c]=w.split(":");
+  hideGloss();let [a,b,c]=w.split(":");
   if(a==="speech"){goSpeech(b);return}
   if(a==="scene"){const k=sIdx(b);if(k>=0){closeSheet();goScene(k,{page:0})}return}
   if(a==="you"){closeSheet();goYou();return}
@@ -169,6 +169,7 @@ function goTo(spec){const [w,qs]=String(spec).split("?"),P={};(qs||"").split("&"
   if(b==="part"&&P.who){pt.who=P.who;pt.sid="";pt.run=null}
   if(b==="explore"){exSel=c||"";if(P.an)anSel=P.an}
   if(b==="acts"&&P.a!=null&&isFinite(+P.a))acSel=+P.a;
+  if(b==="desk"&&P.q!=null&&isFinite(+P.q)&&EX.examq&&EX.examq[+P.q]){c=P.q;if(P.s!=null&&isFinite(+P.s))(DSK.st=DSK.st||{})[+P.q]=Math.max(0,Math.min(3,+P.s))}
   goStudy(b,c);
   if(b==="quiz"&&P.s)startQuiz(P.s);
   if(b==="acts"&&P.s){setTimeout(()=>acScroll(P.s),60);return}
@@ -863,7 +864,7 @@ function shareText(title,text){navigator.share({title,text}).catch(e=>{if(!e||e.
 async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0;font-size:16px";document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Copied":"Copy didn’t work here. Select the text and copy it yourself.")}}
 
 /* ---------- study ---------- */
-const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["part","Learn a part"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["plan","Essay planner"],["extract","Extract"],["para","Paragraphs"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
+const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["part","Learn a part"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["desk","Writing desk"],["plan","Essay planner"],["extract","Extract"],["para","Paragraphs"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
 /* Study (4.1): eight illustrated topics. Each topic is a page of small tool tiles; every tool opens full screen under one header
    (back to its topic, its title, a ? for the how-to). People and Themes add a page per character and per theme.
    #study = home, #study=topic:<k>, #study=who:<NAME>, #study=theme:<k>, #study=<tab>[:<explore part>|<drill>] = a tool. */
@@ -874,18 +875,18 @@ const TOPICS=[["story","Story",["acts","explore:timeline","explore:facts","explo
   ["quotes","Quotes",["quotes","cards","drill:gap","drill:ladder","drill:who","drill:scene","drill:time","explore:compare"]],
   ["words","Words",["explore:glossary","explore:devices","explore:verse","explore:insults","explore:pronouns","drill:word","drill:untangle","drill:pun","drill:stress"]],
   ["practise","Practise",["review","quiz","cards","part","drill:gap","drill:ladder","drill:who","drill:scene","drill:next","drill:time","drill:odd","drill:explain","drill:order","drill:word","drill:cut","drill:two"]],
-  ["write","Write",["plan","extract","para"]],
+  ["write","Write",["desk"]],
   ["revise","Revise",["revise","acts","review","quiz"]]];
 const TLINE={story:"The plot act by act, with the facts behind it",people:"Who's who, what drives them, how they change",themes:"The big ideas, traced from start to end",quotes:"The lines to know, one card at a time",words:"Old words, imagery, verse and wordplay",practise:"Quizzes, flashcards and quick drills",write:"Exam answers, one step at a time",revise:"Your sheet, cards due and backup"};
 /* any Explore part not placed above joins Story */
 EXT.forEach(([k])=>{if(!TOPICS.some(t=>t[2].includes("explore:"+k)))TOPICS[0][2].push("explore:"+k)});
 const topicK=k=>TOPICS.find(t=>t[0]===k)||TOPICS[0];
-const EXAMT=["explore:critics","plan","extract","para"];
+const EXAMT=["explore:critics","desk","plan","extract","para"];
 const topicsNow=()=>folioSimple()?TOPICS.filter(t=>t[0]!=="write"):TOPICS;
 const toolOK=s=>{if(folioSimple()&&EXAMT.includes(s))return false;const [a,b]=s.split(":");if(a==="explore")return EXT.some(x=>x[0]===b)&&exHas(b);if(a==="drill")return DRILLS.some(d=>d[0]===b);if(a==="para")return (EX.models||[]).length>0;return TABS.some(t=>t[0]===a)};
 const toolName=s=>{const [a,b]=s.split(":");if(a==="explore")return b?(EXT.find(x=>x[0]===b)||[,b])[1]:"Explore";if(a==="drill")return b?(DRILLS.find(d=>d[0]===b)||[,b])[1]:"Drills";return (TABS.find(t=>t[0]===a)||[,a])[1]};
 /* 4.9 one-line descriptions for the tool lists (Explore parts and drills describe themselves) */
-const TDESC={review:"Cards due today, spaced out so they stick",explore:"Facts, context, language and more",quotes:"Every key quote, by speaker or theme",cards:"Flip a quote: who said it, and why it matters",part:"Learn a character's lines from their cues",drill:"Quick games with the lines",quiz:"Four questions on each scene, or the whole play",themes:"Trace a theme from start to end, then copy a plan",plan:"Build an essay plan step by step",extract:"Answer on an extract, marked against the AOs",para:"Model paragraphs, taken apart",prof:"Build a character profile in steps",acts:"Each act on a page: what happens and why",revise:"Your marks, scores and quotes on one sheet"};
+const TDESC={review:"Cards due today, spaced out so they stick",explore:"Facts, context, language and more",quotes:"Every key quote, by speaker or theme",cards:"Flip a quote: who said it, and why it matters",part:"Learn a character's lines from their cues",drill:"Quick games with the lines",quiz:"Four questions on each scene, or the whole play",themes:"Trace a theme from start to end, then copy a plan",desk:"Unpack a question, gather quotes, write and mark",plan:"Build an essay plan step by step",extract:"Answer on an extract, marked against the AOs",para:"Model paragraphs, taken apart",prof:"Build a character profile in steps",acts:"Each act on a page: what happens and why",revise:"Your marks, scores and quotes on one sheet"};
 const toolDesc=s=>{const [a,b]=s.split(":");if(a==="explore"&&b)return (EXT.find(x=>x[0]===b)||[,,""])[2];if(a==="drill"&&b)return (DRILLS.find(d=>d[0]===b)||[,,""])[2];return TDESC[a]||""};
 const toolNow=()=>S.stab==="explore"?(exSel?"explore:"+exSel:"explore"):S.stab==="drill"?(dr.k?"drill:"+dr.k:"drill"):S.stab;
 const topicOf=s=>{if(TP&&topicK(TP)[2].includes(s))return TP;const t=TOPICS.find(t=>t[2].includes(s));return t?t[0]:s.startsWith("drill")?"practise":s.startsWith("explore")?"story":"revise"};
@@ -967,7 +968,7 @@ const TIC={acts:'<path d="M6 4h10a3 3 0 0 1 3 3v13H9a3 3 0 0 1-3-3z"/><path d="M
   sprint:'<circle cx="12" cy="13" r="8"/><path d="M12 13V9M10 3h4M18 6l1.5-1.5"/>',
   scene:'<path d="M4 5h16v14H4z"/><path d="M4 9h16M9 5v4M15 5v4M8 14h8"/>',next:'<path d="M4 8h9l-3-3M13 8l-3 3"/><circle cx="17" cy="15" r="3"/><path d="M12 21c0-2.5 2.2-4 5-4s5 1.5 5 4"/>',time:'<path d="M12 3v18"/><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/><path d="M14 6h6M4 12h6M14 18h6"/>',odd:'<circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
   explain:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/>',order:'<path d="M10 6h10M10 12h10M10 18h10M4 5h2v3M4 11.5c0-1 2-1 2 0s-2 1.5-2 2.5h2M4 17h2l-1 1.5c1 0 1.5.5 1 1.5H4"/>',cut:'<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8 15 18 4M16 15 6 4"/>',
-  two:'<path d="M4 8h16M4 16h11"/><circle cx="19" cy="16" r="1.5"/>',plan:'<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/>',extract:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 17h4"/><path d="M4 10v6" />',
+  two:'<path d="M4 8h16M4 16h11"/><circle cx="19" cy="16" r="1.5"/>',desk:'<path d="M3 20h18"/><path d="M6 20v-6h12v6"/><path d="M14 14c1-5 3-8 7-10-1 4-3 7-6 9"/><path d="M15.5 10.5l2 .6"/>',plan:'<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/>',extract:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14h7M9 17h4"/><path d="M4 10v6" />',
   para:'<path d="M13 4v16M17 4v16M19 4h-9a4 4 0 0 0 0 8h3"/>',revise:'<path d="M6 9V3h12v6M6 17H4v-8h16v8h-2"/><path d="M6 14h12v7H6z"/>',dot:'<circle cx="12" cy="12" r="3"/>'};
 const ticOf=s=>{const [a,b]=s.split(":");return TIC[b]||TIC[a]||TIC.dot};
 const tic=s=>`<svg class="tic" viewBox="0 0 24 24" aria-hidden="true">${ticOf(s)}</svg>`;
@@ -986,7 +987,7 @@ function topicStat(k){const n=o=>Object.keys(o).length,sc=scenes.length,fr=(a,b)
   if(k==="words")return [null,`${n(G)} words`];
   if(k==="practise"){const d=Object.keys(prog.quiz).filter(q=>q!=="all"&&sIdx(q)>=0),qa=d.reduce((a,q)=>a+prog.quiz[q][0]/Math.max(1,prog.quiz[q][1]),0)/sc,ln=fr(n(prog.cards),QUOTES.quotes.length),ks=Object.keys(DRB).filter(x=>x!=="lad"&&drBest(x)),db=ks.reduce((a,x)=>a+drBest(x)[0]/drBest(x)[1],0)/Math.max(1,DRILLS.length-2),m=(qa+ln+db)/3;
     return [m,`Mastery ${Math.round(m*100)}% · ${d.length} of ${sc} quizzes · ${n(prog.cards)} quotes learnt`]}
-  if(k==="write"){const t=(EX.examq||[]).length,d=Math.min(t,planCount());return [fr(d,t),`${d} of ${t} plans`]}
+  if(k==="write"){const t=(EX.examq||[]).length,d=[...Array(t).keys()].filter(i=>dqStarted(i)).length;return [fr(d,t),`${d} of ${t} questions started`]}
   const due=dueKeys().length;return [null,due?`${due} due today`:"Sheet · backup"]}
 /* one suggested next step: due reviews, then a quiz on a scene you've read, then the scene you're on, then flashcards */
 function nextStep(){const d=dueKeys().length;if(d)return ["study:review",`Review ${d} card${d===1?"":"s"} due today`,"Practise"];
@@ -1069,7 +1070,7 @@ function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   if(k==="quotes"){const nx=QUOTES.quotes.find(q=>!prog.cards[q.i]);if(nx)h+=secH("One to learn")+`<div class="one">${qCard(nx)}</div>`}
   if(k==="words"){const w=wordOfDay();if(w)h+=secH("Word of the day")+`<div class="wod48"><b>${esc(w.k)}</b><p>${esc(w.g)}</p>${w.id?chip(w.id):""}</div>`}
   if(k==="practise")return h+hallHTML();
-  if(k==="write"&&(EX.examq||[]).length){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:plan?tp=write">Plan it ›</button></div>`}
+  if(k==="write"&&(EX.examq||[]).length){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:desk?q=${dayN()%EX.examq.length}&tp=write">Open on the desk ›</button></div>`}
   if(k==="revise"){const d=dueKeys().length;h+=`<div class="pickup"><button class="pk next" data-to="study:${d?"review":"revise"}?tp=revise"><small>${d?"Due today":"Revision sheet"}</small><b>${d?`Review ${d} card${d===1?"":"s"}`:"Copy, print or back up"}</b></button></div>`}
   const ts=T[2].filter(toolOK);return h+secH("Tools",ts.length)+`<div class="tlist48">${ts.map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=${k}">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
 function whoHTML(w){const c=CH[w]||{},qs=QUOTES.quotes.filter(q=>speech[q.id].who===w),sps=Object.values(speech).filter(s=>s.who===w),ln=sps.reduce((a,s)=>a+s.lines.length,0),scn=new Set(sps.map(s=>s.page)).size,an=(EX.analysis||{})[w];
@@ -1086,7 +1087,7 @@ function themeHTML(k){const [nm,desc]=QUOTES.themes[k],[a,b]=thLearnt(k),cr=(EX.
   h+=secH("Through the play")+`<div class="thrib49">${ACTS.map((a,j)=>`<button type="button" data-thact="${k}:${a}" style="--h:${(pa[j]/pm).toFixed(2)}"${pa[j]?"":" disabled"} aria-label="${AN(a)}: ${pa[j]} key quotes"><i></i><b>${pa[j]||""}</b><small>${a?R[a]:"Ind."}</small></button>`).join("")}</div>`;
   h+=`<ol class="road">${themePlan(k).map(([t,s,qs],i)=>`<li><div class="rstop">${folioSeal(["I","II","III"][i],"","rn")}<b>${t}</b><small>${s}</small></div>${qs.length?deckHTML(qs.map(qCard),"",t):`<p class="muted">No key quote for this theme here.</p>`}</li>`).join("")}</ol>`;
   if(cr&&cr.length)h+=`<details class="fold"><summary>What critics say</summary>${cr.map(critHTML).join("")}</details>`;
-  const tools=[["themes?th="+k,"Trace it and copy a plan","themes"],["quotes?th="+k,"All its quotes","quotes"],["plan","Plan an essay","plan"]];if(toolOK("explore:motifs"))tools.push(["explore:motifs","Motifs and symbols","motifs"]);if(toolOK("explore:bigq"))tools.push(["explore:bigq","Big questions","bigq"]);
+  const tools=[["themes?th="+k,"Trace it and copy a plan","themes"],["quotes?th="+k,"All its quotes","quotes"],["desk","Plan an essay","desk"]];if(toolOK("explore:motifs"))tools.push(["explore:motifs","Motifs and symbols","motifs"]);if(toolOK("explore:bigq"))tools.push(["explore:bigq","Big questions","bigq"]);
   return h+secH("Go further")+`<div class="ttools">${tools.map(([s,l,i])=>`<button class="ttool" type="button" data-to="study:${s}${s.includes("?")?"&":"?"}tp=themes"><svg class="tic" viewBox="0 0 24 24" aria-hidden="true">${TIC[i]}</svg><span>${l}</span></button>`).join("")}</div>`}
 function renderSPage(){const {k,x}=SV;SLAST=false;
   if(k==="who"&&!whoAll().includes(x)){SV={k:"topic",x:"people"};return renderSPage()}
@@ -1100,8 +1101,8 @@ function renderSPage(){const {k,x}=SV;SLAST=false;
 function relList(){const T=k=>(TABS.find(x=>x[0]===k)||[,k])[1],W=w=>esc(title(w)),R=[],add=(sp,l)=>R.push([sp,l]);
   const who=w=>{if(!w)return;if(MAINS.includes(w))add("study:prof?who="+w,"Profile: "+W(w));if(whoQ(w))add("study:quotes?who="+w,"Key quotes: "+W(w));if(EX.analysis&&EX.analysis[w])add("study:explore:analysis?an="+w,"Analysis: "+W(w));if(MAINS.includes(w))add("study:part?who="+w,"Learn "+W(w)+"'s part")};
   const t=S.stab;
-  if(t==="quotes"){add("study:cards","Learn them as flashcards");if(qf.th)add("study:themes?th="+qf.th,"Theme: "+esc(QUOTES.themes[qf.th][0]));else add("study:themes","Quotes by theme");who(qf.who);add("study:plan","Use them in an essay plan")}
-  else if(t==="themes"){add("study:quotes?th="+thSel,"All key quotes: "+esc(QUOTES.themes[thSel][0]));add("study:plan","Plan an essay on it");if(exHas("motifs"))add("study:explore:motifs","Motifs and symbols");if(EX.critics&&EX.critics[thSel])add("study:explore:critics","What critics say")}
+  if(t==="quotes"){add("study:cards","Learn them as flashcards");if(qf.th)add("study:themes?th="+qf.th,"Theme: "+esc(QUOTES.themes[qf.th][0]));else add("study:themes","Quotes by theme");who(qf.who);add("study:desk","Use them in an essay")}
+  else if(t==="themes"){add("study:quotes?th="+thSel,"All key quotes: "+esc(QUOTES.themes[thSel][0]));add("study:desk","Write an essay on it");if(exHas("motifs"))add("study:explore:motifs","Motifs and symbols");if(EX.critics&&EX.critics[thSel])add("study:explore:critics","What critics say")}
   else if(t==="prof"){who(profSel);R.splice(0,1);if(exHas("map"))add("study:explore:map","Character map")}
   else if(t==="part"){who(pt.who);add("study:cards","Flashcards")}
   else if(t==="acts"){add("study:quiz","Scene quizzes");if(exHas("timeline"))add("study:explore:timeline","Timeline");add("study:revise","Revision sheet")}
@@ -1109,17 +1110,15 @@ function relList(){const T=k=>(TABS.find(x=>x[0]===k)||[,k])[1],W=w=>esc(title(w
   else if(t==="review"){add("study:cards","Flashcards");add("study:quiz","Scene quizzes");add("study:acts","Act summaries")}
   else if(t==="drill"){add("study:quotes","Key quotes");add("study:cards","Flashcards")}
   else if(t==="quiz"){add("study:acts","Act summaries");add("study:review","Daily review")}
-  else if(t==="plan"){add("study:extract",T("extract"));add("study:para",T("para"));add("study:themes","Themes");add("study:quotes","Key quotes")}
-  else if(t==="extract"){add("study:plan","Essay planner");add("study:para",T("para"));if(exHas("devices"))add("study:explore:devices","Language devices")}
-  else if(t==="para"){add("study:plan","Essay planner");if(exHas("critics"))add("study:explore:critics","Critics");add("study:quotes","Key quotes")}
+  else if(t==="desk"){add("study:quotes","Key quotes");add("study:themes","Themes");if(exHas("devices"))add("study:explore:devices","Language devices");if(exHas("context"))add("study:explore:context","Context");if(exHas("critics"))add("study:explore:critics","Critics")}
   else if(t==="revise"){add("study:acts","Act summaries");add("you","Your notes and bookmarks")}
   else if(t==="explore"){const x=exSel;
     if(x==="analysis")who(anSel);
     else if(x==="glossary"){add("study:cards","Flashcards");if(exHas("insults"))add("study:explore:insults","Insults")}
     else if(x==="map"||x==="arcs")add("study:prof","Character profiles");
     else if(x==="timeline"||x==="iago")add("study:acts","Act summaries");
-    else if(x==="devices"||x==="verse")add("study:extract",T("extract"));
-    else if(x==="critics"||x==="context")add("study:para",T("para"));
+    else if(x==="devices"||x==="verse")add("study:desk","Writing desk");
+    else if(x==="critics"||x==="context")add("study:desk","Writing desk");
     if(x)add("study:explore","All of Explore");else{add("study:acts","Act summaries");add("study:themes","Themes")}}
   add("read","Back to reading");return R}
 /* 4.9 footer: one slim "Up next" row, the rest in a More sheet, and a way back to the scene you were reading */
@@ -1166,13 +1165,16 @@ try{new MutationObserver(()=>{renderRel();focusNow()}).observe($("sbody"),{child
 let SBACK=null;
 function renderStudy(){
   if(!TABS.some(t=>t[0]===S.stab))S.stab="quotes";
+  /* 4.38: the planner, extract and paragraph tools live on the Writing desk; old links open it at the matching stage */
+  if(["plan","extract","para"].includes(S.stab)){const m={plan:0,extract:1,para:2}[S.stab];S.stab="desk";LS.set(PFX+"stab","desk");if(DSK.cur!=null&&(EX.examq||[]).length){dskOpen=true;(DSK.st=DSK.st||{})[DSK.cur]=m;if(m===1)(DSK.src=DSK.src||{}).g="ext";saveDSK()}}
+  if(S.stab!=="desk"||!dskOpen)document.body.classList.remove("wfocus38");$("study").classList.toggle("sdesk",S.stab==="desk"&&!SH&&!SV);
   INTROS.length=0;$("study").classList.toggle("shome",SH);$("study").classList.toggle("stool",!SH&&!SV);$("study").classList.toggle("sprac",!SH&&!SV&&["drill","quiz","review","part","cards"].includes(S.stab));
   if(SH){renderStudyHome();return}
   if(SV){renderSPage();return}
   const tn=toolNow(),tp=SBACK?(SBACK.k==="topic"?SBACK.x:SBACK.k==="who"?"people":"themes"):topicOf(tn);TP=tp;SLAST=true;$("study").dataset.tp=tp;
   if(SBACK&&SBACK.k!=="topic")sHead("study:"+SBACK.k+":"+encodeURIComponent(SBACK.x),SBACK.k==="who"?title(SBACK.x):QUOTES.themes[SBACK.x][0],toolName(tn));
   else sHead("study:topic:"+tp,topicK(tp)[1],toolName(tn));
-  ({part:studyPart,review:studyReview,drill:studyDrill,plan:studyPlan,extract:studyExtract,para:studyPara,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
+  ({part:studyPart,review:studyReview,drill:studyDrill,desk:studyDesk,prof:studyProf,acts:studyActs,explore:studyExplore,quotes:studyQuotes,cards:studyCards,themes:studyThemes,quiz:studyQuiz,revise:studyRevise})[S.stab]();
 }
 /* intros: one line shows; the full how-to opens from a ? (the first one in the header) */
 const INTROS=[];
@@ -1656,46 +1658,11 @@ function studyDrill(){
   if(!done&&D.wire)D.wire(it,st);
   else if(done&&D.wire&&dr.k==="stress")D.wire(it,st);
 }
-/* essay planner with exam questions, 45-minute timer and self-marking checklist */
+/* essay plans (kept by the Writing desk: thesis, three points with quote and analysis, checklist) */
 let PLAN={};try{PLAN=JSON.parse(LS.get(PFX+"plan")||"{}")}catch(e){}
 const savePlan=()=>LS.set(PFX+"plan",JSON.stringify(PLAN));
-let tmr=null;
-let plStep=null;const PLN=12;
 function wizNav(attr,st,n,last){return `<div class="wnav noprint">${st>0?`<button class="btn" type="button" ${attr}="${st-1}">‹ Back</button>`:"<span></span>"}${st<n-1?`<button class="btn primary" type="button" ${attr}="${st+1}">${st===n-2?esc(last):"Next ›"}</button>`:""}</div>`}
 const wizBar=(st,n,lab)=>`<div class="wiz-top"><div class="wseals" aria-hidden="true">${Array.from({length:n},(_,i)=>`<i class="${i<st?"d":i===st?"c":""}"></i>`).join("")}</div><small>Step ${st+1} of ${n}${lab?" · "+esc(lab):""}</small></div>`;
-function studyPlan(){
-  const qi=PLAN.cur??0,P=PLAN[qi]=PLAN[qi]||{th:"",pts:[{},{},{}],chk:{}},Q=EX.examq[qi],sug=Q[1];
-  const qopt=i=>`<option value="">Choose a quote…</option>`+[...sug.map(j=>[j,true]),...QUOTES.quotes.map(q=>[q.i,false]).filter(x=>!sug.includes(x[0]))].map(([j,s])=>`<option value="${j}"${String(i)===String(j)?" selected":""}>${s?"★ ":""}${esc(QUOTES.quotes[j].text.slice(0,55))}</option>`).join("");
-  const run=PLAN.t0&&Date.now()-PLAN.t0<45*6e4;if(plStep==null)plStep=planHas(P)?PLN-1:0;const st=Math.max(0,Math.min(PLN-1,plStep));
-  const ev=pt=>pt.q!==undefined&&pt.q!==""&&QUOTES.quotes[pt.q]?QUOTES.quotes[pt.q]:null;
-  let body="",lab="";
-  if(st===0){lab="Question";body=`<label for="pl-q" class="wq">Which question?</label><select id="pl-q">${EX.examq.map((x,i)=>`<option value="${i}"${i===qi?" selected":""}>${esc(x[0])}</option>`).join("")}</select><p class="muted">The quotes that fit it best are starred in the evidence steps.</p>`}
-  else if(st===1){lab="Argument";body=`<p class="wqq">${esc(Q[0])}</p><label for="pl-th" class="wq">Your argument in one sentence</label><textarea id="pl-th" data-pf="th" placeholder="Shakespeare presents … as …">${esc(P.th||"")}</textarea>`}
-  else if(st<PLN-1){const i=Math.floor((st-2)/3),k=["p","q","a"][(st-2)%3],pt=P.pts[i];lab=`Point ${i+1}`;
-    const prev=k!=="p"&&pt.p?`<p class="wqq">${esc(pt.p)}</p>`:`<p class="wqq">${esc(Q[0])}</p>`;
-    if(k==="p")body=prev+`<label class="wq" for="pp">Point ${i+1}: your topic sentence</label><textarea id="pp" data-pp="${i}:p" placeholder="Topic sentence">${esc(pt.p||"")}</textarea>`;
-    if(k==="q")body=prev+`<label class="wq" for="pp">Point ${i+1}: your evidence</label><select id="pp" data-pp="${i}:q">${qopt(pt.q)}</select>${ev(pt)?quoteHTML(ev(pt)):""}`;
-    if(k==="a")body=prev+(ev(pt)?`<blockquote class="wquote">“${esc(ev(pt).text)}”</blockquote>`:"")+`<label class="wq" for="pp">Point ${i+1}: your analysis</label><textarea id="pp" data-pp="${i}:a" placeholder="Zoom in on a word or image. Link to context or another moment.">${esc(pt.a||"")}</textarea>`}
-  else{lab="Your outline";const row=(n,l,v)=>`<button class="olr" type="button" data-plstep="${n}"><small>${l}</small><span>${v?esc(v):"<em>Not written yet</em>"}</span></button>`;
-    body=`<div class="outline folp"><div class="olrh" aria-hidden="true"><span>${esc(CFG.short)}</span><span>Essay plan</span></div>${row(0,"Question",Q[0])}${row(1,"Argument",P.th)}${P.pts.map((pt,i)=>`<div class="olp"><h4>Point ${i+1}</h4>${row(2+i*3,"Point",pt.p)}${row(3+i*3,"Evidence",ev(pt)?"“"+ev(pt).text+"”":"")}${row(4+i*3,"Analysis",pt.a)}</div>`).join("")}</div>
-     <div class="row noprint"><button class="btn primary" id="pl-copy">Copy outline</button><button class="btn" id="pl-dl">Download</button><button class="btn" id="pl-print">Print</button>${run?"":`<button class="btn" id="tm-go">Start 45-minute timed essay</button>`}</div>
-     <details class="fold"><summary>Quote bank for this question</summary>${sug.map(j=>quoteHTML(QUOTES.quotes[j])).join("")}</details>
-     <div class="box chk"><h3>Self-marking checklist</h3><p class="intro">After writing, tick what your answer does.</p>${EX.check.map((c,i)=>`<label><input type="checkbox" data-ck="${i}"${P.chk[i]?" checked":""}> ${esc(c)}</label>`).join("")}<p class="muted" id="ck-n">${Object.values(P.chk).filter(Boolean).length} of ${EX.check.length}</p></div><div class="box chk ao" id="aobox"></div>`}
-  $("sbody").innerHTML=`${run?`<div class="timer"><span>Timed essay</span><b id="tm">45:00</b><button class="btn sm" id="tm-stop" style="color:var(--page);border-color:var(--page)">Stop</button></div>`:""}
-   <div class="plan wiz"><p class="intro">Plan an answer to a typical exam question, one step at a time. Everything saves as you type; the whole outline appears at the end, ready to copy or print.</p>${wizBar(st,PLN,lab)}${body}${wizNav("data-plstep",st,PLN,"See your outline ›")}</div>`;
-  if(st===PLN-1)aoMount(P,savePlan);
-  if($("pl-q"))$("pl-q").onchange=e=>{PLAN.cur=+e.target.value;savePlan();plStep=0;studyPlan()};
-  $("sbody").querySelectorAll("[data-pf]").forEach(el=>el.oninput=()=>{P.th=el.value;savePlan()});
-  $("sbody").querySelectorAll("[data-pp]").forEach(el=>{const [i,f]=el.dataset.pp.split(":");const h=()=>{P.pts[i][f]=el.value;savePlan()};el.oninput=h;el.onchange=f==="q"?()=>{h();studyPlan()}:h});
-  $("sbody").querySelectorAll("[data-ck]").forEach(el=>el.onchange=()=>{P.chk[el.dataset.ck]=el.checked;savePlan();$("ck-n").textContent=`${Object.values(P.chk).filter(Boolean).length} of ${EX.check.length}`});
-  $("sbody").querySelectorAll("[data-plstep]").forEach(b=>b.onclick=()=>{plStep=+b.dataset.plstep;studyPlan();scrollTo(0,0);const t=$("sbody").querySelector(".wiz textarea,.wiz select");if(t&&!matchMedia("(pointer:coarse)").matches)t.focus({preventScroll:true})});
-  const txt=()=>`ESSAY PLAN\n${Q[0]}\n\nArgument: ${P.th||""}\n`+P.pts.map((pt,i)=>`\nPoint ${i+1}: ${pt.p||""}\nEvidence: ${ev(pt)?`"${ev(pt).text}" (${title(speech[ev(pt).id].who)}, ${sName(sceneOf(ev(pt).id))})`:""}\nAnalysis: ${pt.a||""}\n`).join("");
-  if($("pl-copy")){$("pl-copy").onclick=()=>copyText(txt());$("pl-dl").onclick=()=>download(CFG.file+"-essay-plan.txt",txt(),"text/plain");$("pl-print").onclick=()=>window.print()}
-  if($("tm-go"))$("tm-go").onclick=()=>{PLAN.t0=Date.now();savePlan();studyPlan()};
-  if($("tm-stop"))$("tm-stop").onclick=()=>{PLAN.t0=0;savePlan();clearInterval(tmr);studyPlan()};
-  clearInterval(tmr);if(run){const tick=()=>{const left=45*6e4-(Date.now()-PLAN.t0),el=$("tm");if(!el){clearInterval(tmr);return}if(left<=0){clearInterval(tmr);el.textContent="Time!";toast("45 minutes are up");return}
-    el.textContent=String(Math.floor(left/6e4)).padStart(2,"0")+":"+String(Math.floor(left%6e4/1e3)).padStart(2,"0")};tick();tmr=setInterval(tick,1000)}
-}
 /* ---------- exam writing: extract practice, paragraph builder, AO marking ---------- */
 const AOSETS={g:[["AO1","Argument and evidence",12,["Answered the question in a clear opening sentence","Kept one argument going through the answer","Backed each point with a short, embedded quote","Ranged across the whole play, not just one scene"]],
   ["AO2","Language, form and structure",12,["Named a method: a word, image, device or structure","Zoomed in on a single word or image","Explained the effect on the audience","Used terms precisely and explored more than one meaning"]],
@@ -1707,7 +1674,7 @@ const AOSETS={g:[["AO1","Argument and evidence",12,["Answered the question in a 
   ["AO4","Connections",3,["Linked to another moment in the play","Compared with another text or with the genre"]],
   ["AO5","Interpretations",3,["Mentioned another reading or critic","Weighed the readings and gave your own view"]]]};
 const AOLV={g:["Simple","Supported","Clear","Thoughtful","Thoughtful and developed","Convincing and critical"],a:["Basic","Straightforward","Relevant and clear","Coherent and developed","Perceptive and assured"]};
-const AODRILL={AO1:["Plan an argument in the Essay planner","plan"],AO2:["Spot methods in Explore: Language devices","explore:devices"],AO3:["Read Explore: Context","explore:context"],AO4g:["Practise names and quotes with Flashcards","cards"],AO4a:["Compare moments in Explore: Contrasts","explore:contrast"],AO5:["Read other views in Explore: Critics","explore:critics"]};
+const AODRILL={AO1:["Plan an argument on the Writing desk","desk"],AO2:["Spot methods in Explore: Language devices","explore:devices"],AO3:["Read Explore: Context","explore:context"],AO4g:["Practise names and quotes with Flashcards","cards"],AO4a:["Compare moments in Explore: Contrasts","explore:contrast"],AO5:["Read other views in Explore: Critics","explore:critics"]};
 const aoLevel=()=>LS.get("folio-level")==="a"?"a":"g";
 function aoInner(o){const L=aoLevel(),set=AOSETS[L];if(!o.ao||o.ao.L!==L)o.ao={L};const a=o.ao;let tot=0,max=0,worst=null,wv=2,any=false;
   const rows=set.map(([k,n,w,cr])=>{const t=a[k]=a[k]||[],got=cr.filter((_,i)=>t[i]).length,sc=Math.round(got/cr.length*w);if(got)any=true;tot+=sc;max+=w;if(got/cr.length<wv){wv=got/cr.length;worst=k}
@@ -1722,7 +1689,6 @@ const qAsk=q=>`“${esc(q.text)}” <small class="muted">${esc(title(speech[q.id
 /* extract practice */
 let XT={};try{XT=JSON.parse(LS.get(PFX+"xt")||"{}")}catch(e){}
 const saveXT=()=>LS.set(PFX+"xt",JSON.stringify(XT));
-let xsel="",xhint=false,xtmr=null;
 const XTAGS=["Metaphor","Simile","Imagery","Personification","Repetition","Contrast","Question","Exclamation","Command","Pun","Irony","Short line","Rhyme","Prose"];
 function xtBuild(qi){const Q=EX.examq[qi],M=(EX.models||[])[qi],q=QUOTES.quotes[M?M[0]:Q[1][0]],sp=speech[q.id],sps=sceneOf(q.id).items.filter(it=>it.t==="sp"),k=sps.indexOf(sp);
   const nm=t=>t.toLowerCase().replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim(),w=nm(q.text).split(" ").slice(0,3).join(" ");
@@ -1733,78 +1699,191 @@ function xtBuild(qi){const Q=EX.examq[qi],M=(EX.models||[])[qi],q=QUOTES.quotes[
     if(b>=0){if(n+sps[b].lines.length<=24){segs.unshift([sps[b],0,sps[b].lines.length]);n+=sps[b].lines.length;b--}else b=-1}
     if(n<16&&f<sps.length){if(n+sps[f].lines.length<=24){segs.push([sps[f],0,sps[f].lines.length]);n+=sps[f].lines.length;f++}else f=sps.length}}
   return {q,segs,ql,n}}
-function studyExtract(){
-  const qi=Math.min(XT.cur||0,EX.examq.length-1),Q=EX.examq[qi],X=xtBuild(qi),A=(XT.a=XT.a||{})[qi]=XT.a[qi]||{},W=XT.w=XT.w||{},Mk=(XT.m=XT.m||{})[qi]=XT.m[qi]||{};
-  const ids=X.segs.map(s=>s[0].id),run=XT.t0&&Date.now()-XT.t0<15*6e4,tags=[...XTAGS,...Object.values(EX.devices||{})];
-  const xbar=`<div class="xtbar"><small>Tag this line</small><div class="chips">${tags.map(t=>`<button class="chip" data-xtag="${esc(t)}" aria-pressed="${(A[xsel]||[]).includes(t)}">${esc(t)}</button>`).join("")}</div></div>`;
-  const nt=Object.values(A).reduce((s,v)=>s+v.length,0);
-  const lines=X.segs.map(([sp,a,z])=>`<div class="xsp"><div class="xwho" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</div>${sp.lines.slice(a,z).map((l,j0)=>{const j=a+j0,key=sp.id+":"+j,tg=A[key]||[];
-    return `<button class="xl${xsel===key?" on":""}${sp.id===X.q.id&&j===X.ql?" key":""}" data-xl="${key}"><span>${esc(l)}</span>${tg.length?`<small>${tg.map(esc).join(" · ")}</small>`:""}</button>`+(xsel===key?xbar:"")}).join("")}</div>`).join("");
-  const hints=ids.flatMap(id=>(EX.dev[id]||[]).map(d=>`<li><b>${esc((EX.devices||{})[d[0]]||d[0])}</b>: “${esc(d[2])}”. ${esc(d[1])}</li>`));
-  const qk=QBY[X.q.id]||[],other=Q[1].map(i=>QUOTES.quotes[i]).filter(q=>!ids.includes(q.id));
-  $("sbody").innerHTML=`${run?`<div class="timer"><span>Extract answer</span><b id="xtm">15:00</b><button class="btn sm" id="xt-stop" style="color:var(--page);border-color:var(--page)">Stop</button></div>`:""}
-   <div class="plan"><p class="intro">Practise the extract question: read the passage, tag the methods you notice, then write about the extract and the play as a whole.</p>
-   <label for="xt-q">Question</label><select id="xt-q">${EX.examq.map((x,i)=>`<option value="${i}"${i===qi?" selected":""}>${esc(x[0])}</option>`).join("")}</select>
-   <div class="box xq"><p><b>Starting with this extract, ${esc(lc1(Q[0]))}</b></p><p>Write about:</p><ul><li>how Shakespeare presents this in the extract</li><li>how Shakespeare presents this in the play as a whole.</li></ul><small class="muted">${sName(sceneOf(X.q.id))} · ${X.n} lines · the key line is marked</small></div>
-   <div class="xt">${lines}</div>
-   <p class="muted" style="font-size:.875rem">${xsel?"Tap a tag under the line, or tap the line again to close.":"Tap a line to tag a method in it."} ${nt} tag${nt===1?"":"s"} so far.</p>
-   <div class="row noprint">${hints.length?`<button class="btn" id="xt-hint">${xhint?"Hide":"Check against"} the app's notes</button>`:""}<button class="btn" id="xt-clear">Clear tags</button>${run?"":`<button class="btn" id="xt-go">Start 15-minute timer</button>`}</div>
-   ${xhint&&hints.length?`<div class="box"><h3>Methods the notes point out</h3><ul>${hints.join("")}</ul></div>`:""}
-   ${qk.length?`<div class="box"><h3>The key line</h3>${qk.map(quoteHTML).join("")}</div>`:""}
-   ${other.length?`<div class="box"><h3>Elsewhere in the play</h3><p class="intro">For the "play as a whole" half, link the extract to one or two of these.</p>${other.map(quoteHTML).join("")}</div>`:""}
-   <label for="xt-w">Your answer</label><textarea id="xt-w" style="min-height:180px" placeholder="In this extract Shakespeare presents … as …">${esc(W[qi]||"")}</textarea>
-   <div class="row noprint"><button class="btn" id="xt-copy">Copy answer</button></div>
-   <div class="box chk ao" id="aobox"></div></div>`;
-  $("xt-q").onchange=e=>{XT.cur=+e.target.value;xsel="";xhint=false;saveXT();studyExtract()};
-  $("sbody").querySelectorAll("[data-xl]").forEach(b=>b.onclick=()=>{xsel=xsel===b.dataset.xl?"":b.dataset.xl;const y=scrollY;studyExtract();scrollTo(0,y)});
-  $("sbody").querySelectorAll("[data-xtag]").forEach(b=>b.onclick=()=>{const t=b.dataset.xtag,c=(A[xsel]||[]).slice(),i=c.indexOf(t);if(i<0)c.push(t);else c.splice(i,1);if(c.length)A[xsel]=c;else delete A[xsel];saveXT();const y=scrollY;studyExtract();scrollTo(0,y)});
-  if($("xt-hint"))$("xt-hint").onclick=()=>{xhint=!xhint;const y=scrollY;studyExtract();scrollTo(0,y)};
-  $("xt-clear").onclick=()=>{XT.a[qi]={};xsel="";saveXT();studyExtract()};
-  $("xt-w").oninput=e=>{W[qi]=e.target.value;saveXT()};
-  $("xt-copy").onclick=()=>copyText(`EXTRACT QUESTION\nStarting with this extract, ${lc1(Q[0])}\n\n${W[qi]||""}`);
-  if($("xt-go"))$("xt-go").onclick=()=>{XT.t0=Date.now();saveXT();studyExtract()};
-  if($("xt-stop"))$("xt-stop").onclick=()=>{XT.t0=0;saveXT();clearInterval(xtmr);studyExtract()};
-  aoMount(Mk,saveXT);
-  clearInterval(xtmr);if(run){const tick=()=>{const left=15*6e4-(Date.now()-XT.t0),el=$("xtm");if(!el){clearInterval(xtmr);return}if(left<=0){clearInterval(xtmr);el.textContent="Time!";toast("15 minutes are up");return}
-    el.textContent=String(Math.floor(left/6e4)).padStart(2,"0")+":"+String(Math.floor(left%6e4/1e3)).padStart(2,"0")};tick();xtmr=setInterval(tick,1000)}
-}
-
 /* paragraph builder: model, faded, your own */
 let PA={};try{PA=JSON.parse(LS.get(PFX+"para")||"{}")}catch(e){}
 const savePA=()=>LS.set(PFX+"para",JSON.stringify(PA));
-let paW=0;
 const PSTEPS=[["p","Point","Answer the question in one sentence."],["e","Evidence","A short quote, built into your sentence."],["m","Method","Name the technique and the key word."],["f","Effect","What it makes the audience think or feel."],["c","Context","Why it mattered then, or matters now."],["a","Other reading","How else could it be read?"]];
-function paraModel(M,q,hide){const v={p:M[1],m:M[2],f:M[3],c:M[4],a:M[5]};
-  return PSTEPS.map(([k,l])=>`<div class="pl pl-${k}"><b>${l}</b>${k==="e"?`<p>${qAsk(q)}</p>`:hide&&hide.includes(k)?`<textarea data-paf="${k}" placeholder="Your ${l.toLowerCase()}…"></textarea>`:`<p>${esc(v[k])}</p>`}</div>`).join("")}
-function studyPara(){
-  const ms=EX.models||[];if(!ms.length){$("sbody").innerHTML=`<p class="intro">Model paragraphs are not available for this play yet.</p>`;return}
-  const qi=Math.min(PA.cur||0,ms.length-1),Q=EX.examq[qi],M=ms[qi],step=PA.step||0,fi=(qi+1)%ms.length,FM=ms[fi],F=((PA.f=PA.f||{})[qi]=PA.f[qi]||{}),O=((PA.o=PA.o||{})[qi]=PA.o[qi]||{}),Mk=((PA.m=PA.m||{})[qi]=PA.m[qi]||{});
-  const own=Q[1].filter(i=>i!==M[0]);if(O.q==null||!Q[1].includes(+O.q))O.q=own.length?own[0]:M[0];
-  const stepT=["1. Read a model","2. Finish one","3. Write your own"];
-  let body="";
-  if(step===0)body=`<p class="intro">A strong analytical paragraph does six jobs. Read how this one does each, then try it yourself.</p>${paraModel(M,QUOTES.quotes[M[0]])}<div class="row"><button class="btn primary" data-pstep="1">Next: finish one</button></div>`;
-  if(step===1)body=`<p class="intro">This paragraph answers <b>${esc(EX.examq[fi][0])}</b> Write the method and the effect, then compare.</p>${paraModel(FM,QUOTES.quotes[FM[0]],["m","f"])}
-    <div class="row"><button class="btn" id="pa-cmp">${PA.cmp?"Hide":"Compare with"} the model</button><button class="btn primary" data-pstep="2">Next: write your own</button></div>
-    ${PA.cmp?`<div class="box"><h3>Model method and effect</h3><p><b>Method:</b> ${esc(FM[2])}</p><p><b>Effect:</b> ${esc(FM[3])}</p><p class="muted">Yours doesn't need to match. Did you name a technique and say what it does to the audience?</p></div>`:""}`;
-  const PW=[["q","Your quote","Pick a different quote from the model's."],...PSTEPS.filter(x=>x[0]!=="e")],pn=PW.length+1,pw=Math.max(0,Math.min(pn-1,paW));
-  if(step===2){const q=QUOTES.quotes[+O.q];
-    if(pw===0)body=`${wizBar(pw,pn,"Your quote")}<label for="pa-oq" class="wq">Your quote</label><select id="pa-oq">${Q[1].map(i=>`<option value="${i}"${+O.q===i?" selected":""}>${i===M[0]?"(model's) ":""}${esc(QUOTES.quotes[i].text.slice(0,60))}</option>`).join("")}</select>${quoteHTML(q)}`;
-    else if(pw<pn-1){const [k,l,h]=PW[pw];body=`${wizBar(pw,pn,l)}<p class="wqq">${qAsk(q)}</p><div class="pl pl-${k}"><b>${l}</b><textarea data-pao="${k}" placeholder="${h}">${esc(O[k]||"")}</textarea></div>`}
-    else body=`${wizBar(pw,pn,"Your paragraph")}<div class="outline">${PSTEPS.map(([k,l],i)=>`<button class="olr pl-${k}" type="button" data-pwz="${k==="e"?0:PW.findIndex(x=>x[0]===k)}"><small>${l}</small><span>${k==="e"?"“"+esc(q.text)+"”":O[k]?esc(O[k]):"<em>Not written yet</em>"}</span></button>`).join("")}</div>
-      <div class="row noprint"><button class="btn primary" id="pa-copy">Copy paragraph</button></div><div class="box chk ao" id="aobox"></div>`;
-    body=`<div class="wiz">${body}${wizNav("data-pwz",pw,pn,"See your paragraph ›")}</div>`}
-  $("sbody").innerHTML=`<div class="plan"><label for="pa-q">Question</label><select id="pa-q">${EX.examq.map((x,i)=>`<option value="${i}"${i===qi?" selected":""}>${esc(x[0])}</option>`).join("")}</select>
-    <div class="chips psteps" role="tablist">${stepT.map((t,i)=>`<button class="chip" data-pstep="${i}" aria-pressed="${i===step}">${t}</button>`).join("")}</div>${body}</div>`;
-  $("pa-q").onchange=e=>{PA.cur=+e.target.value;PA.cmp=false;savePA();studyPara()};
-  $("sbody").querySelectorAll("[data-pstep]").forEach(b=>b.onclick=()=>{PA.step=+b.dataset.pstep;PA.cmp=false;savePA();studyPara();scrollTo(0,0)});
-  $("sbody").querySelectorAll("[data-paf]").forEach(t=>{const k=t.dataset.paf;t.value=F[k]||"";t.oninput=()=>{F[k]=t.value;savePA()}});
-  if($("pa-cmp"))$("pa-cmp").onclick=()=>{PA.cmp=!PA.cmp;savePA();const y=scrollY;studyPara();scrollTo(0,y)};
-  if($("pa-oq"))$("pa-oq").onchange=e=>{O.q=+e.target.value;savePA();studyPara()};
-  $("sbody").querySelectorAll("[data-pao]").forEach(t=>t.oninput=()=>{O[t.dataset.pao]=t.value;savePA()});
-  $("sbody").querySelectorAll("[data-pwz]").forEach(b=>b.onclick=()=>{paW=+b.dataset.pwz;studyPara();scrollTo(0,0)});
-  if($("pa-copy"))$("pa-copy").onclick=()=>{const q=QUOTES.quotes[+O.q];copyText(`${Q[0]}\n\n`+[O.p,`"${q.text}"`,O.m,O.f,O.c,O.a].filter(Boolean).join(" "))};
-  if(step===2&&pw===pn-1)aoMount(Mk,savePA);
-}
+/* ---------- 4.38 Writing desk: a question shelf, then one workspace per question in four stages (Unpack, Gather, Write, Mark).
+   Plans stay in <prefix>plan (PLAN), extract tags in <prefix>xt (XT), model practice in <prefix>para (PA); the essay, marks and history in <prefix>desk (DSK). ---------- */
+let DSK={};try{DSK=JSON.parse(LS.get(PFX+"desk")||"{}")}catch(e){}
+if(!DSK||typeof DSK!=="object")DSK={};
+const saveDSK=()=>LS.set(PFX+"desk",JSON.stringify(DSK));
+let dskOpen=false,dskTmr=null,dskLastTa=null;
+const DSTG=[["u","Unpack","Read the question, find your argument"],["g","Gather","Pick the quotes for each point"],["w","Write","Draft the essay, section by section"],["m","Mark","Check it against the objectives"]];
+/* question types: EX.examq[i][2] when given, else read from the wording */
+const DQT={char:"Character",theme:"Theme",tw:"To what extent",ext:"Extract",view:"A-level view"};
+function dqType(i){const Q=EX.examq[i];if(Q[2]&&DQT[Q[2]])return Q[2];const t=Q[0];if(/^to what extent/i.test(t))return "tw";if(/extract/i.test(t))return "ext";if(/^(explore|consider)\b.*\bview\b|^["“‘]/i.test(t))return "view";
+  const u=t.replace(new RegExp("\\bin (the )?"+String(CFG.short||"").replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i"),"");
+  return MAINS.some(w=>new RegExp("\\b"+title(w).split(" ")[0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b").test(u))?"char":"theme"}
+const dqEss=i=>{const E=(DSK.e=DSK.e||{})[i]=DSK.e[i]||{};if(!Array.isArray(E.p))E.p=["","",""];return E};
+const dqPlan=i=>{const P=PLAN[i]=PLAN[i]||{th:"",pts:[{},{},{}],chk:{}};if(!Array.isArray(P.pts))P.pts=[{},{},{}];while(P.pts.length<3)P.pts.push({});if(!P.chk)P.chk={};return P};
+const dqText=E=>[E.i||"",...(E.p||[]),E.c||""].filter(x=>String(x).trim()).join("\n\n");
+const dqWords=t=>(String(t).match(/[A-Za-z’'-]+/g)||[]).length;
+const dqQuote=pt=>pt&&pt.q!==undefined&&pt.q!==""&&QUOTES.quotes[pt.q]?QUOTES.quotes[pt.q]:null;
+/* stage done states */
+function dqDone(i){const P=PLAN[i]||{},E=(DSK.e||{})[i]||{},H=((DSK.h||{})[i]||[]);
+  return {u:!!String(P.th||"").trim()&&(P.pts||[]).filter(pt=>pt&&String(pt.p||"").trim()).length>=2,g:(P.pts||[]).filter(pt=>dqQuote(pt)).length>=2,w:dqWords(dqText(E))>=150,m:H.length>0}}
+const dqStarted=i=>{const d=dqDone(i);return d.u||d.g||d.w||d.m||planHas(PLAN[i])||dqWords(dqText((DSK.e||{})[i]||{}))>0};
+/* acts: beginning (Induction, 1-2), middle (3), end (4-5) */
+const dqPart=a=>a<=2?0:a===3?1:2,DPART=["Beginning","Middle","End"];
+/* the level toggle: same setting as Settings › Marking (folio-level) */
+const dqLevel=()=>`<div class="dlev noprint" role="group" aria-label="Exam level"><button type="button" data-dlev="g" aria-pressed="${aoLevel()==="g"}">GCSE</button><button type="button" data-dlev="a" aria-pressed="${aoLevel()==="a"}">A-level</button></div>`;
+/* our own short wording for each level, low to high */
+const DLVT={g:["Simple comments, little evidence","Some relevant points with quotes","A clear answer with explained evidence","A thoughtful answer that examines methods","Developed, thoughtful analysis across the play","A convincing, critical argument with precise, embedded evidence"],
+  a:["Some knowledge, little argument","A straightforward answer with general points","A relevant, clear argument using methods and context","A coherent, developed argument weighing readings","A perceptive, assured argument that judges between readings"]};
+/* what each kind of question asks you to do */
+const DCMD={char:["How = methods: name the technique, then its effect","What the character is like, and how they change","Range across the whole play, start to end"],
+  theme:["How = methods: name the technique, then its effect","What the play says about the idea, not just where it appears","Trace it from start to end"],
+  tw:["Weigh both sides before you decide","Give a clear judgement: largely, partly, hardly","Use the strongest evidence for each side"],
+  ext:["Start with the extract: close reading of its words","Then move to the play as a whole","Link the two halves in every paragraph"],
+  view:["Agree, disagree or both: say how far","Bring in other readings and critics (AO5)","Use context to test the view (AO3)"]};
+/* sentence starters, tapped into the last box you used */
+const DSTART=[["Argue",["Shakespeare presents … as …","From the start, … is shown as …","By the end of the play, …","Although … at first, …"]],
+  ["Evidence",["When … says “…”, …","The image of “…” suggests …","The single word “…” implies …"]],
+  ["Analyse",["This suggests that …","Perhaps Shakespeare wants the audience to …","The verb “…” makes …","This could also be read as …"]],
+  ["Context",["A Jacobean audience might have …","In Shakespeare’s time, …","Today’s audience may instead …"]],
+  ["Weigh",["However, it could be argued that …","Some critics see …, yet …","On the other hand, …"]],
+  ["Conclude",["Ultimately, Shakespeare presents …","Overall, the play suggests …","Therefore, …"]]];
+const DTERMS=["metaphor","simile","imagery","image","soliloquy","aside","repetition","contrast","juxtaposition","irony","verse","prose","iambic","pentameter","rhyme","couplet","pun","personification","foreshadow","structure","symbol","motif","antithesis","alliteration","oxymoron","hyperbole","rhetorical question","imperative","exclamation","semantic field","stage direction","dramatic","tone","dialogue","monologue","caesura","enjambment","blank verse"];
+/* every speech, letters only, with its act: for finding the student's quotes */
+let DIDX=null;const dqIdx=()=>DIDX||(DIDX=Object.keys(speech).map(id=>({n:speech[id].lines.join(" ").toLowerCase().replace(/[^a-z]/g,""),a:sceneOf(id).act})));
+function dqChecks(i){const E=dqEss(i),t=dqText(E),w=dqWords(t),L=aoLevel(),lo=t.toLowerCase(),R=[];
+  const Q=[...t.matchAll(/[“"]([^”"]{2,}?)[”"]/g)].map(m=>({s:m[1],at:m.index})),idx=dqIdx();
+  const found=Q.map(q=>{const n=q.s.toLowerCase().replace(/[^a-z]/g,"");if(n.length<6)return null;const h=idx.find(x=>x.n.includes(n));return h?{...q,a:h.a,wd:dqWords(q.s)}:null});
+  const ok=found.filter(Boolean),miss=Q.filter((q,j)=>!found[j]&&q.s.replace(/[^a-z]/gi,"").length>=6),acts=new Set(ok.map(q=>dqPart(q.a)));
+  const emb=ok.filter(q=>{const pre=t.slice(0,q.at),k=Math.max(pre.lastIndexOf(". "),pre.lastIndexOf("\n"),pre.lastIndexOf("? "),pre.lastIndexOf("! "));return dqWords(pre.slice(k+1))>=3}).length;
+  const longQ=ok.filter(q=>q.wd>12).length,tent=(lo.match(/\b(perhaps|suggests?|implies|imply|could|might|may|possibly|arguably|seems?|appears?)\b/g)||[]).length;
+  const terms0=[...new Set([...DTERMS,...Object.values(EX.devices||{}).map(x=>String(x).toLowerCase())].filter(x=>lo.includes(x)))],terms=terms0.filter(x=>!terms0.some(y=>y!==x&&y.includes(x)));
+  const ctx=(lo.match(/\b(jacobean|elizabethan|contemporary|patriarch\w*|divine right|renaissance|at the time|shakespeare’s time|shakespeare's time|17th|16th|seventeenth|sixteenth|church|monarch\w*|audience then)\b/g)||[]).length;
+  const kw=dqKeys(EX.examq[i][0]),ech=(x)=>kw.filter(k=>String(x||"").toLowerCase().includes(k)).length;
+  const crit=(lo.match(/\b(critic\w*|reading|readings|interpret\w*|feminist|marxist|psychoanalytic|historicist|argues|view)\b/g)||[]).length;
+  const tg=L==="a"?[700,1200]:[450,800];
+  R.push([w>=tg[0],`${w} words`,w>=tg[0]?(w>tg[1]?"Long for a timed answer: check every paragraph earns its place.":"A full-length answer."):`Aim for about ${tg[0]}–${tg[1]} in a timed answer.`]);
+  R.push([ok.length>=4,`${ok.length} quote${ok.length===1?"":"s"} found in the play`,ok.length>=4?"Well supported.":"Use at least four short quotes, one or two per paragraph."]);
+  if(miss.length)R.push([false,`${miss.length} quote${miss.length===1?"":"s"} not found`,`Check the wording: ${miss.slice(0,3).map(q=>"“"+esc(q.s.slice(0,40))+"”").join(", ")}`]);
+  R.push([ok.length>0&&!longQ,"Short quotes",longQ?`${longQ} quote${longQ===1?" runs":"s run"} past 12 words. Cut to the key words.`:ok.length?"Your quotes are short.":"No quotes yet."]);
+  R.push([ok.length>0&&emb>=Math.ceil(ok.length*.6),"Quotes built into sentences",ok.length?`${emb} of ${ok.length} sit inside your own sentence.`:"No quotes yet."]);
+  R.push([acts.size>=3,"Whole play",`${DPART.filter((_,k)=>acts.has(k)).join(", ")||"No part"} covered. ${acts.size>=3?"":"Range from beginning to end."}`]);
+  R.push([terms.length>=3,"Methods named",terms.length?esc(terms.slice(0,6).join(", ")):"Name techniques: image, soliloquy, contrast …"]);
+  R.push([tent>=3,"Tentative, exploratory words",`${tent} (perhaps, suggests, could …). ${tent>=3?"":"Explore meanings rather than state one."}`]);
+  R.push([ctx>=1,"Context",ctx?`${ctx} mention${ctx===1?"":"s"}.`:"Link a point to the audience or ideas of the time."]);
+  R.push([ech(E.i)>=1&&ech(E.c)>=1,"Question kept in view",`Key words in your introduction: ${ech(E.i)}, conclusion: ${ech(E.c)}.`]);
+  if(L==="a")R.push([crit>=2,"Other readings (AO5)",crit?`${crit} mention${crit===1?"":"s"}.`:"Bring in a critic or another reading."]);
+  return R}
+const DSTOP=new Set("how does shakespeare present presents what extent the and of in to a is as an by does his her their its play this that with for explore view consider".split(" "));
+const dqKeys=t=>[...new Set(String(t).toLowerCase().replace(/[^a-z' ]/g," ").split(/\s+/).filter(w=>w.length>3&&!DSTOP.has(w)))];
+const dqMark=t=>esc(t).replace(new RegExp("\\b("+dqKeys(t).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","gi"),"<mark>$1</mark>");
+/* the model paragraph as one flowing paragraph, each job highlighted */
+function dqModel(i,fade){const M=(EX.models||[])[i];if(!M)return "";const q=QUOTES.quotes[M[0]],F=((PA.f=PA.f||{})["d"+i]=PA.f["d"+i]||{});
+  const nm=x=>x.toLowerCase().replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim(),inM=nm(M[2]).includes(nm(q.text).split(" ").slice(0,3).join(" "));
+  const hid=[[],["m","f"],["m","f","c","a"],["p","m","f","c","a"]][fade||0];
+  const J=[["p",M[1]],...(inM?[]:[["e",`${title(speech[q.id].who)} says “${q.text}”.`]]),["m",M[2]],["f",M[3]],["c",M[4]],["a",M[5]]];
+  const lab=k=>(PSTEPS.find(x=>x[0]===k)||[,k])[1];
+  return `<p class="mflow">${J.map(([k,v])=>hid.includes(k)?`<span class="mj mj-${k} mgap"><label><small>${lab(k)}</small><textarea data-dmf="${k}" rows="2" placeholder="${esc((PSTEPS.find(x=>x[0]===k)||[,,""])[2])}">${esc(F[k]||"")}</textarea></label></span>`:`<span class="mj mj-${k}" data-mjk="${k}">${esc(v)}</span>`).join(" ")}</p>
+   <div class="mkey" aria-label="The six jobs">${PSTEPS.filter(([k])=>J.some(j=>j[0]===k)).map(([k,l])=>`<span class="mj-${k}"><i></i>${k==="m"&&inM?"Method, quote built in":l}</span>`).join("")}</div>`}
+const dqOutline=i=>{const O=(EX.outl||[])[i];if(!O)return "";return `<div class="doutl"><h4>Model outline</h4><p><b>Argument</b> ${esc(O.th)}</p>${(O.s||[]).map((x,k)=>`<p><b>${DPART[k]||"Point "+(k+1)}</b> ${esc(x)}</p>`).join("")}<p><b>Conclusion</b> ${esc(O.c||"")}</p></div>`};
+function dqQuoteCard(q,P,star){const sp=speech[q.id],sc=sceneOf(q.id),used=P.pts.findIndex(pt=>String(pt.q)===String(q.i));
+  return `<div class="dqc${used>=0?" used":""}" style="--c:${COLORS[sp.who]||"var(--ink)"}"><blockquote>${star?"★ ":""}“${esc(q.text)}”</blockquote><div class="meta"><b>${esc(title(sp.who))}</b>${chip(q.id)}<em>${DPART[dqPart(sc.act)]}</em></div>
+   <div class="duse" role="group" aria-label="Use for a point">${[0,1,2].map(k=>`<button type="button" data-duse="${k}:${q.i}" aria-pressed="${used===k}">Point ${k+1}</button>`).join("")}</div></div>`}
+/* the shelf */
+function deskShelf(){const N=EX.examq.length,L=aoLevel(),f=DSK.f||"",ty=[...new Set(EX.examq.map((_,i)=>dqType(i)))];
+  const ord=[...Array(N).keys()].sort((a,b)=>L==="a"?(dqType(b)==="view")-(dqType(a)==="view"):0).filter(i=>!f||dqType(i)===f);
+  const cur=DSK.cur!=null&&DSK.cur<N&&dqStarted(DSK.cur)?DSK.cur:null,st=ord.filter(dqStarted).length;
+  const pip=i=>{const d=dqDone(i);return `<span class="dpips" aria-label="Stages">${DSTG.map(([k,l])=>`<i class="${d[k]?"on":""}" title="${l}"></i>`).join("")}</span>`};
+  const last=i=>{const H=((DSK.h||{})[i]||[]);if(!H.length)return "";const h=H[H.length-1];return `<small class="dlast">Last mark ${h[1]}/${h[2]}</small>`};
+  $("sbody").innerHTML=`<div class="desk38 dshelf"><div class="dhead"><p class="intro">Pick a question. Each one has its own desk: unpack it, gather quotes, write, then mark it against the objectives.</p>${dqLevel()}</div>
+   ${cur!=null?`<button type="button" class="dcont" data-dq="${cur}">${hring(Object.values(dqDone(cur)).filter(Boolean).length/4,`<b>${Object.values(dqDone(cur)).filter(Boolean).length}</b>`)}<span><small>Continue</small><b>${esc(EX.examq[cur][0])}</b><em>${DSTG[Math.min(3,DSK.st&&DSK.st[cur]||0)][1]}</em></span><i aria-hidden="true">›</i></button>`:""}
+   ${ty.length>1?`<div class="chips dfilt" role="group" aria-label="Question type"><button class="chip" data-dqf="" aria-pressed="${!f}">All</button>${ty.map(t=>`<button class="chip" data-dqf="${t}" aria-pressed="${f===t}">${DQT[t]}</button>`).join("")}</div>`:""}
+   <div class="dgrid">${ord.map(i=>`<button type="button" class="dcard" data-dq="${i}"><span class="dty">${DQT[dqType(i)]}</span><b>${esc(EX.examq[i][0])}</b><span class="dfoot">${pip(i)}${last(i)}</span></button>`).join("")}</div>
+   <p class="muted dsum">${st} of ${ord.length} started · saved on this device</p></div>`;
+  dqWireLevel();
+  $("sbody").querySelectorAll("[data-dq]").forEach(b=>b.onclick=()=>{DSK.cur=+b.dataset.dq;saveDSK();goStudy("desk",String(DSK.cur))});
+  $("sbody").querySelectorAll("[data-dqf]").forEach(b=>b.onclick=()=>{DSK.f=b.dataset.dqf;saveDSK();deskShelf()})}
+function dqWireLevel(){$("sbody").querySelectorAll("[data-dlev]").forEach(b=>b.onclick=()=>{LS.set("folio-level",b.dataset.dlev);toast(b.dataset.dlev==="a"?"Marking: A-level":"Marking: GCSE");const y=scrollY;studyDesk();scrollTo(0,y)})}
+/* one question's desk */
+function studyDesk(){clearInterval(dskTmr);
+  if(!(EX.examq||[]).length){$("sbody").innerHTML=`<p class="intro">Exam questions are not available for this play yet.</p>`;return}
+  if(!dskOpen||DSK.cur==null||DSK.cur>=EX.examq.length){document.body.classList.remove("wfocus38");deskShelf();return}
+  const i=DSK.cur,Q=EX.examq[i],P=dqPlan(i),E=dqEss(i),st=Math.max(0,Math.min(3,(DSK.st=DSK.st||{})[i]||0)),d=dqDone(i),k=DSTG[st][0],pane=DSK.pane==="src"?"src":"work";
+  const src=(DSK.src=DSK.src||{})[k]||({u:"how",g:"quotes",w:"model",m:"model"})[k];
+  const rib=`<nav class="drib noprint" aria-label="Stages">${DSTG.map(([kk,l],j)=>`<button type="button" data-dst="${j}" aria-current="${j===st?"step":"false"}" class="${d[kk]?"done":""}"><i>${d[kk]?"✓":j+1}</i><span>${l}</span></button>`).join("")}</nav>`;
+  const top=`<div class="dtop"><button type="button" class="link dback" data-dshelf="1">‹ All questions</button>${dqLevel()}</div><div class="dq"><span class="dty">${DQT[dqType(i)]}</span><p>${dqMark(Q[0])}</p></div>`;
+  const tabs=(list)=>`<div class="dstabs" role="tablist">${list.map(([v,l])=>`<button type="button" role="tab" data-dsrc="${v}" aria-selected="${src===v}">${l}</button>`).join("")}</div>`;
+  let S="",W="";
+  if(k==="u"){const ty=dqType(i);
+    S=tabs([["how","What it asks"],["lv","What examiners reward"]])+(src==="lv"?`<ol class="dlv">${DLVT[aoLevel()].map((t,j,a)=>`<li${j===a.length-1?' class="top"':""}><b>${(aoLevel()==="a"?"Band ":"Level ")+(j+1)}</b> ${esc(t)}</li>`).join("")}</ol><p class="muted">Our own summary of a typical mark scheme. Check your exam board.</p>`
+      :`<ul class="dcmd">${DCMD[ty].map(t=>`<li>${esc(t)}</li>`).join("")}</ul><p class="muted">Highlighted: the key words to keep in view in every paragraph.</p>`);
+    W=`<label class="wq" for="du-th">Your argument in one sentence</label><textarea id="du-th" data-dpf="th" rows="3" placeholder="Shakespeare presents … as …, in order to …">${esc(P.th||"")}</textarea>${dqTray(["Argue"])}
+      <h4 class="dh">Three points across the play</h4>${[0,1,2].map(j=>`<label class="wq sm" for="du-p${j}">${j+1}. ${DPART[j]}</label><textarea id="du-p${j}" data-dpp="${j}:p" rows="2" placeholder="Topic sentence: one idea that answers the question">${esc(P.pts[j].p||"")}</textarea>`).join("")}
+      <div class="dnext"><button class="btn primary" type="button" data-dst="1">Next: gather quotes ›</button></div>`}
+  if(k==="g"){const qs=QUOTES.quotes,sug=Q[1],ap=DSK.ap==null?"":String(DSK.ap),X=xtBuild(i),A=(XT.a=XT.a||{})[i]=XT.a[i]||{};
+    const pool=(src==="all"?qs.filter(q=>ap===""||String(dqPart(sceneOf(q.id).act))===ap):sug.map(j=>qs[j]));
+    S=tabs([["quotes","Best quotes"],["all","All quotes"],["ext","Extract"]])+
+      (src==="ext"?dqExtract(i,X,A):`${src==="all"?`<div class="chips dact" role="group" aria-label="Part of the play"><button class="chip" data-dap="" aria-pressed="${ap===""}">All</button>${DPART.map((l,j)=>`<button class="chip" data-dap="${j}" aria-pressed="${ap===String(j)}">${l}</button>`).join("")}</div>`:""}
+       <div class="dqs">${pool.map(q=>dqQuoteCard(q,P,sug.includes(q.i))).join("")||`<p class="muted">No quotes here.</p>`}</div>`);
+    const cov=P.pts.map(pt=>dqQuote(pt)?dqPart(sceneOf(dqQuote(pt).id).act):null);
+    W=`<div class="dcov" aria-label="Where your quotes come from">${DPART.map((l,j)=>`<span class="${cov.includes(j)?"on":""}">${l}</span>`).join("")}</div>`+[0,1,2].map(j=>{const pt=P.pts[j],q=dqQuote(pt);
+      return `<div class="dpt"><div class="dpth"><b>Point ${j+1}</b><span>${pt.p?esc(pt.p):`<button type="button" class="link" data-dst="0">Write a topic sentence</button>`}</span></div>
+       ${q?`<blockquote class="wquote">“${esc(q.text)}” <small>${esc(title(speech[q.id].who))}, ${sName(sceneOf(q.id))}</small><button type="button" class="link dclr" data-dclr="${j}" aria-label="Remove this quote">×</button></blockquote>`:`<p class="dempty">${pane==="work"?`<button type="button" class="link" data-dpane="src">Choose a quote ›</button>`:"Choose a quote from the bank: tap Point "+(j+1)+"."}</p>`}
+       <label class="wq sm" for="dg-a${j}">Analysis: zoom in on one word</label><textarea id="dg-a${j}" data-dpp="${j}:a" rows="3" placeholder="The word “…” suggests …">${esc(pt.a||"")}</textarea></div>`}).join("")+`<div class="dnext"><button class="btn primary" type="button" data-dst="2">Next: write ›</button></div>`}
+  if(k==="w"){const run=E.t0&&Date.now()-E.t0<(E.tl||45)*6e4,w=dqWords(dqText(E));
+    S=tabs([["model","Model paragraph"],["plan","Your plan"],["start","Starters"]])+(src==="plan"?dqPlanView(i):src==="start"?dqTray(null,true):`${dqModel(i,DSK.fade&&DSK.fade[i]||0)}
+      <div class="dfade" role="group" aria-label="Practise the model"><small>Practise it:</small>${["Read","Fill 2","Fill 4","Write all"].map((l,j)=>`<button type="button" class="chip" data-dfade="${j}" aria-pressed="${(DSK.fade&&DSK.fade[i]||0)===j}">${l}</button>`).join("")}</div>`);
+    W=`<div class="dtool noprint">${run?`<span class="dtm" id="dtm">--:--</span><button class="btn sm" type="button" id="dt-stop">Stop</button>`:`<button class="btn sm" type="button" data-dtime="45">45 min</button><button class="btn sm" type="button" data-dtime="15">15 min</button>`}<span class="dwc" id="dwc">${w} words</span><button class="btn sm" type="button" id="dfocus" aria-pressed="${document.body.classList.contains("wfocus38")}">${document.body.classList.contains("wfocus38")?"Exit focus":"Focus"}</button></div>
+      ${!dqWords(dqText(E))&&planHas(P)?`<button class="btn dseed" type="button" id="dseed">Start from my plan</button>`:""}
+      ${[["i","Introduction","Answer the question in your first sentence: "+(P.th?"use your argument.":"state your argument.")],...[0,1,2].map(j=>["p"+j,`Paragraph ${j+1}`,P.pts[j].p||`Point ${j+1}`]),["c","Conclusion","Answer the question again, now with the whole play behind you."]].map(([key,l,h])=>{const v=key[0]==="p"&&key.length>1?E.p[+key.slice(1)]:E[key];
+        return `<div class="dsec"><label class="wq sm" for="dw-${key}">${l}<small>${esc(h)}</small></label><textarea id="dw-${key}" data-dwk="${key}" rows="${key==="i"||key==="c"?4:7}">${esc(v||"")}</textarea></div>`}).join("")}
+      <div class="dtray-in">${dqTray(null)}</div>
+      <div class="dnext"><button class="btn" type="button" id="dw-copy">Copy essay</button><button class="btn primary" type="button" data-dst="3">Next: mark it ›</button></div>`}
+  if(k==="m"){const R=dqChecks(i),H=((DSK.h=DSK.h||{})[i]=DSK.h[i]||[]),Mk=((DSK.mk=DSK.mk||{})[i]=DSK.mk[i]||{});
+    S=tabs([["model","Model"],["mine","My essay"]])+(src==="mine"?`<div class="dmine">${dqText(E)?esc(dqText(E)).replace(/\n\n/g,"</p><p>").replace(/^/,"<p>")+"</p>":`<p class="muted">Nothing written yet.</p>`}</div>`:dqOutline(i)+`<h4 class="dh">Model paragraph</h4>${dqModel(i,0)}`);
+    W=`<div class="dchk"><h4>The app's checks</h4><ul>${R.map(([ok,l,t])=>`<li class="${ok?"ok":"no"}"><i aria-hidden="true">${ok?"✓":"!"}</i><span><b>${esc(l)}</b><small>${t}</small></span></li>`).join("")}</ul><p class="muted">Counted from your text, offline. The judgement is still yours: tick below.</p></div>
+      <div class="box chk ao" id="aobox"></div>
+      <div class="dsave noprint"><button class="btn primary" type="button" id="dm-save">Save this mark</button><button class="btn" type="button" id="dm-dl">Download essay</button>${canPrint()?`<button class="btn" type="button" id="dm-pr">Print</button>`:""}</div>
+      ${H.length?`<div class="dhist"><h4>Your marks</h4>${H.slice(-6).map(h=>`<div class="dhr"><small>${esc(new Date(h[0]).toLocaleDateString())}</small><span class="cbar"><i style="width:${Math.round(h[1]/h[2]*100)}%"></i></span><b>${h[1]}/${h[2]}</b></div>`).join("")}</div>`:""}`}
+  $("sbody").innerHTML=`<div class="desk38 dws pane-${pane}" data-stage="${k}">${top}${rib}<div class="dpsw noprint" role="tablist"><button type="button" role="tab" data-dpane="work" aria-selected="${pane==="work"}">Your work</button><button type="button" role="tab" data-dpane="src" aria-selected="${pane==="src"}">${({u:"Guidance",g:"Quote bank",w:"Model and plan",m:"Model"})[k]}</button></div>
+   <div class="dpanes"><section class="dsrc" aria-label="Sources">${S}</section><section class="dwork" aria-label="Your work">${W}</section></div></div>`;
+  dqWire(i,P,E,st,k);
+  if(k==="m")aoMount(DSK.mk[i],saveDSK);
+  if(k==="w"&&E.t0&&Date.now()-E.t0<(E.tl||45)*6e4){const tick=()=>{const el=$("dtm");if(!el){clearInterval(dskTmr);return}const left=(E.tl||45)*6e4-(Date.now()-E.t0);if(left<=0){clearInterval(dskTmr);el.textContent="Time!";toast(`${E.tl||45} minutes are up`);return}el.textContent=String(Math.floor(left/6e4)).padStart(2,"0")+":"+String(Math.floor(left%6e4/1e3)).padStart(2,"0")};tick();dskTmr=setInterval(tick,1000)}}
+function dqTray(only,big){return `<div class="dtray${big?" big":""}">${DSTART.filter(([g])=>!only||only.includes(g)).map(([g,a])=>`<div class="dtg"><small>${g}</small><div class="chips">${a.map(x=>`<button type="button" class="chip" data-dins="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>`).join("")}</div>`}
+function dqPlanView(i){const P=dqPlan(i);return `<div class="outline"><p><b>Argument</b> ${P.th?esc(P.th):"<em>Not written yet</em>"}</p>${P.pts.map((pt,j)=>{const q=dqQuote(pt);return `<p><b>Point ${j+1}</b> ${pt.p?esc(pt.p):"<em>No topic sentence</em>"}${q?`<br>“${esc(q.text)}”`:""}${pt.a?`<br><small>${esc(pt.a)}</small>`:""}</p>`}).join("")}</div>`}
+function dqExtract(i,X,A){const sel=DSK.xl||"",tags=[...XTAGS,...Object.values(EX.devices||{})];
+  const lines=X.segs.map(([sp,a,z])=>`<div class="xsp"><div class="xwho" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</div>${sp.lines.slice(a,z).map((l,j0)=>{const j=a+j0,key=sp.id+":"+j,tg=A[key]||[];
+    return `<button type="button" class="xl${sel===key?" on":""}${sp.id===X.q.id&&j===X.ql?" key":""}" data-dxl="${key}"><span>${esc(l)}</span>${tg.length?`<small>${tg.map(esc).join(" · ")}</small>`:""}</button>`+(sel===key?`<div class="xtbar"><small>Tag this line</small><div class="chips">${tags.map(t=>`<button type="button" class="chip" data-dxtag="${esc(t)}" aria-pressed="${(A[key]||[]).includes(t)}">${esc(t)}</button>`).join("")}</div></div>`:"")}).join("")}</div>`).join("");
+  const hints=X.segs.map(s=>s[0].id).flatMap(id=>(EX.dev[id]||[]).map(dv=>`<li><b>${esc((EX.devices||{})[dv[0]]||dv[0])}</b>: “${esc(dv[2])}”. ${esc(dv[1])}</li>`));
+  return `<p class="muted">${sName(sceneOf(X.q.id))} · ${X.n} lines · key line marked. Tap a line to tag a method.</p><div class="xt">${lines}</div>${hints.length?`<details class="fold"><summary>Check against the app's notes</summary><ul>${hints.join("")}</ul></details>`:""}`}
+function dqWire(i,P,E,st,k){const B=$("sbody"),re=(y)=>{const sy=y==null?scrollY:y;studyDesk();scrollTo(0,sy)};
+  dqWireLevel();
+  B.querySelectorAll("[data-dshelf]").forEach(b=>b.onclick=()=>{document.body.classList.remove("wfocus38");goStudy("desk")});
+  B.querySelectorAll("[data-dst]").forEach(b=>b.onclick=()=>{DSK.st[i]=+b.dataset.dst;DSK.pane="work";saveDSK();re(0)});
+  B.querySelectorAll("[data-dpane]").forEach(b=>b.onclick=()=>{DSK.pane=b.dataset.dpane;saveDSK();re()});
+  B.querySelectorAll("[data-dsrc]").forEach(b=>b.onclick=()=>{DSK.src[k]=b.dataset.dsrc;saveDSK();re()});
+  B.querySelectorAll("[data-dap]").forEach(b=>b.onclick=()=>{DSK.ap=b.dataset.dap===""?null:+b.dataset.dap;saveDSK();re()});
+  B.querySelectorAll("[data-dpf]").forEach(el=>el.oninput=()=>{P.th=el.value;savePlan()});
+  B.querySelectorAll("[data-dpp]").forEach(el=>el.oninput=()=>{const [j,f]=el.dataset.dpp.split(":");P.pts[+j][f]=el.value;savePlan()});
+  B.querySelectorAll("[data-duse]").forEach(b=>b.onclick=()=>{const [j,q]=b.dataset.duse.split(":"),pt=P.pts[+j];pt.q=String(pt.q)===q?"":+q;savePlan();toast(pt.q===""?"Removed":`Quote set for point ${+j+1}`);re()});
+  B.querySelectorAll("[data-dclr]").forEach(b=>b.onclick=()=>{P.pts[+b.dataset.dclr].q="";savePlan();re()});
+  B.querySelectorAll("[data-dxl]").forEach(b=>b.onclick=()=>{DSK.xl=DSK.xl===b.dataset.dxl?"":b.dataset.dxl;saveDSK();re()});
+  B.querySelectorAll("[data-dxtag]").forEach(b=>b.onclick=()=>{const A=XT.a[i],key=DSK.xl,t=b.dataset.dxtag,c=(A[key]||[]).slice(),j=c.indexOf(t);if(j<0)c.push(t);else c.splice(j,1);if(c.length)A[key]=c;else delete A[key];saveXT();re()});
+  B.querySelectorAll("[data-dfade]").forEach(b=>b.onclick=()=>{(DSK.fade=DSK.fade||{})[i]=+b.dataset.dfade;saveDSK();re()});
+  B.querySelectorAll("[data-dmf]").forEach(t=>t.oninput=()=>{PA.f["d"+i][t.dataset.dmf]=t.value;savePA()});
+  B.querySelectorAll("textarea").forEach(t=>t.addEventListener("focus",()=>{dskLastTa=t.id}));
+  const wc=()=>{const el=$("dwc");if(el)el.textContent=dqWords(dqText(E))+" words"};
+  B.querySelectorAll("[data-dwk]").forEach(t=>t.oninput=()=>{const key=t.dataset.dwk;if(key[0]==="p"&&key.length>1)E.p[+key.slice(1)]=t.value;else E[key]=t.value;saveDSK();wc()});
+  B.querySelectorAll("[data-dins]").forEach(b=>b.onclick=()=>{const t=dskLastTa&&$(dskLastTa)||B.querySelector(".dwork textarea");if(!t){copyText(b.dataset.dins);return}
+    const s0=t.selectionStart??t.value.length,s1=t.selectionEnd??s0,x=b.dataset.dins,pre=t.value.slice(0,s0),gap=pre&&!/\s$/.test(pre)?" ":"";t.value=pre+gap+x+t.value.slice(s1);t.dispatchEvent(new Event("input"));
+    const at=(pre+gap).length+(x.indexOf("…")>=0?x.indexOf("…"):x.length);try{t.focus({preventScroll:true});t.setSelectionRange(at,at+(x.indexOf("…")>=0?1:0))}catch(e){}});
+  B.querySelectorAll("[data-dtime]").forEach(b=>b.onclick=()=>{E.t0=Date.now();E.tl=+b.dataset.dtime;saveDSK();re()});
+  if($("dt-stop"))$("dt-stop").onclick=()=>{E.t0=0;saveDSK();clearInterval(dskTmr);re()};
+  if($("dfocus"))$("dfocus").onclick=()=>{document.body.classList.toggle("wfocus38");re(0)};
+  if($("dseed"))$("dseed").onclick=()=>{E.i=E.i||P.th||"";P.pts.forEach((pt,j)=>{if(!E.p[j]){const q=dqQuote(pt);E.p[j]=[pt.p,q?`“${q.text}”`:"",pt.a].filter(Boolean).join(" ")}});saveDSK();re()};
+  const essay=()=>`${EX.examq[i][0]}\n\n${dqText(E)}`;
+  if($("dw-copy"))$("dw-copy").onclick=()=>copyText(essay());
+  if($("dm-dl"))$("dm-dl").onclick=()=>download(CFG.file+"-essay.txt",essay(),"text/plain");
+  if($("dm-pr"))$("dm-pr").onclick=()=>window.print();
+  if($("dm-save"))$("dm-save").onclick=()=>{const L=aoLevel(),o=DSK.mk[i].ao||{};let tot=0,max=0;AOSETS[L].forEach(([kk,,w,cr])=>{const t=o[kk]||[];tot+=Math.round(cr.filter((_,j)=>t[j]).length/cr.length*w);max+=w});
+    DSK.h[i].push([Date.now(),tot,max,L]);if(DSK.h[i].length>30)DSK.h[i]=DSK.h[i].slice(-30);saveDSK();toast(`Saved: ${tot} / ${max}`);re()}}
 /* character profiles */
 let PROF={};try{PROF=JSON.parse(LS.get(PFX+"prof")||"{}")}catch(e){}
 let profSel=CFG.profDefault;
