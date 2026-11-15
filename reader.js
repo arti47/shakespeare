@@ -1771,7 +1771,9 @@ function dqChecks(i){const E=dqEss(i),t=dqText(E),w=dqWords(t),L=aoLevel(),lo=t.
   if(L==="a")R.push([crit>=2,"Other readings (AO5)",crit?`${crit} mention${crit===1?"":"s"}.`:"Bring in a critic or another reading."]);
   return R}
 const DSTOP=new Set("how does shakespeare present presents what extent the and of in to a is as an by does his her their its play this that with for explore view consider".split(" "));
-const dqKeys=t=>[...new Set(String(t).toLowerCase().replace(/[^a-z' ]/g," ").split(/\s+/).filter(w=>w.length>3&&!DSTOP.has(w)))];
+/* extract questions: key words come from the task after "Starting with this extract", not the scene reference */
+const dqFocus=t=>{const m=String(t).match(/starting with this extract,?\s*([\s\S]*)$/i);return m?m[1]:String(t)};
+const dqKeys=t=>[...new Set(dqFocus(t).toLowerCase().replace(/[^a-z' ]/g," ").split(/\s+/).filter(w=>w.length>3&&!DSTOP.has(w)))];
 const dqMark=t=>esc(t).replace(new RegExp("\\b("+dqKeys(t).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","gi"),"<mark>$1</mark>");
 /* the model paragraph as one flowing paragraph, each job highlighted */
 function dqModel(i,fade){const M=(EX.models||[])[i];if(!M)return "";const q=QUOTES.quotes[M[0]],F=((PA.f=PA.f||{})["d"+i]=PA.f["d"+i]||{});
@@ -1805,7 +1807,7 @@ function studyDesk(){clearInterval(dskTmr);
   if(!(EX.examq||[]).length){$("sbody").innerHTML=`<p class="intro">Exam questions are not available for this play yet.</p>`;return}
   if(!dskOpen||DSK.cur==null||DSK.cur>=EX.examq.length){document.body.classList.remove("wfocus38");deskShelf();return}
   const i=DSK.cur,Q=EX.examq[i],P=dqPlan(i),E=dqEss(i),st=Math.max(0,Math.min(3,(DSK.st=DSK.st||{})[i]||0)),d=dqDone(i),k=DSTG[st][0],pane=DSK.pane==="src"?"src":"work";
-  const src=(DSK.src=DSK.src||{})[k]||({u:"how",g:"quotes",w:"model",m:"model"})[k];
+  const src=(DSK.src=DSK.src||{})[k]||(k==="g"&&dqType(i)==="ext"?"ext":({u:"how",g:"quotes",w:"model",m:"model"})[k]);
   const rib=`<nav class="drib noprint" aria-label="Stages">${DSTG.map(([kk,l],j)=>`<button type="button" data-dst="${j}" aria-current="${j===st?"step":"false"}" class="${d[kk]?"done":""}"><i>${d[kk]?"✓":j+1}</i><span>${l}</span></button>`).join("")}</nav>`;
   const top=`<div class="dtop"><button type="button" class="link dback" data-dshelf="1">‹ All questions</button>${dqLevel()}</div><div class="dq"><span class="dty">${DQT[dqType(i)]}</span><p>${dqMark(Q[0])}</p></div>`;
   const tabs=(list)=>`<div class="dstabs" role="tablist">${list.map(([v,l])=>`<button type="button" role="tab" data-dsrc="${v}" aria-selected="${src===v}">${l}</button>`).join("")}</div>`;
