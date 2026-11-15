@@ -4,6 +4,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.38.0] — 2026-11-15
+
+### Added
+- Writing desk (Study › Write): a question shelf (type chips, progress pips, last mark, Continue) and one workspace per exam question with four stages, Unpack (argument, Argue starters, topic sentences), Gather (three point cards, quote coverage across the play, Best/All quotes and Extract sources), Write (sectioned essay seeded from the plan, 45/15-minute timer, word count, Focus mode, sentence-starter tray) and Mark (offline checks on length, quotes found and embedded, coverage, methods, context and the question's keywords, AO self ticks with level wording, the model paragraph side by side with fade practice, saved mark history); GCSE/A-level toggle; two panes at 760px+ with a pane switch on phones (#152)
+
+### Changed
+- Planner, Extract and Paragraphs merged into the Writing desk; saved plans, extract tags and paragraph answers carry over and old links open the matching stage (#152)
+
 ## [4.37.0] — 2026-11-14
 
 ### Added
