@@ -1787,13 +1787,90 @@ const dqOutline=i=>{const O=(EX.outl||[])[i];if(!O)return "";return `<div class=
 function dqQuoteCard(q,P,star){const sp=speech[q.id],sc=sceneOf(q.id),used=P.pts.findIndex(pt=>String(pt.q)===String(q.i));
   return `<div class="dqc${used>=0?" used":""}" style="--c:${COLORS[sp.who]||"var(--ink)"}"><blockquote>${star?"★ ":""}“${esc(q.text)}”</blockquote><div class="meta"><b>${esc(title(sp.who))}</b>${chip(q.id)}<em>${DPART[dqPart(sc.act)]}</em></div>
    <div class="duse" role="group" aria-label="Use for a point">${[0,1,2].map(k=>`<button type="button" data-duse="${k}:${q.i}" aria-pressed="${used===k}">Point ${k+1}</button>`).join("")}</div></div>`}
+/* ---------- 4.42 Essay craft: exam board (folio-board), Decode + thesis builder, paragraph frames, perspectives lens, essay spine.
+   New plan fields only: PLAN[i].dec (focus word indexes), deb, tb {h,b,u,s}, tbf (write freely), lk, lens {ch,ja,mo,cr}; DSK.frame, DSK.e[i].s[j] = {fr,v}. ---------- */
+/* approximate timings and formats: students check their own board */
+const DBRD={gen:{n:"Any board",m:{g:50,a:60},f:{g:"One essay on the play, usually starting from an extract.",a:"One essay on the play, weighing other readings."},ao:{g:"AO1 argument · AO2 methods · AO3 context",a:"AO1 argument · AO2 methods · AO3 context · AO5 other readings"}},
+  aqa:{n:"AQA",m:{g:50,a:60},f:{g:"One question: start with the printed extract, then write about the play as a whole.",a:"Check which paper your play is on: formats differ at A-level."},ao:{g:"AO1 · AO2 · AO3 · AO4 spelling and grammar (extra marks)",a:"AO1 · AO2 · AO3 · AO4 connections · AO5 other readings"},top:"Top level words: convincing, critical, a well-structured argument"},
+  edx:{n:"Edexcel",m:{g:55,a:60},f:{g:"Two parts: (a) the printed extract, on language; (b) the play as a whole.",a:"Drama paper: one essay, using the critical anthology for other readings."},ao:{g:"(a) AO2 methods · (b) AO1 argument, AO3 context",a:"AO1 · AO2 · AO3 · AO5 other readings"}},
+  ocr:{n:"OCR",m:{g:60,a:60},f:{g:"A choice: an extract question or an essay on the whole play.",a:"Two parts: (a) close reading of a passage; (b) an essay on the play."},ao:{g:"AO1 · AO2 · AO3 · AO4 spelling and grammar",a:"AO1 · AO2 · AO3 · AO5 other readings"}},
+  edq:{n:"Eduqas",m:{g:60,a:60},f:{g:"Two parts: (a) the printed extract; (b) an essay on the play as a whole.",a:"Check which paper your play is on: formats differ at A-level."},ao:{g:"(a) AO1, AO2 · (b) AO1, AO3, AO4",a:"AO1 · AO2 · AO3 · AO5 other readings"}}};
+const dqBoard=()=>{const b=LS.get("folio-board");return DBRD[b]?b:"gen"};
+const dqMins=()=>DBRD[dqBoard()].m[aoLevel()];
+const dqSplit=m=>{const p=Math.max(2,Math.round(m*.1));return [p,m-2*p,p]};
+const dqBoardSel=()=>`<select class="dbrd noprint" id="dbrd" aria-label="Exam board">${Object.entries(DBRD).map(([k,b])=>`<option value="${k}"${dqBoard()===k?" selected":""}>${b.n}</option>`).join("")}</select>`;
+function dqBoardHTML(){const b=DBRD[dqBoard()],L=aoLevel(),m=dqMins(),[p,w,c]=dqSplit(m);
+  return `<div class="dbinfo"><h4>${esc(b.n)} · ${L==="a"?"A-level":"GCSE"}</h4><p>${esc(b.f[L])}</p><p class="dbao">${esc(b.ao[L])}</p>${b.top&&L==="g"?`<p class="dbao">${esc(b.top)}</p>`:""}
+   <div class="dsplit" aria-label="Timing"><span style="flex:${p} 0 auto"><b>Plan</b> ${p}</span><span style="flex:${w} 0 auto"><b>Write</b> ${w}</span><span style="flex:${c} 0 auto"><b>Check</b> ${c}</span></div><p class="muted">About ${m} minutes. Approximate: check your board’s specification.</p></div>`}
+/* Decode: the question as tappable words */
+const DCWD=/^(how|explore|consider|discuss|examine|extent|far|starting|extract|whole|present|presents|presented|presenting)$/;
+function dqToks(i){let n=0;return String(EX.examq[i][0]).split(/(\s+)/).map(t=>{if(!t.trim())return {t};const w=t.toLowerCase().replace(/[^a-z']/g,"");return {t,w,n:n++,c:DCWD.test(w)}})}
+function dqDec(i,P){if(Array.isArray(P.dec))return P.dec;const K=new Set(dqKeys(EX.examq[i][0]));return dqToks(i).filter(x=>x.w&&!x.c&&K.has(x.w)).map(x=>x.n)}
+const dqFW=(i,P)=>{const D=new Set(dqDec(i,P));return [...new Set(dqToks(i).filter(x=>x.w&&D.has(x.n)).map(x=>x.w))]};
+const DDEB={char:"Is the character simply what they seem, or more complicated? Where do they change?",theme:"Does the play present this idea one way, or two? Does that change by the end?",
+  tw:"Agree or disagree? How far: largely, partly, hardly?",ext:"What does the extract show, and is it the same in the rest of the play?",view:"Who would agree with this view, and who would not? Where do you stand?"};
+function dqDecode(i,P){const D=new Set(dqDec(i,P)),fw=dqFW(i,P);
+  return `<div class="ddec sheet42" id="ddec"><h4 class="dh">1. Decode the question</h4><p class="muted">Tap the focus words. Underlined: the command, what to do.</p>
+   <p class="dtoks">${dqToks(i).map(x=>!x.w?esc(x.t):x.c?`<span class="dtok c">${esc(x.t)}</span>`:`<button type="button" class="dtok${D.has(x.n)?" on":""}" data-dtok="${x.n}" aria-pressed="${D.has(x.n)}">${esc(x.t)}</button>`).join("")}</p>
+   <p class="dfw"><small>Focus</small> ${fw.length?fw.map(esc).join(" · "):"<em>none yet</em>"}</p>
+   <div class="dslot"><label for="du-deb">Debate</label><textarea id="du-deb" data-dpg="deb" rows="2" placeholder="${esc(DDEB[dqType(i)])}">${esc(P.deb||"")}</textarea></div></div>`}
+/* thesis builder: how + why, with because / but / so */
+const DTB=[["h","How","Shakespeare presents … as …"],["b","because","what Shakespeare is saying, warning or questioning"],["u","but","a twist or complication (optional)"],["s","so","what it leads to by the end (optional)"]];
+const dqCompose=tb=>{const c=s=>String(s||"").trim().replace(/[.;,\s]+$/,""),h=c(tb.h);if(!h)return "";return h+DTB.slice(1).map(([k,w])=>c(tb[k])?`, ${w} `+c(tb[k]).replace(new RegExp("^"+w+"\\s+","i"),""):"").join("")+"."};
+const dqFree=P=>P.tbf===true||(P.tbf==null&&!P.tb&&!!String(P.th||"").trim());
+function dqThChk(i,P){const lo=String(P.th||"").toLowerCase(),ty=dqType(i),fw=dqFW(i,P),R=[],hit=fw.filter(w=>lo.includes(w.slice(0,Math.max(4,w.length-2))));
+  R.push([/\b(present|portray|show|use|depict|through|by|contrast|imager|language|soliloqu|structur|dramati|juxtapos)\w*/.test(lo),"How","Say how: presents, through, by contrasting …"]);
+  R.push([/\b(because|in order to|so that|to (show|warn|suggest|explore|question|criticis|critiqu|challeng|reveal|expose)|warn|reveal|expose|critiqu|challeng|question)\w*/.test(lo),"Why","Say why: because …, to warn …, to question …"]);
+  R.push([hit.length>0,"Question words",hit.length?esc(hit.join(", ")):`Use the focus words: ${esc(fw.slice(0,4).join(", ")||"tap them above")}`]);
+  if(ty==="tw")R.push([/\b(largely|partly|hardly|entirely|mostly|completely|only partly|to a (great|large|limited) extent)\b/.test(lo),"Judgement","Say how far: largely, partly, hardly."]);
+  if(ty==="view")R.push([/\b(agree|disagree|partly|largely|convincing|persuasive|limited|only partly)\b/.test(lo),"Stance","Agree, disagree, or how far."]);
+  R.push([/\b(but|although|yet|however|while|whereas|even though)\b/.test(lo),"Twist","Optional: but, although … lifts it to a higher band."]);
+  return R}
+const dqThChkHTML=(i,P)=>`<ul class="dthc" id="dthc" aria-live="polite">${dqThChk(i,P).map(([ok,l,t])=>`<li class="${ok?"ok":"no"}"><i aria-hidden="true">${ok?"✓":"·"}</i><b>${l}</b><small>${t}</small></li>`).join("")}</ul>`;
+function dqThesis(i,P){const fr=dqFree(P),tb=P.tb||{};
+  return `<div class="dtb sheet42" id="dtb"><h4 class="dh">2. Your argument</h4>
+   ${fr?`<div class="dslot"><label for="du-th">Argument</label><textarea id="du-th" data-dpf="th" rows="3" placeholder="Shakespeare presents … as …, because …">${esc(P.th||"")}</textarea></div>`
+     :DTB.map(([k,l,h])=>`<div class="dslot s-${k}"><label for="du-tb${k}">${l}</label><textarea id="du-tb${k}" data-dtb="${k}" rows="${k==="h"?2:1}" placeholder="${esc(h)}">${esc(tb[k]||"")}</textarea></div>`).join("")+`<p class="dthp" id="dthp">${P.th?esc(P.th):`<em>Your sentence builds here.</em>`}</p>`}
+   ${dqThChkHTML(i,P)}<button type="button" class="link dtbf" data-dtbf="${fr?0:1}">${fr?"Use the builder":"Write it freely"}</button></div>`}
+/* perspectives lens */
+const DLENS=[["ch","The character","What do they want here? What do they know that others don’t?","From …’s point of view, …"],["ja","A Jacobean audience","What would people in 1600 believe about rulers, women, God, honour or love?","A Jacobean audience might …"],["mo","A modern audience","What might we notice now that they would not? What shocks us today?","A modern audience may instead …"],["cr","A critic","Who has argued about this? Do you agree?","Some critics argue that …"]];
+const crShort=n=>String(n).replace(/[,(].*$/,"").replace(/^(Paraphrased|Called)\b.*/,"").trim();
+function dqCrit(i){const C=EX.critics||{},lo=String(EX.examq[i][0]).toLowerCase(),ks=Object.keys(C),m=ks.filter(k=>((QUOTES.themes[k]||[k])[0]+" "+k).toLowerCase().split(/[^a-z]+/).some(w=>w.length>3&&lo.includes(w)));
+  return (m.length?m:ks).flatMap(k=>C[k].map(c=>[k,c])).slice(0,4)}
+function dqLens(i,P,wr){const lk=P.lk||"",L=P.lens||{},A=aoLevel()==="a";
+  const cr=lk==="cr"||wr?(A?dqCrit(i):[]):[];
+  return `<div class="dlens42${wr?"":" sheet42"}"><h4 class="dh">${wr?"Perspectives":"3. See it from another view"}</h4>${wr?`<p class="muted">Your notes from Unpack. Tap a starter to add it to your essay.</p>`:""}
+   ${wr?DLENS.map(([k,l,q,s])=>`<div class="dlc"><b>${l}</b><small>${q}</small>${L[k]?`<p>${esc(L[k])}</p>`:""}<button type="button" class="chip" data-dins="${esc(s)}">${esc(s)}</button></div>`).join("")
+     :`<div class="chips dlk" role="group" aria-label="Perspective">${DLENS.map(([k,l])=>`<button type="button" class="chip" data-dlk="${k}" aria-pressed="${lk===k}">${l}</button>`).join("")}</div>
+      ${lk?(()=>{const [,,q,s]=DLENS.find(x=>x[0]===lk);return `<div class="dslot"><label for="du-ln">Note</label><textarea id="du-ln" data-dln="${lk}" rows="2" placeholder="${esc(q)}">${esc(L[lk]||"")}</textarea></div>${lk==="cr"&&!A?`<p class="muted">At GCSE another reading is a bonus. At A-level it is assessed (AO5).</p>`:""}`})():""}`}
+   ${cr.length?`<div class="dcrs"><small>Critics on this question</small>${cr.map(([k,c])=>`<blockquote class="dcr"><b>${esc(c[0])}</b> ${esc(c[1])}${crShort(c[0])?`<button type="button" class="chip" data-dins="${esc("As "+crShort(c[0])+" suggests, …")}">Use</button>`:""}</blockquote>`).join("")}</div>`:""}</div>`}
+/* paragraph frames */
+const DFR={whw:["What How Why",[["w","What","Your point: answer the question."],["h","How","The method, with a short quote: “…”"],["y","Why","Why Shakespeare does it. So what? Say why it matters."]]],
+  peel:["PEEL",[["p","Point","Answer the question in one sentence."],["e","Evidence","A short quote, built into your sentence."],["x","Explain","The method and the key word. So what? Say why it matters."],["l","Link","Link back to the question and your argument."]]],
+  ttecea:["TTECEA",[["t","Topic","Answer the question in one sentence."],["q","Technique","Name the method."],["e","Evidence","A short quote: “…”"],["c","Close analysis","Zoom in on one word."],["f","Effect","On the audience. So what?"],["a","Intention","Why Shakespeare does it."]]]};
+const DALT=["o","Other reading","However, it could also be read as …"];
+const dqStrong=()=>Object.values(DSK.h||{}).flat().filter(h=>h&&h[2]&&h[1]/h[2]>=.7).length;
+const dqFrame=()=>DSK.frame&&(DSK.frame==="plain"||DFR[DSK.frame])?DSK.frame:dqStrong()>=3?"plain":"whw";
+const dqSlots=fr=>[...DFR[fr][1],DALT];
+const dqJoin=(fr,v)=>dqSlots(fr).map(([k])=>String(v[k]||"").trim()).filter(Boolean).join(" ");
+function dqSlotsOf(E,j,fr){const S=(E.s=E.s||{}),cur=S[j],t=String(E.p[j]||"");
+  if(!cur||cur.fr!==fr||dqJoin(fr,cur.v||{})!==t.trim())S[j]={fr,v:t.trim()?{[DFR[fr][1][0][0]]:t.trim()}:{}};return S[j]}
+/* essay spine: argument, three points, conclusion; gold thread where a paragraph shares a word with the argument */
+function dqSpine(i){const P=PLAN[i]||{},E=(DSK.e||{})[i]||{},pts=P.pts||[],tk=dqKeys(P.th||"").filter(w=>!/^(shakespeare|presents?|shows?|because|which|through|audience)$/.test(w));
+  const thr=t=>{const lo=String(t||"").toLowerCase();return tk.length>0&&tk.some(w=>lo.includes(w))};
+  const N=[["th","A","Argument",String(P.th||"").trim()?2:0,false],...[0,1,2].map(j=>{const t=(E.p||[])[j];return ["p"+j,String(j+1),DPART[j],String(t||"").trim()?2:String((pts[j]||{}).p||"").trim()?1:0,thr(t||((pts[j]||{}).p))]}),["c","C","Conclusion",String(E.c||"").trim()?2:0,thr(E.c)]];
+  return `<nav class="dspine noprint" id="dspine" aria-label="Essay map">${N.map(([k,s,l,st,th],j)=>`${j?`<i class="dsl${th?" th":""}" aria-hidden="true"></i>`:""}<button type="button" class="dsn s${st}${th?" th":""}" data-dspn="${k}" title="${l}: ${["empty","planned","written"][st]}${th?", linked to your argument":""}"><b>${s}</b><small>${l}</small></button>`).join("")}</nav>`}
+function dqBarHTML(E){const L=aoLevel(),tg=L==="a"?[700,1200]:[450,800],m=E.tl||45,run=E.t0&&Date.now()-E.t0<m*6e4,ex=run&&m>=40,[p,,c]=dqSplit(m);
+  return `<span class="dpbar${run?" time":""}" id="dpbar" style="--f:${run?Math.min(1,(Date.now()-E.t0)/(m*6e4)):Math.min(1,dqWords(dqText(E))/tg[1])};--t:${run?(ex?p/m:0):tg[0]/tg[1]};--t2:${ex?(m-c)/m:0}" aria-hidden="true"><i></i>${run&&!ex?"":"<b></b>"}${ex?"<b class=\"t2\"></b>":""}</span>`}
+const dqStarts=()=>{const A=aoLevel()==="a",cr=A?dqCrit(DSK.cur||0).map(([,c])=>crShort(c[0])).filter(Boolean).map(n=>`As ${n} suggests, …`):[];
+  return [...DSTART.slice(0,3),["Deepen",["because …","but …","so …","So what? This matters because …"]],["Perspective",[...DLENS.map(x=>x[3]),...[...new Set(cr)].slice(0,2)]],...DSTART.slice(3)]};
 /* the shelf */
 function deskShelf(){const N=EX.examq.length,L=aoLevel(),f=DSK.f||"",ty=[...new Set(EX.examq.map((_,i)=>dqType(i)))];
   const ord=[...Array(N).keys()].sort((a,b)=>L==="a"?(dqType(b)==="view")-(dqType(a)==="view"):0).filter(i=>!f||dqType(i)===f);
   const cur=DSK.cur!=null&&DSK.cur<N&&dqStarted(DSK.cur)?DSK.cur:null,st=ord.filter(dqStarted).length;
   const pip=i=>{const d=dqDone(i);return `<span class="dpips" aria-label="Stages">${DSTG.map(([k,l])=>`<i class="${d[k]?"on":""}" title="${l}"></i>`).join("")}</span>`};
   const last=i=>{const H=((DSK.h||{})[i]||[]);if(!H.length)return "";const h=H[H.length-1];return `<small class="dlast">Last mark ${h[1]}/${h[2]}</small>`};
-  $("sbody").innerHTML=`<div class="desk38 dshelf"><div class="dhead"><p class="intro">Pick a question. Each one has its own desk: unpack it, gather quotes, write, then mark it against the objectives.</p>${dqLevel()}</div>
+  $("sbody").innerHTML=`<div class="desk38 dshelf"><div class="dhead"><p class="intro">Pick a question. Each one has its own desk: unpack it, gather quotes, write, then mark it against the objectives.</p><div class="dsets">${dqBoardSel()}${dqLevel()}</div></div>
    ${cur!=null?`<button type="button" class="dcont" data-dq="${cur}">${hring(Object.values(dqDone(cur)).filter(Boolean).length/4,`<b>${Object.values(dqDone(cur)).filter(Boolean).length}</b>`)}<span><small>Continue</small><b>${esc(EX.examq[cur][0])}</b><em>${DSTG[Math.min(3,DSK.st&&DSK.st[cur]||0)][1]}</em></span><i aria-hidden="true">›</i></button>`:""}
    ${ty.length>1?`<div class="chips dfilt" role="group" aria-label="Question type"><button class="chip" data-dqf="" aria-pressed="${!f}">All</button>${ty.map(t=>`<button class="chip" data-dqf="${t}" aria-pressed="${f===t}">${DQT[t]}</button>`).join("")}</div>`:""}
    <div class="dgrid">${ord.map(i=>`<button type="button" class="dcard" data-dq="${i}"><span class="dty">${DQT[dqType(i)]}</span><b>${esc(EX.examq[i][0])}</b><span class="dfoot">${pip(i)}${last(i)}</span></button>`).join("")}</div>
@@ -1801,7 +1878,7 @@ function deskShelf(){const N=EX.examq.length,L=aoLevel(),f=DSK.f||"",ty=[...new 
   dqWireLevel();
   $("sbody").querySelectorAll("[data-dq]").forEach(b=>b.onclick=()=>{DSK.cur=+b.dataset.dq;saveDSK();goStudy("desk",String(DSK.cur))});
   $("sbody").querySelectorAll("[data-dqf]").forEach(b=>b.onclick=()=>{DSK.f=b.dataset.dqf;saveDSK();deskShelf()})}
-function dqWireLevel(){$("sbody").querySelectorAll("[data-dlev]").forEach(b=>b.onclick=()=>{LS.set("folio-level",b.dataset.dlev);toast(b.dataset.dlev==="a"?"Marking: A-level":"Marking: GCSE");const y=scrollY;studyDesk();scrollTo(0,y)})}
+function dqWireLevel(){if($("dbrd"))$("dbrd").onchange=e=>{LS.set("folio-board",e.target.value);toast("Exam board: "+DBRD[dqBoard()].n);const y=scrollY;studyDesk();scrollTo(0,y)};$("sbody").querySelectorAll("[data-dlev]").forEach(b=>b.onclick=()=>{LS.set("folio-level",b.dataset.dlev);toast(b.dataset.dlev==="a"?"Marking: A-level":"Marking: GCSE");const y=scrollY;studyDesk();scrollTo(0,y)})}
 /* one question's desk */
 function studyDesk(){clearInterval(dskTmr);
   if(!(EX.examq||[]).length){$("sbody").innerHTML=`<p class="intro">Exam questions are not available for this play yet.</p>`;return}
@@ -1809,14 +1886,14 @@ function studyDesk(){clearInterval(dskTmr);
   const i=DSK.cur,Q=EX.examq[i],P=dqPlan(i),E=dqEss(i),st=Math.max(0,Math.min(3,(DSK.st=DSK.st||{})[i]||0)),d=dqDone(i),k=DSTG[st][0],pane=DSK.pane==="src"?"src":"work";
   const src=(DSK.src=DSK.src||{})[k]||(k==="g"&&dqType(i)==="ext"?"ext":({u:"how",g:"quotes",w:"model",m:"model"})[k]);
   const rib=`<nav class="drib noprint" aria-label="Stages">${DSTG.map(([kk,l],j)=>`<button type="button" data-dst="${j}" aria-current="${j===st?"step":"false"}" class="${d[kk]?"done":""}"><i>${d[kk]?"✓":j+1}</i><span>${l}</span></button>`).join("")}</nav>`;
-  const top=`<div class="dtop"><button type="button" class="link dback" data-dshelf="1">‹ All questions</button>${dqLevel()}</div><div class="dq"><span class="dty">${DQT[dqType(i)]}</span><p>${dqMark(Q[0])}</p></div>`;
+  const top=`<div class="dtop"><button type="button" class="link dback" data-dshelf="1">‹ All questions</button><div class="dsets">${dqBoardSel()}${dqLevel()}</div></div><div class="dq"><span class="dty">${DQT[dqType(i)]}</span><p>${dqMark(Q[0])}</p></div>${dqSpine(i)}`;
   const tabs=(list)=>`<div class="dstabs" role="tablist">${list.map(([v,l])=>`<button type="button" role="tab" data-dsrc="${v}" aria-selected="${src===v}">${l}</button>`).join("")}</div>`;
   let S="",W="";
   if(k==="u"){const ty=dqType(i);
-    S=tabs([["how","What it asks"],["lv","What examiners reward"]])+(src==="lv"?`<ol class="dlv">${DLVT[aoLevel()].map((t,j,a)=>`<li${j===a.length-1?' class="top"':""}><b>${(aoLevel()==="a"?"Band ":"Level ")+(j+1)}</b> ${esc(t)}</li>`).join("")}</ol><p class="muted">Our own summary of a typical mark scheme. Check your exam board.</p>`
-      :`<ul class="dcmd">${DCMD[ty].map(t=>`<li>${esc(t)}</li>`).join("")}</ul><p class="muted">Highlighted: the key words to keep in view in every paragraph.</p>`);
-    W=`<label class="wq" for="du-th">Your argument in one sentence</label><textarea id="du-th" data-dpf="th" rows="3" placeholder="Shakespeare presents … as …, in order to …">${esc(P.th||"")}</textarea>${dqTray(["Argue"])}
-      <h4 class="dh">Three points across the play</h4>${[0,1,2].map(j=>`<label class="wq sm" for="du-p${j}">${j+1}. ${DPART[j]}</label><textarea id="du-p${j}" data-dpp="${j}:p" rows="2" placeholder="Topic sentence: one idea that answers the question">${esc(P.pts[j].p||"")}</textarea>`).join("")}
+    S=tabs([["how","What it asks"],["lv","What examiners reward"]])+(src==="lv"?`${dqBoardHTML()}<ol class="dlv">${DLVT[aoLevel()].map((t,j,a)=>`<li${j===a.length-1?' class="top"':""}><b>${(aoLevel()==="a"?"Band ":"Level ")+(j+1)}</b> ${esc(t)}</li>`).join("")}</ol><p class="muted">Our own summary of a typical mark scheme. Check your exam board.</p>`
+      :`<p class="dbfmt"><b>${esc(DBRD[dqBoard()].n)}</b> ${esc(DBRD[dqBoard()].f[aoLevel()])}</p><ul class="dcmd">${DCMD[ty].map(t=>`<li>${esc(t)}</li>`).join("")}</ul><p class="muted">Highlighted: the key words to keep in view in every paragraph.</p>`);
+    W=`${dqDecode(i,P)}${dqThesis(i,P)}${dqLens(i,P,false)}
+      <div class="sheet42 dpts"><h4 class="dh">4. Three points across the play</h4>${[0,1,2].map(j=>`<div class="dslot"><label for="du-p${j}">${DPART[j]}</label><textarea id="du-p${j}" data-dpp="${j}:p" rows="2" placeholder="Topic sentence: one idea that answers the question">${esc(P.pts[j].p||"")}</textarea></div>`).join("")}</div>
       <div class="dnext"><button class="btn primary" type="button" data-dst="1">Next: gather quotes ›</button></div>`}
   if(k==="g"){const qs=QUOTES.quotes,sug=Q[1],ap=DSK.ap==null?"":String(DSK.ap),X=xtBuild(i),A=(XT.a=XT.a||{})[i]=XT.a[i]||{};
     const pool=(src==="all"?qs.filter(q=>ap===""||String(dqPart(sceneOf(q.id).act))===ap):sug.map(j=>qs[j]));
@@ -1828,14 +1905,20 @@ function studyDesk(){clearInterval(dskTmr);
       return `<div class="dpt"><div class="dpth"><b>Point ${j+1}</b><span>${pt.p?esc(pt.p):`<button type="button" class="link" data-dst="0">Write a topic sentence</button>`}</span></div>
        ${q?`<blockquote class="wquote">“${esc(q.text)}” <small>${esc(title(speech[q.id].who))}, ${sName(sceneOf(q.id))}</small><button type="button" class="link dclr" data-dclr="${j}" aria-label="Remove this quote">×</button></blockquote>`:`<p class="dempty">${pane==="work"?`<button type="button" class="link" data-dpane="src">Choose a quote ›</button>`:"Choose a quote from the bank: tap Point "+(j+1)+"."}</p>`}
        <label class="wq sm" for="dg-a${j}">Analysis: zoom in on one word</label><textarea id="dg-a${j}" data-dpp="${j}:a" rows="3" placeholder="The word “…” suggests …">${esc(pt.a||"")}</textarea></div>`}).join("")+`<div class="dnext"><button class="btn primary" type="button" data-dst="2">Next: write ›</button></div>`}
-  if(k==="w"){const run=E.t0&&Date.now()-E.t0<(E.tl||45)*6e4,w=dqWords(dqText(E));
-    S=tabs([["model","Model paragraph"],["plan","Your plan"],["start","Starters"]])+(src==="plan"?dqPlanView(i):src==="start"?dqTray(null,true):`${dqModel(i,DSK.fade&&DSK.fade[i]||0)}
+  if(k==="w"){const run=E.t0&&Date.now()-E.t0<(E.tl||45)*6e4,w=dqWords(dqText(E)),fr=dqFrame();
+    S=tabs([["model","Model paragraph"],["plan","Your plan"],["lens","Perspectives"],["start","Starters"]])+(src==="plan"?dqPlanView(i):src==="lens"?dqLens(i,P,true):src==="start"?dqTray(null,true):`${dqModel(i,DSK.fade&&DSK.fade[i]||0)}
       <div class="dfade" role="group" aria-label="Practise the model"><small>Practise it:</small>${["Read","Fill 2","Fill 4","Write all"].map((l,j)=>`<button type="button" class="chip" data-dfade="${j}" aria-pressed="${(DSK.fade&&DSK.fade[i]||0)===j}">${l}</button>`).join("")}</div>`);
-    W=`<div class="dtool noprint">${run?`<span class="dtm" id="dtm">--:--</span><button class="btn sm" type="button" id="dt-stop">Stop</button>`:`<button class="btn sm" type="button" data-dtime="45">45 min</button><button class="btn sm" type="button" data-dtime="15">15 min</button>`}<span class="dwc" id="dwc">${w} words</span><button class="btn sm" type="button" id="dfocus" aria-pressed="${document.body.classList.contains("wfocus38")}">${document.body.classList.contains("wfocus38")?"Exit focus":"Focus"}</button></div>
+    W=`<div class="dtool noprint">${run?`<span class="dtm" id="dtm">--:--</span><button class="btn sm" type="button" id="dt-stop">Stop</button>`:`<button class="btn sm" type="button" data-dtime="${dqMins()}">${dqMins()} min exam</button><button class="btn sm" type="button" data-dtime="15">15 min</button>`}<span class="dwc" id="dwc">${w} words</span>${dqBarHTML(E)}<button class="btn sm" type="button" id="dfocus" aria-pressed="${document.body.classList.contains("wfocus38")}">${document.body.classList.contains("wfocus38")?"Exit focus":"Focus"}</button></div>
       ${!dqWords(dqText(E))&&planHas(P)?`<button class="btn dseed" type="button" id="dseed">Start from my plan</button>`:""}
-      ${[["i","Introduction","Answer the question in your first sentence: "+(P.th?"use your argument.":"state your argument.")],...[0,1,2].map(j=>["p"+j,`Paragraph ${j+1}`,P.pts[j].p||`Point ${j+1}`]),["c","Conclusion","Answer the question again, now with the whole play behind you."]].map(([key,l,h])=>{const v=key[0]==="p"&&key.length>1?E.p[+key.slice(1)]:E[key];
-        return `<div class="dsec"><label class="wq sm" for="dw-${key}">${l}<small>${esc(h)}</small></label><textarea id="dw-${key}" data-dwk="${key}" rows="${key==="i"||key==="c"?4:7}">${esc(v||"")}</textarea></div>`}).join("")}
-      <div class="dtray-in">${dqTray(null)}</div>
+      <div class="dfr42 noprint" role="group" aria-label="Paragraph frame"><small>Frame</small>${[["plain","Plain"],...Object.entries(DFR).map(([k,v])=>[k,v[0]])].map(([k,l])=>`<button type="button" class="chip" data-dfr="${k}" aria-pressed="${fr===k}">${l}</button>`).join("")}</div>
+      ${!DSK.frame&&fr==="plain"?`<p class="muted dfrn">Frames off: you have ${dqStrong()} strong essays. Turn one back on any time.</p>`:""}
+      <div class="sheet42 essay42">
+      <div class="dslot dsec" id="dw-iw"><label for="dw-i">Introduction</label><textarea id="dw-i" data-dwk="i" rows="3" placeholder="${esc("Answer the question in your first sentence: "+(P.th?"use your argument.":"state your argument."))}">${esc(E.i||"")}</textarea></div>
+      ${[0,1,2].map(j=>{const tp=P.pts[j].p||"";if(fr==="plain")return `<div class="dslot dsec" id="dw-p${j}w"><label for="dw-p${j}">Paragraph ${j+1}</label><textarea id="dw-p${j}" data-dwk="p${j}" rows="6" placeholder="${esc(tp||DPART[j]+": your point, a quote, its method and effect")}">${esc(E.p[j]||"")}</textarea></div>`;
+        const v=dqSlotsOf(E,j,fr).v;return `<div class="dpara" id="dw-p${j}w"><p class="dph"><b>Paragraph ${j+1}</b> ${esc(tp||DPART[j])}</p>${dqSlots(fr).map(([sk,l,h])=>`<div class="dslot s-${sk}"><label for="ds-${j}-${sk}">${l}</label><textarea id="ds-${j}-${sk}" data-dsl="${j}:${sk}" rows="2" placeholder="${esc(h)}">${esc(v[sk]||"")}</textarea></div>`).join("")}</div>`}).join("")}
+      <div class="dslot dsec" id="dw-cw"><label for="dw-c">Conclusion</label><textarea id="dw-c" data-dwk="c" rows="3" placeholder="Answer the question again, now with the whole play behind you.">${esc(E.c||"")}</textarea></div>
+      </div>
+      <details class="fold dtray-in"><summary>Sentence starters: because, but, so, perspectives</summary>${dqTray(null)}</details>
       <div class="dnext"><button class="btn" type="button" id="dw-copy">Copy essay</button><button class="btn primary" type="button" data-dst="3">Next: mark it ›</button></div>`}
   if(k==="m"){const R=dqChecks(i),H=((DSK.h=DSK.h||{})[i]=DSK.h[i]||[]),Mk=((DSK.mk=DSK.mk||{})[i]=DSK.mk[i]||{});
     S=tabs([["model","Model"],["mine","My essay"]])+(src==="mine"?`<div class="dmine">${dqText(E)?esc(dqText(E)).replace(/\n\n/g,"</p><p>").replace(/^/,"<p>")+"</p>":`<p class="muted">Nothing written yet.</p>`}</div>`:dqOutline(i)+`<h4 class="dh">Model paragraph</h4>${dqModel(i,0)}`);
@@ -1847,8 +1930,10 @@ function studyDesk(){clearInterval(dskTmr);
    <div class="dpanes"><section class="dsrc" aria-label="Sources">${S}</section><section class="dwork" aria-label="Your work">${W}</section></div></div>`;
   dqWire(i,P,E,st,k);
   if(k==="m")aoMount(DSK.mk[i],saveDSK);
-  if(k==="w"&&E.t0&&Date.now()-E.t0<(E.tl||45)*6e4){const tick=()=>{const el=$("dtm");if(!el){clearInterval(dskTmr);return}const left=(E.tl||45)*6e4-(Date.now()-E.t0);if(left<=0){clearInterval(dskTmr);el.textContent="Time!";toast(`${E.tl||45} minutes are up`);return}el.textContent=String(Math.floor(left/6e4)).padStart(2,"0")+":"+String(Math.floor(left%6e4/1e3)).padStart(2,"0")};tick();dskTmr=setInterval(tick,1000)}}
-function dqTray(only,big){return `<div class="dtray${big?" big":""}">${DSTART.filter(([g])=>!only||only.includes(g)).map(([g,a])=>`<div class="dtg"><small>${g}</small><div class="chips">${a.map(x=>`<button type="button" class="chip" data-dins="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>`).join("")}</div>`}
+  if(k==="w"&&E.t0&&Date.now()-E.t0<(E.tl||45)*6e4){const m=E.tl||45,[p0,w0]=dqSplit(m);let ph0=null;const tick=()=>{const el=$("dtm");if(!el){clearInterval(dskTmr);return}const e=Date.now()-E.t0,left=m*6e4-e;if(left<=0){clearInterval(dskTmr);el.textContent="Time!";toast(`${m} minutes are up`);return}
+    const ph=m<40?"":e<p0*6e4?"Plan":e<(p0+w0)*6e4?"Write":"Check";if(ph0&&ph!==ph0){toast(ph==="Write"?"Plan time is up: start writing":"Check time: read your essay through");buzz(true)}ph0=ph;
+    el.textContent=(ph?ph+" ":"")+String(Math.floor(left/6e4)).padStart(2,"0")+":"+String(Math.floor(left%6e4/1e3)).padStart(2,"0");const b=$("dpbar");if(b)b.style.setProperty("--f",Math.min(1,e/(m*6e4)))};tick();dskTmr=setInterval(tick,1000)}}
+function dqTray(only,big){return `<div class="dtray${big?" big":""}">${dqStarts().filter(([g])=>!only||only.includes(g)).map(([g,a])=>`<div class="dtg"><small>${g}</small><div class="chips">${a.map(x=>`<button type="button" class="chip" data-dins="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>`).join("")}</div>`}
 function dqPlanView(i){const P=dqPlan(i);return `<div class="outline"><p><b>Argument</b> ${P.th?esc(P.th):"<em>Not written yet</em>"}</p>${P.pts.map((pt,j)=>{const q=dqQuote(pt);return `<p><b>Point ${j+1}</b> ${pt.p?esc(pt.p):"<em>No topic sentence</em>"}${q?`<br>“${esc(q.text)}”`:""}${pt.a?`<br><small>${esc(pt.a)}</small>`:""}</p>`}).join("")}</div>`}
 function dqExtract(i,X,A){const sel=DSK.xl||"",tags=[...XTAGS,...Object.values(EX.devices||{})];
   const lines=X.segs.map(([sp,a,z])=>`<div class="xsp"><div class="xwho" style="--c:${COLORS[sp.who]||"var(--ink)"}">${esc(title(sp.who))}</div>${sp.lines.slice(a,z).map((l,j0)=>{const j=a+j0,key=sp.id+":"+j,tg=A[key]||[];
@@ -1862,7 +1947,20 @@ function dqWire(i,P,E,st,k){const B=$("sbody"),re=(y)=>{const sy=y==null?scrollY
   B.querySelectorAll("[data-dpane]").forEach(b=>b.onclick=()=>{DSK.pane=b.dataset.dpane;saveDSK();re()});
   B.querySelectorAll("[data-dsrc]").forEach(b=>b.onclick=()=>{DSK.src[k]=b.dataset.dsrc;saveDSK();re()});
   B.querySelectorAll("[data-dap]").forEach(b=>b.onclick=()=>{DSK.ap=b.dataset.dap===""?null:+b.dataset.dap;saveDSK();re()});
+  const W0=B.querySelector(".desk38"),grow=t=>{if(t.closest(".sheet42")&&t.scrollHeight>0){t.style.height="auto";t.style.height=t.scrollHeight+2+"px"}};
+  let spT=null;const spUpd=()=>{const el=$("dspine");if(el){el.outerHTML=dqSpine(i);wireSp()}const t=$("dthc");if(t)t.outerHTML=dqThChkHTML(i,P)};
+  const wireSp=()=>B.querySelectorAll("[data-dspn]").forEach(b=>b.onclick=()=>{const kk=b.dataset.dspn,to=kk==="th"?0:2;DSK.st[i]=to;DSK.pane="work";saveDSK();re(0);setTimeout(()=>{const el=$(kk==="th"?"dtb":"dw-"+(kk==="c"?"c":kk)+"w");if(el)el.scrollIntoView({block:"center",behavior:"smooth"})},60)});
+  wireSp();if(W0)W0.addEventListener("input",e=>{if(e.target.tagName==="TEXTAREA")grow(e.target);clearTimeout(spT);spT=setTimeout(spUpd,250)});
+  B.querySelectorAll(".sheet42 textarea").forEach(grow);
   B.querySelectorAll("[data-dpf]").forEach(el=>el.oninput=()=>{P.th=el.value;savePlan()});
+  B.querySelectorAll("[data-dpg]").forEach(el=>el.oninput=()=>{P[el.dataset.dpg]=el.value;savePlan()});
+  B.querySelectorAll("[data-dtok]").forEach(b=>b.onclick=()=>{const D=dqDec(i,P).slice(),n=+b.dataset.dtok,j=D.indexOf(n);if(j<0)D.push(n);else D.splice(j,1);P.dec=D;savePlan();re()});
+  B.querySelectorAll("[data-dtb]").forEach(el=>el.oninput=()=>{(P.tb=P.tb||{})[el.dataset.dtb]=el.value;P.th=dqCompose(P.tb);savePlan();const o=$("dthp");if(o)o.innerHTML=P.th?esc(P.th):"<em>Your sentence builds here.</em>"});
+  B.querySelectorAll("[data-dtbf]").forEach(b=>b.onclick=()=>{const fr=b.dataset.dtbf==="1";P.tbf=fr;if(!fr&&!P.tb&&P.th)P.tb={h:String(P.th).replace(/\.\s*$/,"")};savePlan();re()});
+  B.querySelectorAll("[data-dlk]").forEach(b=>b.onclick=()=>{P.lk=P.lk===b.dataset.dlk?"":b.dataset.dlk;savePlan();re()});
+  B.querySelectorAll("[data-dln]").forEach(el=>el.oninput=()=>{(P.lens=P.lens||{})[el.dataset.dln]=el.value;savePlan()});
+  B.querySelectorAll("[data-dfr]").forEach(b=>b.onclick=()=>{DSK.frame=b.dataset.dfr;saveDSK();re()});
+  B.querySelectorAll("[data-dsl]").forEach(el=>el.oninput=()=>{const [j,sk]=el.dataset.dsl.split(":"),S=dqSlotsOf(E,+j,dqFrame());S.v[sk]=el.value;E.p[+j]=dqJoin(dqFrame(),S.v);saveDSK();wc()});
   B.querySelectorAll("[data-dpp]").forEach(el=>el.oninput=()=>{const [j,f]=el.dataset.dpp.split(":");P.pts[+j][f]=el.value;savePlan()});
   B.querySelectorAll("[data-duse]").forEach(b=>b.onclick=()=>{const [j,q]=b.dataset.duse.split(":"),pt=P.pts[+j];pt.q=String(pt.q)===q?"":+q;savePlan();toast(pt.q===""?"Removed":`Quote set for point ${+j+1}`);re()});
   B.querySelectorAll("[data-dclr]").forEach(b=>b.onclick=()=>{P.pts[+b.dataset.dclr].q="";savePlan();re()});
@@ -1871,7 +1969,7 @@ function dqWire(i,P,E,st,k){const B=$("sbody"),re=(y)=>{const sy=y==null?scrollY
   B.querySelectorAll("[data-dfade]").forEach(b=>b.onclick=()=>{(DSK.fade=DSK.fade||{})[i]=+b.dataset.dfade;saveDSK();re()});
   B.querySelectorAll("[data-dmf]").forEach(t=>t.oninput=()=>{PA.f["d"+i][t.dataset.dmf]=t.value;savePA()});
   B.querySelectorAll("textarea").forEach(t=>t.addEventListener("focus",()=>{dskLastTa=t.id}));
-  const wc=()=>{const el=$("dwc");if(el)el.textContent=dqWords(dqText(E))+" words"};
+  const wc=()=>{const el=$("dwc");if(el)el.textContent=dqWords(dqText(E))+" words";const b=$("dpbar");if(b&&!b.classList.contains("time")){const tg=aoLevel()==="a"?1200:800;b.style.setProperty("--f",Math.min(1,dqWords(dqText(E))/tg))}};
   B.querySelectorAll("[data-dwk]").forEach(t=>t.oninput=()=>{const key=t.dataset.dwk;if(key[0]==="p"&&key.length>1)E.p[+key.slice(1)]=t.value;else E[key]=t.value;saveDSK();wc()});
   B.querySelectorAll("[data-dins]").forEach(b=>b.onclick=()=>{const t=dskLastTa&&$(dskLastTa)||B.querySelector(".dwork textarea");if(!t){copyText(b.dataset.dins);return}
     const s0=t.selectionStart??t.value.length,s1=t.selectionEnd??s0,x=b.dataset.dins,pre=t.value.slice(0,s0),gap=pre&&!/\s$/.test(pre)?" ":"";t.value=pre+gap+x+t.value.slice(s1);t.dispatchEvent(new Event("input"));

@@ -4,6 +4,17 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.42.0] — 2026-11-15
+
+### Added
+- Writing desk: exam board picker (Any board, AQA, Edexcel, OCR, Eduqas) sets the exam timer length, question format, assessment objectives and a Plan / Write / Check time split (approximate, check your board) (#156)
+- Writing desk, Unpack: Decode the question (tap focus words, command words underlined, a debate prompt), an argument builder (How, because, but, so) with live checks for how, why, the question's words and a judgement, and a perspectives lens (the character, a Jacobean audience, a modern audience, a critic; A-level lists critics on the question) (#156)
+- Writing desk, Write: paragraph frames (What How Why, PEEL, TTECEA, Plain) with an Other reading slot and "so what?" prompts, Deepen and Perspective starters, a Perspectives tab; frames switch off by themselves after 3 strong essays (#156)
+- Writing desk: essay map (argument, three points, conclusion) under the question, gilt where a paragraph links back to the argument; exam timer shows the phase and a progress bar (#156)
+
+### Changed
+- Writing desk: stages are bookmark ribbons; planning and essay boxes are ruled paper sheets with labels in the margin; sentence starters fold away under the essay (#156)
+
 ## [4.41.0] — 2026-11-15
 
 ### Added
