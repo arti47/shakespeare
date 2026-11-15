@@ -2389,8 +2389,11 @@ const ivDays=b=>{let iv=INT[b];const L=examLeft();if(L>2)iv=Math.min(iv,Math.max
 const kq=k=>QUOTES.quotes[+k.split(":")[1]];
 function getS(k){if(k.startsWith("who:"))return prog.srs[k.slice(4)];return REV.it[k]}
 function setS(k,s){if(k.startsWith("who:"))prog.srs[k.slice(4)]=s;else REV.it[k]=s}
+/* a miss goes back to box 0 and is due from the start of tomorrow (4.55.2): due at once, it added to today's count,
+   so answering a new item wrong raised Daily review from 3 to 4; misses show again in the round's Look again list */
+const nextDay=()=>{const d=new Date();d.setHours(24,0,0,0);return +d};
 function grade(k,ok,sure){const s=Object.assign({b:0,d:0,k:0},getS(k)||{}),t=today();
-  if(ok){s.b=Math.min(5,s.b+1);if(s.ld!==t){s.k=(s.k||0)+1;s.ld=t}s.d=Date.now()+ivDays(s.b)*864e5-36e5}else{s.b=0;s.d=Date.now()}
+  if(ok){s.b=Math.min(5,s.b+1);if(s.ld!==t){s.k=(s.k||0)+1;s.ld=t}s.d=Date.now()+ivDays(s.b)*864e5-36e5}else{s.b=0;s.d=nextDay()}
   setS(k,s);
   if(k.startsWith("who:")){const i=k.slice(4);if(ok){if(s.k>=3||s.b>=5)prog.cards[i]=prog.cards[i]||Date.now();if(prog.miss.c[i])prog.miss.c[i]=0}
     else{delete prog.cards[i];prog.miss.c[i]=(prog.miss.c[i]||0)+1}}
@@ -2837,7 +2840,7 @@ function studyRevise(){const secs=rvSecs();
     const st=t.closest("[data-rvt]");if(st){const k=st.dataset.rvt,o=st.getAttribute("aria-expanded")==="true";RVO[k]=o?0:1;st.setAttribute("aria-expanded",String(!o));st.nextElementSibling.hidden=o;return}
     const gk=t.closest("[data-rvk]");if(gk){const q=gk.closest("[data-rvq]"),i=+q.dataset.rvq,ok=gk.dataset.rvk==="1";rvGrade(i,ok);
       R0.querySelectorAll(`[data-rvq="${i}"]`).forEach(x=>{x.classList.add("done");x.classList.toggle("kn",!!prog.cards[i]);const b=x.querySelector(".rqg");if(b)b.remove()});
-      toast(ok?(prog.cards[i]?"Learnt. It joins your learnt quotes":"Saved. It comes back in Daily review"):"It comes back in Daily review soon");return}
+      toast(ok?(prog.cards[i]?"Learnt. It joins your learnt quotes":"Saved. It comes back in Daily review"):"It comes back in Daily review tomorrow");return}
     if(!R0.classList.contains("cvr")||t.closest("button,a,summary,input"))return;
     const q=t.closest("[data-rvq]");if(q){if(q.classList.contains("open"))return;q.classList.add("open");if(!q.classList.contains("done"))q.insertAdjacentHTML("beforeend",`<div class="rqg"><small>Did you know it?</small><button type="button" class="btn sm" data-rvk="0">Not yet</button><button type="button" class="btn sm primary" data-rvk="1">Knew it</button></div>`);return}
     const n=t.closest(".nt,.rx53");if(n)n.classList.toggle("open")};
