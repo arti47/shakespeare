@@ -4,6 +4,16 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.56.0] — 2026-11-15
+
+### Added
+- No spoilers in Study: Review, sessions, flashcards and drills use only quotes and questions from scenes you have read; Key quotes, Act summaries, the plot timeline and the plan tracker stop at your place; scene quizzes ahead of you are locked (#172)
+- Pages about the whole play (themes, characters, context, critics, Revision notes, the Writing desk and more) open on a Spoilers ahead cover until you finish the play, with Show anyway (#172)
+- Settings › App › Spoilers in Study: Hide (default) or Show all, for every play (#172)
+
+### Fixed
+- Review cards now show the original lines from the play beside the modern English (#172)
+
 ## [4.55.2] — 2026-11-15
 
 ### Fixed
