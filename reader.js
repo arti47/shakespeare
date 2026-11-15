@@ -864,7 +864,7 @@ function shareText(title,text){navigator.share({title,text}).catch(e=>{if(!e||e.
 async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Copied")}catch(e){const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0;font-size:16px";document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Copied":"Copy didn’t work here. Select the text and copy it yourself.")}}
 
 /* ---------- study ---------- */
-const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["part","Learn a part"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["desk","Writing desk"],["plan","Essay planner"],["extract","Extract"],["para","Paragraphs"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision sheet"]];
+const TABS=[["review","Review"],["explore","Explore"],["quotes","Key quotes"],["cards","Flashcards"],["part","Learn a part"],["drill","Practise"],["quiz","Quizzes"],["themes","Themes"],["desk","Writing desk"],["plan","Essay planner"],["extract","Extract"],["para","Paragraphs"],["prof","Profiles"],["acts","Act summaries"],["revise","Revision notes"]];
 /* Study (4.1): eight illustrated topics. Each topic is a page of small tool tiles; every tool opens full screen under one header
    (back to its topic, its title, a ? for the how-to). People and Themes add a page per character and per theme.
    #study = home, #study=topic:<k>, #study=who:<NAME>, #study=theme:<k>, #study=<tab>[:<explore part>|<drill>] = a tool. */
@@ -877,7 +877,7 @@ const TOPICS=[["story","Story",["acts","explore:timeline","explore:facts","explo
   ["practise","Practise",["review","quiz","cards","part","drill:gap","drill:ladder","drill:who","drill:scene","drill:next","drill:time","drill:odd","drill:explain","drill:order","drill:word","drill:cut","drill:two"]],
   ["write","Write",["desk"]],
   ["revise","Revise",["revise","acts","review","quiz"]]];
-const TLINE={story:"The plot act by act, with the facts behind it",people:"Who's who, what drives them, how they change",themes:"The big ideas, traced from start to end",quotes:"The lines to know, one card at a time",words:"Old words, imagery, verse and wordplay",practise:"Quizzes, flashcards and quick drills",write:"Exam answers, one step at a time",revise:"Your sheet, cards due and backup"};
+const TLINE={story:"The plot act by act, with the facts behind it",people:"Who's who, what drives them, how they change",themes:"The big ideas, traced from start to end",quotes:"The lines to know, one card at a time",words:"Old words, imagery, verse and wordplay",practise:"Quizzes, flashcards and quick drills",write:"Exam answers, one step at a time",revise:"Notes on one page, then test yourself"};
 /* any Explore part not placed above joins Story */
 EXT.forEach(([k])=>{if(!TOPICS.some(t=>t[2].includes("explore:"+k)))TOPICS[0][2].push("explore:"+k)});
 const topicK=k=>TOPICS.find(t=>t[0]===k)||TOPICS[0];
@@ -886,7 +886,7 @@ const topicsNow=()=>folioSimple()?TOPICS.filter(t=>t[0]!=="write"):TOPICS;
 const toolOK=s=>{if(folioSimple()&&EXAMT.includes(s))return false;const [a,b]=s.split(":");if(a==="explore")return EXT.some(x=>x[0]===b)&&exHas(b);if(a==="drill")return DRILLS.some(d=>d[0]===b);if(a==="para")return (EX.models||[]).length>0;return TABS.some(t=>t[0]===a)};
 const toolName=s=>{const [a,b]=s.split(":");if(a==="explore")return b?(EXT.find(x=>x[0]===b)||[,b])[1]:"Explore";if(a==="drill")return b?(DRILLS.find(d=>d[0]===b)||[,b])[1]:"Drills";return (TABS.find(t=>t[0]===a)||[,a])[1]};
 /* 4.9 one-line descriptions for the tool lists (Explore parts and drills describe themselves) */
-const TDESC={review:"Cards due today, spaced out so they stick",explore:"Facts, context, language and more",quotes:"Every key quote, by speaker or theme",cards:"Flip a quote: who said it, and why it matters",part:"Learn a character's lines from their cues",drill:"Quick games with the lines",quiz:"Four questions on each scene, or the whole play",themes:"Trace a theme from start to end, then copy a plan",desk:"Unpack a question, gather quotes, write and mark",plan:"Build an essay plan step by step",extract:"Answer on an extract, marked against the AOs",para:"Model paragraphs, taken apart",prof:"Build a character profile in steps",acts:"Each act on a page: what happens and why",revise:"Your marks, scores and quotes on one sheet"};
+const TDESC={review:"Cards due today, spaced out so they stick",explore:"Facts, context, language and more",quotes:"Every key quote, by speaker or theme",cards:"Flip a quote: who said it, and why it matters",part:"Learn a character's lines from their cues",drill:"Quick games with the lines",quiz:"Four questions on each scene, or the whole play",themes:"Trace a theme from start to end, then copy a plan",desk:"Unpack a question, gather quotes, write and mark",plan:"Build an essay plan step by step",extract:"Answer on an extract, marked against the AOs",para:"Model paragraphs, taken apart",prof:"Build a character profile in steps",acts:"Each act on a page: what happens and why",revise:"Plot, characters, themes and quotes on one page"};
 const toolDesc=s=>{const [a,b]=s.split(":");if(a==="explore"&&b)return (EXT.find(x=>x[0]===b)||[,,""])[2];if(a==="drill"&&b)return (DRILLS.find(d=>d[0]===b)||[,,""])[2];return TDESC[a]||""};
 const toolNow=()=>S.stab==="explore"?(exSel?"explore:"+exSel:"explore"):S.stab==="drill"?(dr.k?"drill:"+dr.k:"drill"):S.stab;
 const topicOf=s=>{if(TP&&topicK(TP)[2].includes(s))return TP;const t=TOPICS.find(t=>t[2].includes(s));return t?t[0]:s.startsWith("drill")?"practise":s.startsWith("explore")?"story":"revise"};
@@ -988,7 +988,7 @@ function topicStat(k){const n=o=>Object.keys(o).length,sc=scenes.length,fr=(a,b)
   if(k==="practise"){const d=Object.keys(prog.quiz).filter(q=>q!=="all"&&sIdx(q)>=0),qa=d.reduce((a,q)=>a+prog.quiz[q][0]/Math.max(1,prog.quiz[q][1]),0)/sc,ln=fr(n(prog.cards),QUOTES.quotes.length),ks=Object.keys(DRB).filter(x=>x!=="lad"&&drBest(x)),db=ks.reduce((a,x)=>a+drBest(x)[0]/drBest(x)[1],0)/Math.max(1,DRILLS.length-2),m=(qa+ln+db)/3;
     return [m,`Mastery ${Math.round(m*100)}% · ${d.length} of ${sc} quizzes · ${n(prog.cards)} quotes learnt`]}
   if(k==="write"){const t=(EX.examq||[]).length,d=[...Array(t).keys()].filter(i=>dqStarted(i)).length;return [fr(d,t),`${d} of ${t} questions started`]}
-  const due=dueKeys().length;return [null,due?`${due} due today`:"Sheet · backup"]}
+  const due=dueKeys().length;return [null,due?`${due} due today`:"Notes · self-test"]}
 /* one suggested next step: due reviews, then a quiz on a scene you've read, then the scene you're on, then flashcards */
 function nextStep(){const d=dueKeys().length;if(d)return ["study:review",`Review ${d} card${d===1?"":"s"} due today`,"Practise"];
   const q=scenes.find(p=>prog.done[p.id]&&!prog.quiz[p.id]);if(q)return ["study:quiz?s="+q.id,`Quiz yourself on ${sName(q)}`,"Practise"];
@@ -1071,8 +1071,10 @@ function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
   if(k==="words"){const w=wordOfDay();if(w)h+=secH("Word of the day")+`<div class="wod48"><b>${esc(w.k)}</b><p>${esc(w.g)}</p>${w.id?chip(w.id):""}</div>`}
   if(k==="practise")return h+hallHTML();
   if(k==="write"&&(EX.examq||[]).length){const Q=EX.examq[dayN()%EX.examq.length];h+=secH("A question to try")+`<div class="wq48"><p>${esc(Q[0])}</p>${evHTML(Q[1].map(i=>(QUOTES.quotes[i]||{}).id).filter(x=>x!=null).slice(0,2),"Start from")}<button class="btn primary" type="button" data-to="study:desk?q=${dayN()%EX.examq.length}&tp=write">Open on the desk ›</button></div>`}
-  if(k==="revise"){const d=dueKeys().length;h+=`<div class="pickup"><button class="pk next" data-to="study:${d?"review":"revise"}?tp=revise"><small>${d?"Due today":"Revision sheet"}</small><b>${d?`Review ${d} card${d===1?"":"s"}`:"Copy, print or back up"}</b></button></div>`}
-  const ts=T[2].filter(toolOK);return h+secH("Tools",ts.length)+`<div class="tlist48">${ts.map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=${k}">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
+  if(k==="revise"){const N=QUOTES.quotes.length,kn=QUOTES.quotes.filter(q=>prog.cards[q.i]).length,W=rvWeak();
+    h+=`<button type="button" class="rvgo53" data-to="study:revise?tp=revise">${hring(kn/Math.max(1,N),tic("revise"))}<span><small>Revision notes</small><b>Plot, characters, themes and quotes on one page</b><em>${kn} of ${N} quotes learnt${W.length?` · ${W.length} thing${W.length===1?"":"s"} to fix`:""}</em></span><i aria-hidden="true">›</i></button>`
+      +(W.length?`<div class="rvw53 rvtw">${W.slice(0,3).map(([t,s0,a,l])=>`<div class="rvwr"><span><b>${esc(t)}</b><small>${esc(s0)}</small></span><button type="button" class="btn sm" ${a}>${l}</button></div>`).join("")}</div>`:"")}
+  const ts=T[2].filter(s=>toolOK(s)&&!(k==="revise"&&s==="revise"));return h+secH(k==="revise"?"More to revise with":"Tools",ts.length)+`<div class="tlist48">${ts.map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=${k}">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
 function whoHTML(w){const c=CH[w]||{},qs=QUOTES.quotes.filter(q=>speech[q.id].who===w),sps=Object.values(speech).filter(s=>s.who===w),ln=sps.reduce((a,s)=>a+s.lines.length,0),scn=new Set(sps.map(s=>s.page)).size,an=(EX.analysis||{})[w];
   let h=`<div class="whead" style="--c:${esc(COLORS[w]||"var(--tc)")}">${folioMedal(w,COLORS[w],"wbig")}<div><h2>${esc(title(w))}</h2>${c.desc?`<p>${esc(c.desc)}</p>`:""}<div class="wbgs">${[[ln,"lines"],[sps.length,"speeches"],[scn,"scenes"]].map(([v,l])=>`<span class="wbg"><b>${v}</b><small>${l}</small></span>`).join("")}</div></div></div>`;
   if(qs.length)h+=secH("Their key quotes",qs.length)+deckHTML(qs.map(qCard),"wkq","Key quotes");
@@ -1105,7 +1107,7 @@ function relList(){const T=k=>(TABS.find(x=>x[0]===k)||[,k])[1],W=w=>esc(title(w
   else if(t==="themes"){add("study:quotes?th="+thSel,"All key quotes: "+esc(QUOTES.themes[thSel][0]));add("study:desk","Write an essay on it");if(exHas("motifs"))add("study:explore:motifs","Motifs and symbols");if(EX.critics&&EX.critics[thSel])add("study:explore:critics","What critics say")}
   else if(t==="prof"){who(profSel);R.splice(0,1);if(exHas("map"))add("study:explore:map","Character map")}
   else if(t==="part"){who(pt.who);add("study:cards","Flashcards")}
-  else if(t==="acts"){add("study:quiz","Scene quizzes");if(exHas("timeline"))add("study:explore:timeline","Timeline");add("study:revise","Revision sheet")}
+  else if(t==="acts"){add("study:quiz","Scene quizzes");if(exHas("timeline"))add("study:explore:timeline","Timeline");add("study:revise","Revision notes")}
   else if(t==="cards"){add("study:review","Daily review");add("study:quotes","All key quotes");add("study:drill",T("drill"))}
   else if(t==="review"){add("study:cards","Flashcards");add("study:quiz","Scene quizzes");add("study:acts","Act summaries")}
   else if(t==="drill"){add("study:quotes","Key quotes");add("study:cards","Flashcards")}
@@ -2649,21 +2651,7 @@ function studyQuiz(){
   $("qz-all").onclick=()=>startQuiz("all");if($("qz-miss"))$("qz-miss").onclick=()=>startQuiz("miss");
   $("sbody").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>startQuiz(b.dataset.q));
 }
-/* revision sheet + backup */
-function revisionText(){
-  let t=`${CFG.title.toUpperCase()}: REVISION SHEET\n${new Date().toLocaleDateString()}\n\n`;
-  const ids=Object.keys(marks).filter(k=>speech[k]).sort((a,b)=>a-b);
-  t+=`MY MARKED SPEECHES AND NOTES (${ids.length})\n`;
-  if(!ids.length)t+="None yet. While reading, press and hold a speaker’s name to mark the whole speech or add a note.\n";
-  let ls="";ids.forEach(k=>{const sp=speech[k],m=marks[k],p=sceneOf(k);if(p.id!==ls){t+=`\n${sName(p)} (${shortLoc(p)})\n`;ls=p.id}
-    t+=`  ${title(sp.who)}${inkOf(m)?" ["+inkName(inkOf(m))+"]":""}: ${sp.lines.map(l=>l.replace(/^~/,"")).join(" / ")}\n`;if(m.note)t+=`    My note: ${m.note.replace(/\n/g," ")}\n`});
-  const qs=Object.entries(prog.quiz).filter(([k])=>k!=="all"&&sIdx(k)>=0).sort((a,b)=>sIdx(a[0])-sIdx(b[0]));
-  t+=`\nQUIZ SCORES\n`+(qs.length?qs.map(([k,v])=>`  ${sName(scenes[sIdx(k)])}: ${v[0]}/${v[1]}`).join("\n"):"  None yet")+(prog.quiz.all?`\n  Whole-play quiz (last): ${prog.quiz.all[0]}/${prog.quiz.all[1]}`:"")+"\n";
-  const kn=QUOTES.quotes.filter(q=>prog.cards[q.i]),un=QUOTES.quotes.filter(q=>!prog.cards[q.i]);
-  t+=`\nQUOTES STILL TO LEARN (${un.length})\n`+un.map(q=>`  "${q.text}" (${title(speech[q.id].who)}, ${sName(sceneOf(q.id))})`).join("\n")+"\n";
-  t+=`\nQUOTES LEARNT (${kn.length})\n`+(kn.map(q=>`  "${q.text}" (${title(speech[q.id].who)})`).join("\n")||"  None yet")+"\n";
-  const fv=FAV.filter(f=>speech[f.id]);t+=`\nMARKED WORDS (${fv.length})\n`+(fv.map(f=>`  [${inkName(fcOk(f.c))}] "${favText(f.id,f.a,f.b)||f.txt||""}" (${title(speech[f.id].who)}, ${sName(sceneOf(f.id))})${f.note?`\n    My note: ${f.note.replace(/\n/g," ")}`:""}`).join("\n")||"  None yet")+"\n";
-  return t}
+/* backup (the old single-play import lives on the play's You view) */
 function download(name,text,type){try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){}
   toast("Downloading. If nothing appears, use Copy instead.")}
 function restore(txt){if(!String(txt||"").trim()){toast("Paste a backup first, or choose the file");return false}let d;try{d=JSON.parse(String(txt).trim())}catch(e){toast("That isn't a valid backup");return false}
@@ -2689,16 +2677,123 @@ function wireBackup(after){
   $("bk-go").onclick=()=>{if(restore($("bk-in").value)){$("bk-in").value="";after&&after()}};
   $("bk-file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{if(restore(r.result))after&&after()};r.readAsText(f)};
 }
-/* the revision sheet as a printed folio page: running head, rubricated headings */
-const revHTML=t=>`<div class="olrh" aria-hidden="true"><span>${esc(CFG.short)}</span><span>Revision sheet</span></div>`+t.split("\n").map((l,i)=>{const s=l.trim();if(!i)return `<h3 class="rvh">${esc(s)}</h3>`;
-  if(s&&!/^\s/.test(l)&&/^[A-Z][A-Z0-9 ,:;'’()&.\-/]+$/.test(s)&&/[A-Z]{3}/.test(s))return `<h4>${esc(s)}</h4>`;return `<div class="rl${/^\s{4}/.test(l)?" n2":/^\s{2}/.test(l)?" n1":""}">${s?esc(s.replace(/(^|[\s(])"/g,"$1“").replace(/"/g,"”")):"&nbsp;"}</div>`}).join("");
-function studyRevise(){
-  const t=revisionText();
-  $("sbody").innerHTML=`<p class="intro">Everything you've marked, your quiz scores and the quotes you still need to learn, on one sheet.</p>
-   <div class="row"><button class="btn primary" id="rv-copy">Copy revision sheet</button><button class="btn" id="rv-dl">Download as text</button></div>
-   <div class="rev folp">${revHTML(t)}</div>${backupHTML()}`;
-  $("rv-copy").onclick=()=>copyText(t);$("rv-dl").onclick=()=>download(CFG.file+"-revision.txt",t,"text/plain");
-  wireBackup(studyRevise);
+/* ---------- 4.53 Revision notes ----------
+   A knowledge organiser built from the play's own Study content, with the reader's own layer (weak spots, notes) on top.
+   RVSEC = [key, name, shown in Simple]; Brief/Full = RVV (folio-rvview, Simple is always Brief); quote bank grouping RVG
+   (folio-rvgroup: theme|who|act); Cover mode RVC (session only) blurs quote tails and notes (.cv) until tapped, and a
+   revealed quote takes Knew it / Not yet, graded as a flashcard (grade("who:"+i)) so it feeds learnt quotes and Daily review.
+   rvData(k) is the one model of each content section: the page (rvSecHTML) and the copied text (rvText) both read it. */
+const RVSEC=[["you","Your notes",1],["glance","At a glance",0],["plot","Plot",1],["chars","Characters",1],["themes","Themes",1],["big","Big ideas",0],["quotes","Quote bank",1],["ctx","Context",0],["img","Imagery",0]];
+let RVV=LS.get("folio-rvview")==="full"?"full":"brief",RVG=["theme","who","act"].includes(LS.get("folio-rvgroup"))?LS.get("folio-rvgroup"):"theme",RVC=false,RVO={you:1};
+const rvFull=()=>RVV==="full"&&!folioSimple();
+const rvHas=k=>k==="glance"?(EX.keyfacts||[]).length>0:k==="big"?(EX.big||[]).length>0:k==="ctx"?(EX.context||[]).length>0:k==="img"?Object.keys(EX.devices||{}).length>0:true;
+const rvSecs=()=>RVSEC.filter(s=>(s[2]||!folioSimple())&&rvHas(s[0]));
+const sent1=t=>{const s=sumSents(t||"");return s.length?s[0]:String(t||"")};
+const rvWhy=q=>(EX.why||{})[q.i]||"";
+const rvBy=w=>QUOTES.quotes.filter(q=>speech[q.id]&&speech[q.id].who===w);
+const rvWho=()=>{const all=whoAll(),m=MAINS.filter(w=>all.includes(w));return [...m,...all.filter(w=>!m.includes(w))]};
+/* rows: {cue, pv (speech id the cue previews), note, more (Full only), qs:[[quote,label]], ex:[[text,id]]}; groups: {h, rows, qs} */
+function rvData(k){const F=rvFull(),G=[];
+  if(k==="glance")G.push({rows:(EX.keyfacts||[]).map(([a,b])=>({cue:a,note:b}))});
+  if(k==="plot"){if(F&&(EX.intro||[]).length)G.push({h:"The story in brief",rows:[{note:EX.intro.join(" ")}]});
+    const TL=(EX.timeline||[]).filter(t=>sIdx(t.s)>=0);
+    ACTS.forEach(a=>{const ps=scenes.filter(p=>p.act===a);if(!ps.length)return;
+      const ev=TL.filter(t=>scenes[sIdx(t.s)].act===a),rows=F||!ev.length?ps.map(p=>{const s=(STUDY.scenes[p.id]||{}).sum||"";return {cue:scShort(p),go:p.id,note:F?s:sent1(s),more:F&&ev.filter(t=>t.s===p.id).length?"Turning point: "+ev.filter(t=>t.s===p.id).map(t=>t.t).join("; "):""}}).filter(r=>r.note)
+        :ev.reduce((R,t)=>{const l=R[R.length-1];if(l&&l.s===t.s)l.note+="; "+t.t.charAt(0).toLowerCase()+t.t.slice(1);else R.push({s:t.s,cue:scShort(scenes[sIdx(t.s)]),pv:t.id,note:t.t});return R},[]);
+      G.push({h:AN(a),rows})})}
+  if(k==="chars")G.push({rows:rvWho().map(w=>{const c=CH[w]||{},qs=rvBy(w),pick=F?[qs[0],qs[qs.length-1]]:[qs[0]];
+    return {cue:title(w),who:w,note:F?c.desc||"":sent1(c.desc),qs:[...new Set(pick.filter(Boolean))].map(q=>[q,""])}}).filter(r=>r.note||r.qs.length)});
+  if(k==="themes")G.push({rows:Object.entries(QUOTES.themes).map(([t,v])=>({cue:v[0],th:t,note:v[1]||"",qs:themePlan(t).map(([n,,qs])=>qs.length?[qs[F?qs.length-1:0],n]:null).filter(Boolean)}))});
+  if(k==="big")G.push({rows:(EX.big||[]).map(b=>({cue:b[0],note:b[1]+(F?` because ${b[2]}, but ${b[3]}.`:"."),qs:F?(b[4]||[]).map(i=>QUOTES.quotes[i]).filter(Boolean).map(q=>[q,""]):[]}))});
+  if(k==="ctx")G.push({rows:(EX.context||[]).map(([a,b])=>({cue:a,note:F?b:sent1(b)}))});
+  if(k==="img"){const D=EX.dev||{},ex={};Object.entries(D).sort((a,b)=>a[0]-b[0]).forEach(([id,L])=>(L||[]).forEach(([dk,n,ph])=>{(ex[dk]=ex[dk]||[]).push([n,+id,ph])}));
+    G.push({rows:Object.entries(EX.devices||{}).map(([dk,nm])=>{const L=ex[dk]||[];return {cue:nm,note:L.length?`${L.length} moment${L.length===1?"":"s"} in the play${F?"":`, first: “${L[0][2]||""}”`}`:"",ex:F?[L[0],L[Math.floor(L.length/2)],L[L.length-1]].filter((x,i,a)=>x&&a.indexOf(x)===i).map(x=>[x[0],x[1]]):[]}}).filter(r=>r.note)})}
+  if(k==="quotes"){const Q=QUOTES.quotes.filter(q=>speech[q.id]);
+    if(RVG==="theme")Object.entries(QUOTES.themes).forEach(([t,v])=>{const qs=Q.filter(q=>q.themes[0]===t);if(qs.length)G.push({h:v[0],qs})});
+    else if(RVG==="who")rvWho().concat([...new Set(Q.map(q=>speech[q.id].who))].filter(w=>!whoAll().includes(w))).forEach(w=>{const qs=Q.filter(q=>speech[q.id].who===w);if(qs.length)G.push({h:title(w),qs})});
+    else ACTS.forEach(a=>{const qs=Q.filter(q=>sceneOf(q.id).act===a);if(qs.length)G.push({h:AN(a),qs})})}
+  return G}
+/* one quote: speaker and first words stay visible in Cover mode; the rest (.cv) is the thing to recall */
+function rvQ(q,lab){const sp=speech[q.id];if(!sp)return "";const {a,b}=firstWords(q.text),kn=!!prog.cards[q.i],w=rvWhy(q);
+  return `<div class="rq53${kn?" kn":""}" data-rvq="${q.i}">${lab?`<small class="rql">${esc(lab)}</small>`:""}<p class="rqt">“${esc(a)}${b?` <span class="cv">${esc(b)}</span>`:""}”</p><div class="rqm">${chip(q.id)}${kn?`<span class="rqk">✓ Learnt</span>`:""}</div>${rvFull()&&w?`<p class="rqw cv">${esc(w)}</p>`:""}</div>`}
+function rvRow(r){const cue=r.who?`<button type="button" class="cue cuew" data-to="study:who:${esc(encodeURIComponent(r.who))}?tp=revise">${folioMedal(r.who,COLORS[r.who],"rvm")}<span>${esc(r.cue)}</span></button>`
+    :r.th?`<button type="button" class="cue" data-to="study:theme:${esc(r.th)}?tp=revise">${esc(r.cue)}</button>`
+    :r.pv!=null?`<button type="button" class="cue" data-pv="${esc(r.pv)}">${esc(r.cue)}</button>`:r.go?`<button type="button" class="cue" data-go2="${esc(r.go)}">${esc(r.cue)}</button>`:r.cue?`<span class="cue">${esc(r.cue)}</span>`:"";
+  return `<div class="cn53${cue?"":" wide"}">${cue}<div class="nt">${r.note?`<p class="cv">${esc(r.note)}</p>`:""}${r.more?`<p class="more cv">${esc(r.more)}</p>`:""}${(r.ex||[]).map(([t,id])=>`<div class="rx53"><p class="cv">${esc(t)}</p>${chip(id)}</div>`).join("")}${(r.qs||[]).map(([q,l])=>rvQ(q,l)).join("")}</div></div>`}
+/* the reader's layer: numbers, what to fix next, and every mark and note in play order */
+function rvMine(){const ids=Object.keys(marks).filter(k=>speech[k]&&(inkOf(marks[k])||marks[k].note)).map(Number),fv=FAV.filter(f=>speech[f.id]);
+  return [...ids.map(id=>({id,m:marks[id]})),...fv.map(f=>({id:f.id,f}))].sort((a,b)=>a.id-b.id||(a.f?1:0)-(b.f?1:0))}
+function rvWeak(){const W=[],nq=prog.miss.q.length,d=dueKeys().length,cs=Object.keys(prog.miss.c||{}).filter(i=>prog.miss.c[i]>0&&QUOTES.quotes[i]),cf=Object.keys(marks).filter(k=>marks[k].hl==="cf"&&speech[k]);
+  if(d)W.push([`${d} card${d===1?"":"s"} due today`,"Spaced review keeps them",`data-to="study:review?tp=revise"`,"Review"]);
+  if(nq)W.push([`${nq} quiz question${nq===1?"":"s"} missed`,"Try them again",`data-quiz2="miss"`,"Retry"]);
+  if(cs.length)W.push([`${cs.length} quote${cs.length===1?"":"s"} you didn't know`,"Turn them over again",`data-to="study:cards?tp=revise"`,"Flashcards",cs.slice(0,3).map(i=>QUOTES.quotes[i])]);
+  if(cf.length)W.push([`${cf.length} line${cf.length===1?"":"s"} marked Confusing`,"Read the modern English",`data-pv="${cf[0]}"`,"Open"]);
+  const th=Object.keys(QUOTES.themes).map(t=>[t,...thLearnt(t)]).filter(x=>x[2]).sort((a,b)=>a[1]/a[2]-b[1]/b[2])[0];
+  if(th&&th[1]<th[2]&&Object.keys(prog.cards).length)W.push([`Weakest theme: ${QUOTES.themes[th[0]][0]}`,`${th[1]} of ${th[2]} quotes learnt`,`data-to="study:theme:${th[0]}?tp=revise"`,"Open"]);
+  return W}
+function rvYouHTML(){const N=QUOTES.quotes.length,kn=QUOTES.quotes.filter(q=>prog.cards[q.i]).length,qd=scenes.filter(p=>prog.quiz[p.id]),sc=qd.reduce((x,p)=>[x[0]+prog.quiz[p.id][0],x[1]+prog.quiz[p.id][1]],[0,0]),M=rvMine(),W=rvWeak();
+  const st=[[`${kn}`,`of ${N} quotes learnt`,kn/Math.max(1,N)],[`${qd.length}`,`of ${scenes.length} scenes quizzed${sc[1]?` · ${Math.round(100*sc[0]/sc[1])}%`:""}`,qd.length/Math.max(1,scenes.length)],[`${M.length}`,`note${M.length===1?"":"s"} and marks`,-1]];
+  let h=`<div class="rvst53">${st.map(([b,s,f])=>`<div>${f>=0?hring(f,`<b>${b}</b>`):`<span class="hring"><b>${b}</b></span>`}<small>${esc(s)}</small></div>`).join("")}</div>`;
+  h+=W.length?`<h4 class="rva53">Fix next</h4><div class="rvw53">${W.map(([t,s,a,l,qs])=>`<div class="rvwr"><span><b>${esc(t)}</b><small>${esc(s)}</small></span><button type="button" class="btn sm" ${a}>${l}</button>${qs?`<div class="rvwq">${qs.map(q=>rvQ(q,"")).join("")}</div>`:""}</div>`).join("")}</div>`
+    :`<p class="muted rvnone">Nothing to fix yet. Quizzes, flashcards and the marks you make while reading show up here.</p>`;
+  if(M.length){let ls="";h+=`<h4 class="rva53">My notes</h4><div class="rvn53">${M.map(x=>{const p=sceneOf(x.id),sp=speech[x.id],hd=p.id!==ls?`<div class="rvns">${esc(sName(p))}</div>`:"";ls=p.id;
+      const ink=x.f?fcOk(x.f.c):inkOf(x.m),txt=x.f?`“${favText(x.f.id,x.f.a,x.f.b)||x.f.txt||""}”`:clip(sp.lines.join(" ").replace(/~/g,""),110),note=x.f?x.f.note:x.m.note;
+      return hd+`<div class="rvnr"${ink?` style="--mk:var(--mk-${ink})"`:""}><button type="button" class="cue" data-pv="${x.id}">${esc(title(sp.who))}${ink?`<small>${esc(inkName(ink))}</small>`:""}</button><div class="nt"><p class="cv">${esc(txt)}</p>${note?`<p class="my">${esc(note)}</p>`:""}</div></div>`}).join("")}</div>`}
+  else h+=`<p class="muted rvnone">No marks yet. While reading, hold a word or a speaker's name to mark it or add a note.</p>`;
+  return h}
+function rvSecHTML(k,nm){const open=!!RVO[k];let body,meta="";
+  if(k==="you")body=rvYouHTML();
+  else{const G=rvData(k);
+    if(k==="quotes"){const n=G.reduce((a,g)=>a+g.qs.length,0);meta=`${n} quotes`;
+      body=`<div class="chips rvgc53" role="group" aria-label="Group quotes by">${[["theme","Theme"],["who","Character"],["act","Act"]].map(([v,l])=>`<button type="button" class="chip" data-rvg="${v}" aria-pressed="${RVG===v}">${l}</button>`).join("")}</div>`
+        +G.map(g=>{const kn=g.qs.filter(q=>prog.cards[q.i]).length;return `<details class="rvg53"><summary><b>${esc(g.h)}</b><span class="cbar"><i style="width:${(kn/g.qs.length*100).toFixed(0)}%"></i></span><small>${kn}/${g.qs.length}</small></summary>${g.qs.map(q=>rvQ(q,"")).join("")}</details>`}).join("")}
+    else{const n=G.reduce((a,g)=>a+g.rows.length,0);meta=k==="plot"?`${ACTS.length} act${ACTS.length===1?"":"s"}`:`${n}`;
+      body=G.map(g=>(g.h?`<h4 class="rva53">${esc(g.h)}</h4>`:"")+g.rows.map(rvRow).join("")).join("")}}
+  return `<section class="rvs53 rv-${k}" id="rv-${k}"><button type="button" class="rvsh" data-rvt="${k}" aria-expanded="${open}"><h3>${esc(nm)}</h3><small>${esc(meta)}</small><i aria-hidden="true">›</i></button><div class="rvsb"${open?"":" hidden"}>${body}</div></section>`}
+/* the same notes as text, for Copy, Share and Download */
+function rvText(){const F=rvFull(),L=[`${CFG.title}: revision notes (${F?"Full":"Brief"})`,new Date().toLocaleDateString(),""];
+  const qt=q=>`“${q.text}” (${title(speech[q.id].who)}, ${scShort(sceneOf(q.id))})${F&&rvWhy(q)?` ${rvWhy(q)}`:""}`;
+  rvSecs().forEach(([k,nm])=>{L.push(nm.toUpperCase());
+    if(k==="you"){const W=rvWeak(),M=rvMine();W.forEach(w=>L.push(`- ${w[0]} (${w[1]})`));
+      const qs=Object.entries(prog.quiz).filter(([s])=>sIdx(s)>=0).sort((a,b)=>sIdx(a[0])-sIdx(b[0]));if(qs.length)L.push("- Quiz scores: "+qs.map(([s,v])=>`${scShort(scenes[sIdx(s)])} ${v[0]}/${v[1]}`).join(", "));
+      M.forEach(x=>{const sp=speech[x.id],p=sceneOf(x.id),ink=x.f?fcOk(x.f.c):inkOf(x.m),note=x.f?x.f.note:x.m.note;
+        L.push(`- ${scShort(p)} ${title(sp.who)}${ink?` [${inkName(ink)}]`:""}: ${x.f?`“${favText(x.f.id,x.f.a,x.f.b)||x.f.txt||""}”`:sp.lines.join(" / ").replace(/~/g,"")}`);if(note)L.push(`    My note: ${String(note).replace(/\n/g," ")}`)});
+      if(!W.length&&!M.length)L.push("- Nothing yet")}
+    else rvData(k).forEach(g=>{if(g.h)L.push(`  ${g.h}`);(g.rows||[]).forEach(r=>{L.push(`- ${r.cue?r.cue+": ":""}${r.note}`);if(r.more)L.push(`    ${r.more}`);(r.ex||[]).forEach(([t,id])=>L.push(`    ${t} (${scShort(sceneOf(id))})`));(r.qs||[]).forEach(([q,l])=>L.push(`    ${l?l+": ":""}${qt(q)}`))});(g.qs||[]).forEach(q=>L.push(`- ${qt(q)}${prog.cards[q.i]?" ✓":""}`))});
+    L.push("")});
+  return L.join("\n")}
+function rvExport(){const t=rvText();
+  openSheet("Export notes",`<p class="intro">${rvFull()?"Full":"Brief"} notes, as shown. Switch Brief or Full first to change what is included.</p><div class="rvex53">${navigator.share?`<button type="button" class="btn primary" id="rvx-share">Share</button>`:""}<button type="button" class="btn${navigator.share?"":" primary"}" id="rvx-copy">Copy as text</button><button type="button" class="btn" id="rvx-dl">Download as text</button>${canPrint()?`<button type="button" class="btn" id="rvx-pr">Print</button>`:""}</div>`);
+  const b=$("sheet-body");if(b.querySelector("#rvx-share"))b.querySelector("#rvx-share").onclick=()=>shareText(CFG.title+" revision notes",t);
+  b.querySelector("#rvx-copy").onclick=()=>copyText(t);b.querySelector("#rvx-dl").onclick=()=>download(CFG.file+"-revision.txt",t,"text/plain");
+  if(b.querySelector("#rvx-pr"))b.querySelector("#rvx-pr").onclick=()=>{closeSheet();setTimeout(()=>window.print(),250)}}
+addEventListener("beforeprint",()=>document.querySelectorAll(".rv53 details").forEach(d=>d.open=true));
+const rvEye=()=>`<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/>${RVC?'<path d="M4 4l16 16"/>':'<circle cx="12" cy="12" r="3"/>'}`;
+function studyRevise(){const secs=rvSecs();
+  $("sbody").innerHTML=`<div class="rv53${RVC?" cvr":""}"><div class="rvbar53 noprint">${folioSimple()?"":`<div class="dview" role="group" aria-label="Detail"><button type="button" data-rvv="brief" aria-pressed="${RVV!=="full"}">Brief</button><button type="button" data-rvv="full" aria-pressed="${RVV==="full"}">Full</button></div>`}
+     <button type="button" class="rvcov" data-rvc aria-pressed="${RVC}"><svg viewBox="0 0 24 24" aria-hidden="true">${rvEye()}</svg>Cover</button><button type="button" class="btn sm" id="rv-exp">Export</button></div>
+    <p class="rvcn53 noprint"${RVC?"":" hidden"}>Cover is on: say the rest of each quote, or the note, then tap it to check. Your answers on quotes go into Daily review.</p>
+    <nav class="rvidx53 noprint" aria-label="Sections">${secs.map(([k,nm])=>`<button type="button" data-rvj="${k}">${esc(nm)}</button>`).join("")}<button type="button" class="rvall" data-rvall>${secs.every(([k])=>RVO[k])?"Close all":"Open all"}</button></nav>
+    <div class="olrh rvrh" aria-hidden="true"><span>${esc(CFG.short)}</span><span>Revision notes</span></div>
+    ${secs.map(([k,nm])=>rvSecHTML(k,nm)).join("")}
+    <p class="rvbk53 noprint">Notes and progress live on this device. <a href="${FOLIO_BK}">Back up every play</a></p></div>`;
+  const sg=document.querySelector("#study .sgroups");$("sbody").style.setProperty("--sgh",(sg?sg.offsetHeight:0)+"px");
+  const R0=$("sbody").querySelector(".rv53");
+  R0.onclick=e=>{const t=e.target;
+    const v=t.closest("[data-rvv]");if(v){RVV=v.dataset.rvv;LS.set("folio-rvview",RVV);const y=scrollY;studyRevise();scrollTo(0,y);return}
+    const cb=t.closest("[data-rvc]");if(cb){RVC=!RVC;R0.classList.toggle("cvr",RVC);cb.setAttribute("aria-pressed",String(RVC));cb.querySelector("svg").innerHTML=rvEye();R0.querySelector(".rvcn53").hidden=!RVC;if(!RVC)R0.querySelectorAll(".open").forEach(x=>x.classList.remove("open"));return}
+    if(t.closest("#rv-exp")){rvExport();return}
+    const g=t.closest("[data-rvg]");if(g){RVG=g.dataset.rvg;LS.set("folio-rvgroup",RVG);const s=$("rv-quotes");s.outerHTML=rvSecHTML("quotes","Quote bank");return}
+    const j=t.closest("[data-rvj]");if(j){const s=$("rv-"+j.dataset.rvj);if(s){if(!RVO[j.dataset.rvj]){RVO[j.dataset.rvj]=1;s.outerHTML=rvSecHTML(j.dataset.rvj,j.textContent)}
+      const el=$("rv-"+j.dataset.rvj),top=el.getBoundingClientRect().top+scrollY-(parseFloat(getComputedStyle($("sbody")).getPropertyValue("--sgh"))||0)-R0.querySelector(".rvidx53").offsetHeight-8;scrollTo({top,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}return}
+    if(t.closest("[data-rvall]")){const all=secs.every(([k])=>RVO[k]);secs.forEach(([k])=>RVO[k]=all?0:1);if(all)RVO.you=1;const y=scrollY;studyRevise();scrollTo(0,y);return}
+    const st=t.closest("[data-rvt]");if(st){const k=st.dataset.rvt,o=st.getAttribute("aria-expanded")==="true";RVO[k]=o?0:1;st.setAttribute("aria-expanded",String(!o));st.nextElementSibling.hidden=o;return}
+    const gk=t.closest("[data-rvk]");if(gk){const q=gk.closest("[data-rvq]"),i=+q.dataset.rvq,ok=gk.dataset.rvk==="1";grade("who:"+i,ok,false);
+      R0.querySelectorAll(`[data-rvq="${i}"]`).forEach(x=>{x.classList.add("done");x.classList.toggle("kn",!!prog.cards[i]);const b=x.querySelector(".rqg");if(b)b.remove()});
+      toast(ok?(prog.cards[i]?"Learnt. It joins your learnt quotes":"Saved. It comes back in Daily review"):"It comes back in Daily review soon");return}
+    if(!R0.classList.contains("cvr")||t.closest("button,a,summary"))return;
+    const q=t.closest("[data-rvq]");if(q){if(q.classList.contains("open"))return;q.classList.add("open");if(!q.classList.contains("done"))q.insertAdjacentHTML("beforeend",`<div class="rqg"><small>Did you know it?</small><button type="button" class="btn sm" data-rvk="0">Not yet</button><button type="button" class="btn sm primary" data-rvk="1">Knew it</button></div>`);return}
+    const n=t.closest(".nt,.rx53");if(n)n.classList.toggle("open")};
 }
 $("sbody").addEventListener("click",e=>{
   if(e.target.closest("[data-xround]")){xRound();return}

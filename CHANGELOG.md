@@ -4,6 +4,17 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.53.0] — 2026-11-15
+
+### Changed
+- Study › Revise: the revision sheet is now Revision notes, a knowledge organiser built from each play's Study content (Plot, Characters, Themes, Quote bank; Full mode adds At a glance, Big ideas, Context, Imagery) with your notes, marks and what to fix next on top, Cornell-style rows, a sticky section index and collapsible sections (#PR)
+- Revision notes open in Brief (one line per item) with Full one tap away; the quote bank groups by Theme, Character or Act; Simple shows the core sections only (#PR)
+- Revise topic page leads with a Revision notes card and what to fix next; Backup on the sheet is now a link to the Folio backup (older single-play import stays on the play's You view) (#PR)
+
+### Added
+- Revision notes Cover mode: quotes and notes blur until tapped; Knew it / Not yet on a quote grades it like a flashcard (learnt quotes and Daily review) (#PR)
+- Export notes: Share, Copy or Download as text in the same Brief/Full structure, and Print (#PR)
+
 ## [4.52.0] — 2026-11-15
 
 ### Added
