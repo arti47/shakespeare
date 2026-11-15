@@ -4,6 +4,17 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.55.0] — 2026-11-15
+
+### Changed
+- Faster loading: the installed app opens every page from its offline copy at once instead of checking each file over the network first; new versions still arrive in the background with the Folio updated toast (#PR)
+- Faster updates: a new version downloads only the files that changed, not the whole 10 MB Folio again (#PR)
+- Faster Library: its search quotes and words (about 1 MB) left the page and load only when search opens (#PR)
+- Faster reader: a scene is laid out once on opening instead of three times, page breaks are found with far fewer measurements, and the Fit verse lines size is remembered (#PR)
+
+### Fixed
+- Library search: Key quotes and Words now come straight from each play, so A Midsummer Night's Dream's 198 glossary words appear, Richard III's quotes follow the play, and song quotes match the text (#PR)
+
 ## [4.54.0] — 2026-11-15
 
 ### Added

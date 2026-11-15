@@ -408,14 +408,21 @@ function pageHTML(pages,i,k){const p=scenes[k],h=n=>(pages[n]||[]).map(b=>blockH
 let cur={k:-1,pages:[],i:0,words:0,sig:""};
 /* 4.7 Pocket edition: verse is set just small enough that ~90% of this play's verse lines fit on one line (never under 14px) */
 let FITC={};
+/* the verse being measured: count and characters of every verse line, so an edited play measures again */
+const FITSIG=()=>FITSIG.v||(FITSIG.v=(()=>{let n=0,c=0;for(const p of scenes)for(const it of p.items)if(it.t==="sp"&&!PROSE[it.id])for(const x of it.lines)if(!x.startsWith("~")){n++;c+=x.length}return n+"."+c})());
 function fitAuto(){const R2=document.documentElement.style;R2.setProperty("--fit","1");if(!S.fit||S.mode==="mod")return 1;
   measure.innerHTML=`<article class="blk sp vs"><div class="body"><div class="o"><div class="pt"><span class="l">M</span></div></div></div></article>`;
   const l=measure.querySelector(".l");if(!l){measure.innerHTML="";return 1}const cs=getComputedStyle(l),A=l.clientWidth-parseFloat(cs.paddingLeft)+parseFloat(cs.textIndent||0),px=parseFloat(cs.fontSize),font=`${cs.fontStyle} ${cs.fontWeight} ${px}px ${cs.fontFamily}`,key=[A,px,cs.fontFamily].join("|");measure.innerHTML="";
-  if(!(key in FITC)){const ctx=(fitAuto.c=fitAuto.c||document.createElement("canvas")).getContext("2d");ctx.font=font;const w=[];
+  if(!(key in FITC)){/* 4.55: the result is kept in <prefix>fitw per measure, font and text (FITSIG), with the faces loaded, so later opens skip measuring every verse line */
+    let st={};try{st=JSON.parse(LS.get(PFX+"fitw")||"{}")||{}}catch(e){}const sk=key+"|"+FITSIG()+"|"+fontKey();
+    if(typeof st[sk]==="number")FITC[key]=st[sk];
+    else{const ctx=(fitAuto.c=fitAuto.c||document.createElement("canvas")).getContext("2d");ctx.font=font;const w=[];
     for(const p of scenes)for(const it of p.items)if(it.t==="sp"&&!PROSE[it.id])for(const x of it.lines)if(!x.startsWith("~"))w.push(ctx.measureText(x).width);
-    w.sort((a,b)=>a-b);const w90=w[Math.floor(w.length*.9)]||0;FITC[key]=w90?Math.max(14/px,Math.min(1,A/(w90*1.04))):1}
+    w.sort((a,b)=>a-b);const w90=w[Math.floor(w.length*.9)]||0;FITC[key]=w90?Math.max(14/px,Math.min(1,A/(w90*1.04))):1;
+    if(fontKey()&&document.fonts.status==="loaded"){st={[sk]:FITC[key],...Object.fromEntries(Object.entries(st).slice(0,5))};LS.set(PFX+"fitw",JSON.stringify(st))}}}
   const f=FITC[key];R2.setProperty("--fit",f.toFixed(3));return f}
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{FITC={};if(typeof repaginate==="function"&&cur.k>=0)repaginate()});
+/* 4.55: the faces loaded when a scene was paginated (cur.ff); the start waits for the book faces, so this repaginates only if they arrived late */
+const fontKey=()=>{try{return [...document.fonts].filter(f=>f.status==="loaded"&&/^(IM Fell|Crimson)/.test(f.family)).map(f=>f.family+f.style+f.weight).join()}catch(e){return ""}};
 function paginate(p){
   document.body.classList.toggle("spread",spread());document.body.classList.toggle("facing",facing());
   const blocks=sceneBlocks(p);
@@ -434,7 +441,9 @@ function paginate(p){
       el.remove();
       if(bk.t==="sp"&&bk.u1-bk.u0>1){
         /* split between parts if possible; split inside a part (at a line) when the part split would leave over a quarter of the page empty */
-        const fit=pass=>{for(let u=bk.u1-1;u>bk.u0;u--){if(pass&&!bk.starts.has(bk.units[u][0]))continue;const e=add(Object.assign({},bk,{u1:u}));const ok=fits(),h=measure.scrollHeight;e.remove();if(ok)return [u,h]}return [0,0]};
+        const fit=pass=>{/* 4.55: a part grows with u, so binary-search the largest u that fits (same answer as scanning down, far fewer layouts) */
+          const us=[];for(let u=bk.u0+1;u<bk.u1;u++)if(!pass||bk.starts.has(bk.units[u][0]))us.push(u);
+          let lo=0,hi=us.length-1,r=[0,0];while(lo<=hi){const m=(lo+hi)>>1,e=add(Object.assign({},bk,{u1:us[m]}));const ok=fits(),h=measure.scrollHeight;e.remove();if(ok){r=[us[m],h];lo=m+1}else hi=m-1}return r};
         let [best,bh]=fit(1);
         if(!best||H-bh>H*.1){const [lb]=fit(0);if(lb>best)best=lb}
         if(best){const part=Object.assign({},bk,{u1:best});add(part);page.push(part);flush();bk=Object.assign({},bk,{u0:best,key:bk.it.id+":"+bk.units[best][0]});continue}
@@ -450,7 +459,7 @@ function paginate(p){
 const sig=()=>[S.lh,S.mode,S.scale,S.who,S.sum,S.beats,S.fit,OPENV,pg.clientWidth,pg.clientHeight,spread(),facing(),twoLeaves(),wide()].join("|");
 function openScene(k,opts){
   opts=opts||{};const p=scenes[k];if(cur.k!==k&&OPEN.size){OPEN.clear();OPENV++}
-  if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig()};
+  if(!(cur.k===k&&cur.sig===sig()))cur={k,pages:paginate(p),i:0,words:pageWords(p),sig:sig(),ff:fontKey()};
   let i=0;
   if(opts.page==="last")i=cur.pages.length-1;
   else if(typeof opts.page==="number")i=Math.max(0,Math.min(cur.pages.length-1,opts.page));
@@ -572,7 +581,6 @@ function curlRelease(cancel){const c=CU;c.drag=false;const p=(c.W-c.F.x)/(2*c.W)
   curlAnim(to,ms,curlEnd)}
 function repaginate(){if(view!=="reader"||cur.k<0)return;const key=pos&&pos.key;cur.sig="";openScene(cur.k,{key,keep:true})}
 let rz;addEventListener("resize",()=>{curlEnd();clearTimeout(rz);rz=setTimeout(repaginate,180)});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>repaginate());
 function refreshMarks(){if(view==="reader"&&cur.k>=0){pg.innerHTML=pageHTML(cur.pages,cur.i,cur.k);if(partSel)markPart();else if(toolsId!=null)pg.querySelectorAll(`.sp[data-id="${toolsId}"]`).forEach(x=>x.classList.add("active"))}}
 
 /* ---------- reader: gestures (tap edges / swipe to turn, tap middle for menus, long-press for tools) ---------- */
@@ -3159,4 +3167,10 @@ function hint(){if(folioSimple()){coach();return}if(LS.get("folio-hint")||LS.get
 
 /* ---------- start ---------- */
 applySettings();
-route();
+/* 4.55: the first page is laid out once, in the book faces: once the app is installed (the service worker serves them from its cache) wait at most 1 s
+   for any face not yet loaded, instead of paginating in a fallback font and again when they arrive. On a first visit (no worker yet) they come over
+   the network behind the page's own files, so the page opens at once and repaginates when they land. */
+{const F0=["1em 'IM Fell English'","italic 1em 'IM Fell English'","1em 'IM Fell English SC'"],fs=document.fonts,sw=navigator.serviceWorker&&navigator.serviceWorker.controller;let go=false;
+  const start=()=>{if(go)return;go=true;route();if(fs&&fs.ready)fs.ready.then(()=>{if(cur.k>=0&&cur.ff!==fontKey()){FITC={};repaginate()}})};
+  const need=sw&&fs&&fs.load&&fs.check?F0.filter(f=>{try{return !fs.check(f)}catch(e){return false}}):[];
+  if(!need.length)start();else{Promise.all(need.map(f=>fs.load(f))).then(start,start);setTimeout(start,1000)}}
