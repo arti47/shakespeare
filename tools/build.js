@@ -92,6 +92,18 @@ for (const p of PLAYS) {
   const okEv = a => Array.isArray(a) && a.length >= 1 && a.length <= 3 && a.every(i => ids.has(String(i)));
   EX.context.forEach((c, i) => { if (!okEv((ev.ctx || [])[i])) throw new Error(`${f}: EX.ev.ctx[${i}] needs 1-3 speech ids`); });
   for (const [k, v] of Object.entries(EX.critics)) v.forEach((c, i) => { if (!okEv(((ev.cr || {})[k] || [])[i])) throw new Error(`${f}: EX.ev.cr.${k}[${i}] needs 1-3 speech ids`); });
+  /* 4.41 Writing desk: 12+ exam questions, the last 6 typed tw,tw,ext,ext,view,view; one model and one outline per question. */
+  const XQ = EX.examq || [], XM = EX.models || [], XO = EX.outl || [], NQ = constJSON(rd(f), "QUOTES", f).quotes.length;
+  const XT = ["tw", "tw", "ext", "ext", "view", "view"], okQ = i => Number.isInteger(i) && i >= 0 && i < NQ;
+  if (XQ.length < 12) throw new Error(`${f}: EX.examq needs 12+ questions (has ${XQ.length})`);
+  if (XM.length !== XQ.length || XO.length !== XQ.length) throw new Error(`${f}: EX.models and EX.outl need one entry per EX.examq question`);
+  XQ.forEach((q, i) => {
+    if (typeof q[0] !== "string" || !Array.isArray(q[1]) || !q[1].length || !q[1].every(okQ)) throw new Error(`${f}: EX.examq[${i}] needs text and quote indexes`);
+    if (i >= XQ.length - 6 && q[2] !== XT[i - XQ.length + 6]) throw new Error(`${f}: EX.examq[${i}] type must be ${XT[i - XQ.length + 6]}`);
+    const m = XM[i], o = XO[i];
+    if (!Array.isArray(m) || m.length < 5 || m.length > 6 || !okQ(m[0]) || !m.slice(1).every(s => typeof s === "string" && s)) throw new Error(`${f}: EX.models[${i}] needs [quote, point, method, effect, context(, alternative)]`);
+    if (!o || typeof o.th !== "string" || !o.th || !Array.isArray(o.s) || o.s.length !== 3 || !o.s.every(s => typeof s === "string" && s) || typeof o.c !== "string" || !o.c) throw new Error(`${f}: EX.outl[${i}] needs {th, s:[3], c}`);
+  });
   const PAUL = ["purpose", "question", "information", "inference", "concept", "assumption", "implication", "view"];
   /* 4.24 quiz options: 4 distinct options, and the right answer is the unique longest in at most 30% of questions. */
   const QZ = Object.entries(constJSON(rd(f), "STUDY", f).scenes || {}).flatMap(([s, v]) => (v.quiz || []).map((q, i) => [s + "." + i, q]));

@@ -1779,7 +1779,7 @@ const dqMark=t=>esc(t).replace(new RegExp("\\b("+dqKeys(t).map(k=>k.replace(/[.*
 function dqModel(i,fade){const M=(EX.models||[])[i];if(!M)return "";const q=QUOTES.quotes[M[0]],F=((PA.f=PA.f||{})["d"+i]=PA.f["d"+i]||{});
   const nm=x=>x.toLowerCase().replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim(),inM=nm(M[2]).includes(nm(q.text).split(" ").slice(0,3).join(" "));
   const hid=[[],["m","f"],["m","f","c","a"],["p","m","f","c","a"]][fade||0];
-  const J=[["p",M[1]],...(inM?[]:[["e",`${title(speech[q.id].who)} says “${q.text}”.`]]),["m",M[2]],["f",M[3]],["c",M[4]],["a",M[5]]];
+  const J=[["p",M[1]],...(inM?[]:[["e",`${title(speech[q.id].who)} says “${q.text}”.`]]),["m",M[2]],["f",M[3]],["c",M[4]],["a",M[5]]].filter(([,v])=>v);
   const lab=k=>(PSTEPS.find(x=>x[0]===k)||[,k])[1];
   return `<p class="mflow">${J.map(([k,v])=>hid.includes(k)?`<span class="mj mj-${k} mgap"><label><small>${lab(k)}</small><textarea data-dmf="${k}" rows="2" placeholder="${esc((PSTEPS.find(x=>x[0]===k)||[,,""])[2])}">${esc(F[k]||"")}</textarea></label></span>`:`<span class="mj mj-${k}" data-mjk="${k}">${esc(v)}</span>`).join(" ")}</p>
    <div class="mkey" aria-label="The six jobs">${PSTEPS.filter(([k])=>J.some(j=>j[0]===k)).map(([k,l])=>`<span class="mj-${k}"><i></i>${k==="m"&&inM?"Method, quote built in":l}</span>`).join("")}</div>`}
