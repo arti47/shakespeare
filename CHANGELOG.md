@@ -4,6 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [4.41.0] — 2026-11-15
+
+### Added
+- Writing desk, histories: 60 new exam questions written from the text, 6 per history (2 To what extent, 2 extract-led, 2 Explore the view), each with a quote set and a model paragraph, plus a model outline for all 120 history questions; every play now has 12+ questions (#155)
+- Build check: every play needs 12+ `EX.examq` questions, the last 6 typed tw, tw, ext, ext, view, view, and one `EX.models` entry and one `EX.outl` outline per question (#155)
+
+### Fixed
+- Writing desk model paragraphs no longer show "undefined" where a model has no alternative reading (eight histories) (#155)
+
 ## [4.40.0] — 2026-11-15
 
 ### Added
