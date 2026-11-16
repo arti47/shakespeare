@@ -9,14 +9,14 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 Version 5 begins: a redesign in stages, content unchanged. Stage 1 is Revision notes.
 
 ### Changed
-- Revision notes are now a knowledge organiser board: a header in the play's colour with your progress rings and Revise now, then a tile per section (At a glance, Plot, Characters, Themes, Big ideas, Quote bank, Context, Imagery, My notes), all open; no more closed accordions (#PR)
-- Revision notes on phones: one section per screen, switch with the tabs, a sideways swipe or Back / Next; on tablets and desktops every tile sits on one two-column board (#PR)
-- Revision notes text: long notes are split into a lead line and one bullet per sentence, same words, with character names, themes and acts in bold (#PR)
-- Revision notes quotes are cards: the line, who says it and where (opens the play), and why it matters; Full adds the note and themes (#PR)
-- Revision notes visuals: Plot opens with the play's arc, Characters with the relationship map, Themes with a theme-by-act grid of key quotes (tap a cell for them), all stopping at your place; At a glance facts are cards; Big ideas in Full read Shakespeare presents… / Because / But (#PR)
+- Revision notes are now a knowledge organiser board: a header in the play's colour with your progress rings and Revise now, then a tile per section (At a glance, Plot, Characters, Themes, Big ideas, Quote bank, Context, Imagery, My notes), all open; no more closed accordions (#175)
+- Revision notes on phones: one section per screen, switch with the tabs, a sideways swipe or Back / Next; on tablets and desktops every tile sits on one two-column board (#175)
+- Revision notes text: long notes are split into a lead line and one bullet per sentence, same words, with character names, themes and acts in bold (#175)
+- Revision notes quotes are cards: the line, who says it and where (opens the play), and why it matters; Full adds the note and themes (#175)
+- Revision notes visuals: Plot opens with the play's arc, Characters with the relationship map, Themes with a theme-by-act grid of key quotes (tap a cell for them), all stopping at your place; At a glance facts are cards; Big ideas in Full read Shakespeare presents… / Because / But (#175)
 
 ### Fixed
-- Theme act ribbons in Study no longer list key quotes from scenes you have not read yet (#PR)
+- Theme act ribbons in Study no longer list key quotes from scenes you have not read yet (#175)
 
 ## [4.57.0] — 2026-11-15
 
