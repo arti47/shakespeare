@@ -4,6 +4,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [5.3.0] — 2026-11-16
+
+### Changed
+- Reader: each scene's title page is a big heading on paper over an ink rule, with the place, who is on stage and a Before you read button; the stage picture, tailpiece and act wreath are gone (#178)
+- Reader: thin paper top and bottom bars in plain type with simple line icons and a flat progress line (#178)
+- Reader sheets (Contents, Settings, Speech tools): big title, flat hairline rows and tabs, plain-type controls (#178)
+
 ## [5.2.0] — 2026-11-16
 
 ### Changed

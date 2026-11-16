@@ -3216,3 +3216,59 @@ body.focus21 #study .pred22 .chip{min-height:44px;min-width:44px;font-family:var
 #study .ttile,#study .qstrip .qcard{border:0;border-radius:var(--r-tile);background:var(--card);background-image:none;box-shadow:0 0 0 1px var(--rule),var(--sh-tile)}
 #study .ttile b{font-family:var(--f-disp)}#study .ttile small{font-family:var(--f-ui);font-variant-numeric:lining-nums}
 @media print{#study .today48.sh52{display:none!important}}
+/* ---------- 5.3 Reader editorial (chrome only; pagination unchanged): scene title page = big heading on paper over a 2px ink rule
+   (woodcut, tailpiece and act wreath hidden), thin paper bars in UI type (no enamel roundel, plain icons, flat progress line),
+   flat sheets: display-type title, hairline rows, UI-type tabs and controls. ---------- */
+/* scene title page */
+.blk.tpage{align-items:stretch;text-align:left;justify-content:flex-start;padding:10% 0 .4em}
+.tpage .wcut,.tpage .tailw,.apage .wreath,.apage .aprule,.apage .tailw{display:none!important}
+.tpage .tpeb{font:600 max(14px,.62em) var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.tpage h1{margin:.2em 0 .25em;padding:0 0 .25em;border-bottom:2px solid var(--ink);font:400 2.9em/1 var(--f-disp);letter-spacing:-.01em}
+.tpage .tploc{max-width:none;font:400 max(14px,.85em)/1.4 var(--f-ui);font-style:normal;color:var(--soft)}
+.tpage .hbeat{margin:.8em 0 0;max-width:none}
+.tpbill{justify-content:flex-start;max-width:none;margin:1.1em 0 0;padding:.7em 0 0;border-top:1px solid var(--rule)}
+.tpbill::before{content:"On stage";flex:1 1 100%;font:600 max(14px,.6em) var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tpbill .tpc{font:500 max(14px,.66em) var(--f-ui);letter-spacing:0}
+.tpage .recapb{align-self:flex-start;margin-top:1.1em;padding:.5em 1.2em;border:0;border-radius:999px;background:var(--ink);color:var(--page);font:600 max(14px,.72em) var(--f-ui)}
+.apage .aph{font-family:var(--f-disp)}
+.apage .apla{font:600 max(14px,.62em) var(--f-ui);letter-spacing:.12em;text-transform:uppercase}
+/* bars */
+#bar.bar{border-bottom:1px solid var(--rule);box-shadow:none}
+#bar .bemb{display:none}
+.where b,#w-title,.where .ws{font:600 1rem var(--f-ui)!important;letter-spacing:0!important;text-transform:none}
+.where small{font:400 .875rem var(--f-ui)!important;font-style:normal!important;letter-spacing:0!important}
+.bar .icon,.bbar .icon{box-shadow:none}
+.bar .icon:hover,.bbar .icon:hover{box-shadow:none;background:var(--hover,var(--rule))}
+.bar .icon.bm[aria-pressed="true"]{box-shadow:none;color:var(--accent)}
+#b-set{font:600 1.05rem var(--f-ui)}
+.prib{height:3px;background:var(--rule)}
+.prib i{background:var(--accent)}.prib i::after{display:none}
+.prib b{top:0;bottom:0;width:1px;background:var(--muted)}
+.bbar .pn{font:500 .875rem var(--f-ui)!important;font-variant-numeric:lining-nums tabular-nums;color:var(--soft)}
+.bbar input[type=range]{accent-color:var(--ink)}
+/* sheets */
+.sheet .head{border-bottom:2px solid var(--ink);box-shadow:none}
+.sheet .head h2{font:400 1.9rem/1.05 var(--f-disp);letter-spacing:-.005em;text-transform:none;font-variant:normal}
+.sheet .head .btn{font:600 .95rem var(--f-ui)}
+.ctabs button{font:600 1rem var(--f-ui)}
+.sheet .btn,.sheet .golink,.sheet .sinput{font-family:var(--f-ui)}
+.actd>summary{border:0!important;border-bottom:1px solid var(--rule)!important;border-radius:0!important;background:none!important;box-shadow:none!important;padding:14px 2px 8px!important}
+.actd>summary .anum{background:none!important;box-shadow:none!important;color:var(--accent)!important;font:300 1.6rem/1 var(--f-body)!important;min-width:1.4em!important;height:auto!important}
+.actd>summary>span:not(.anum){font:400 1.4rem/1.1 var(--f-disp)!important;letter-spacing:0!important;color:var(--ink)!important}
+.actd summary small{font:500 .875rem var(--f-ui)!important;letter-spacing:0!important;font-variant-numeric:lining-nums}
+.srow .loc{font:400 1.1rem/1.2 var(--f-disp);font-style:normal}
+.srow .sum{font:400 .9rem/1.4 var(--f-ui)}
+.srow .st{font-family:var(--f-ui)}
+#sheet .opt{border:0!important;border-bottom:1px solid var(--rule)!important;border-radius:0!important;background:none!important;padding:16px 0!important;margin:0!important;box-shadow:none}
+#sheet .opt>.lbl{font:600 .8rem var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+#sheet .opt>.lbl svg{width:20px;height:20px}
+#sheet .opt small{font:400 .875rem/1.4 var(--f-ui);color:var(--muted)}
+#sheet .segs button{font:500 .95rem var(--f-ui)}
+.stabs{background:none;border:0;border-bottom:1px solid var(--rule);border-radius:0;padding:0;gap:0;background-color:var(--page)}
+.stabs button{border-radius:0;border-bottom:2px solid transparent;font:600 .95rem var(--f-ui);letter-spacing:0;min-height:44px}
+.stabs button[aria-selected="true"]{background:none;box-shadow:none;color:var(--ink);border-bottom-color:var(--accent)}
+.sheet .sbox:focus{outline:none}
+.spvp{border:1px solid var(--rule)!important;border-radius:var(--r-tile)!important;box-shadow:var(--sh-tile)!important}
+.spvm{font-family:var(--f-ui)}
+.blk.tpage{justify-content:center;padding:0 0 .4em}
+@media (min-width:1200px){.rail svg,.rail .aa{color:var(--ink);box-shadow:0 0 0 1px var(--rule),0 3px 8px -3px rgba(0,0,0,.45)}.rail .aa{font:600 .95rem/1 var(--f-ui)}}
