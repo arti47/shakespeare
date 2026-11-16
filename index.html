@@ -584,6 +584,56 @@ body{font-family:var(--f-body)}
   .libside .opop{left:0;right:auto;top:auto;bottom:calc(100% + 8px)}
   .bk-rows{--n:5}
 }
+
+/* ===== 5.1 "Editorial Library" (v5): covers on paper under big genre heads, captions under covers, Continue hero in the play's colour, flat tabs ===== */
+.lectern{padding:0;background:none;box-shadow:none;border-radius:var(--r-tile)}
+.lectern::after{display:none}
+.lec-in{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-tile);box-shadow:var(--sh-tile)}
+.lectern .hero.h43{color:var(--hero-ink);background:radial-gradient(120% 100% at 100% 0%,color-mix(in srgb,var(--cc) 55%,#fff 12%),transparent 60%),linear-gradient(160deg,color-mix(in srgb,var(--cc) 92%,#fff),color-mix(in srgb,var(--cc) 80%,#000))}
+.lectern .hero.h43 .hbg{opacity:.22;mix-blend-mode:screen}
+.lectern .hero .eyebrow{color:var(--hero-gilt);font:600 .8rem var(--f-ui);letter-spacing:.12em;text-transform:uppercase}
+.lectern .hero h3{color:#fff;font-family:var(--f-disp);font-size:clamp(1.6rem,5.6vw,2.4rem)}
+.lectern .hero .wh{color:color-mix(in srgb,var(--hero-ink) 82%,transparent)}
+.lectern .hero .hring .rt{fill:rgba(0,0,0,.18);stroke:rgba(251,243,226,.25)}.lectern .hero .hring .rf{stroke:var(--hero-gilt)}
+.lectern .hero .hring b,.lectern .hero .hring text,.lectern .hero .hring span{color:#fff;fill:#fff}
+.lectern .hero .gring .gr0{fill:none;stroke:rgba(251,243,226,.25)}.lectern .hero .gring .gr1{stroke:var(--hero-gilt)}.lectern .hero .gring .gr2{fill:rgba(0,0,0,.2);stroke:none}.lectern .hero .gring text{fill:#fff;font:600 15px var(--f-ui)}
+.lectern .hero .eyebrow{letter-spacing:.08em}
+@media (min-width:1200px){.libside .lectern .hero h3{font-size:1.5rem}}
+@media (max-width:599px){.gtabs button{font:600 14px var(--f-ui);padding:0 2px}}
+.lectern .hero .btn.wax{background:var(--hero-ink);border-color:var(--hero-ink);color:color-mix(in srgb,var(--cc) 85%,#000);box-shadow:0 8px 20px -10px rgba(0,0,0,.6);font:600 1.05rem var(--f-ui);min-height:50px;padding:4px 22px 4px 6px}
+.lectern .hero .btn.wax:hover{filter:none;background:#fff}
+.lectern .hero .tlink{color:var(--hero-ink);font-weight:600}
+.lectern .today{border-top:1px solid var(--rule)!important;border-left:0}
+@media (min-width:700px){.lectern .today{border-top:0!important;border-left:1px solid var(--rule)!important}}
+/* flat genre tabs: ink when current */
+.gtabs button{border-color:var(--rule);letter-spacing:0}@media (min-width:600px){.gtabs button{font:500 max(15px,.8rem) var(--f-ui)}}
+.lec-in:has(>.today[hidden]){grid-template-columns:minmax(0,1fr)}
+.gtabs button[aria-current="true"]{background:var(--ink);color:var(--page);border-color:var(--ink);box-shadow:none}
+.gtabs .gico{color:currentColor}
+/* the shelves: no wood; a big head per genre, covers on paper */
+.bookcase{margin:26px 0 30px;padding:0;border:0;border-image:none;background:none;box-shadow:none;color:var(--ink)}
+.bookcase::before,.bookcase::after{display:none}
+.bk-shelf+.bk-shelf{margin-top:40px}
+.bk-h{align-items:flex-end;padding:0 0 10px;border-bottom:2px solid var(--ink)}
+.bk-h h3{font:400 clamp(2.2rem,8vw,3.4rem)/.95 var(--f-disp);letter-spacing:-.01em;color:var(--ink)}
+.bk-n{font:500 .875rem var(--f-ui);letter-spacing:0;color:var(--muted)}
+.bk-shelf .gd{padding:0;margin:8px 0 0;font:italic 400 1.05rem var(--f-body);color:var(--soft)}
+.bk-sl i{box-shadow:inset 0 0 0 1.5px var(--rule-strong)}
+.bk-sl i.on{background:var(--gold);box-shadow:none}
+.bk-sl i.dn{background:var(--accent);box-shadow:none}
+.bk-rows{--pt:0px;--pl:0px;background:none;row-gap:22px;padding:18px 0 0}
+.bk-it{min-width:0;display:flex;flex-direction:column;gap:8px}
+.bk-rows .cover{--cw:100%;width:100%;margin:0;border-radius:4px 8px 8px 4px;box-shadow:0 1px 0 rgba(0,0,0,.08),0 12px 18px -12px rgba(30,15,5,.55),0 0 0 1px rgba(0,0,0,.12)}
+.bk-rows .cover .plate{display:none}
+.bkcap{display:flex;flex-direction:column;gap:2px;color:var(--ink);text-decoration:none}
+.bkcap b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:600 max(14px,.78rem)/1.25 var(--f-ui);letter-spacing:-.005em}
+.bkcap small{font:400 max(14px,.66rem)/1.3 var(--f-ui);color:var(--muted);font-variant-numeric:lining-nums tabular-nums}
+.bkcap em{font-style:normal;font-weight:600;color:var(--accent)}
+.bk-rows .cover:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.bk-rows .cover.pull{box-shadow:0 22px 26px -14px rgba(30,15,5,.6),0 0 0 1px rgba(0,0,0,.15)}
+@media (min-width:600px){.bk-rows{row-gap:28px}}
+@media (min-width:1200px){#v-library>.bookcase{margin-top:22px}}
+@media (max-width:599px){.bk-h{flex-direction:column;align-items:flex-start;gap:6px}}
 </style>
 </head>
 <body>
@@ -718,6 +768,8 @@ function orderPlays(){const last=LS.get("folio-last"),a=PLAYS.slice();
   return a.sort((a,b)=>{const sa=J("folio-stat-"+a.id),sb=J("folio-stat-"+b.id);
   if(a.id===last)return -1;if(b.id===last)return 1;return (sb?sb.t:0)-(sa?sa.t:0)})}
 const SORTN={recent:"Recent",date:"Date written",az:"A–Z"};
+/* 5.1 caption under a shelf cover: which part, for plays that share a title */
+const partOf=p=>{const m=/(First|Second|Third) Part/.exec(p.pre||"");return m?"Part "+({First:1,Second:2,Third:3})[m[1]]:""};
 /* 4.13 Order menu in the sticky shelf bar (hidden in Simple) */
 function omenu(open){const b=$("obtn"),m=$("sortc");m.hidden=!open;b.setAttribute("aria-expanded",open);if(open)(m.querySelector('[aria-pressed="true"]')||m.querySelector("button")).focus({preventScroll:true})}
 $("obtn").onclick=e=>{e.stopPropagation();omenu($("sortc").hidden)};
@@ -731,7 +783,7 @@ function renderLibrary(){
   /* 4.3 hero: the play on a stage (proscenium backdrop, its emblem as the scenery), cover, gilt progress ring, wax Resume */
   $("cont").innerHTML=ls?`<div class="hero h43 h44" style="--cc:${esc(coverColor(last.id))}"><div class="hbg" aria-hidden="true">${folioStage(emblemSVG(last.id,"hembs")||"","","hst")}</div>
     <div class="hcov">${coverA(last,ls)}</div><div class="hbody"><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
-    <div class="hrow"><span role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100">${folioRing(ls.pct/100,Math.round(ls.pct)+"%","hring")}</span>
+    <div class="hrow"><span role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100">${folioRing((+ls.pct||0)/100,Math.round(+ls.pct||0)+"%","hring")}</span>
     <div class="acts"><a class="btn wax" href="${last.id}/" data-play="${last.id}"><span class="wxd" aria-hidden="true">${folioSeal(last.mono||"❦","","wxs")}</span>Resume</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div></div>`:"";
   seals();const due=renderDue();$("lect").hidden=!ls&&!due;$("lect").classList.toggle("solo",!ls);
   renderShelves();
@@ -740,8 +792,8 @@ function renderShelves(){
   document.querySelectorAll("#sortc .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===sortBy));
   const ord=orderPlays();
   $("shelves").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=ord.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
-    return `<section class="bk-shelf" id="shelf-${g}" aria-label="${g}"><header class="bk-h"><h3 class="plaque">${folioGenreIcon(g)}${g}</h3><span class="bk-c"><span class="bk-n">${ps.length} plays${begun?` · ${begun} begun`:""}</span><span class="bk-sl" aria-hidden="true">${ps.map(p=>{const st=J("folio-stat-"+p.id);return `<i class="${st?(+st.pct>=100?"dn":"on"):""}"></i>`}).join("")}</span></span></header><p class="gd">${esc(d)}</p>
-      <div class="bk-grid"><div class="bk-rows" role="list">${ps.map(p=>coverA(p,J("folio-stat-"+p.id))).join("")}</div></div></section>`}).join("");
+    return `<section class="bk-shelf" id="shelf-${g}" aria-label="${g}"><header class="bk-h"><h3>${g}</h3><span class="bk-c"><span class="bk-n">${ps.length} plays${begun?` · ${begun} begun`:""}</span><span class="bk-sl" aria-hidden="true">${ps.map(p=>{const st=J("folio-stat-"+p.id);return `<i class="${st?(+st.pct>=100?"dn":"on"):""}"></i>`}).join("")}</span></span></header><p class="gd">${esc(d)}</p>
+      <div class="bk-grid"><div class="bk-rows" role="list">${ps.map(p=>{const st=J("folio-stat-"+p.id);return `<div class="bk-it" role="listitem">${coverA(p,st)}<a class="bkcap" href="${p.id}/" data-cover="${p.id}" tabindex="-1" aria-hidden="true"><b>${esc(p.title)}</b><small>${esc(partOf(p)?partOf(p)+" · ":"")}${esc(p.year)}${st?` · <em>${Math.round(+st.pct||0)}%</em>`:""}</small></a></div>`}).join("")}</div></div></section>`}).join("");
   $("olbl").textContent=SORTN[sortBy];$("obtn").setAttribute("aria-label","Order the shelves: "+SORTN[sortBy]);
   $("gtabs").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g])=>`<button type="button" data-g="${g}" aria-controls="shelf-${g}">${folioGenreIcon(g)}<span>${g}</span></button>`).join("");
   gspy();
@@ -758,7 +810,7 @@ function gspy(){const bar=$("gbar");if(!bar||$("v-library").hidden)return;bar.cl
 let gRaf=0;addEventListener("scroll",()=>{if(!gRaf)gRaf=requestAnimationFrame(()=>{gRaf=0;gspy()})},{passive:true});
 $("gsearch").onclick=()=>go("search");
 /* 4.14 pull-out: a pressed shelf cover lifts and tilts toward you, with a foil sweep */
-document.addEventListener("pointerdown",e=>{const c=e.target.closest(".bk-rows>.cover");if(!c)return;c.classList.add("pull");
+document.addEventListener("pointerdown",e=>{const c=e.target.closest(".bk-rows .cover");if(!c)return;c.classList.add("pull");
   const off=()=>{setTimeout(()=>c.classList.remove("pull"),reduce?0:160);["pointerup","pointercancel","pointerleave"].forEach(ev=>c.removeEventListener(ev,off))};
   ["pointerup","pointercancel","pointerleave"].forEach(ev=>c.addEventListener(ev,off))});
 /* tap a cover: its detail sheet (Begin / Continue, Contents, Study, Mark as not started) */
