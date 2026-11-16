@@ -634,6 +634,38 @@ body{font-family:var(--f-body)}
 @media (min-width:600px){.bk-rows{row-gap:28px}}
 @media (min-width:1200px){#v-library>.bookcase{margin-top:22px}}
 @media (max-width:599px){.bk-h{flex-direction:column;align-items:flex-start;gap:6px}}
+/* ===== 5.3 lectern redesign (TY: the old card mixed fonts and seals): one panel in the play's cloth colour; hero = cover, title,
+   place, progress line, Resume + Study pills of equal height; Daily review = a row in the same panel, UI type, no seals ===== */
+.lectern:not(.solo) .lec-in{border:0;color:var(--hero-ink);background:radial-gradient(120% 100% at 100% 0%,color-mix(in srgb,var(--cc) 55%,#fff 12%),transparent 60%),linear-gradient(160deg,color-mix(in srgb,var(--cc) 92%,#fff),color-mix(in srgb,var(--cc) 78%,#000));box-shadow:0 18px 40px -26px color-mix(in srgb,var(--cc) 80%,#000)}
+.lectern .hero.hx53{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"cov body" "acts acts";gap:14px 16px;align-items:center;min-height:0;padding:18px;background:none;color:inherit;box-shadow:none;border:0}
+.hx53 .hcov{grid-area:cov}.hx53 .hbody{grid-area:body;min-width:0}.hx53 .acts{grid-area:acts;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:10px;margin:0}
+.hx53 .cover{--cw:72px}.hx53 .cover .plate,.hx53 .cover .badge,.hx53 .cbm{display:none}
+.lectern .hx53 .eyebrow{margin:0 0 2px;font:600 .8rem var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--hero-gilt)}
+.lectern .hx53 h3{margin:0;font:400 clamp(1.8rem,6vw,2.4rem)/1.02 var(--f-disp);color:#fff}
+.lectern .hx53 .wh{margin:4px 0 0;font:400 .95rem var(--f-ui);color:color-mix(in srgb,var(--hero-ink) 85%,transparent)}
+.hpg{display:flex;align-items:center;gap:10px;margin-top:10px}
+.hpb{flex:1;height:4px;border-radius:2px;background:rgba(251,243,226,.22);overflow:hidden}.hpb i{display:block;height:100%;border-radius:2px;background:var(--hero-gilt)}
+.hpg small{flex:none;font:600 .8rem var(--f-ui);font-variant-numeric:lining-nums tabular-nums;color:var(--hero-ink)}
+.lectern .hx53 .btn{justify-content:center;min-height:48px;padding:0 18px;border-radius:999px;font:600 1rem var(--f-ui);box-shadow:none;filter:none}
+.lectern .hx53 .btn.wax{background:var(--hero-ink);border:0;color:color-mix(in srgb,var(--cc) 85%,#000)}
+.lectern .hx53 .btn.wax:hover{background:#fff}
+.lectern .hx53 .btn.hstudy{background:transparent;border:1.5px solid rgba(251,243,226,.55);color:var(--hero-ink)}
+.lectern .hx53 .btn.hstudy:hover{background:rgba(251,243,226,.12)}
+.lectern:not(.solo) .today{background:none;border-top:1px solid rgba(251,243,226,.22)!important;border-left:0!important}
+.dx53.duer{display:block;padding:14px 18px 16px;text-align:left}
+.dx53 .dtx{display:block}
+.lectern .dx53 .eyebrow{margin:0;font:600 .8rem var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.dx53 .dtt{display:block;margin:2px 0 8px;font:500 1.05rem var(--f-ui);color:var(--ink)}.dx53 .dtt b{font-weight:700;font-variant-numeric:lining-nums}
+.dx53 .drows{display:grid;gap:6px}
+.dx53 .drow{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border-radius:12px;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink);text-decoration:none;font:500 .95rem var(--f-ui)}
+.dx53 .drow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dx53 .drow b{min-width:1.8em;padding:2px 8px;border-radius:999px;background:var(--accent);color:#fff;font:700 .8rem var(--f-ui);text-align:center;font-variant-numeric:lining-nums}
+.dx53 .drow i{font-style:normal;opacity:.7}
+.lectern:not(.solo) .dx53 .eyebrow{color:var(--hero-gilt)}.lectern:not(.solo) .dx53 .dtt,.lectern:not(.solo) .dx53 .drow{color:var(--hero-ink)}
+.lectern:not(.solo) .dx53 .drow{background:rgba(251,243,226,.12)}.lectern:not(.solo) .dx53 .drow:hover{background:rgba(251,243,226,.2)}
+.lectern:not(.solo) .dx53 .drow b{background:var(--hero-ink);color:color-mix(in srgb,var(--cc) 85%,#000)}
+@media (min-width:700px){.lectern:not(.solo) .today{border-top:0!important;border-left:1px solid rgba(251,243,226,.22)!important}.lectern .dx53.duer{flex-direction:column;text-align:left}.lectern .today{justify-content:flex-start}.dx53.duer{padding:18px}}
+@media (min-width:700px){.lectern .hero.hx53{grid-template-columns:auto minmax(0,1fr);padding:22px}.hx53 .cover{--cw:88px}}
 </style>
 </head>
 <body>
@@ -780,11 +812,11 @@ const GENRES=[["Comedies","Love, disguise, mistaken identity and happy endings"]
 function renderLibrary(){
   const h=new Date().getHours(),last=byId[LS.get("folio-last")],ls=last&&J("folio-stat-"+last.id);
   $("greet").textContent=(h<5?"Late at night":h<12?"Good morrow":h<18?"Good afternoon":"Good even")+(ls?". Your place is kept.":". Choose a play to begin.");
-  /* 4.3 hero: the play on a stage (proscenium backdrop, its emblem as the scenery), cover, gilt progress ring, wax Resume */
-  $("cont").innerHTML=ls?`<div class="hero h43 h44" style="--cc:${esc(coverColor(last.id))}"><div class="hbg" aria-hidden="true">${folioStage(emblemSVG(last.id,"hembs")||"","","hst")}</div>
-    <div class="hcov">${coverA(last,ls)}</div><div class="hbody"><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
-    <div class="hrow"><span role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(ls.pct)}" aria-valuemin="0" aria-valuemax="100">${folioRing((+ls.pct||0)/100,Math.round(+ls.pct||0)+"%","hring")}</span>
-    <div class="acts"><a class="btn wax" href="${last.id}/" data-play="${last.id}"><span class="wxd" aria-hidden="true">${folioSeal(last.mono||"❦","","wxs")}</span>Resume</a><a class="tlink" href="${last.id}/#study" data-play="${last.id}">Study ›</a></div></div></div></div>`:"";
+  /* 5.3 hero: cover, title, place, a progress line, Resume + Study; the lectern takes the play's cloth colour */
+  $("cont").innerHTML=ls?`<div class="hero hx53"><div class="hcov">${coverA(last,ls)}</div><div class="hbody"><p class="eyebrow">Continue reading</p><h3>${esc(last.title)}</h3><div class="wh">${esc(ls.where)}</div>
+    <div class="hpg"><span class="hpb" role="progressbar" aria-label="Progress" aria-valuenow="${Math.round(+ls.pct||0)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.max(0,Math.min(100,+ls.pct||0))}%"></i></span><small>${Math.round(+ls.pct||0)}% read</small></div></div>
+    <div class="acts"><a class="btn wax" href="${last.id}/" data-play="${last.id}">Resume</a><a class="btn hstudy" href="${last.id}/#study" data-play="${last.id}">Study</a></div></div>`:"";
+  if(ls)$("lect").style.setProperty("--cc",coverColor(last.id));else $("lect").style.removeProperty("--cc");
   seals();const due=renderDue();$("lect").hidden=!ls&&!due;$("lect").classList.toggle("solo",!ls);
   renderShelves();
 }
@@ -844,7 +876,7 @@ function dueHTML(){const now=Date.now(),rows=[];let any=false;
   for(const p of PLAYS){const pr=J(p.prefix+"prog")||{},rv=J(p.prefix+"rev")||{},all=[...Object.values(pr.srs||{}),...Object.values((rv&&rv.it)||{})].filter(s=>s&&isFinite(s.d));
     if(all.length)any=true;const n=all.filter(s=>s.d<=now).length;if(n)rows.push([p,n])}
   if(!any||!rows.length)return "";const tot=rows.reduce((a,r)=>a+r[1],0);
-  return `<div class="duer"><span class="dwax" aria-hidden="true">${folioSeal(String(tot),"","dws")}</span><div class="dtx"><p class="eyebrow">Daily review</p><span class="dtt">${tot} review item${tot===1?"":"s"} due today</span><span class="chips">${rows.map(([p,n])=>`<a class="chip" href="${p.id}/#study=review" data-play="${p.id}">${esc(p.title)} · <span class="dnum">${n}</span></a>`).join("")}</span></div></div>`}
+  return `<div class="duer dx53"><div class="dtx"><p class="eyebrow">Daily review</p><span class="dtt"><b>${tot}</b> card${tot===1?"":"s"} due today</span></div><span class="drows">${rows.map(([p,n])=>`<a class="drow" href="${p.id}/#study=review" data-play="${p.id}"><span>${esc(p.title)}</span><b>${n}</b><i aria-hidden="true">›</i></a>`).join("")}</span></div>`}
 
 /* ---------- search: genre chips + play picker, results grouped by play ---------- */
 const IDX={};let sg="all",sp="all",loading=null;
