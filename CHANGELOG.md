@@ -10,7 +10,7 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 - Reader: each scene's title page is a big heading on paper over an ink rule, with the place, who is on stage and a Before you read button; the stage picture, tailpiece and act wreath are gone (#178)
 - Reader: thin paper top and bottom bars in plain type with simple line icons and a flat progress line (#178)
 - Reader sheets (Contents, Settings, Speech tools): big title, flat hairline rows and tabs, plain-type controls (#178)
-- Library: Continue reading and Daily review are one panel in the play's colour, in one plain typeface, with a progress line instead of a ring, Resume and Study as matching buttons, and each play's due cards as a tappable row; wax seals and the stage backdrop are gone (#178)
+- Library: Continue reading and Daily review are one panel in the play's colour, in one plain typeface, with a progress line instead of a ring, a compact Resume pill beside a quiet Study link, and each play's due cards as a plain list row; wax seals and the stage backdrop are gone (#178)
 
 ## [5.2.0] — 2026-11-16
 
