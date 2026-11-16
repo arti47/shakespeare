@@ -2739,7 +2739,7 @@ function wireBackup(after){
    session only). Sticky index follows the page (RVIO scrollspy). */
 const RVSEC=[["prog","Progress",1,"revise"],["mine","My notes",1,"revise"],["glance","At a glance",0,"story"],["plot","Plot",1,"story"],["chars","Characters",1,"people"],["themes","Themes",1,"themes"],["big","Big ideas",1,"write"],["quotes","Quote bank",1,"quotes"],["ctx","Context",0,"story"],["img","Imagery",0,"words"]];
 const lsPick=(k,a,d)=>{const v=LS.get(k);return a.includes(v)?v:d};
-let RVV=lsPick("folio-rvview",["brief","full"],"brief"),RVG=lsPick("folio-rvgroup",["theme","who","act"],"theme"),RVF=lsPick("folio-rvfilter",["must","all","new"],"must"),RVQ="",RVO={prog:1},RT=null,RVMK=null,RVFW=null,RVIO=null;
+let RVV=lsPick("folio-rvview",["brief","full"],"brief"),RVG=lsPick("folio-rvgroup",["theme","who","act"],"theme"),RVF=lsPick("folio-rvfilter",["must","all","new"],"must"),RVQ="",RT=null,RVMK=null,RVFW=null,RVIO=null;
 const RVMS={},RVOK=new Set();
 const rvFull=()=>RVV==="full"&&!folioSimple();
 const rvHas=k=>k==="glance"?(EX.keyfacts||[]).length>0:k==="big"?(EX.big||[]).length>0:k==="ctx"?(EX.context||[]).length>0:k==="img"?Object.keys(EX.devices||{}).length>0:true;
@@ -2780,7 +2780,7 @@ function rvData(k){const F=rvFull(),G=[],SP=rvSP(),m=readIdx();let lock="";
       G.push({h:AN(a),lat:LAT[a],sub:`${plural(ps.length,"scene")}${rd?` · ${rd} read`:""}`,rows:ps.map(p=>{const s=(STUDY.scenes[p.id]||{}).sum||"",ev=TL.filter(t=>t.s===p.id).map(t=>t.t).join("; ");
         return {cue:"Sc. "+rnum(p.scene),go:p.id,tp:ev,note:F?s:ev?"":sent1(s),cls:prog.done[p.id]?" rd":""}}).filter(r=>r.tp||r.note)})});
     if(n)lock=`${plural(n,"more scene")} to come. Keep reading to add them.`}
-  if(k==="chars"){const mp=F&&MAINS[0]?miniRel(MAINS[0]):"",W=rvWho(),met=W.filter(rvMet);if(mp)G.push({h:"Around "+title(MAINS[0]),map:mp,rows:[]});
+  if(k==="chars"){const mp=MAINS[0]?miniRel(MAINS[0]):"",W=rvWho(),met=W.filter(rvMet);if(mp)G.push({h:"Around "+title(MAINS[0]),map:mp,rows:[]});
     const rows=met.map(w=>{const c=CH[w]||{},an=rvClean(((EX.analysis||{})[w]||[])[0]),qs=rvBy(w),pick=F?[qs[0],qs[qs.length-1]]:[qs[0]],ds=rvClean(c.desc);
       return {cue:title(w),who:w,role:c.group&&c.group.toLowerCase()!==title(w).toLowerCase()?c.group:"",note:F?ds:sent1(an||ds),more:F&&an?sent1(an):"",qs:[...new Set(pick.filter(Boolean))].map(q=>[q,""])}}).filter(r=>r.note||r.qs.length);
     G.push({strip:rows.length>4?rows.map(r=>r.who):null,rows});if(met.length<W.length)lock=`${plural(W.length-met.length,"more character")} to meet.`}
@@ -2788,7 +2788,7 @@ function rvData(k){const F=rvFull(),G=[],SP=rvSP(),m=readIdx();let lock="";
     const st=themePlan(t).map(([n,,qs])=>{const r=qs.filter(q=>readOK(q.id));if(r.length<qs.length)cut++;return r.length?[r[F?r.length-1:0],n]:null}).filter(Boolean);
     return {cue:v[0],th:t,note:rvClean(v[1]||""),rib:pa,qs:st}})});if(cut)lock="Quotes from later scenes join each theme as you read."}
   if(k==="big"){let cut=0;G.push({rows:(EX.big||[]).map(b=>{const all=(b[4]||[]).map(i=>QUOTES.quotes[i]).filter(q=>q&&speech[q.id]),qs=all.filter(q=>readOK(q.id));if(qs.length<all.length)cut++;
-    return {cue:b[0],note:rvClean(b[1]+(F?` because ${b[2]}, but ${b[3]}.`:".")),qs:(F?qs:qs.slice(0,1)).map(q=>[q,""])}}).filter(r=>r.note||r.qs.length)});if(cut)lock="Quotes from later scenes join these ideas as you read."}
+    const nt=b[1]+(F?` because ${b[2]}, but ${b[3]}.`:"."),cl=rvClean(nt);return {cue:b[0],note:cl,parts:F&&cl===nt?[b[1],b[2],b[3]]:null,qs:(F?qs:qs.slice(0,1)).map(q=>[q,""])}}).filter(r=>r.note||r.qs.length)});if(cut)lock="Quotes from later scenes join these ideas as you read."}
   if(k==="ctx")G.push({rows:(EX.context||[]).map(([a,b])=>({cue:a,note:rvClean(F?b:sent1(b))})).filter(r=>r.note)});
   if(k==="img"){const D=EX.dev||{},ex={};Object.entries(D).sort((a,b)=>a[0]-b[0]).forEach(([id,L])=>(L||[]).forEach(([dk,n,ph])=>{if(speech[id]&&readOK(+id))(ex[dk]=ex[dk]||[]).push([n,+id,ph])}));
     G.push({rows:Object.entries(EX.devices||{}).map(([dk,nm])=>{const L=ex[dk]||[];return {cue:nm,note:L.length?`${plural(L.length,"moment")} ${SP?"so far":"in the play"}${F?"":`, first: “${L[0][2]||""}”`}`:"",ex:F?[L[0],L[Math.floor(L.length/2)],L[L.length-1]].filter((x,i,a)=>x&&a.indexOf(x)===i).map(x=>[x[0],x[1]]):[]}}).filter(r=>r.note)});
@@ -2799,15 +2799,38 @@ function rvData(k){const F=rvFull(),G=[],SP=rvSP(),m=readIdx();let lock="";
     else ACTS.forEach(a=>{const qs=Q.filter(q=>sceneOf(q.id).act===a);if(qs.length)G.push({h:AN(a),qs})});
     const n=QUOTES.quotes.filter(q=>speech[q.id]).length-rvVis().length;if(SP&&n)lock=`${plural(n,"more quote")} to come as you read.`}
   G.lock=SP?lock:"";return G}
-/* one quote: ★ if must-know, the line, then a light citation that opens the preview */
-function rvQ(q,lab,noWho){const sp=speech[q.id];if(!sp)return "";const kn=!!prog.cards[q.i],w=rvWhy(q),mk=rvMK().has(q.i);
-  return `<div class="rq54${kn?" kn":""}" data-rvq="${q.i}">${lab?`<small class="rql">${esc(lab)}</small>`:""}<p class="rqt">${mk?`<span class="mk54" title="Must-know" aria-label="Must-know">★</span>`:""}“${esc(q.text)}”</p><div class="rqm"><button type="button" class="cite54" data-pv="${q.id}" aria-label="${esc(title(sp.who)+", "+sName(sceneOf(q.id)))}: preview in the play">— ${noWho?"":esc(title(sp.who))+", "}${scShort(sceneOf(q.id))}</button>${kn?`<span class="rqk">✓ Learnt</span>`:""}</div>${rvFull()&&w?`<p class="rqw">${esc(w)}</p>`:""}</div>`}
-const rvRib=pa=>{if(!pa.length)return "";const m=Math.max(1,...pa.map(x=>x[1]));return `<div class="rib54" role="img" aria-label="Key quotes by act: ${pa.map(([a,n])=>`${AN(a)} ${n}`).join(", ")}">${pa.map(([a,n])=>`<i style="--h:${(n/m).toFixed(2)}"><b></b><small>${a?R[a]:"Ind"}</small></i>`).join("")}</div>`};
-function rvRow(r){const cue=r.who?`<button type="button" class="cue" data-to="study:who:${esc(encodeURIComponent(r.who))}?tp=revise">${esc(r.cue)}</button>`
-    :r.th?`<button type="button" class="cue" data-to="study:theme:${esc(r.th)}?tp=revise">${esc(r.cue)}</button>`
-    :r.pv!=null?`<button type="button" class="cue" data-pv="${esc(r.pv)}">${esc(r.cue)}</button>`:r.go?`<button type="button" class="cue" data-go2="${esc(r.go)}">${esc(r.cue)}</button>`:r.cue?`<span class="cue">${esc(r.cue)}</span>`:"";
-  const qs=(r.qs||[]).map(([q,l])=>rvQ(q,l,!!r.who)).join("");
-  return `<div class="cn54${cue?"":" wide"}${r.who?" who":""}${r.cls||""}"${r.who?` id="rvw-${esc(encodeURIComponent(r.who))}" style="--c:${esc(COLORS[r.who]||"var(--tc)")}"`:""}>${cue?`<div class="cuec">${r.who?folioMedal(r.who,COLORS[r.who],"rvm"):""}${cue}${r.role?`<small>${esc(r.role)}</small>`:""}</div>`:""}<div class="nt">${r.tp?`<p class="tp54">${esc(r.tp)}</p>`:""}${r.note?`<p>${esc(r.note)}</p>`:""}${r.more?`<p class="more">${esc(r.more)}</p>`:""}${r.rib?rvRib(r.rib):""}${(r.ex||[]).map(([t,id])=>`<div class="rx53"><p>${esc(t)}</p><button type="button" class="cite54" data-pv="${id}">— ${esc(title(speech[id].who))}, ${scShort(sceneOf(id))}</button></div>`).join("")}</div>${qs?`<div class="rqs">${qs}</div>`:""}</div>`}
+/* 5.0 Revise board. Text blocks become sentence bullets (rvBul: sumSents, wording unchanged) with character names, theme
+   names and acts in bold (rvKey, first mention per line); quotes are cards: the line, who + scene, why it matters. */
+let RVA=null,RVKW=null,rvJump=false;
+const rvPhone=()=>matchMedia("(max-width:759px)").matches;
+const rvRx=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function rvKey(h){if(!RVKW){const ks=[...new Set([...whoAll().map(title),...Object.values(QUOTES.themes).map(v=>v[0])])].filter(k=>k&&k.length>2).map(esc).sort((a,b)=>b.length-a.length);
+    RVKW=new RegExp(`(^|[^\\w>&;])(${ks.map(rvRx).concat(["Acts? (?:[IVX]+|[1-5])(?:,? [Ss]cene (?:[ivx]+|\\d+))?"]).join("|")})(?![\\w<])`,"g")}
+  const seen=new Set();return h.replace(RVKW,(m,a,k)=>{if(seen.has(k))return m;seen.add(k);return `${a}<b class="k5">${k}</b>`})}
+/* a lead sentence, then one bullet per sentence; one sentence stays a line */
+function rvBul(t,lead,cls){const s=sumSents(t||"");if(!s.length)return "";const L=x=>rvKey(esc(x));
+  if(s.length===1)return `<p class="p5${lead?" ld5":""}${cls?" "+cls:""}">${L(s[0])}</p>`;
+  return (lead?`<p class="p5 ld5">${L(s[0])}</p>`:"")+`<ul class="bl5${cls?" "+cls:""}">${s.slice(lead?1:0).map(x=>`<li>${L(x)}</li>`).join("")}</ul>`}
+/* one quote card: ★ must-know, the line, who and where (opens the preview), why it matters; Full adds the note and themes */
+function rvQ(q,lab,noWho){const sp=speech[q.id];if(!sp)return "";const kn=!!prog.cards[q.i],w=rvWhy(q),mk=rvMK().has(q.i),F=rvFull(),th=F?(q.themes||[]).map(t=>QUOTES.themes[t]&&QUOTES.themes[t][0]).filter(Boolean):[];
+  return `<figure class="qc5${kn?" kn":""}${mk?" mk":""}" data-rvq="${q.i}">${lab?`<small class="ql5">${esc(lab)}</small>`:""}<blockquote>${mk?`<span class="mk5" title="Must-know" aria-label="Must-know">★</span>`:""}“${esc(q.text)}”</blockquote>`
+    +`<figcaption><button type="button" class="cite5" data-pv="${q.id}" aria-label="${esc(title(sp.who)+", "+sName(sceneOf(q.id)))}: preview in the play">${noWho?"":`<b>${esc(title(sp.who))}</b>`}<span>${scShort(sceneOf(q.id))}</span></button>${kn?`<span class="qk5">✓ Learnt</span>`:""}</figcaption>`
+    +(F&&q.note?`<p class="qn5">${esc(q.note)}</p>`:"")+(w?`<p class="qw5"><b>Why it matters</b>${esc(w)}</p>`:"")+(th.length?`<p class="qt5">${th.map(x=>`<span>${esc(x)}</span>`).join("")}</p>`:"")+`</figure>`}
+function rvRow(r,k){const cue=r.who?`<button type="button" class="cue5" data-to="study:who:${esc(encodeURIComponent(r.who))}?tp=revise">${esc(r.cue)}</button>`
+    :r.th?`<button type="button" class="cue5" data-to="study:theme:${esc(r.th)}?tp=revise">${esc(r.cue)}</button>`
+    :r.pv!=null?`<button type="button" class="cue5" data-pv="${esc(r.pv)}">${esc(r.cue)}</button>`:r.go?`<button type="button" class="cue5" data-go2="${esc(r.go)}">${esc(r.cue)}</button>`:r.cue?`<span class="cue5">${esc(r.cue)}</span>`:"";
+  const qs=(r.qs||[]).map(([q,l])=>rvQ(q,l,!!r.who)).join(""),dot=t=>/[.!?”’)]$/.test(t)?t:t+".";
+  const note=r.parts?`<p class="p5 ld5">${rvKey(esc(dot(r.parts[0])))}</p><dl class="bg5"><dt>Because</dt><dd>${rvKey(esc(dot(r.parts[1])))}</dd><dt>But</dt><dd>${rvKey(esc(dot(r.parts[2])))}</dd></dl>`
+    :k==="glance"?`<p class="p5">${rvKey(esc(r.note||""))}</p>`:rvBul(r.note,k!=="plot");
+  return `<article class="rw5${r.who?" who":""}${cue?"":" wide"}${r.cls||""}"${r.who?` id="rvw-${esc(encodeURIComponent(r.who))}" style="--c:${esc(COLORS[r.who]||"var(--tc)")}"`:""}>`
+    +(cue?`<header class="cu5">${r.who?folioMedal(r.who,COLORS[r.who],"rvm"):""}<span>${cue}${r.role?`<small>${esc(r.role)}</small>`:""}</span></header>`:"")
+    +`<div class="nt5">${r.tp?`<p class="tp5">${esc(r.tp)}</p>`:""}${note}${r.more?rvBul(r.more,false,"more5"):""}${(r.ex||[]).map(([t,id])=>`<div class="rx5"><p>“${esc(t)}”</p><button type="button" class="cite5" data-pv="${id}"><b>${esc(title(speech[id].who))}</b><span>${scShort(sceneOf(id))}</span></button></div>`).join("")}</div>`
+    +(qs?`<div class="qs5">${qs}</div>`:"")+`</article>`}
+/* Themes: a theme-by-act grid of key quotes read so far (tap a cell for them) */
+function rvThGrid(){const as=rvActs();if(!as.length)return "";const T=Object.entries(QUOTES.themes);
+  const C=T.map(([t])=>as.map(a=>QUOTES.quotes.filter(q=>q.themes.includes(t)&&speech[q.id]&&readOK(q.id)&&sceneOf(q.id).act===a).length)),mx=Math.max(1,...C.flat());
+  return `<div class="thg5" role="table" aria-label="Key quotes per theme, act by act" style="--n:${as.length}"><div role="row" class="thh5"><span role="columnheader"><small>Key quotes by act</small></span>${as.map(a=>`<span role="columnheader">${a?R[a]:"Ind"}</span>`).join("")}</div>`
+    +T.map(([t,v],i)=>`<div role="row"><span role="rowheader">${esc(v[0])}</span>${C[i].map((n,j)=>n?`<button type="button" role="cell" data-thact="${esc(t)}:${as[j]}" style="--h:${(.18+.82*n/mx).toFixed(2)}" aria-label="${esc(v[0])}, ${AN(as[j])}: ${n} key quote${n===1?"":"s"}">${n}</button>`:`<span role="cell" class="z" aria-label="none"></span>`).join("")}</div>`).join("")+`</div>`}
 /* the reader's layer: Progress (rings, Fix next) and My notes (every mark and note in play order) */
 function rvMine(){const ids=Object.keys(marks).filter(k=>speech[k]&&(inkOf(marks[k])||marks[k].note)).map(Number),fv=FAV.filter(f=>speech[f.id]);
   return [...ids.map(id=>({id,m:marks[id]})),...fv.map(f=>({id:f.id,f}))].sort((a,b)=>a.id-b.id||(a.f?1:0)-(b.f?1:0))}
@@ -2820,11 +2843,6 @@ function rvWeak(){const W=[],nq=prog.miss.q.length,d=dueKeys().length,cs=Object.
   if(th&&th[1]<th[2]&&Object.keys(prog.cards).length)W.push([`Weakest theme: ${QUOTES.themes[th[0]][0]}`,`${th[1]} of ${th[2]} quotes learnt`,`data-to="study:theme:${th[0]}?tp=revise"`,"Open"]);
   return W}
 const rvLearnt=()=>QUOTES.quotes.filter(q=>prog.cards[q.i]).length;
-function rvProgHTML(){const N=QUOTES.quotes.length,M=rvMK(),mk=[...M].filter(i=>prog.cards[i]).length,kn=rvLearnt(),qd=scenes.filter(p=>prog.quiz[p.id]),sc=qd.reduce((x,p)=>[x[0]+prog.quiz[p.id][0],x[1]+prog.quiz[p.id][1]],[0,0]),W=rvWeak();
-  if(!kn&&!qd.length&&!W.length)return `<p class="rvz57">Nothing learnt yet. Test a section with its <span class="rvtk" aria-label="test">✓</span>, or press <b>Revise now</b>.</p>`;
-  const st=[[mk,`of ${M.size} must-know learnt`,mk/Math.max(1,M.size)],[kn,`of ${N} quotes learnt`,kn/Math.max(1,N)],[qd.length,`of ${scenes.length} scenes quizzed${sc[1]?` · ${Math.round(100*sc[0]/sc[1])}%`:""}`,qd.length/Math.max(1,scenes.length)]];
-  return `<div class="rvst53">${st.map(([b,s,f])=>`<div>${hring(f,`<b>${b?b:"–"}</b>`)}<small>${esc(s)}</small></div>`).join("")}</div>`
-   +(W.length?`<h4 class="rva53">Fix next</h4><div class="rvw53">${W.map(([t,s,a,l,qs])=>`<div class="rvwr"><span><b>${esc(t)}</b><small>${esc(s)}</small></span><button type="button" class="btn sm" ${a}>${l}</button>${qs?`<div class="rvwq">${qs.map(q=>rvQ(q,"")).join("")}</div>`:""}</div>`).join("")}</div>`:"")}
 function rvMineHTML(){const M=rvMine();if(!M.length)return `<p class="muted rvnone">No marks yet. While reading, hold a word or a speaker's name to mark it or add a note.</p>`;let ls="";
   return `<div class="rvn53">${M.map(x=>{const p=sceneOf(x.id),sp=speech[x.id],hd=p.id!==ls?`<div class="rvns">${esc(sName(p))}</div>`:"";ls=p.id;
     const ink=x.f?fcOk(x.f.c):inkOf(x.m),txt=x.f?`“${favText(x.f.id,x.f.a,x.f.b)||x.f.txt||""}”`:clip(sp.lines.join(" ").replace(/~/g,""),110),note=x.f?x.f.note:x.m.note;
@@ -2834,7 +2852,7 @@ function rvQuotesHTML(G){const n=G.reduce((a,g)=>a+g.qs.length,0);
   return `<div class="rvqf54"><div class="chips" role="group" aria-label="Show">${[["must","★ Must-know"],["new","Not learnt"],["all","All"]].map(([v,l])=>`<button type="button" class="chip" data-rvf="${v}" aria-pressed="${RVF===v}">${l}</button>`).join("")}</div>
     <input type="search" class="rvs54" id="rv-q" placeholder="Search quotes" aria-label="Search quotes" value="${esc(RVQ)}" autocomplete="off"></div>
     <div class="chips rvgc53" role="group" aria-label="Group by">${[["theme","Theme"],["who","Character"],["act","Act"]].map(([v,l])=>`<button type="button" class="chip sm" data-rvg="${v}" aria-pressed="${RVG===v}">${l}</button>`).join("")}<small>${plural(n,"quote")}</small></div>
-    <div class="rvqg">${n?G.map(g=>{const kn=g.qs.filter(q=>prog.cards[q.i]).length;return `<details class="rvg53"${G.length===1||RVQ?" open":""}><summary><b>${esc(g.h)}</b><span class="cbar"><i style="width:${(kn/g.qs.length*100).toFixed(0)}%"></i></span><small>${kn}/${g.qs.length}</small></summary>${g.qs.map(q=>rvQ(q,"")).join("")}</details>`}).join(""):`<p class="muted rvnone">${RVF==="new"&&!RVQ?"Every quote here is learnt.":"No quotes match."}</p>`}</div>`}
+    <div class="rvqg">${n?G.map((g,gi)=>{const kn=g.qs.filter(q=>prog.cards[q.i]).length;return `<details class="rvg53"${G.length===1||RVQ||!gi?" open":""}><summary><b>${esc(g.h)}</b><span class="cbar"><i style="width:${(kn/g.qs.length*100).toFixed(0)}%"></i></span><small>${kn}/${g.qs.length}</small></summary>${g.qs.map(q=>rvQ(q,"")).join("")}</details>`}).join(""):`<p class="muted rvnone">${RVF==="new"&&!RVQ?"Every quote here is learnt.":"No quotes match."}</p>`}</div>`}
 /* the line under a section name: what is inside, so a closed section still says something */
 function rvPeek(k,G){const rows=G?G.reduce((a,g)=>a+(g.rows||[]).length,0):0,cues=G?G.flatMap(g=>(g.rows||[]).map(r=>r.cue)).filter(Boolean):[],list=(a,n)=>a.slice(0,n).join(", ")+(a.length>n?` +${a.length-n}`:"");
   if(k==="prog"){const M=rvMK(),mk=[...M].filter(i=>prog.cards[i]).length;return mk||rvLearnt()?`${mk} of ${M.size} must-know learnt`:""}
@@ -2847,15 +2865,28 @@ function rvPeek(k,G){const rows=G?G.reduce((a,g)=>a+(g.rows||[]).length,0):0,cue
   if(k==="quotes"){const v=rvMKv(),kn=rvVis().filter(q=>prog.cards[q.i]).length;return `${v.length} ★ · ${kn} learnt`}
   return ""}
 const RVTICK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12.5l3.2 3.2L17 9"/><rect x="3.5" y="3.5" width="17" height="17" rx="4"/></svg>`;
-function rvSecHTML(s){const [k,nm,,tp]=s,open=!!RVO[k];let body,G=null;
-  if(k==="prog")body=rvProgHTML();else if(k==="mine")body=rvMineHTML();
+const RVWIDE=["glance","plot","chars","quotes","mine"];
+function rvGroup(g,k){return (g.h?`<h4 class="ah5">${g.lat?`<span class="lat5">${esc(g.lat)}</span>`:""}<b>${esc(g.h)}</b>${g.sub?`<small>${esc(g.sub)}</small>`:""}</h4>`:"")
+  +(g.map?`<figure class="rvmap5">${g.map}</figure>`:"")
+  +(g.strip?`<div class="rvstrip57 noprint" role="group" aria-label="Jump to a character">${g.strip.map(w=>`<button type="button" data-rvw="${esc(encodeURIComponent(w))}" style="--c:${esc(COLORS[w]||"var(--tc)")}">${folioMedal(w,COLORS[w],"rvsm")}<span>${esc(title(w))}</span></button>`).join("")}</div>`:"")
+  +(g.rows.length?`<div class="rws5">${g.rows.map(r=>rvRow(r,k)).join("")}</div>`:"")}
+function rvTile(s){const [k,nm,,tp]=s;let body,G=null;
+  if(k==="mine")body=rvMineHTML();
   else{G=rvData(k);
     if(k==="quotes")body=rvQuotesHTML(G);
-    else body=G.map(g=>(g.h?`<h4 class="rva53">${esc(g.h)}${g.lat?` <em>${esc(g.lat)}</em>`:""}${g.sub?`<small>${esc(g.sub)}</small>`:""}</h4>`:"")+(g.map?`<div class="rvmap54">${g.map}</div>`:"")
-      +(g.strip?`<div class="rvstrip57 noprint" role="group" aria-label="Jump to a character">${g.strip.map(w=>`<button type="button" data-rvw="${esc(encodeURIComponent(w))}" style="--c:${esc(COLORS[w]||"var(--tc)")}">${folioMedal(w,COLORS[w],"rvsm")}<span>${esc(title(w))}</span></button>`).join("")}</div>`:"")
-      +g.rows.map(rvRow).join("")).join("");
+    else body=(k==="plot"&&EX.arc&&scenes.some(scOK)?`<figure class="arc5">${arcSVG()}</figure>`:"")+(k==="themes"?rvThGrid():"")+G.map(g=>rvGroup(g,k)).join("");
     if(G.lock)body+=`<p class="rvlk57">${folioSeal("?","e","rvls")}<span>${esc(G.lock)}</span></p>`}
-  return `<section class="rvs53 rv-${k} tp-${tp}" id="rv-${k}"><div class="rvsh"><h3><button type="button" class="rvtg" data-rvt="${k}" aria-expanded="${open}" aria-controls="rvb-${k}"><svg class="rvem" viewBox="0 0 64 64" aria-hidden="true">${EMB[tp]}</svg><span class="rvtt"><b>${esc(nm)}</b><small>${esc(rvPeek(k,G))}</small></span><i aria-hidden="true">›</i></button></h3>${RVTEST(k)?`<button type="button" class="rvtq noprint" data-rvtest="${k}" aria-label="Test ${esc(nm)}" title="Test ${esc(nm)}">${RVTICK}</button>`:""}</div><div class="rvsb" id="rvb-${k}"${open?"":" hidden"}>${body}</div></section>`}
+  return `<section class="rvt5 rv-${k} tp-${tp}${RVWIDE.includes(k)?" wd5":""}${RVA===k?" on":""}" id="rv-${k}" aria-labelledby="rvh-${k}"><header class="th5"><span class="te5"><svg class="rvem" viewBox="0 0 64 64" aria-hidden="true">${EMB[tp]}</svg></span><h3 id="rvh-${k}"><b>${esc(nm)}</b><small>${esc(rvPeek(k,G))}</small></h3>${RVTEST(k)?`<button type="button" class="rvtq noprint" data-rvtest="${k}" aria-label="Test ${esc(nm)}" title="Test ${esc(nm)}">${RVTICK}<span>Test</span></button>`:""}</header><div class="tb5">${body}</div></section>`}
+/* the hero: play colour band, three progress rings, Revise now, view and export */
+function rvHero(){const N=QUOTES.quotes.length,M=rvMK(),mk=[...M].filter(i=>prog.cards[i]).length,kn=rvLearnt(),qd=scenes.filter(p=>prog.quiz[p.id]),sc=qd.reduce((x,p)=>[x[0]+prog.quiz[p.id][0],x[1]+prog.quiz[p.id][1]],[0,0]),rd=scenes.filter(scOK).length;
+  const st=[[mk,`of ${M.size} must-know`,mk/Math.max(1,M.size)],[kn,`of ${N} quotes learnt`,kn/Math.max(1,N)],[qd.length,`of ${scenes.length} scenes quizzed${sc[1]?` · ${Math.round(100*sc[0]/sc[1])}%`:""}`,qd.length/Math.max(1,scenes.length)]];
+  return `<header class="rvhero5"><div class="hz5"><small>${esc(CFG.title)}</small><h2>Revision notes</h2><p>${rvSP()?`Notes up to ${esc(sName(scenes[readIdx()]))}`:`The whole play, ${plural(rd,"scene")}`}</p></div>
+    <div class="hst5">${st.map(([b,s,f])=>`<div>${hring(f,`<b>${b?b:"–"}</b>`)}<small>${esc(s)}</small></div>`).join("")}</div>
+    <div class="hc5 noprint"><button type="button" class="btn primary rvnow" id="rv-now" title="Ten items, weakest first"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></svg>Revise now<small>10 items, weakest first</small></button>
+      ${folioSimple()?"":`<div class="dview rvvw" role="group" aria-label="Detail"><button type="button" data-rvv="brief" aria-pressed="${RVV!=="full"}">Brief</button><button type="button" data-rvv="full" aria-pressed="${RVV==="full"}">Full</button></div>`}
+      <button type="button" class="rvic" id="rv-exp" aria-label="Export" title="Share, copy, download or print"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div></header>`}
+function rvFixHTML(){const W=rvWeak();if(!W.length)return "";
+  return `<details class="fix5 noprint"><summary><b>Fix next</b><small>${plural(W.length,"thing")} to work on</small></summary><div class="rvw53">${W.map(([t,s,a,l,qs])=>`<div class="rvwr"><span><b>${esc(t)}</b><small>${esc(s)}</small></span><button type="button" class="btn sm" ${a}>${l}</button>${qs?`<div class="rvwq">${qs.map(q=>rvQ(q,"")).join("")}</div>`:""}</div>`).join("")}</div></details>`}
 /* Revision notes grade a quote as Flashcards, but Knew it moves a scheduled quote only when it is due (as drills do),
    so testing the same quote again does not push it up a box each time */
 function rvGrade(i,ok){const k="who:"+i;if(!ok||!getS(k)||isDue(k))grade(k,ok,false)}
@@ -2909,24 +2940,33 @@ function rvExport(){const t=rvText();
   b.querySelector("#rvx-copy").onclick=()=>copyText(t);b.querySelector("#rvx-dl").onclick=()=>download(CFG.file+"-revision.txt",t,"text/plain");
   if(b.querySelector("#rvx-pr"))b.querySelector("#rvx-pr").onclick=()=>{closeSheet();setTimeout(()=>window.print(),250)}}
 addEventListener("beforeprint",()=>document.querySelectorAll(".rv53 details").forEach(d=>d.open=true));
-const rvOff=()=>(parseFloat(getComputedStyle($("sbody")).getPropertyValue("--sgh"))||0)+(($("sbody").querySelector(".rvtop54")||{}).offsetHeight||0);
+const rvOff=()=>(parseFloat(getComputedStyle($("sbody")).getPropertyValue("--sgh"))||0)+(($("sbody").querySelector(".rvtabs5")||{}).offsetHeight||0);
 const rvTo=el=>{const top=el.getBoundingClientRect().top+scrollY-rvOff()-8;scrollTo({top,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})};
-/* scrollspy: the index chip of the section under the bar is filled and kept in view */
-function rvSpy(R0){if(RVIO){RVIO.disconnect();RVIO=null}if(!("IntersectionObserver" in window))return;const nav=R0.querySelector(".rvidx53"),vis=new Map();
+const rvChip=(nav,b)=>{const l=b.offsetLeft-nav.offsetLeft-16;if(l<nav.scrollLeft||l+b.offsetWidth>nav.scrollLeft+nav.clientWidth-24)nav.scrollTo({left:Math.max(0,l),behavior:"smooth"})};
+/* tablet and desk: the tab of the tile under the bar is filled and kept in view */
+function rvSpy(R0){if(RVIO){RVIO.disconnect();RVIO=null}if(!("IntersectionObserver" in window)||rvPhone())return;const nav=R0.querySelector(".rvtabs5"),vis=new Map();
   const mark=()=>{let best=null,bt=1e9;vis.forEach((on,el)=>{if(!on)return;const t=el.getBoundingClientRect().top;if(t<bt){bt=t;best=el}});if(!best)return;const k=best.id.slice(3);
-    nav.querySelectorAll("[data-rvj]").forEach(b=>{const on=b.dataset.rvj===k;if(on!==(b.getAttribute("aria-current")==="true")){if(on){b.setAttribute("aria-current","true");const l=b.offsetLeft-nav.offsetLeft-16;if(l<nav.scrollLeft||l+b.offsetWidth>nav.scrollLeft+nav.clientWidth-24)nav.scrollTo({left:Math.max(0,l),behavior:"smooth"})}else b.removeAttribute("aria-current")}})};
+    nav.querySelectorAll("[data-rvj]").forEach(b=>{const on=b.dataset.rvj===k;if(on!==(b.getAttribute("aria-current")==="true")){if(on){b.setAttribute("aria-current","true");rvChip(nav,b)}else b.removeAttribute("aria-current")}})};
   RVIO=new IntersectionObserver(es=>{es.forEach(e=>vis.set(e.target,e.isIntersecting));mark()},{rootMargin:`-${Math.round(rvOff()+8)}px 0px -55% 0px`});
-  R0.querySelectorAll(".rvs53").forEach(s=>RVIO.observe(s))}
-function studyRevise(){const secs=rvSecs();
-  $("sbody").innerHTML=`<div class="rv53"><div class="rvtop54 noprint"><div class="rvctl">${folioSimple()?"":`<div class="dview rvvw" role="group" aria-label="Detail"><button type="button" data-rvv="brief" aria-pressed="${RVV!=="full"}">Brief</button><button type="button" data-rvv="full" aria-pressed="${RVV==="full"}">Full</button></div>`}
-     <button type="button" class="btn primary rvnow" id="rv-now" title="Ten items, weakest first"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></svg>Revise now</button><button type="button" class="rvic" id="rv-exp" aria-label="Export" title="Share, copy, download or print"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div>
-    <nav class="rvidx53" aria-label="Sections">${secs.map(([k,nm,,tp])=>`<button type="button" class="tp-${tp}" data-rvj="${k}">${esc(nm)}</button>`).join("")}<button type="button" class="rvall" data-rvall>${secs.every(([k])=>RVO[k])?"Close all":"Open all"}</button></nav></div>
+  R0.querySelectorAll(".rvt5").forEach(s=>RVIO.observe(s))}
+/* phones: one section per screen; tabs or a swipe change it, the new one slides in from the side it came from */
+function rvShow(k,dir){RVA=k;const R0=$("sbody").querySelector(".rv5");if(!R0)return;const rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  R0.querySelectorAll(".rvt5").forEach(s=>{const on=s.id==="rv-"+k;s.classList.toggle("on",on);s.classList.remove("in-l","in-r");if(on&&dir&&!rm){void s.offsetWidth;s.classList.add(dir>0?"in-r":"in-l")}});
+  const nav=R0.querySelector(".rvtabs5");nav.querySelectorAll("[data-rvj]").forEach(b=>{const on=b.dataset.rvj===k;b.setAttribute("aria-selected",String(on));if(on){b.setAttribute("aria-current","true");rvChip(nav,b)}else b.removeAttribute("aria-current")});
+  const g=R0.querySelector(".rvb5"),top=g.getBoundingClientRect().top+scrollY-rvOff()-4;if(scrollY>top||rvJump)scrollTo(0,top)}
+function studyRevise(){const secs=rvSecs().filter(s=>s[0]!=="prog").sort((a,b)=>(a[0]==="mine")-(b[0]==="mine")),ph=rvPhone();
+  if(!secs.some(s=>s[0]===RVA))RVA=(secs.find(s=>s[0]==="glance")||secs.find(s=>s[0]==="plot")||secs[0])[0];
+  $("sbody").innerHTML=`<div class="rv53 rv5">${rvHero()}${rvFixHTML()}
+    <nav class="rvtabs5 noprint" aria-label="Sections"${ph?` role="tablist"`:""}>${secs.map(([k,nm,,tp])=>`<button type="button" class="tp-${tp}" data-rvj="${k}"${ph?` role="tab" aria-controls="rv-${k}" aria-selected="${k===RVA}"`:""}${ph&&k===RVA?` aria-current="true"`:""}><svg viewBox="0 0 64 64" aria-hidden="true">${EMB[tp]}</svg><span>${esc(nm)}</span></button>`).join("")}</nav>
     <div class="olrh rvrh" aria-hidden="true"><span>${esc(CFG.short)}</span><span>Revision notes</span></div>
-    <div class="rvgrid">${secs.map(rvSecHTML).join("")}</div>
+    <div class="rvgrid rvb5">${secs.map(rvTile).join("")}</div>
+    ${ph?`<div class="rvpn5 noprint">${(()=>{const i=secs.findIndex(s=>s[0]===RVA);return [secs[i-1],secs[i+1]]})().map((s,j)=>s?`<button type="button" data-rvj="${s[0]}" data-rvd="${j?1:-1}" class="${j?"nx":"pv"}"><small>${j?"Next":"Back"}</small><b>${esc(s[1])}</b></button>`:"<span></span>").join("")}</div>`:""}
     <p class="rvbk53 noprint">Notes and progress live on this device. <a href="${FOLIO_BK}">Back up every play</a></p></div>`;
   const sg=document.querySelector("#study .sgroups");$("sbody").style.setProperty("--sgh",(sg?sg.offsetHeight:0)+"px");
-  const R0=$("sbody").querySelector(".rv53"),sec=k=>secs.find(s=>s[0]===k);
-  const reQ=()=>{const s=$("rv-quotes");if(!s)return;const f=document.activeElement&&document.activeElement.id==="rv-q",c=f?document.activeElement.selectionStart:0;s.outerHTML=rvSecHTML(sec("quotes"));if(RVIO)RVIO.observe($("rv-quotes"));if(f){const i=$("rv-q");i.focus();i.setSelectionRange(c,c)}};
+  const R0=$("sbody").querySelector(".rv5"),sec=k=>secs.find(s=>s[0]===k),gr=R0.querySelector(".rvb5");
+  const pn=()=>{const p=R0.querySelector(".rvpn5");if(!p)return;const i=secs.findIndex(s=>s[0]===RVA);p.innerHTML=[secs[i-1],secs[i+1]].map((s,j)=>s?`<button type="button" data-rvj="${s[0]}" data-rvd="${j?1:-1}" class="${j?"nx":"pv"}"><small>${j?"Next":"Back"}</small><b>${esc(s[1])}</b></button>`:"<span></span>").join("")};
+  const go=(k,d,j)=>{rvJump=!!j;rvShow(k,d);rvJump=false;pn()};
+  const reQ=()=>{const s=$("rv-quotes");if(!s)return;const f=document.activeElement&&document.activeElement.id==="rv-q",c=f?document.activeElement.selectionStart:0;s.outerHTML=rvTile(sec("quotes"));if(RVIO)RVIO.observe($("rv-quotes"));if(f){const i=$("rv-q");i.focus();i.setSelectionRange(c,c)}};
   R0.oninput=e=>{if(e.target.id==="rv-q"){RVQ=e.target.value;reQ()}};
   R0.onclick=e=>{const t=e.target;
     const v=t.closest("[data-rvv]");if(v){RVV=v.dataset.rvv;LS.set("folio-rvview",RVV);const y=scrollY;studyRevise();scrollTo(0,y);return}
@@ -2935,11 +2975,13 @@ function studyRevise(){const secs=rvSecs();
     const ts=t.closest("[data-rvtest]");if(ts){rvTest(ts.dataset.rvtest);return}
     const g=t.closest("[data-rvg]");if(g){RVG=g.dataset.rvg;LS.set("folio-rvgroup",RVG);reQ();return}
     const f=t.closest("[data-rvf]");if(f){RVF=f.dataset.rvf;LS.set("folio-rvfilter",RVF);reQ();return}
-    if(t.closest("[data-rvall]")){const all=secs.every(([k])=>RVO[k]);secs.forEach(([k])=>RVO[k]=all?0:1);if(all)RVO.prog=1;const y=scrollY;studyRevise();scrollTo(0,y);return}
-    const j=t.closest("[data-rvj]");if(j){const k=j.dataset.rvj;if(!RVO[k]){RVO[k]=1;const el=$("rv-"+k);if(RVIO)RVIO.unobserve(el);el.outerHTML=rvSecHTML(sec(k));if(RVIO)RVIO.observe($("rv-"+k))}rvTo($("rv-"+k));return}
-    const wj=t.closest("[data-rvw]");if(wj){const el=$("rvw-"+wj.dataset.rvw);if(el){rvTo(el);el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}return}
-    const st=t.closest("[data-rvt]");if(st){const k=st.dataset.rvt,o=st.getAttribute("aria-expanded")==="true";RVO[k]=o?0:1;st.setAttribute("aria-expanded",String(!o));$("rvb-"+k).hidden=o;
-      const a=R0.querySelector("[data-rvall]");if(a)a.textContent=secs.every(([x])=>RVO[x])?"Close all":"Open all";return}};
+    const j=t.closest("[data-rvj]");if(j){const k=j.dataset.rvj;if(rvPhone()){const a=secs.findIndex(s=>s[0]===RVA),b=secs.findIndex(s=>s[0]===k);go(k,b===a?0:b>a?1:-1,1)}else rvTo($("rv-"+k));return}
+    const wj=t.closest("[data-rvw]");if(wj){const el=$("rvw-"+wj.dataset.rvw);if(el){rvTo(el);el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}return}};
+  /* swipe between sections on phones; strips, grids and charts that scroll sideways keep their own gestures */
+  let sx=null,sy=0;
+  gr.addEventListener("touchstart",e=>{sx=null;if(!rvPhone()||e.touches.length>1||e.target.closest(".rvstrip57,.thg5,.arc5,.rvmap5,input,.chips"))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  gr.addEventListener("touchend",e=>{if(sx==null)return;const p=e.changedTouches[0],dx=p.clientX-sx,dy=p.clientY-sy;sx=null;if(Math.abs(dx)<64||Math.abs(dx)<Math.abs(dy)*1.7)return;
+    const i=secs.findIndex(s=>s[0]===RVA),n=secs[i+(dx<0?1:-1)];if(n)go(n[0],dx<0?1:-1)},{passive:true});
   rvSpy(R0);
 }
 $("sbody").addEventListener("click",e=>{
@@ -2947,7 +2989,7 @@ $("sbody").addEventListener("click",e=>{
   const pv=e.target.closest("[data-pv]");if(pv){e.preventDefault();openPv(pv.dataset.pv);return}
   const ht=e.target.closest("[data-heat]");if(ht){const [i,j]=ht.dataset.heat.split(":").map(Number),[nm,per]=HEAT[i]||[];if(nm)openSheet(`${nm} · ${AN(ACTS[j])}`,`<p class="intro">${per[j].length} speech${per[j].length===1?"":"es"} mention it.</p>${evHTML(per[j],"In the play")}`);return}
   const cj=e.target.closest("[data-crj]");if(cj){const [k,i]=cj.dataset.crj.split(":"),el=document.getElementById(`cr-${k}-${i}`);if(el){el.scrollIntoView({block:"center",behavior:"smooth"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600)}return}
-  const ta=e.target.closest("[data-thact]");if(ta){const [k,a]=ta.dataset.thact.split(":"),qs=QUOTES.quotes.filter(q=>q.themes.includes(k)&&sceneOf(q.id).act===+a);openSheet(`${QUOTES.themes[k][0]} · ${AN(+a)}`,evHTML(qs.map(q=>q.id),"Key quotes"));return}
+  const ta=e.target.closest("[data-thact]");if(ta){const [k,a]=ta.dataset.thact.split(":"),qs=QUOTES.quotes.filter(q=>q.themes.includes(k)&&sceneOf(q.id).act===+a&&readOK(q.id));openSheet(`${QUOTES.themes[k][0]} · ${AN(+a)}`,evHTML(qs.map(q=>q.id),"Key quotes"));return}
   const qw=e.target.closest("[data-qwho]");if(qw){qf.who=qw.dataset.qwho;const y=scrollY;studyQuotes();scrollTo(0,y);return}
   const dv=e.target.closest("[data-dv]");if(dv){DV=dv.dataset.dv;LS.set("folio-deckview",DV);const y=scrollY;renderStudy();scrollTo(0,y);return}
   const aj=e.target.closest("[data-actj]");if(aj){actGo(+aj.dataset.actj);return}
