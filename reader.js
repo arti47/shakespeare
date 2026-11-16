@@ -1038,17 +1038,19 @@ function fivePlan(){const d=dueKeys().length,P=[];
   P.push(d?["study:review",`Review ${d} card${d===1?"":"s"} due`,"2 min"]:["study:review?ses=1","A 10-question mixed session","3 min"]);
   const q=scenes.filter(p=>prog.done[p.id]&&!prog.quiz[p.id]).pop();P.push(q?["study:quiz?s="+q.id,`Quiz: ${sName(q)}`,"2 min"]:["study:drill:gap","Fill the gap in a key quote","2 min"]);
   const w=wordOfDay();if(w)P.push(["study:explore:glossary?w="+encodeURIComponent(w.k),`Word of the day: ${w.k}`,"1 min"]);return P}
-function todayHTML(){const last=SLAST||S.stab?toolNow():"",nx=nextStep(),d=dueKeys().length,pl=fivePlan();
+/* 5.2 Study home: a hero in the play's cloth colour (continue, three rings, the five-minute plan), then the topics as a numbered index */
+function todayHTML(){const last=SLAST||S.stab?toolNow():"",nx=nextStep(),d=dueKeys().length,pl=fivePlan(),sc=scenes.length,rd=scenes.filter(p=>prog.done[p.id]).length,N=QUOTES.quotes.length,kn=Object.keys(prog.cards).length;
   const cont=last&&TABS.some(t=>t[0]===S.stab)?[`study:${last}`,"Pick up",toolName(last)]:[nx[0],"Next step · "+nx[2],nx[1]];
-  return `<section class="today48" aria-label="Today"><div class="tdhead"><small>Today</small><b>${esc(CFG.short)}</b></div><div class="tdgrid">
-   <button class="tdc tdcont" type="button" data-to="${esc(cont[0])}"><span class="pkseal" aria-hidden="true">${folioSeal("❧","","pks")}</span><span><small>${esc(cont[1])}</small><b>${esc(cont[2])}</b></span><i aria-hidden="true">›</i></button>
-   <div class="tdc tdplan"><small>Five-minute plan</small><ol>${pl.map(([to,l,m])=>`<li><button type="button" data-to="${esc(to)}"><span>${esc(l)}</span><em>${m}</em></button></li>`).join("")}</ol></div>
-   <button class="tdc tddue" type="button" data-to="study:${d?"review":"cards"}"><b>${d}</b><small>${d===1?"card due":"cards due"}</small><span>${d?"Review now ›":"Learn new cards ›"}</span></button>
-  </div></section>`}
+  const st=[[rd/Math.max(1,sc),rd,`of ${sc} scenes read`,"read"],[kn/Math.max(1,N),kn,`of ${N} quotes learnt`,"study:quotes"],[d?1:0,d,d===1?"card due":"cards due",`study:${d?"review":"cards"}`]];
+  return `<section class="today48 sh52" aria-label="Today"><div class="shz52"><small>Today</small><h2>${esc(CFG.short)}</h2></div>
+   <div class="shs52">${st.map(([f,v,l,to])=>`<button type="button" data-to="${esc(to)}">${hring(f,`<b>${v}</b>`)}<small>${l}</small></button>`).join("")}</div>
+   <button class="shc52" type="button" data-to="${esc(cont[0])}"><span><small>${esc(cont[1])}</small><b>${esc(cont[2])}</b></span><i aria-hidden="true">›</i></button>
+   <div class="shp52"><small>Five-minute plan</small><ol>${pl.map(([to,l,m])=>`<li><button type="button" data-to="${esc(to)}"><span>${esc(l)}</span><em>${m}</em></button></li>`).join("")}</ol></div>
+  </section>`}
 function renderStudyHome(){SLAST=false;SV=null;$("study").dataset.tp="";$("sgroups").hidden=true;$("stabs").hidden=true;$("srel").innerHTML="";
   const T=topicsNow();
-  $("sbody").innerHTML=(folioSimple()?questStripHTML():"")+todayHTML()+`<div class="tsec toch"><h3>Contents</h3><small>${T.length} topics</small></div><ol class="toc48">${T.map(([k,l],i)=>{const [f,st]=topicStat(k);
-    return `<li><button class="tocr tp-${k}" type="button" data-to="study:topic:${k}">${ringEmb(EMB[k],f)}<span class="tocn" aria-hidden="true">${["I","II","III","IV","V","VI","VII","VIII"][i]}</span><span class="toct"><b>${l}</b><small>${esc(TLINE[k])}</small><em>${f===0?"Not begun":esc(st)}</em></span><i aria-hidden="true">›</i></button></li>`}).join("")}</ol>`}
+  $("sbody").innerHTML=(folioSimple()?questStripHTML():"")+todayHTML()+`<div class="ih52"><h3>Contents</h3><small>${T.length} topics</small></div><ol class="toc48 idx52">${T.map(([k,l],i)=>{const [f,st]=topicStat(k);
+    return `<li><button class="tocr tp-${k}" type="button" data-to="study:topic:${k}"><span class="tocn" aria-hidden="true">${String(i+1).padStart(2,"0")}</span><span class="toct"><b>${l}</b><small>${esc(TLINE[k])}</small><em>${f===0?"Not begun":esc(st)}</em>${f!=null?`<span class="pb52" aria-hidden="true"><i style="width:${Math.round(Math.min(1,f)*100)}%"></i></span>`:""}</span><span class="ti52" aria-hidden="true">${embSVG(EMB[k])}</span><i aria-hidden="true">›</i></button></li>`}).join("")}</ol>`}
 /* Simple mode: the quests for scenes you've read, as a swipeable strip above the tiles */
 function questStripHTML(){const read=scenes.filter(p=>prog.done[p.id]&&questsOf(p.id).length).sort((a,b)=>prog.done[b.id]-prog.done[a.id]),open=read.filter(p=>!(prog.qst[p.id]||{}).g),gilt=read.length-open.length;
   let h=`<div class="qhead">${folioSeal("❦","g","qhs")}<div><h2>Quests</h2><p>${read.length?`${open.length} scene${open.length===1?"":"s"} to finish · ${gilt} gilt`:"Read a scene to unlock its quests"}</p></div></div>`;
@@ -1079,7 +1081,7 @@ function hallHTML(){const d=dueKeys().length,nq=scenes.find(p=>prog.done[p.id]&&
    +DSHELF.map(([nm,ks])=>{const L=ks.filter(k=>T.includes(k));return L.length?secH(nm,L.length)+`<div class="hgrid16">${L.map(tile).join("")}</div>`:""}).join("")
    +secH("Longer practice")+`<div class="tlist48">${["cards","part","quiz"].filter(toolOK).map(s=>`<button class="tlr" type="button" data-to="study:${s}?tp=practise">${tic(s)}<span><b>${esc(toolName(s))}</b><small>${esc(toolDesc(s))}</small></span><i aria-hidden="true">›</i></button>`).join("")}</div>`}
 function topicHTML(k){const T=topicK(k),[f,st]=topicStat(k);
-  let h=`<div class="thead">${tbanner(EMB[k])}${ringEmb(EMB[k],f,"big")}<div><h2>${T[1]}</h2><p>${esc(TLINE[k])}</p><small>${esc(st)}</small></div></div>`;
+  let h=`<div class="thead th52">${ringEmb(EMB[k],f,"t52")}<div><h2>${T[1]}</h2><p>${esc(TLINE[k])}</p><small>${esc(st)}</small></div></div>`;
   if(k==="people")h+=secH("The characters")+`<div class="wgal">${whoAll().filter(w=>!SPOIL()||Object.values(speech).some(s=>s.who===w&&readOK(s.id))).map(w=>`<button class="wmed" type="button" data-to="study:who:${esc(encodeURIComponent(w))}">${folioMedal(w,COLORS[w])}<b>${esc(title(w))}</b>${profStarted(w)?`<small>Profile started</small>`:""}</button>`).join("")}</div>`;
   if(k==="themes")h+=secH("The themes")+`<div class="ttiles4 sm">${Object.entries(QUOTES.themes).map(([t,v])=>{const [a,b]=thLearnt(t);return `<button class="ttile" type="button" data-to="study:theme:${t}">${ringEmb(TEMB[temb(t)],a/Math.max(1,b))}<b>${esc(v[0])}</b><small>${a?`${a} of ${b} quotes`:BEGIN}</small></button>`}).join("")}</div>`;
   if(k==="story")h+=secH("Act by act")+`<div class="ribbon48">${ACTS.map(a=>{const ps=scenes.filter(p=>p.act===a);return ps.length?`<button class="rbact" type="button" data-to="study:acts?a=${a}&tp=story"><b>${a?R[a]:"Ind."}</b><span class="rbdots">${ps.map(p=>`<i class="${prog.done[p.id]?"d":""}${pos&&pos.s===p.id?" h":""}" title="${esc(sName(p))}"></i>`).join("")}</span><small>${ps.filter(p=>prog.done[p.id]).length}/${ps.length}</small></button>`:""}).join("")}</div>${pos&&sIdx(pos.s)>=0?`<p class="rbnow">You're at ${toLink("scene:"+pos.s,sName(scenes[sIdx(pos.s)]))}</p>`:""}`;
@@ -1100,7 +1102,7 @@ function whoHTML(w){const c=CH[w]||{},qs=QUOTES.quotes.filter(q=>speech[q.id].wh
   if(qs.length)tools.push(["quotes?who="+W,"All their quotes","quotes"]);if(exHas("map")&&EXT.some(x=>x[0]==="map"))tools.push(["explore:map","Character map","map"]);if(EXT.some(x=>x[0]==="contrast"))tools.push(["explore:contrast","Contrast pairs","contrast"]);
   return h+secH("More on "+esc(title(w)))+`<div class="ttools">${tools.map(([s,l,i])=>`<button class="ttool" type="button" data-to="study:${esc(s)}${s.includes("?")?"&":"?"}tp=people"><svg class="tic" viewBox="0 0 24 24" aria-hidden="true">${TIC[i]}</svg><span>${l}</span></button>`).join("")}</div>`}
 function themeHTML(k){const [nm,desc]=QUOTES.themes[k],[a,b]=thLearnt(k),cr=(EX.critics||{})[k];
-  let h=`<div class="thead">${tbanner(TEMB[temb(k)])}${ringEmb(TEMB[temb(k)],a/Math.max(1,b),"big")}<div><h2>${esc(nm)}</h2><p>${esc(desc)}</p><small>${a} of ${b} quotes learnt</small></div></div>`;
+  let h=`<div class="thead th52">${ringEmb(TEMB[temb(k)],a/Math.max(1,b),"t52")}<div><h2>${esc(nm)}</h2><p>${esc(desc)}</p><small>${a} of ${b} quotes learnt</small></div></div>`;
   const pa=ACTS.map(a=>QUOTES.quotes.filter(q=>q.themes.includes(k)&&sceneOf(q.id).act===a).length),pm=Math.max(1,...pa);
   h+=secH("Through the play")+`<div class="thrib49">${ACTS.map((a,j)=>`<button type="button" data-thact="${k}:${a}" style="--h:${(pa[j]/pm).toFixed(2)}"${pa[j]?"":" disabled"} aria-label="${AN(a)}: ${pa[j]} key quotes"><i></i><b>${pa[j]||""}</b><small>${a?R[a]:"Ind."}</small></button>`).join("")}</div>`;
   h+=`<ol class="road">${themePlan(k).map(([t,s,qs],i)=>`<li><div class="rstop">${folioSeal(["I","II","III"][i],"","rn")}<b>${t}</b><small>${s}</small></div>${qs.length?deckHTML(qs.map(qCard),"",t):`<p class="muted">No key quote for this theme here.</p>`}</li>`).join("")}</ol>`;

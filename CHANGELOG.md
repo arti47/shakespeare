@@ -4,6 +4,13 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [5.2.0] — 2026-11-16
+
+### Changed
+- Study home: a Today card in the play's own colour (three rings for scenes read, quotes learnt and cards due, Pick up, the five-minute plan), then the eight topics as a numbered contents list with progress bars (#177)
+- Study topic, theme and character pages open on a flat band in the topic's colour with a big heading; section heads are big type over a rule and tools are a numbered list (#177)
+- Practice: drills, quizzes, Review and sessions show one flat card on paper under a thin progress bar; the Practise page's Session button is in the play's colour; Review home, quiz acts, flashcards and theme tiles are flat cards; Study buttons use plain figures (#177)
+
 ## [5.1.0] — 2026-11-16
 
 ### Changed
