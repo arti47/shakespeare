@@ -4,6 +4,15 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [5.1.0] — 2026-11-16
+
+### Changed
+- Library: the wooden bookcase is now a clean cover grid on paper, under a big heading per Folio genre (Comedies, Histories, Tragedies), with each play's title, part and year under its cover (and % read once begun); three covers a row on phones (#PR)
+- Library: Continue reading is a full-width card in the play's own colour with an ivory Resume button; genre tabs are flat, the current one in ink (#PR)
+
+### Fixed
+- Library: the Continue card no longer shows NaN% when a play's progress is missing, and leaves no empty column when nothing is due for review (#PR)
+
 ## [5.0.0] — 2026-11-16
 
 Version 5 begins: a redesign in stages, content unchanged. Stage 1 is Revision notes.
