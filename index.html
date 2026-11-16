@@ -670,6 +670,23 @@ body{font-family:var(--f-body)}
 .lectern:not(.solo) .dx53 .drow b{color:var(--hero-gilt)}
 @media (min-width:700px){.lectern:not(.solo) .today{border-top:0!important;border-left:1px solid rgba(251,243,226,.16)!important}.lectern .dx53.duer{flex-direction:column;text-align:left}.lectern .today{justify-content:flex-start}.dx53.duer{padding:18px}}
 @media (min-width:700px){.lectern .hero.hx53{padding:20px}.hx53 .cover{--cw:80px}.lectern .hx53 h3{font-size:2rem}}
+/* ===== 5.4 swipe shelves (TY: the phone Library was a long scroll): below 760px each genre is one row of covers you swipe
+   sideways (scroll-snap, edge to edge); See all (.bk-all, data-gall, session GALL) turns it back into the full grid ===== */
+.bk-all{display:none}
+@media (max-width:759px){
+  .bk-shelf+.bk-shelf{margin-top:30px}
+  .bk-h{flex-direction:row!important;align-items:flex-end!important;flex-wrap:nowrap;gap:10px}
+  .bk-h h3{font-size:2rem;flex:1;min-width:0}
+  .bk-h .bk-c{display:none}
+  .bk-all{display:inline-flex;align-items:center;gap:4px;flex:none;min-height:36px;margin:0 0 -4px;padding:0 2px;border:0;background:none;color:var(--accent);font:600 max(14px,.72rem) var(--f-ui);cursor:pointer}
+  .bk-all::after{content:"›";font-size:1.2em;line-height:1}
+  .bk-shelf.all .bk-all::after{content:"";}
+  .bk-shelf:not(.all) .gd{display:none}
+  .bk-shelf:not(.all) .bk-rows{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:calc((100% - 2 * var(--px) - 2 * var(--g)) / 2.6);
+    overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:var(--px);margin-inline:calc(-1 * var(--px));padding:16px var(--px) 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .bk-shelf:not(.all) .bk-rows::-webkit-scrollbar{display:none}
+  .bk-shelf:not(.all) .bk-it{scroll-snap-align:start}
+}
 </style>
 </head>
 <body>
@@ -824,11 +841,17 @@ function renderLibrary(){
   seals();const due=renderDue();$("lect").hidden=!ls&&!due;$("lect").classList.toggle("solo",!ls);
   renderShelves();
 }
+/* 5.4 phones: each genre is one swipe row; See all opens its full grid (session only) */
+const GALL=new Set();
+document.addEventListener("click",e=>{const b=e.target.closest("[data-gall]");if(!b)return;const g=b.dataset.gall,sec=$("shelf-"+g);
+  GALL.has(g)?GALL.delete(g):GALL.add(g);const on=GALL.has(g);sec.classList.toggle("all",on);b.setAttribute("aria-expanded",on);b.textContent=on?"Show less":"See all";
+  if(!on&&sec.getBoundingClientRect().top<0)scrollTo({top:sec.getBoundingClientRect().top+scrollY-gTop(),behavior:"auto"});
+  const r=sec.querySelector(".bk-rows");if(r)r.scrollLeft=0});
 function renderShelves(){
   document.querySelectorAll("#sortc .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sort===sortBy));
   const ord=orderPlays();
   $("shelves").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g,d])=>{const ps=ord.filter(p=>p.group===g),begun=ps.filter(p=>J("folio-stat-"+p.id)).length;
-    return `<section class="bk-shelf" id="shelf-${g}" aria-label="${g}"><header class="bk-h"><h3>${g}</h3><span class="bk-c"><span class="bk-n">${ps.length} plays${begun?` · ${begun} begun`:""}</span><span class="bk-sl" aria-hidden="true">${ps.map(p=>{const st=J("folio-stat-"+p.id);return `<i class="${st?(+st.pct>=100?"dn":"on"):""}"></i>`}).join("")}</span></span></header><p class="gd">${esc(d)}</p>
+    return `<section class="bk-shelf${GALL.has(g)?" all":""}" id="shelf-${g}" aria-label="${g}"><header class="bk-h"><h3>${g}</h3><button class="bk-all" type="button" data-gall="${g}" aria-expanded="${GALL.has(g)}" aria-controls="shelf-${g}">${GALL.has(g)?"Show less":"See all"}</button><span class="bk-c"><span class="bk-n">${ps.length} plays${begun?` · ${begun} begun`:""}</span><span class="bk-sl" aria-hidden="true">${ps.map(p=>{const st=J("folio-stat-"+p.id);return `<i class="${st?(+st.pct>=100?"dn":"on"):""}"></i>`}).join("")}</span></span></header><p class="gd">${esc(d)}</p>
       <div class="bk-grid"><div class="bk-rows" role="list">${ps.map(p=>{const st=J("folio-stat-"+p.id);return `<div class="bk-it" role="listitem">${coverA(p,st)}<a class="bkcap" href="${p.id}/" data-cover="${p.id}" tabindex="-1" aria-hidden="true"><b>${esc(p.title)}</b><small>${esc(partOf(p)?partOf(p)+" · ":"")}${esc(p.year)}${st?` · <em>${Math.round(+st.pct||0)}%</em>`:""}</small></a></div>`}).join("")}</div></div></section>`}).join("");
   $("olbl").textContent=SORTN[sortBy];$("obtn").setAttribute("aria-label","Order the shelves: "+SORTN[sortBy]);
   $("gtabs").innerHTML=GENRES.filter(([g])=>PLAYS.some(p=>p.group===g)).map(([g])=>`<button type="button" data-g="${g}" aria-controls="shelf-${g}">${folioGenreIcon(g)}<span>${g}</span></button>`).join("");

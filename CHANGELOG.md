@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [5.4.0] — 2026-11-16
+
+### Changed
+- Library on phones: each genre is one row of covers you swipe sideways, so the whole Library fits about a screen; See all opens that genre's full grid, Show less folds it back (#179)
+
 ## [5.3.0] — 2026-11-16
 
 ### Changed
