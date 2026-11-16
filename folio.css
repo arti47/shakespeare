@@ -180,3 +180,8 @@ html body{background-image:var(--atmo);background-attachment:fixed}
 @keyframes f44deal{0%{transform:translate(var(--dx,0),40px) rotate(var(--dr,0deg)) scale(.85);opacity:0}100%{opacity:1}}
 @keyframes f44sweep{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(220%) skewX(-18deg)}}
 @media (prefers-reduced-motion:reduce){.press,.btn,.seal,.golink,.chip,nav.tabs button,nav.fnav a,nav.fnav button{transition:none}.btn:active,.golink:active,.chip:active,nav.tabs button:active,nav.fnav a:active,nav.fnav button:active,button:active>.seal,a:active>.seal,.press:active{transform:none}}
+
+/* 5.0 "Editorial" tokens (v5 redesign, used first by Revision notes): display face, tile radius and shadow, play colour hero ink */
+:root{--f-disp:var(--f-old);--r-tile:18px;--sh-tile:0 1px 0 rgba(0,0,0,.03),0 14px 30px -24px rgba(40,20,5,.45);--hero-ink:#fbf3e2;--hero-gilt:#e6c06a}
+:root[data-theme="dark"],:root[data-theme="night"]{--sh-tile:0 14px 30px -22px rgba(0,0,0,.7)}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--sh-tile:0 14px 30px -22px rgba(0,0,0,.7)}}
