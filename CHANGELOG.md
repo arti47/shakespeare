@@ -4,6 +4,11 @@ Semver. Rules in `CLAUDE.md` → Versioning. Newest first.
 
 ## [Unreleased]
 
+## [5.4.1] — 2026-11-16
+
+### Changed
+- Revision notes: must-know quotes cut to the 18 most important per play (was 54–81), spread across every act, so the ★ tier and Revise now focus on what matters most (#180)
+
 ## [5.4.0] — 2026-11-16
 
 ### Changed
