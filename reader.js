@@ -2762,9 +2762,16 @@ const rvClean=t=>{if(!rvLater(t))return t||"";const s=sumSents(t);return s.lengt
 /* At a glance facts that give the shape of the story away wait until the play is read */
 const RVSTRUCT=/turning|climax|resolution|rising|falling|ending|outcome|foreshadow|peak|plots?$|plot structure|famous lines|famous for/i;
 const RVEND=/\b(at the end|in the end|by the end|finally|dies|die|killed|kills|suicide)\b/i;
-function rvMK(){if(RVMK)return RVMK;const s=new Set();(EX.big||[]).forEach(b=>(b[4]||[]).forEach(i=>s.add(+i)));
-  Object.keys(QUOTES.themes).forEach(t=>themePlan(t).forEach(([,,qs])=>{if(qs[0])s.add(qs[0].i)}));(EX.examq||[]).forEach(q=>(q[1]||[]).forEach(i=>s.add(+i)));
-  return RVMK=new Set([...s].filter(i=>QUOTES.quotes[i]&&speech[QUOTES.quotes[i].id]))}
+/* 5.5 must-know = a short list (TY: 54-81 a play was too many): candidates scored by where they are cited (EX.big 3, EX.examq 2,
+   first quote of a themePlan stop 1), then the best two of each act, then the highest scores (at most 5 an act while others remain), to RVMKN */
+const RVMKN=18;
+function rvMK(){if(RVMK)return RVMK;const sc={},add=(i,w)=>{i=+i;const q=QUOTES.quotes[i];if(q&&speech[q.id])sc[i]=(sc[i]||0)+w};
+  (EX.big||[]).forEach(b=>(b[4]||[]).forEach(i=>add(i,3)));(EX.examq||[]).forEach(q=>(q[1]||[]).forEach(i=>add(i,2)));
+  Object.keys(QUOTES.themes).forEach(t=>themePlan(t).forEach(([,,qs])=>{if(qs[0])add(qs[0].i,1)}));
+  const ord=Object.keys(sc).map(Number).sort((a,b)=>sc[b]-sc[a]||a-b),act=i=>+((speech[QUOTES.quotes[i].id].page||"").match(/^a(\d+)/)||[0,0])[1],out=new Set(),per={};
+  ord.forEach(i=>{const a=act(i);if((per[a]||0)<2&&out.size<RVMKN){out.add(i);per[a]=(per[a]||0)+1}});
+  ord.forEach(i=>{const a=act(i);if(!out.has(i)&&(per[a]||0)<5&&out.size<RVMKN){out.add(i);per[a]=(per[a]||0)+1}});ord.forEach(i=>{if(out.size<RVMKN)out.add(i)});
+  return RVMK=new Set([...out].sort((a,b)=>a-b))}
 const rvVis=()=>QUOTES.quotes.filter(q=>speech[q.id]&&readOK(q.id));
 const rvMKv=()=>[...rvMK()].filter(i=>readOK(QUOTES.quotes[i].id));
 const rvQF=()=>{const M=rvMK(),s=RVQ.trim().toLowerCase();return rvVis().filter(q=>(RVF==="all"||RVF==="must"&&M.has(q.i)||RVF==="new"&&!prog.cards[q.i])&&(!s||(q.text+" "+speech[q.id].who+" "+(q.note||"")).toLowerCase().includes(s)))};
